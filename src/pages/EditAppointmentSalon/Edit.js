@@ -126,12 +126,13 @@ const Edit = () => {
             setTotalSubServices(resp.membershipCreditUsed)
             setSubServiceTotal(resp.membershipCreditUsed)
             setPhoneNumber(resp.customer.phoneNumber)
-            setGender(resp.customer.gender)
+            
             // setCreditUsed(resp.membershipCreditUsed)
         },(error)=>{
             console.log(`newEdit page error: ${error}`)
         })
     },[])
+    console.log("gender ki maa ki chut", gender)
     console.log({appointmentDetails})
     console.log({appointementProducts})
     console.log({appointmentServices})
@@ -146,7 +147,7 @@ const Edit = () => {
             console.log("error", error);
           }
         );
-      }, []);
+      }, [serviceSelection.subCategory]);
 
       // handle buttons for add service
       const serviceAddpress = () => {
