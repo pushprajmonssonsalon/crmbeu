@@ -2,3 +2,5 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* echo ref: refs/heads/main >.git/HEAD */
