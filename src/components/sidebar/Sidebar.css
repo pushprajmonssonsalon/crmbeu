@@ -1,0 +1,33 @@
+.sidebardiv{
+    /* width: 15%; */
+    height: 100vh;
+    
+    /* border: 1px solid ; */
+    /* background-color: blue; */
+    background-color: whitesmoke;
+    /* width: 5%; */
+}
+
+
+.menudiv{
+    width: 90%;
+    height: 50px;
+    color: white;
+    background-color: black;
+    border: 1px solid;
+    border-radius: 10px;
+    margin: auto;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+}
+
+.menudiv:hover{
+    background-color: white;
+    color: black;
+    cursor: pointer;
+}

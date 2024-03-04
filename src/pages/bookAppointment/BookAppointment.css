@@ -1,0 +1,375 @@
+.bookAppointmentdiv {
+  /* width: 65%; */
+ 
+  /* background-color: red; */
+ 
+  display: flex;
+  
+}
+
+h4 {
+  text-align: left;
+  margin-left: 20px;
+}
+
+/* SalonKartContainer.css */
+
+
+
+
+.invoice-container {
+  display: flex;
+  gap: 20px;
+}
+
+.invoice-heading {
+  color: #000000;
+  font-size: 20px;
+}
+
+.invoice-input {
+  border: 2px solid #007bff;
+  padding: 8px;
+  /* width: 224px; */
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  /* Adjust the shadow values as needed */
+}
+
+.menu {
+  margin-right: 77rem;
+}
+
+.menu li {
+  list-style-type: none;
+}
+
+.dropdown-button {
+  display: flex;
+  justify-content: space-around;
+}
+
+
+
+
+
+.dropdown-button {
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+
+
+}
+
+.dropdown-button1 {
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  width: 125px;
+  margin-left: 100px;
+}
+
+.dropdown-options {
+
+  display: flex;
+  flex-direction: column;
+  /* padding-left: 51px; */
+  position: absolute;
+
+}
+
+
+
+.dropdown-options1 {
+  display: flex;
+  flex-direction: column;
+  padding-left: 51px;
+
+}
+
+.dropdown-options button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background-color: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown-options button:hover {
+  background-color: #f1f1f1;
+}
+
+/* ServiceList.css */
+
+/* ServiceList.css */
+
+.conditional-content {
+  margin-top: 10px;
+  opacity: 0;
+  animation: fadeIn 0.5s forwards;
+  /* Add fade-in animation */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.service-checkbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  opacity: 0;
+  animation: fadeInCheckbox 0.5s forwards;
+  /* Add fade-in animation for checkboxes */
+}
+
+@keyframes fadeInCheckbox {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.service-checkbox li {
+  list-style-type: none;
+  margin-right: 8px;
+}
+
+.service-checkbox input {
+  margin-right: 4px;
+}
+
+
+
+.search-field {
+  height: 28px;
+  margin-left: 71px;
+  width: 243px;
+}
+
+.conditional-content {
+  margin-top: 2rem;
+  margin-left: -18rem;
+}
+
+.conditional-content ul li {
+  list-style-type: none;
+}
+
+.add-customer-btn {
+  background-color: black;
+  cursor: pointer;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  height: 40px;
+  margin-top: 42px;
+}
+.disabled-btn{
+  background-color: black;
+  cursor: not-allowed;
+  opacity: 0.6;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  height: 40px;
+  margin-top: 42px;
+}
+.time_pickerr{
+  margin-top: 13px;
+  border-radius: 11px;
+  border: 2px solid darkgray;
+  width: 160px;
+}
+
+
+/* .conditional-content {
+
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  width: 36rem;
+
+} */
+
+.conditional-content ul {
+  padding: 0;
+}
+
+.conditional-content ul li {
+  list-style-type: none;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #333;
+
+}
+
+.service-checkbox {
+  display: flex;
+  justify-content: space-between;
+}
+
+.container-main {
+  width: 686px;
+  height: 34rem;
+  border: 1px solid black;
+  position: absolute;
+  background-color: #DCDCDC;
+  margin-left: 296px
+}
+
+.first-row {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 35px;
+}
+
+
+
+.input-container div {
+  margin-bottom: 8px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.second-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.secondrow-firstinput {
+  margin-left: 35px;
+}
+
+
+.dropdown-container {
+
+  display: flex;
+  justify-content: space-around;
+  margin-left: 28px;
+  gap: 37px;
+  margin-top: 69px;
+  width: 600px;
+}
+
+
+.dropdown-label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.dropdown {
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+.btn-crm {
+  width: 61px;
+  height: 36px;
+  background: green;
+  color: white;
+}
+
+.rightbar-data {
+  background-color: whitesmoke;
+  width: 350px;
+  border: 1px solid whitesmoke;
+  border-radius: 20px;
+  /* margin-left: 90px; */
+  padding: 20px;
+   
+}
+.name {
+  font-size: 17px;
+  font-weight: 500;
+  color:#333;
+
+}
+
+
+.table-container {
+  margin: 20px;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+
+.styled-table th, .styled-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.styled-table th {
+  color: white;
+  background-color: black;
+}
+.invoice-container {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  align-items: center;
+}
+
+.invoice-section {
+  border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    width: 18vw;
+    margin: 10px;
+    height: 76vh;
+}
+
+
+
+
+.invoice-heading {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.invoice-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.invoice-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+/* Add more styles as needed */
+
+.timer_picker {
+  height: 50px;
+  width: 160px;
+}

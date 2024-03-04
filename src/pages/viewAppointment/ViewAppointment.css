@@ -1,0 +1,12 @@
+.editstyle{
+    width: 70px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    border: 7px ;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+}
