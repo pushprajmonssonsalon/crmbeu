@@ -9,6 +9,7 @@ import {toast} from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { IoPrintSharp } from "react-icons/io5";
 import { IoMdPersonAdd } from "react-icons/io";
+import { FaAmazonPay } from "react-icons/fa6";
 export default function Membership() {
   const [add,setAdd] = useState(true)
   const [alertVisible, setAlertVisible] = useState(false);
@@ -138,7 +139,7 @@ export default function Membership() {
         console.log("error", error);
       }
     );
-  }, []);
+  }, [memberShipdata]);
   const handlestaffChange = (e) => {
     const selectedName = e.target.value;
 
@@ -203,6 +204,8 @@ export default function Membership() {
         
       }
     );
+    setStaffData(null)
+    
     
   };
   const openModal = () => {
@@ -417,14 +420,14 @@ export default function Membership() {
             
           }}
           onChange={membershipPress}
-          value={membership}
+          value={memberShipdata[0]?.name}
         >
-          <option value={''} disabled>Select MemberShip Type</option>
+          <option value={''} >Select MemberShip Type</option>
           {membershiptype.map((item) => {
             return <option value={item?.name}> {item?.name}</option>;
           })}
         </select>
-        <select className="mx-2 outline-none border-2 border-gray-400"
+        {/* <select className="mx-2 outline-none border-2 border-gray-400"
           style={{
             height: "40px",
             width: "210px",
@@ -433,12 +436,14 @@ export default function Membership() {
           onChange={paymentPress}
           value={payment}
         >
-          <option disabled value={''}> Select paymentOptions</option>
+          <option  value={''}> Select paymentOptions</option>
           {paymentOption.map((item) => {
             return <option
             value={item.value}>{item.payment}</option>;
           })}
-        </select>
+        </select> */}
+        {/* Pay button */}
+        <FaAmazonPay className="text-5xl  text-green-700 hover:text-blue-600 cursor-pointer"/>
         <select
         className="mx-2 outline-none border-2 border-gray-400"
           style={{
@@ -449,12 +454,12 @@ export default function Membership() {
           onChange={handlestaffChange}
           value={selectStaff}
         >
-          <option value="" disabled>
+          <option value="">
             Select Staff
           </option>
           {staffData?.map((item) => (
-            <option key={item.id} value={item.value} style={{ width: "300px" }}>
-              {item.name}
+            <option key={item?.id} value={item?.value} style={{ width: "300px" }}>
+              {item?.name}
             </option>
           ))}
         </select>
@@ -471,10 +476,11 @@ export default function Membership() {
             borderRadius: "11px",
             cursor:"pointer",
           }}
+          onClick={onClickBuyNow}
         >
           <span
             style={{ color: "white", fontWeight: "500", fontSize: "15px" }}
-            onClick={onClickBuyNow}
+            // onClick={onClickBuyNow}
           >
             Buy Now
           </span>
