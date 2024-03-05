@@ -382,19 +382,25 @@ const ViewAppointment = () => {
                 >
                   <td>{item.customer.name}</td>
                   <td>{item.customer.phoneNumber}</td>
-                  <td>
+                  {/* <td>
                     {item?.services.map((itemdata) => {
-                      // setTotalAmount(item.total-item.membershipCreditUsed)
                       return (
                         <>
-                          <span>
-                            {itemdata.category} {itemdata.subCategory}{" "}
+                          <h1>
                             {itemdata.miniSubcategory}
-                          </span>
+                          </h1>
                         </>
                       );
                     })}
-                  </td>
+                  </td> */}
+                  <td>
+  {item?.services.slice(0, 3).map((itemdata, index) => (
+    <React.Fragment key={index}>
+      <h1>{itemdata.miniSubcategory}</h1>
+    </React.Fragment>
+  ))}
+  {item?.services.length > 3 && <span>...</span>}
+</td>
                   {/* <td>{item.createdAt}</td> */}
                   <td>{item.total}</td>
                   {
@@ -443,18 +449,20 @@ const ViewAppointment = () => {
                     </span>
                   </td> */}
                   <td
-                  className="flex items-center justify-between px-2 py-2 my-3 gap-x-2">
+                 >
                     {/* <Link to={`/viewAppoinment/${item._id}`}><span className="editstyle cursor-pointer hover:bg-red-500 mr-2">{"Edit"}</span></Link>
 
                     <span className="editstyle cursor-pointer  hover:bg-green-500" onClick={()=>handlePrint(item)}>
                       {"Print"}
                     </span>
                     <span className="text-black px-2 py-1 rounded-lg mx-1 bg-red-500 cursor-pointer  hover:bg-green-500" >Cancel</span> */}
+                    <div className="flex justify-between items-center">
                     {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
                     {/* <Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link> */}
                     <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
                     <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
+                    </div>
                   </td>
                 
                 </tr>
@@ -506,8 +514,8 @@ const ViewAppointment = () => {
                       return (
                         <>
                           <span>
-                            {itemdata.category} {itemdata.subCategory}{" "}
-                            {itemdata.miniSubcategory}
+                            {/* {itemdata.category} {itemdata.subCategory}{" "} */}
+                            {itemdata?.miniSubcategory},
                           </span>
                         </>
                       );
