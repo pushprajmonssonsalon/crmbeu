@@ -9,8 +9,11 @@ import {toast} from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { IoPrintSharp } from "react-icons/io5";
 import { IoMdPersonAdd } from "react-icons/io";
-import { FaAmazonPay } from "react-icons/fa6";
+// import { FaAmazonPay } from "react-icons/fa6";
+import { FaCcAmazonPay } from "react-icons/fa6";
+import OrderPaymentPopup from "../../components/popup/OrderPayment";
 export default function Membership() {
+  const [isVisible,setIsVisible] = useState(false)
   const [add,setAdd] = useState(true)
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -37,7 +40,12 @@ export default function Membership() {
   const defaultStartDate = new Date();
     const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultStartDate);
+  const [paymentMethods, setPaymentMethods] = useState([]);
   console.log("memeberShipDetails", memeberShipDetails[0]?.total);
+  const [membershipName,setMembershipName] = useState("")
+  const [modalName,setModalName] = useState("");
+  const [modalPhoneNumber,setModalPhoneNumber] = useState("")
+  const [isPayed , setIsPayed]= useState(false)
   const navigate = useNavigate();
   const paymentOption = [
     {
@@ -61,6 +69,7 @@ export default function Membership() {
       }
     );
   }, [buyNowclick]);
+  console.log("membership report",memeberShipDetails)
   // today' membership buy api
   useEffect(() => {
     const data ={
@@ -81,8 +90,8 @@ export default function Membership() {
   console.log({todayMembership})
   const handleSubmit = () => {
     const apiData = {
-      name,
-      phoneNumber,
+      name:modalName,
+      phoneNumber:modalPhoneNumber,
       email,
       gender,
     };
@@ -93,6 +102,9 @@ export default function Membership() {
       (resp) => {
         console.log("respns", resp);
         closeModal();
+        setModalName("")
+        setModalPhoneNumber("")
+        toast.success("User has been created! Please select the user")
       },
       (error) => {
         console.log("error", error);
@@ -112,7 +124,7 @@ export default function Membership() {
         console.log("error", error);
       }
     );
-  }, []);
+  }, [phoneNumber]);
   console.log({membershiptype})
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
@@ -123,9 +135,11 @@ export default function Membership() {
     
     console.log({filteredStaffData})
     setMemberShipData(filteredStaffData);
-    setmembershipPress(filteredStaffData[0].price);
+    setMembershipName(filteredStaffData[0]?.name)
+    setmembershipPress(filteredStaffData[0]?.price);
   };
   console.log({memberShipdata})
+  console.log({membership})
   const paymentPress = (e) => {
     setPayment(e.target.value);
   };
@@ -172,15 +186,17 @@ export default function Membership() {
       }
     );
   };
+  
   const onClickBuyNow = () => {
     // paymentMethod, userId, employees, name, credits, creditsLeft, expiryDate, active, price
     const data = {
-      paymentMethod: [
-        {
-          name: "Cash",
-          amount: +membership,
-        },
-      ],
+      // paymentMethod: [
+      //   {
+      //     name: "Cash",
+      //     amount: +membership,
+      //   },
+      // ],
+      paymentMethods: paymentMethods,
       userId: userId,
       employees: {
         name: filteredStaffData[0]?.name,
@@ -188,32 +204,50 @@ export default function Membership() {
       },
       membershipId: memberShipdata[0]?._id,
     };
-    postApiData(
-      "membership/buyMembership",
-      data,
-      (resp) => {
-        if (resp) {
-          // alert("MemberShip Purchased SucessFully");
-          toast.success("MemberShip Purchased SucessFully");
-          setBuyClickNow(true);
-          setAdd(!add)
-        }
-      },
-      (error) => {
-        console.log("error", error);
+    if(phoneNumber!=="" && selectStaff!=="" && memberShipdata !== null && isPayed===true && membershipName!==""){
+      postApiData(
+        "membership/buyMembership",
+        data,
         
-      }
-    );
-    setStaffData(null)
+        (resp) => {
+            if (resp) {
+              // alert("MemberShip Purchased SucessFully");
+              toast.success("MemberShip Purchased SucessFully");
+              setBuyClickNow(true);
+              setAdd(!add)
+              
+            }
+        },
+        (error) => {
+          console.log("error", error);
+          toast.error("Something went wrong, Please try again!!");
+        }
+      );
+    }else{
+      toast.error("Please provide the sutaible details!!")
+    }
     
+    setSelectStaff("")
+    setMembershipType(null)
+    setPhoneNumber("")
+    setMembershipName("")
+    setIsPayed(false)
+    // setMemberShipData(null)
     
   };
+  console.log("Payed",isPayed)
   const openModal = () => {
     setModalOpen(true);
   };
   const closeModal = () => {
     setModalOpen(false);
   };
+  const onClose=()=>{
+    setIsVisible(false)
+  }
+  const onPayed =()=>{
+    setIsPayed(true)
+  }
   const nameOnclick = (item) => {
     setPhoneNumber(item.phoneNumber);
     setUserId(item._id);
@@ -242,6 +276,15 @@ export default function Membership() {
       }
     );
   }
+  const handleUpdatePayment = (cash, card, upi) => {
+    const updatedPaymentMethods = [
+      { name: "Cash", amount: parseFloat(cash) || 0 },
+      { name: "Card", amount: parseFloat(card) || 0 },
+      { name: "Upi", amount: parseFloat(upi) || 0 },
+    ];
+    setPaymentMethods(updatedPaymentMethods);
+  };
+  console.log({paymentMethods})
 
   return (
     <Layout>
@@ -258,6 +301,18 @@ export default function Membership() {
         <span style={{ fontSize: "30px", fontWeight: "500", color: "black",fontWeight: "bold" }} >
           BUY MEMBERSHIP 
         </span>
+      </div>
+      <div className="flex justify-start items-center">
+      <h4 className="text-lg font-semibold text-black">Add a new customer </h4>
+      <button
+              // className={`mx-4 ${isMobileValid ? 'bg-black text-white font-semibold px-3 py-2 cursor-pointer' : 'bg-gray-500 text-white font-semibold px-3 py-2 cursor-not-allowed'}`}
+              className={`mx-4 bg-black text-white font-semibold px-3 py-2 cursor-pointer`}
+
+              onClick={ openModal }
+         
+            >
+              <IoMdPersonAdd />
+            </button>
       </div>
       <div
        className="flex justify-between items-center"
@@ -331,8 +386,8 @@ export default function Membership() {
                     type="text"
                     placeholder="Enter first name"
                     className="input-field"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={modalName}
+                    onChange={(e) => setModalName(e.target.value)}
                   />
                 </div>
 
@@ -342,8 +397,8 @@ export default function Membership() {
                     type="text"
                     placeholder="Enter mobile number"
                     className="input-field"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    value={modalPhoneNumber}
+                    onChange={(e) => setModalPhoneNumber(e.target.value)}
                   />
                 </div>
               </div>
@@ -403,13 +458,7 @@ export default function Membership() {
               Add Customer
             </button>
           )} */}
-          <button
-              className={`mx-4 ${isMobileValid ? 'bg-black text-white font-semibold px-3 py-2 cursor-pointer' : 'bg-gray-500 text-white font-semibold px-3 py-2 cursor-not-allowed'}`}
-              onClick={isMobileValid ? openModal : null}
-              disabled={!isMobileValid}
-            >
-              <IoMdPersonAdd />
-            </button>
+          
 
         <select
         className="mx-2 outline-none border-2 border-gray-400"
@@ -420,10 +469,11 @@ export default function Membership() {
             
           }}
           onChange={membershipPress}
-          value={memberShipdata[0]?.name}
+          // value={memberShipdata[0]?.name}
+          value={membershipName}
         >
-          <option value={''} >Select MemberShip Type</option>
-          {membershiptype.map((item) => {
+          <option value="" >Select MemberShip Type</option>
+          {membershiptype?.map((item) => {
             return <option value={item?.name}> {item?.name}</option>;
           })}
         </select>
@@ -443,7 +493,7 @@ export default function Membership() {
           })}
         </select> */}
         {/* Pay button */}
-        <FaAmazonPay className="text-5xl  text-green-700 hover:text-blue-600 cursor-pointer"/>
+        <FaCcAmazonPay className="text-5xl  text-green-700 hover:text-green-900 hover:scale-105  cursor-pointer" onClick={()=>setIsVisible(true)}/>
         <select
         className="mx-2 outline-none border-2 border-gray-400"
           style={{
@@ -463,6 +513,7 @@ export default function Membership() {
             </option>
           ))}
         </select>
+        
         <div
           style={{
             height: "32px",
@@ -570,6 +621,12 @@ export default function Membership() {
     {alertVisible && (
         <CustomAlert message={alertMessage} onClose={handleAlertClose} />
       )}
+
+      {
+        isVisible && (
+          <OrderPaymentPopup isVisible={isVisible} onClose={onClose} membership={membership} onUpdatePayment={handleUpdatePayment} onPayed={onPayed}/>
+        )
+      }
     </Layout>
   );
 }

@@ -47,7 +47,7 @@ const handleEditServiceApi=()=>{
           setBool(!bool)
           onClose();
     }
-   
+
   return (
     <div className='fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center'>
         <div className='absolute z-40 mx-3 w-1/3 my-10'>
