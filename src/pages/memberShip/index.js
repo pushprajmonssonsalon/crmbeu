@@ -46,6 +46,7 @@ export default function Membership() {
   const [modalName,setModalName] = useState("");
   const [modalPhoneNumber,setModalPhoneNumber] = useState("")
   const [isPayed , setIsPayed]= useState(false)
+  const [iddd,setIddd] = useState("")
   const navigate = useNavigate();
   const paymentOption = [
     {
@@ -155,16 +156,19 @@ export default function Membership() {
     );
   }, [memberShipdata]);
   const handlestaffChange = (e) => {
-    const selectedName = e.target.value;
+    // setIddd(e.target.value)
+    const selectedId= e.target.value;
 
     // Filter staffData based on the selected name
     const filteredStaffData = staffData.filter(
-      (item) => item.name === selectedName
+      (item) => item._id === selectedId
     );
 
     setfilteredStaffData(filteredStaffData);
     setSelectStaff(e.target.value);
   };
+  console.log('idddddddd',iddd)
+  console.log("filter staff name",filteredStaffData)
   const handleMobileChange = (event) => {
     const enteredMobileNumber = event.target.value;
     setPhoneNumber(enteredMobileNumber);
@@ -285,6 +289,7 @@ export default function Membership() {
     setPaymentMethods(updatedPaymentMethods);
   };
   console.log({paymentMethods})
+  console.log("slected staff",selectStaff)
 
   return (
     <Layout>
@@ -508,7 +513,7 @@ export default function Membership() {
             Select Staff
           </option>
           {staffData?.map((item) => (
-            <option key={item?.id} value={item?.value} style={{ width: "300px" }}>
+            <option key={item?.id} value={item?._id} style={{ width: "300px" }}>
               {item?.name}
             </option>
           ))}
