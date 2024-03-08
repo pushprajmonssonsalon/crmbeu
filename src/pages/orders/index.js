@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react'
 import Layout from '../../components/Layout'
 import { getApiCall } from '../../utils/services'
 import { FaEdit } from 'react-icons/fa'
-import { GiCancel } from 'react-icons/gi'
-import { FaCircleCheck } from "react-icons/fa6";
 import ProductOrderPopup from '../../components/popup/ProductOrderPopup'
+import { IoPrintSharp } from 'react-icons/io5'
+import { useNavigate } from 'react-router-dom'
 
 const Orders = () => {
     const [ordersList,setOrdersList] = useState([])
     const [orderProductList,setOrderProductLsit] = useState([])
     const [isVisible,setIsVisible] = useState(false)
     const [orderId,setOrderId] = useState('');
+
+    const navigate = useNavigate();
     const onClose =()=>{
       setIsVisible(false)
     }
@@ -47,6 +49,10 @@ const Orders = () => {
       
       console.log("order id",orderId)
 
+      const handleInvoice=(item)=>{
+        navigate('/orderinvoice',{state: item})
+      }
+
 
   return (
     <Layout>
@@ -80,7 +86,14 @@ const Orders = () => {
                     <td>{item.brand}</td> */}
                     <td >
                         <div className='flex gap-4'>
+                        {
+                          item.status === 1 ? 
                         <FaEdit  className={`text-black text-xl ${item.status=== 1? 'cursor-pointer' :'cursor-not-allowed'} hover:text-gray-500`} onClick={()=>handleProductsPopup(item)}/>
+                        :
+                      
+                        <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handleInvoice(item)} />
+
+                        }
                         {/* <FaCircleCheck className="text-green-600 text-xl cursor-pointer hover:text-green-800"/> */}
                         </div>
                     </td>

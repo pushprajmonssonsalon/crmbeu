@@ -2,7 +2,7 @@
     background-color: rgb(247, 241, 241);
 }
 .gradient-container {
-    background: linear-gradient(to right, #fafbfc, hsl(54, 29%, 93%));
+    background: linear-gradient(to right, #fafbfc, hsl(36, 82%, 63%));
     height:120px;
     width: 270px;
     border-radius: 10px;
@@ -13,7 +13,8 @@
     
   }
   .totalContainer{
-    font-weight: 500;
+    font-weight: bold;
+    color: black;
     font-size: 18px;
     text-align: center;
   }

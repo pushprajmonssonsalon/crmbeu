@@ -7,7 +7,7 @@ import {Toaster} from 'react-hot-toast';
 
 const Layout = ({ children }) => {
   return (
-    <div className="container">
+    <div className="min-w-full bg-[#f8f9fa]">
         <Toaster />
       <Navbar />
       <div className="content flex bg-[f7f9f9]">

@@ -38,7 +38,7 @@ export default function Membership() {
   const [todayMembership,setTodayMembership] = useState([])
   //date 
   const defaultStartDate = new Date();
-    const [startDate, setStartDate] = useState(defaultStartDate);
+  const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultStartDate);
   const [paymentMethods, setPaymentMethods] = useState([]);
   console.log("memeberShipDetails", memeberShipDetails[0]?.total);
@@ -293,7 +293,7 @@ export default function Membership() {
 
   return (
     <Layout>
-    <div className="mt-32 w-[90%] mx-auto">
+    <div className="mt-32 w-[90%] mx-auto ">
       <div
         style={{
           display: "flex",
@@ -498,7 +498,7 @@ export default function Membership() {
           })}
         </select> */}
         {/* Pay button */}
-        <FaCcAmazonPay className="text-5xl  text-green-700 hover:text-green-900 hover:scale-105  cursor-pointer" onClick={()=>setIsVisible(true)}/>
+        {/* <FaCcAmazonPay className="text-5xl  text-green-700 hover:text-green-900 hover:scale-105  cursor-pointer" onClick={()=>setIsVisible(true)}/> */}
         <select
         className="mx-2 outline-none border-2 border-gray-400"
           style={{
@@ -518,6 +518,7 @@ export default function Membership() {
             </option>
           ))}
         </select>
+        <button className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105" onClick={()=>setIsVisible(true)}>PAY</button>
         
         <div
           style={{
@@ -555,7 +556,7 @@ export default function Membership() {
             }}
           >
             <span className="totalContainer">Total Members</span>
-            <span>{memeberShipDetails[0]?.total}</span>
+            <span className="text-orange-600 font-semibold">{memeberShipDetails[0]?.total}</span>
           </div>
         </div>
         <div className="gradient-container" style={{ marginLeft: "20px" }}>
@@ -568,8 +569,8 @@ export default function Membership() {
               alignItems: "center",
             }}
           >
-            <span className="totalContainer">Total Revenue</span>
-            <span>{memeberShipDetails[0]?.totalrevenue}</span>
+            <span className="totalContainer ">Total Revenue</span>
+            <span className="text-orange-600 font-semibold">{memeberShipDetails[0]?.totalrevenue}</span>
           </div>
         </div>
       </div>

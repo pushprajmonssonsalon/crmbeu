@@ -585,7 +585,7 @@ const handleAlertClose = () => {
         <div style={{ display: "flex", justifyContent: "space-between " }}>
           <div className="flex mt-10">
         {/* CUSTOMER */}
-        <div className="flex flex-col border-2 border-gray-300 p-4 rounded-lg bg-slate-100 mr-2">
+        <div className="flex flex-col border-2 border-gray-500 p-4 rounded-lg bg-slate-100 mr-2">
         <div className="flex relative">
             <div className=" ">
               <h1 className="invoice-heading">Customer</h1>
@@ -602,7 +602,7 @@ const handleAlertClose = () => {
               />
               {
           visible && phoneNumber?.length>0 && (
-            <div style={{}} className="absolute top-[100px] h-[104px] w-[283px] overflow-auto bg-white shadow-xl rounded-lg z-10" >
+            <div style={{}} className="absolute top-[100px] h-[104px] w-[283px] overflow-auto bg-white shadow-xl rounded-lg z-1" >
             {userData.length > 0 &&
               userData?.map((item) => {
                 return (
@@ -917,7 +917,7 @@ const handleAlertClose = () => {
 
 {/* SMALL MEMBERSHIP SECTION BOX */}
 
-            <div className="border-2 border-gray-300  rounded-lg bg-slate-100 px-3 py-5 w-[279px]">
+            <div className="border-2 border-gray-500  rounded-lg bg-slate-100 px-3 py-5 w-[279px]">
               <p className=" text-lg font-bold text-black">NAME: <span className="text-md font-medium ml-1 text-green-600">{name}</span></p>
               <p className=" text-lg font-bold text-black">MEMBERSHIP: <span className="text-md font-medium ml-1 text-green-600">{(membershipitem?.activeMembership?.length>0)? "Active" : "Inactive "}</span></p>
               <p className=" text-lg font-bold text-black">TOTAL VISITS:<span className="text-md font-medium ml-1 text-green-600">0</span></p>
@@ -979,7 +979,7 @@ const handleAlertClose = () => {
       {/* PRODUCTS SECTION */}
 
 
-        <div className="border-2 border-gray-300 p-4 rounded-lg bg-slate-100 w-[85%] mx-auto mt-12">
+        <div className="border-2 border-gray-500 p-4 rounded-lg bg-slate-100 w-[85%] mx-auto mt-12">
         <h1 className="text-4xl text-center  font-bold block mb-10 mt-10 poppins-bold text-black">ADD PRODUCTS</h1>
         {
           productDataReducer.length > 0 && (
@@ -1135,7 +1135,7 @@ const handleAlertClose = () => {
         {/* BOOK APPOINTMENT */}
 
 
-        <div className="border-2 border-gray-300 p-4 rounded-lg bg-slate-100 my-12 flex flex-col">
+        <div className="border-2 border-slate-500 p-4 rounded-lg bg-[#f8f9fa] my-12 flex flex-col">
         <h1 className="text-4xl font-bold mb-10 mt-10 text-center text-black">BOOK APPOINTMENT</h1>
 
           <div className="flex justify-start gap-3 items-center">

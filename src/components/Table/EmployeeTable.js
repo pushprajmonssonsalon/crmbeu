@@ -1,7 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { GrStatusGoodSmall } from "react-icons/gr";
 
 const EmployeeTable = ({data,startIndex,endIndex}) => {
+  const [isChecked, setIsChecked] = useState(false);
+
+  const toggleSwitch = () => {
+    setIsChecked(!isChecked);
+  };
   return (
     <>
         <table className="styled-table" style={{ height: "40px" }}>
@@ -9,7 +14,6 @@ const EmployeeTable = ({data,startIndex,endIndex}) => {
                     <tr>
                     <th>NAME</th>
                     <th>MOBILE NO.</th>
-                    <th>CATEGORY</th>
                     <th>POISTION</th>
                     <th>STATUS</th>
                     </tr>
@@ -19,8 +23,8 @@ const EmployeeTable = ({data,startIndex,endIndex}) => {
                       <tr key={index}>
                       <td>{item.name}</td>
                       <td>{item.phoneNumber}</td>
-                      <td>{item.phoneNumber}</td>
                       <td>{item.role}</td>
+                      
                       <td><div className='flex justify-start items-center'><GrStatusGoodSmall className='text-green-600'/>  <span>Active</span></div></td>
                       </tr>
                     ))}

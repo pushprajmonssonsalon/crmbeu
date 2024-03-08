@@ -2,40 +2,29 @@ import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router';
 import { getApiCall } from '../../utils/services';
 import { usePDF } from "react-to-pdf";
-const MembershipInvoiceGenrator = () => {
+const OrderInvoice = () => {
     const location = useLocation();
-    const membershipData = location.state;
-    console.log({membershipData})
+    const orderList = location.state;
+    console.log("order invoice list", orderList)
     const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
-    // parlor details
-    const [parlorDetails, setParlorDetails] = useState([]);
+    const [parlorDetails,setParlorDetails] = useState([])
     const currentDate = new Date();
   const formattedDate = currentDate.toDateString();
 
-  //values 
-
-  const customerName = membershipData.customerName;
-  const customerPhoneNumber = membershipData.customerPhoneNumber
-  const employees = membershipData.employees.name
-  const membershiptype = membershipData.name
-  const price = membershipData.price
-  const GST = price-Math.ceil(price/1.18);
-  const Total = Math.ceil(price/1.18)+GST;
-
     useEffect(() => {
-      getApiCall(
-        "parlor/getParlorDetail",
-        (resp) => {
-          console.log("getparlour", resp);
-          setParlorDetails(resp);
-          parlorDetails(resp);
-        },
-        (error) => {
-          console.log("error", error);
-        }
-      );
-    }, []);
-  return (
+        getApiCall(
+          "parlor/getParlorDetail",
+          (resp) => {
+            console.log("getparlour", resp);
+            setParlorDetails(resp);
+          },
+          (error) => {
+            console.log("error", error);
+          }
+        );
+      }, []);
+      console.log("parlor detail list",parlorDetails)
+  return(
     <div class="invoice-wrapper" id="print-area" ref={targetRef}>
       <div class="invoice">
         <div class="invoice-container-value">
@@ -80,28 +69,21 @@ const MembershipInvoiceGenrator = () => {
   <thead>
     <tr >
       <th>NAME</th>
-      <th>PHONE NO.</th>
-      <th>EMPLOYEE</th>
-      <th>MEMBERSHIP NAME</th>
-      <th>Price</th>
-      <th>GST</th>
-      <th>TOTAL</th>
+      <th>SIZE</th>
+      <th>QUANTITY</th>
     </tr>
   </thead>
   <tbody>
   
-   
-  
-      <tr  className="bg-white">
-        <td>{customerName}</td>
-        <td>{customerPhoneNumber}</td>
-        <td>{employees}</td>
-        <td>{membershiptype}</td>
-        <td>{Math.ceil(price/1.18)}</td>
-        <td>{GST}</td>
-        <td>{Total}</td>
-      
-      </tr>
+   {
+    orderList?.products?.map((item)=>(
+        <tr key={item._id}>
+        <td>{item.name}</td>
+        <td>{item.size}</td>
+        <td>{item.quantity}</td>
+        </tr>
+    ))
+   }
 
   </tbody>
 </table>
@@ -115,10 +97,11 @@ const MembershipInvoiceGenrator = () => {
           <button  className="w-full text-center" onClick={() => toPDF()}>Download PDF</button>
 
 </div>
+
      
       </div>
     </div>
   )
 }
 
-export default MembershipInvoiceGenrator
+export default OrderInvoice

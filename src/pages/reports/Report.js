@@ -212,7 +212,7 @@ const Report = () => {
           APPOINTMENT STATUS
         </span>
       </div>
-      <table>
+      <table className="styled-table">
         <thead>
           <tr>
             <th>STATUS</th>
@@ -249,7 +249,7 @@ const Report = () => {
         </span>
       </div>
 
-      <table>
+      <table className="styled-table">
         <thead>
           <tr>
             <th>MEMBERSHIP REVENUE</th>
@@ -284,7 +284,7 @@ const Report = () => {
           SERVICE DISTRIBUTION
         </span>
       </div>
-      <table>
+      <table className="styled-table">
         <thead>
           <tr>
             <th>SERVICE</th>
@@ -319,7 +319,7 @@ const Report = () => {
           PRODUCT DISTRIBUTION
         </span>
       </div>
-      <table>
+      <table className="styled-table">
         <thead>
           <tr>
             <th>PRODUCT</th>

@@ -22,6 +22,7 @@ import PrivateRoute from "./components/privateRoute";
 import MembershipInvoiceGenrator from "./components/customInovice/MembershipInvoice";
 import Edit from "./pages/EditAppointmentSalon/Edit";
 import Orders from "./pages/orders";
+import OrderInvoice from "./components/customInovice/OrderInvoice";
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
               <Route path="/membership" element={<PrivateRoute Component={Membership} />} />
               <Route path="/invoicegenerator" element={<PrivateRoute Component={InvoiceGenrator} />} />
               <Route path="/membershipinvoicegenerator" element={<PrivateRoute Component={MembershipInvoiceGenrator} />} />
+              <Route path="/orderinvoice" element={<PrivateRoute Component={OrderInvoice} />} />
               <Route path="/viewAppoinment/:id" element={<PrivateRoute Component={Edit} />} />
               <Route path="/orders" element={<PrivateRoute Component={Orders} />} />
               {/* <Route path="/login" element={<Login/>} />

@@ -15,6 +15,7 @@ import ViewPopup from "../../components/popup/ViewPopup";
 import {toast} from "react-hot-toast";
 import { FaDollarSign } from "react-icons/fa6";
 import { FaAmazonPay } from "react-icons/fa6";
+import { LiaCcAmazonPay } from "react-icons/lia";
 
 const ViewAppointment = () => {
   const [tab,setTab] = useState("crm");
@@ -187,12 +188,14 @@ const ViewAppointment = () => {
     const selectedValue = e.target.value;
     setSelectedOptions([...selectedOptions, selectedValue]);
   };
-  const selectClick = (amount,membershipPoints) => {
+  const selectClick = (amount,membershipPoints,status) => {
     console.log("amountpayable",membershipPoints)
     setModalAmount(amount)
     setMemberShipPoints(membershipPoints)
     setModal(true);
-    setShowPopup(true)
+    if(status === 1){
+      setShowPopup(true)
+    } 
   };
 
   const getStatusNumber = (status) => {
@@ -416,49 +419,18 @@ const ViewAppointment = () => {
               <td className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{getStatusNumber(item.status)}</td>
 
                  
-                  <td style={{ background: "" }}>
-                    <div
-                     
-                    className="cursor-pointer hover:text-blue-700 font-bold"
-                      
-                      onClick={()=>selectClick(item.total,item.membershipCreditUsed )}
-                      // onChange={handleChangePayment}
-                      // // value={serviceSelection.subCategory}
-                      // // Use 'value' for controlled components
-                      // multiple={true}
-                    >
-                      {/* <option value="" disabled>
-                        paymentMethode
-                      </option> */}
-                     
+                  <td>
+                    <div className="cursor-pointer hover:text-blue-700 font-bold"
+                      onClick={()=>selectClick(item.total,item.membershipCreditUsed ,item.status)}>
                         <div className="flex justify-center items-center">
-                        <FaAmazonPay className="text-5xl  text-green-700 hover:text-blue-600"/>
+                        <button className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${item.status === 3 || item.status === 2 ? 'cursor-not-allowed': 'cursor-pointer'}`} >PAY</button>
                         </div>
-                        
-                    
                     </div>
                   </td>
-                  {/* <td>{item.services[0].category}</td> */}
-                  {/* Add more columns based on your data structure */}
-                  {/* <td>
-                    <span
-                      className="editstyle cursor-pointer"
-                      onClick={() => submitPress(item)}
-                    >
-                      {"Submit"}
-                    </span>
-                  </td> */}
-                  <td
-                 >
-                    {/* <Link to={`/viewAppoinment/${item._id}`}><span className="editstyle cursor-pointer hover:bg-red-500 mr-2">{"Edit"}</span></Link>
-
-                    <span className="editstyle cursor-pointer  hover:bg-green-500" onClick={()=>handlePrint(item)}>
-                      {"Print"}
-                    </span>
-                    <span className="text-black px-2 py-1 rounded-lg mx-1 bg-red-500 cursor-pointer  hover:bg-green-500" >Cancel</span> */}
+                  <td>
+                    
                     <div className="flex justify-between items-center">
                     {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
-                    {/* <Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link> */}
                     <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
                     <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
@@ -509,18 +481,13 @@ const ViewAppointment = () => {
                   <td>{item.customer.name}</td>
                   <td>{item.customer.phoneNumber}</td>
                   <td>
-                    {item?.services.map((itemdata) => {
-                      // setTotalAmount(item.total-item.membershipCreditUsed)
-                      return (
-                        <>
-                          <span>
-                            {/* {itemdata.category} {itemdata.subCategory}{" "} */}
-                            {itemdata?.miniSubcategory},
-                          </span>
-                        </>
-                      );
-                    })}
-                  </td>
+  {item?.services.slice(0, 3).map((itemdata, index) => (
+    <React.Fragment key={index}>
+      <h1>{itemdata.miniSubcategory}</h1>
+    </React.Fragment>
+  ))}
+  {item?.services.length > 3 && <span>...</span>}
+</td>
                   {/* <td>{item.createdAt}</td> */}
                   <td>{item.total}</td>
                   {
@@ -552,7 +519,9 @@ const ViewAppointment = () => {
                       </option> */}
                      
                         <div className="flex justify-center items-center">
-                        <FaAmazonPay className="text-5xl  text-green-700 hover:text-blue-600"/>
+                        {/* <LiaCcAmazonPay className="text-5xl  text-green-700 hover:text-blue-600"/> */}
+                        <button className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105">PAY</button>
+
                         </div>
                         
                     

@@ -13,9 +13,9 @@ const tableHeaders = [
   ];
 
 const ReportTable = ({data}) => (
-    <table>
-      <thead>
-        <tr>
+    <table className="styled-table">
+      <thead className="">
+        <tr >
           {tableHeaders.map((header) => (
             <th key={header}>{header}</th>
           ))}

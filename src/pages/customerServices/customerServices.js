@@ -8,6 +8,7 @@ import { BiSolidAddToQueue } from "react-icons/bi";
 import ServiceTable from "../../components/Table/ServiceTable";
 import Pagination from "../../components/pagination";
 import MyServiceTable from "../../components/Table/MyService";
+import { productAdded } from "../../redux/actions";
 
 export default function CustomerServices() {
   const [customerServiceData, setCustomerServiceData] = useState([]);
@@ -99,7 +100,7 @@ const CategoryData = [
         
       }
     );
-  }, [serviceName,categoryName,gender]);
+  }, [serviceName,categoryName,gender,tab]);
   console.log("customer ki service ------",customerServiceData)
   const clearService = ()=>{
     setServiceName("")
@@ -117,7 +118,7 @@ const CategoryData = [
     const data = {
       name: serviceName1,
       category: categoryName1,
-      gender: gender1==="Female" ? "F" : "M"
+      gender: gender1==="Female" ? "F" : gender1 === "Male" ?"M" : ""
     }
     postApiData(
       "salonService/getSalonServices",
@@ -130,7 +131,7 @@ const CategoryData = [
         console.log("errro", error);
       }
     );
-  }, [servicesAdd,showPopup,serviceName1,categoryName1,gender1]);
+  }, [servicesAdd,showPopup,serviceName1,categoryName1,gender1,tab]);
   const addclick = (item) => {
     setAddProductModal(true);
     setServiceItem(item);
@@ -151,17 +152,20 @@ const CategoryData = [
       "salonService/addServicesToSalon",
       data,
       (resp) => {
-        if (resp) {
-          setAddProductModal(false);
+        // if (resp) {
+          console.log("add service response",resp)
           toast.success("Service Added Sucessfully")
-        } else {
-          // alert("service already Added");
-          toast.error("Service already Added")
-        }
+          setAddProductModal(false);
+        // }
+        //  else {
+        //   console.log("add service response",resp)
+        //   alert("service already Added");
+        //   // toast.error("Service already Added")
+        // }
       },
       (error) => {
-        console.log("error", error);
-        toast.error("service already Added")
+        console.log("my service ki error", error);
+        toast.error("Service already Added")
         // alert("service already Added");
       }
     );

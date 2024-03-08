@@ -46,6 +46,7 @@ const postApiData = (endpoint, apidata, success, failur) => {
     })
     .catch((error) => {
       console.log("databaase", error);
+      failur(error)
     });
 };
 const getApiCall = (endpoint, success, failur) => {
