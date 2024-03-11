@@ -24,6 +24,7 @@
     "react-router-dom": "^6.21.3",
     "react-scripts": "5.0.1",
     "react-select": "^5.8.0",
+    "react-switch": "^7.0.0",
     "react-time-picker": "^6.6.0",
     "react-to-pdf": "^1.0.1",
     "react-top-loading-bar": "^2.3.1",

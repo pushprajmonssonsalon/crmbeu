@@ -1,28 +1,37 @@
-import React, { useState } from 'react';
-import './switch.css'; // Import the CSS file for styling
+import React, { useState, useEffect } from "react";
+import Switch from "react-switch";
+import { postApiData } from "../../utils/services";
 
-const SwitchButton = () => {
-  const [isChecked, setIsChecked] = useState(false);
+const SwitchExample = ({ isActive,id }) => {
+  const [checked, setChecked] = useState(isActive === "active");
 
-  const handleToggle = () => {
-    setIsChecked(!isChecked);
+  useEffect(() => {
+    setChecked(isActive === "active");
+  }, [isActive]);
+
+  const handleChange = (checked) => {
+    setChecked(checked);
+    const newStatus = checked ? "active" : "inactive";
+    const data = {
+      isActive : newStatus==="active"?true:false,
+      id : id
+    }
+    postApiData("owner/editStaff",
+    data,
+    (resp)=>{
+      console.log("edit response",resp)
+    },(error)=>{
+      console.log("error",error)
+    }
+    )
   };
 
   return (
-    <div className="toggle-switch">
-      <input
-        type="checkbox"
-        className="toggle-switch-checkbox"
-        id="toggleSwitch"
-        checked={isChecked}
-        onChange={handleToggle}
-      />
-      <label className="toggle-switch-label" htmlFor="toggleSwitch">
-        <span className="toggle-switch-inner" />
-        <span className="toggle-switch-switch" />
-      </label>
-    </div>
+    <label>
+      <span className="mr-5">{isActive}</span>
+      <Switch onChange={handleChange} checked={checked} />
+    </label>
   );
 };
 
-export default SwitchButton;
+export default SwitchExample;

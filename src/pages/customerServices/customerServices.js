@@ -99,9 +99,9 @@ const CategoryData = [
       "salonService/getAllServices",
       data,
       (resp) => {
-        console.log("hello111111--------------");
-        console.log("service-----respone", resp);
+
         setCustomerServiceData(resp);
+        setCurrentPage(1)
       },
       (error) => {
         console.log("errro", error);
@@ -109,7 +109,7 @@ const CategoryData = [
       }
     );
   }, [serviceName,categoryName,gender,tab]);
-  console.log("customer ki service ------",customerServiceData)
+
   const clearService = ()=>{
     setServiceName("")
     setGender("")
@@ -134,6 +134,7 @@ const CategoryData = [
       (resp) => {
         console.log("myservice----------respone", resp);
         setMyserviceData(resp);
+        setCurrentPage1(1)
       },
       (error) => {
         console.log("errro", error);
