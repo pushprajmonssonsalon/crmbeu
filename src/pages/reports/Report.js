@@ -23,6 +23,7 @@ const Report = () => {
   const [staffDistribution, setStaffDistribution] = useState([]);
   const [dataResponse,setDataResponse]=useState([]);
   const [categoryWiseDistrubution,setCategoryWiseDistrubution] = useState([])
+  const [productDistribution,setProductDistribution] = useState([]);
   console.log("dataResponse",dataResponse)
   const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
   const tableHeaders = [
@@ -51,6 +52,7 @@ const Report = () => {
         setStaffDistribution(resp.staffRevenueDistribution);
         setCategoryWiseDistrubution(resp.staffCategoryWiseRevenue)
         setMemberShipSale(resp.membershipSale);
+        setProductDistribution(resp.productRevenueDistribution)
         setDataResponse(resp)
       },
       (error) => {
@@ -75,7 +77,7 @@ const Report = () => {
         setAppointmentStatus(resp.appointmentStatus);
         setServiceDistribution(resp.serviceCategoryWiseRevenue);
         setStaffDistribution(resp.staffRevenueDistribution);
-
+        setProductDistribution(resp.productRevenueDistribution)
         setMemberShipSale(resp.membershipSale);
         setDataResponse(resp)
       },
@@ -327,12 +329,12 @@ const Report = () => {
           </tr>
         </thead>
         <tbody style={{ height: "80px" }}>
-          {staffDistribution.map((item, index) => {
+          {productDistribution?.map((item, index) => {
             return (
               <>
                 <tr>
-                  <td>{item.name}</td>
-                  <td>{item.totalRevenue}</td>
+                  <td>{item?.name}</td>
+                  <td>{item?.totalRevenue}</td>
                 </tr>
               </>
             );

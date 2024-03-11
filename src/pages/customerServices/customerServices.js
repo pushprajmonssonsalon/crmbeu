@@ -15,8 +15,8 @@ export default function CustomerServices() {
   const [addproductModal, setAddProductModal] = useState(false);
   const [serviceItem, setServiceItem] = useState([]);
   console.log("serviceItem", serviceItem);
-  const [price, setPrice] = useState(0);
-  const [mrp, setMrp] = useState(0);
+  const [price, setPrice] = useState(null);
+  const [mrp, setMrp] = useState(null);
   const [servicesAdd, setServices] = useState("allservices");
   const [myServiceData, setMyserviceData] = useState([]);
   const [tab,setTab] = useState(1);
@@ -64,9 +64,17 @@ const CategoryData = [
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = currentPage * itemsPerPage;
 
+  const [currentPage1,setCurrentPage1] = useState(1);
+  const itemsPerPage1 = 10;
+  const startIndex1=(currentPage1 - 1)* itemsPerPage1;
+  const endIndex1 = currentPage1 * itemsPerPage1;
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+  const handlePageChange1 = (page)=> {
+    setCurrentPage1(page)
+  }
   console.log({myServiceData})
   const customStyles = {
     content: {
@@ -194,14 +202,14 @@ const CategoryData = [
     <div className="mt-32 w-[90%] mx-auto">
       <ul className="nav-list">
       <li className ='mx-6 font-medium inter text-lg text-slate-100 cursor-pointer'>
-                    <button className='  py-2 px-4 rounded-lg text-white flex justify-center items-center bg-black '>
+                    <button className='  py-2 px-4 rounded-lg text-white flex justify-center items-center bg-black ' onClick={allservice}>
                
-                <h3 className='font-semibold text-lg poppins ' onClick={allservice} style={{color:tab==1 ?"white":"gray",}} >All Service</h3>
+                <h3 className='font-semibold text-lg poppins '  style={{color:tab==1 ?"white":"gray",}} >All Service</h3>
                 </button></li>
                 <li className ='mx-6 font-medium inter text-lg text-slate-100 cursor-pointer'>
-                    <button className='py-2 px-4 rounded-lg text-white flex justify-center items-center bg-black '>
+                    <button className='py-2 px-4 rounded-lg text-white flex justify-center items-center bg-black ' onClick={myService}>
                
-                <h3 className='font-semibold text-lg poppins ' onClick={myService} style={{color:tab==2 ?"white":"gray",}}>My Service</h3>
+                <h3 className='font-semibold text-lg poppins '  style={{color:tab==2 ?"white":"gray",}}>My Service</h3>
                 </button></li>
         {/* <li className="nav-item" onClick={allservice}>
           All Services
@@ -328,12 +336,12 @@ const CategoryData = [
             </select>
               <button className="px-3 py-2 bg-black roounded-lg text-white font-semibold" onClick={clearMyService}>clear</button>
               </div>
-            <MyServiceTable data={myServiceData} startIndex={startIndex} endIndex={endIndex} handleEditService={handleEditService} />
+            <MyServiceTable data={myServiceData} startIndex={startIndex1} endIndex={endIndex1} handleEditService={handleEditService} />
             <Pagination 
               totalItems={myServiceData?.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={handlePageChange} />
+              itemsPerPage={itemsPerPage1}
+              currentPage={currentPage1}
+              onPageChange={handlePageChange1} />
           </>
         )}
       {/* </div>
@@ -361,7 +369,7 @@ const CategoryData = [
               <input
                 value={serviceItem?.category}
                 placeholder="Category"
-                className="w-[250px] self-center"
+                className="w-[280px] self-center"
               />
         </div>
         {/* Sub Category */}
@@ -370,27 +378,27 @@ const CategoryData = [
               <input
                 value={serviceItem?.subCategory}
                 placeholder="Sub Category"
-                className="w-[250px] self-center"
-              />
-        </div>
-        {/* Price  */}
-        <div className="flex justify-between items-center ">
-        <label className="text-lg font-semibold ">Price :</label>
-              <input
-                value={price}
-                placeholder="Price"
-                className="w-[250px] self-center"
-                onChange={onchnagPrice}
+                className="w-[280px] self-center"
               />
         </div>
         {/* MRP */}
         <div className="flex justify-between items-center ">
         <label className="text-lg font-semibold ">MRP :</label>
-              <input
+              <input type="number"
                 value={mrp}
-                placeholder="MRP"
-                className="w-[250px] self-center"
+                placeholder="MRP(should be greater than price):"
+                className="w-[280px] self-center"
                 onChange={mrpOnChange}
+              />
+        </div>
+        {/* Price  */}
+        <div className="flex justify-between items-center ">
+        <label className="text-lg font-semibold ">Price :</label>
+              <input type="number"
+                value={price}
+                placeholder="Price"
+                className="w-[280px] self-center"
+                onChange={onchnagPrice}
               />
         </div>
 

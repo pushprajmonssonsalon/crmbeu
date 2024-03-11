@@ -364,7 +364,7 @@ const ViewAppointment = () => {
                 <th>Services</th>
                 {/* <th>Last Visit</th> */}
                 <th>Amount</th>
-                <th>Credit<br></br>Used</th>
+                <th>Membership<br></br>Credit Used</th>
                 <th>Status</th>
                 {/* <th>Status</th> */}
                 <th>Payment Mode</th>

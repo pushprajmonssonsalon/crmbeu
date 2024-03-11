@@ -23,11 +23,11 @@ const ServiceTable = ({data,startIndex,endIndex,addclick}) => {
                   <td>{item.subCategory}</td>
                   <td>{item.gender}</td>
                   <button
-                    className="flex justify-center items-center bg-transparent mx-3 hover:bg-transparent hover:text-red-600" 
+                    className="flex justify-center items-center bg-transparent mx-3 hover:bg-transparent hover:text-red-600 " 
                     onClick={() => addclick(item)}
                   >
                     
-                      <BiSolidAddToQueue className="text-xl font-bold text-black cursor-pointer hover:text-red-600" />
+                      <BiSolidAddToQueue className="text-xl font-bold text-black cursor-pointer hover:text-red-600 " />
                    
                   </button>
                       </tr>
