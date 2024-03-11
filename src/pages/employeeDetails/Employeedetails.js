@@ -41,6 +41,9 @@ const Employeedetails = () => {
   const [getstaffData, setStaffData] = useState([]);
   const [staffState,setStateStafff]=useState(false)
   const [staffstatus,setStaffStaus]=useState(false)
+  // const [checked, setChecked] = useState(isActive === "active");
+  const [isBool,setIsBool] = useState(false)
+
 
   // pagination 
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,7 +67,7 @@ const Employeedetails = () => {
         console.log("error", error);
       }
     );
-  }, [staffstatus]);
+  }, [staffstatus,isBool]);
 
   const openModal = () => {
     setismodalOpen(true);
@@ -183,7 +186,7 @@ const Employeedetails = () => {
             </table>
           {/* } */} 
         {/* </div> */}
-        <EmployeeTable data={getstaffData} startIndex={startIndex} endIndex={endIndex}/>
+        <EmployeeTable data={getstaffData} startIndex={startIndex} endIndex={endIndex} isBool={isBool} setIsBool={setIsBool}/>
         <Pagination 
               totalItems={getstaffData.length}
               itemsPerPage={itemsPerPage}

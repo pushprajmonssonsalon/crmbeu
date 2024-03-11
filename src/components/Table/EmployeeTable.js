@@ -3,7 +3,7 @@ import { GrStatusGoodSmall } from "react-icons/gr";
 
 import SwitchExample from '../switch';
 
-const EmployeeTable = ({data,startIndex,endIndex}) => {
+const EmployeeTable = ({data,startIndex,endIndex,isBool,setIsBool}) => {
   const [isChecked, setIsChecked] = useState(false);
 
   const toggleSwitch = () => {
@@ -18,7 +18,7 @@ const EmployeeTable = ({data,startIndex,endIndex}) => {
                     <th>NAME</th>
                     <th>MOBILE NO.</th>
                     <th>POISTION</th>
-                    <th>STATUS</th>
+                    <th>ACTIVE</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -30,7 +30,7 @@ const EmployeeTable = ({data,startIndex,endIndex}) => {
                       
                       {/* <td><div className='flex justify-start items-center'><GrStatusGoodSmall className='text-green-600'/>  <span>{item.isActive ? "active" : "inactive"}</span></div></td> */}
                       <td>
-                        <SwitchExample isActive={item.isActive?"active":"inactive"} id={item._id}/>
+                        <SwitchExample isActive={item.isActive?"active":"inactive"} id={item._id} isBool={isBool}  setIsBool={setIsBool}/>
                       </td>
                       </tr>
                     ))}

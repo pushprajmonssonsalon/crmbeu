@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Switch from "react-switch";
 import { postApiData } from "../../utils/services";
 
-const SwitchExample = ({ isActive,id }) => {
+const SwitchExample = ({ isActive,id,isBool,setIsBool}) => {
   const [checked, setChecked] = useState(isActive === "active");
 
   useEffect(() => {
@@ -20,6 +20,7 @@ const SwitchExample = ({ isActive,id }) => {
     data,
     (resp)=>{
       console.log("edit response",resp)
+      setIsBool(!isBool)
     },(error)=>{
       console.log("error",error)
     }
@@ -28,7 +29,7 @@ const SwitchExample = ({ isActive,id }) => {
 
   return (
     <label>
-      <span className="mr-5">{isActive}</span>
+      {/* <span className="mr-5">{isActive=="active"?"active":"inactive"}</span> */}
       <Switch onChange={handleChange} checked={checked} />
     </label>
   );
