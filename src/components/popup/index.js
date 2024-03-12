@@ -8,23 +8,31 @@ const Popup= ({isVisible,onClose,id}) => {
     const [bool,setBool] = useState(false);
     console.log({price,mrp})
     useEffect(() => {
-        getApiCall(
+      const data = {
+      name: '',
+      category: '',
+      gender: ""
+    }
+        postApiData(
           "salonService/getSalonServices",
+          data,
           (resp) => {
             console.log("servicerespone", resp);
-            setServiceData(resp.services);
+            setServiceData(resp);
           },
           (error) => {
               console.log("errro", error);
           }
           );
       }, [bool]);
-      console.log({serviceData})
+      console.log("popup ki service",serviceData)
     if(!isVisible) return null;
     // console.log({id})
-    var popupService = serviceData?.filter((item)=>item.serviceId==id);
+    var popupService = serviceData?.filter((item)=>item?.services?.serviceId==id);
+    
     console.log("popservice",popupService[0])
 const handleEditServiceApi=()=>{
+  
     const data = {
         uniqueCode: popupService[0]?.uniqueCode,
             price: +price,
@@ -62,15 +70,15 @@ const handleEditServiceApi=()=>{
                 {popupService?.map((item,index)=>(
                      <div className="grid w-full items-center">
                      <label htmlFor="name"><span className='font-bold text-md'>Name :</span></label>
-                     <input type="text" placeholder='name' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.name} disabled/>
+                     <input type="text" placeholder='name' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.services?.name} disabled/>
                      <label htmlFor="name"><span className='font-bold text-md'>Category :</span></label>
-                     <input type="text" placeholder='Category' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.category} disabled/>
+                     <input type="text" placeholder='Category' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.services?.category} disabled/>
                      <label htmlFor="email"><span className='font-bold text-md'>Subcategory :</span></label>
-                     <input type="email" placeholder='email' id="email" className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.subCategory} disabled/>
-                     <label htmlFor="number"><span className='font-bold text-md'>Mrp :</span></label>
-                     <input placeholder='MRP' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' defaultValue={item?.mrp} onChange={(e)=>setMrp(e.target.value)} />
+                     <input type="email" placeholder='email' id="email" className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.services?.subCategory} disabled/>
+                     <label htmlFor="number"><span className='font-bold text-md'>Mrp :</span></label>  
+                     <input placeholder='MRP' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' defaultValue={item?.services?.mrp} onChange={(e)=>setMrp(e.target.value)} />
                      <label htmlFor="number"><span className='font-bold text-md'>Price :</span></label>
-                     <input placeholder='Price' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' defaultValue={item?.price} onChange={(e)=>setPrice(e.target.value)}/>
+                     <input placeholder='Price' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' defaultValue={item?.services?.price} onChange={(e)=>setPrice(e.target.value)}/>
                  </div>
                 ))}
                 <button className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `} onClick={handleEditServiceApi}>Submit</button>
