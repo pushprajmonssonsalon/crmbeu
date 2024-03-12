@@ -13,7 +13,7 @@ const CustomerDetails = () => {
         postApiData('user/getCustomerDetails',
         data,
         (res)=>{
-            // console.log("customer ka resp", res)
+            console.log("customer ka resp", res)
             setClientsAppointment(res)
         },
         (err)=>{
