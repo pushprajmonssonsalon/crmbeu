@@ -30,13 +30,13 @@ const Popup= ({isVisible,onClose,id}) => {
     // console.log({id})
     var popupService = serviceData?.filter((item)=>item?.services?.serviceId==id);
     
-    console.log("popservice",popupService[0])
+    console.log("popservice",popupService[0].services.price)
 const handleEditServiceApi=()=>{
   
     const data = {
-        uniqueCode: popupService[0]?.uniqueCode,
-            price: +price,
-            mrp: +mrp,
+        uniqueCode: popupService[0]?.services?.uniqueCode,
+            price: +price==0? popupService[0].services.price : +price,
+            mrp: +mrp==0 ? popupService[0].services.mrp : +mrp ,
           };
           postApiData(
             "salonService/editServiceInParlor",
