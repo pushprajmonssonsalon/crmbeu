@@ -109,8 +109,16 @@ console.log("getSalonProductslength",getSalonProducts)
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = currentPage * itemsPerPage;
 
+  const [currentPage1, setCurrentPage1] = useState(1);
+  const itemsPerPage1 = 10;
+  const startIndex1 = (currentPage1 - 1) * itemsPerPage1;
+  const endIndex1 = currentPage1* itemsPerPage1;
+
   const handlePageChange = (page) => {
     setCurrentPage(page);
+  };
+  const handlePageChange1 = (page) => {
+    setCurrentPage1(page);
   };
   const showopen = () => {
     setOpen(!open);
@@ -218,6 +226,7 @@ console.log("getSalonProductslength",getSalonProducts)
         console.log("getMyProduct----------------------------------", resp);
         // setMyProductList(resp.products);
         setNewMyProducts(resp)
+        setCurrentPage(1)
       },
       (error) => {
         console.log("error");
@@ -254,6 +263,7 @@ console.log("getSalonProductslength",getSalonProducts)
       (resp) => {
         console.log("getallproducts", resp);
         setgetSalonProducts(resp.products);
+        setCurrentPage1(1)
       },
       (error) => {
         console.log("error", error);
@@ -279,6 +289,7 @@ console.log("getSalonProductslength",getSalonProducts)
       (resp) => {
         console.log("getsalonproduct", resp);
         setMyProductList(resp.products);
+        setCurrentPage(1)
       },
       (error) => {
         console.log("error");
@@ -1083,12 +1094,12 @@ console.log("getSalonProductslength",getSalonProducts)
               </tbody>
             </table>
            </div> */}
-           <Table header={allProductHeading} data={getSalonProducts} startIndex={startIndex} endIndex={endIndex} addClick={addclick} orderClick={orderClick} getSalonProductsPress={getSalonProductsPress}/>
+           <Table header={allProductHeading} data={getSalonProducts} startIndex={startIndex1} endIndex={endIndex} addClick={addclick} orderClick={orderClick} getSalonProductsPress={getSalonProductsPress}/>
            <Pagination 
               totalItems={getSalonProducts.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={handlePageChange} />
+              itemsPerPage={itemsPerPage1}
+              currentPage={currentPage1}
+              onPageChange={handlePageChange1} />
           </div>
         )}
         {addproductModal && (

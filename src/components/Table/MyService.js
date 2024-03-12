@@ -36,7 +36,7 @@ const MyServiceTable = ({data,startIndex,endIndex,handleEditService}) => {
                         
                         <button
                     className="flex justify-center items-center bg-transparent mx-3 hover:bg-transparent hover:text-red-600" 
-                    onClick={()=>handleEditService(item.serviceId)}
+                    onClick={()=>handleEditService(item.services.serviceId)}
                   >
                     
                       <BiSolidAddToQueue className="text-xl font-bold text-black cursor-pointer hover:text-red-600" />

@@ -273,7 +273,8 @@ const BookAppointment = () => {
       // alert("All service added")
       toast.success("All Service Added!!")
     } else {
-      alert("all feilds should be filled");
+      // alert("all feilds should be filled");
+      toast.error("All fields should be filled!")
     }
   };
   const handldeBookAppointment = () => {
@@ -311,7 +312,8 @@ const BookAppointment = () => {
         },
         (error) => {
           console.log("error", error);
-          alert(" Booking Status Failed");
+          // alert(" Booking Status Failed");
+          toast.error("Booking status failed!")
         }
       );
     }
@@ -461,7 +463,8 @@ console.log({membershipitem})
       },
       (error) => {
         console.log("error", error);
-        alert("Select Correct Options");
+        // alert("Select Correct Options");
+        toast.error("Select Correct Options !")
       }
     );
   };

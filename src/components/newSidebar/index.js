@@ -9,6 +9,7 @@ import { LuView } from "react-icons/lu";
 import {FaTableList} from 'react-icons/fa6'
 import { RiShoppingCartFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
+import { IoPeopleSharp } from "react-icons/io5";
 
 
 const VerticalSidebar = () => {
@@ -21,6 +22,7 @@ const VerticalSidebar = () => {
         { name: "Services", link: `/customerservices`, icon: MdRememberMe, num: 6  },
         { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7  },
         { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8  },
+        { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9  },
     ] ;
 
     const [open, setOpen] = useState(true);
