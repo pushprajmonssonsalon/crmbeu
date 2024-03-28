@@ -614,10 +614,13 @@ export default function Membership() {
         </div>
 
     {/* MEMBERSHIP TABLE */}
+    <div className="mb-10">
+
     {todayMembership.length >0  && (
       <CustomizedTables headings={headings} data={todayMembership} handlePrint={handlePrint}/>
         
        )}
+    </div>
     {alertVisible && (
         <CustomAlert message={alertMessage} onClose={handleAlertClose} />
       )}

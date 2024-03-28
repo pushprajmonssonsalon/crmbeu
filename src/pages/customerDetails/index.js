@@ -2,9 +2,14 @@ import React, { useState } from 'react'
 import Layout from '../../components/Layout'
 import { postApiData } from '../../utils/services'
 
+import CustomizedCustomerTables from '../../components/MaterialTable/customerDetailTable';
+
+
+
 const CustomerDetails = () => {
     const [phoneNumber,setPhoneNumber] = useState("");
     const [clientsAppointment,setClientsAppointment] = useState([])
+    const headings = ["Name","Phone Number","Date","Services","Products","Total Price","Status"]
     const handleSearchCustomerdetails = ()=>{
         const data = {
             phoneNumber: phoneNumber
@@ -33,7 +38,7 @@ const CustomerDetails = () => {
       }
   return (
     <Layout>
-    <div className='mt-32 w-[90%] mx-auto'>
+    <div className='mt-32 w-[90%] mx-auto mb-10'>
         <h1 className='text-2xl font-bold text-center text-green-600'>Search Customer Details</h1>    
 
 
@@ -43,8 +48,11 @@ const CustomerDetails = () => {
         <button className='bg-black text-white font-semibold px-4 py-2 rounded-xl hover:bg-gray-700' onClick={handleSearchCustomerdetails}>Search</button>
         </div>
 
+    <CustomizedCustomerTables headings={headings} data={clientsAppointment} />
+
+
        
-        <div className="table-container w-[90%] overflow-x-scroll">
+        {/* <div className="table-container w-[90%] overflow-x-scroll">
 
        
 <table className="styled-table">
@@ -92,7 +100,7 @@ const CustomerDetails = () => {
   </tbody>
 </table>
 
-</div>
+</div> */}
   
 
     </div>

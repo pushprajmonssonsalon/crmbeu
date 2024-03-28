@@ -71,10 +71,15 @@ const BookAppointment = () => {
   const [searchProduct, setsearchProduct] = useState("");
   const [showSearchProduct, setShowSearchProduct] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const x = useSelector((store) => store.serviceAddReducer.serviceData);
+  const [services, setServices] = useState(x);
   const navigate=useNavigate()
   const maleDatas = maleData;
   console.log({maleDatas})
   console.log({showSearchProduct})
+  useEffect(() => {
+    setServices(x);
+  }, [x]);
   const handleGenderChange = (selectedGender) => {
     setGender(selectedGender);
     setServiceSelection({
@@ -128,9 +133,9 @@ const BookAppointment = () => {
   const productDataReducer=useSelector((store)=>store.ProductAddReducer.ProductData)
   console.log("productDatacoming",productDataReducer)
 
-  const x = useSelector((store) => store.serviceAddReducer.serviceData);
+  
   console.log({x})
-  const subtotalPrice = x.reduce((accumulator, currentItem) => {
+  const subtotalPrice = services.reduce((accumulator, currentItem) => {
     return accumulator + Number(currentItem.price);
   }, 0);
   const productTotalPrice= productDataReducer.reduce((accumulator, { price, quantity }) => {
@@ -154,6 +159,8 @@ const BookAppointment = () => {
     price: 0,
     staffId: "",
   });
+  
+
   console.log("serviceSelection", serviceSelection.subCategory);
 
   const isServiceSelectionValid = () => {
@@ -280,7 +287,7 @@ const BookAppointment = () => {
   const handldeBookAppointment = () => {
     console.log("book Appointment");
     const data = {
-      services: x,
+      services: services,
       customer: {
         name: name,
         phoneNumber: phoneNumber,
@@ -523,6 +530,19 @@ const formatDate = (date) => {
 const handleAlertClose = () => {
   setAlertVisible(false);
 };
+
+const handlePriceChange = (index, newPrice) => {
+  const updatedServices = services.map((item, i) =>
+    i === index ? { ...item, price: +newPrice } : item
+  );
+  setServices(updatedServices);
+};
+// const handleChangePrice = (index) => {
+//   dispatch(serviceAdded(services));
+// };
+console.log("ye randi ka baccha store",services)
+
+
 
 
   return (
@@ -916,8 +936,13 @@ const handleAlertClose = () => {
           ))
         }
         </td>
-        <td>{item?.price}</td>
-        <td><MdDeleteOutline onClick={() => deleteService(index)} className="text-xl text-red-600 font-bold cursor-pointer"/></td>
+        {/* <td>{item?.price}</td> */}
+       <td>
+          <input type="number" defaultValue={item?.price} className=""  onChange={(e) => handlePriceChange(index, e.target.value)}/>
+       </td>
+        <td>
+            <MdDeleteOutline onClick={() => deleteService(index)} className="text-xl text-red-600 font-bold cursor-pointer"/>
+        </td>
       </tr>
     ))}
   </tbody>
@@ -1204,7 +1229,9 @@ const handleAlertClose = () => {
           <button className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black" onClick={handldeBookAppointment}>Book Appointment</button>
 
         </div>
-        <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl mb-10 flex  items-center">
+        {
+           phoneNumber && (
+            <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl mb-10 flex  items-center">
 
         <div className="w-1/2 ">
               <p className=" text-lg font-bold text-black">NAME: <span className="text-md font-medium ml-1 text-green-800">{name}</span></p>
@@ -1237,6 +1264,9 @@ const handleAlertClose = () => {
               </p>
         </div>
             </div>
+          )
+        }
+        
 
         </div>  
           

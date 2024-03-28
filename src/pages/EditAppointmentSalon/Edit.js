@@ -419,6 +419,7 @@ console.log()
       }
     );
   },[memberShipStatus])
+  console.log("add ki maa ki chut", addedAppointmentDetails)
   return (
     <Layout>
         <div className='my-40'>
