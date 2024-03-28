@@ -3,7 +3,7 @@ import { BiSolidAddToQueue } from 'react-icons/bi'
 import { MdOutlineAddShoppingCart } from "react-icons/md";
 
 
-const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProductsPress}) => {
+const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProductsPress,handleInventryOpen}) => {
 
 
   return (
@@ -48,7 +48,7 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
                             fontWeight: "500",
                           }}
                         >
-                         <BiSolidAddToQueue className="text-xl font-bold text-black"/>
+                         <BiSolidAddToQueue className="text-xl font-bold text-black" onClick={()=>handleInventryOpen(item._id)}/>
                         </p>
                       </div>
                     </td>

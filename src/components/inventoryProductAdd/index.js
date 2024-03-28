@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
 import { postApiData } from "../../utils/services";
+import toast from "react-hot-toast";
 
 export default function InventoryProductAddModal({
   addproductModal,
@@ -49,10 +50,12 @@ export default function InventoryProductAddModal({
       data,
       (resp) => {
         console.log("productDetails", resp);
-        alert("product Added Succesfully")
+        // alert("product Added Succesfully")
+        toast.success("Product Added Successfully!!")
       },
       (error) => {
         console.log("error", error);
+        toast.error("Something Went Wrog!!")
       }
     );
   };

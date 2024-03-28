@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router';
 import { getApiCall } from '../../utils/services';
 import { usePDF } from "react-to-pdf";
+import CustomizedTables from '../MaterialTable';
+import CustomizedInvoiceTables from '../MaterialTable/invoiceTable';
 const MembershipInvoiceGenrator = () => {
     const location = useLocation();
     const membershipData = location.state;
@@ -22,6 +24,9 @@ const MembershipInvoiceGenrator = () => {
   const GST = price-Math.ceil(price/1.18);
   const Total = Math.ceil(price/1.18)+GST;
 
+  const data = [customerName,customerPhoneNumber,employees,membershiptype,price,GST,Total]
+  console.log("dataaaaaaa------------",data)
+
     useEffect(() => {
       getApiCall(
         "parlor/getParlorDetail",
@@ -35,8 +40,10 @@ const MembershipInvoiceGenrator = () => {
         }
       );
     }, []);
+
+    const headings = ["NAME","PHONE NO.","EMPLOYEE","MEMBERSHIP NAME","PRICE","GST","TOTAL"]
   return (
-    <div class="invoice-wrapper" id="print-area" ref={targetRef}>
+    <div class="my-20 py-20" id="print-area" ref={targetRef}>
       <div class="invoice">
         <div class="invoice-container-value">
           <div class="invoice-head">
@@ -73,7 +80,7 @@ const MembershipInvoiceGenrator = () => {
           </div>
           {/* TABLE */}
           
-        <div className="table-container w-[90%] overflow-x-scroll">
+        <div className="table-container">
 
        
 <table className="styled-table">
@@ -115,6 +122,8 @@ const MembershipInvoiceGenrator = () => {
           <button  className="w-full text-center" onClick={() => toPDF()}>Download PDF</button>
 
 </div>
+
+      {/* <CustomizedInvoiceTables headings={headings} data={data}/> */}
      
       </div>
     </div>

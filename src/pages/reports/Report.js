@@ -96,7 +96,7 @@ const Report = () => {
  
  </div>
       <div className="reportContainer">
-        <span className="text-3xl font-bold ">REPORTS</span>
+        <span className="text-3xl font-bold text-green-600 ">REPORTS</span>
       </div>
       <div
         style={{

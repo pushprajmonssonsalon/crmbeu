@@ -41,7 +41,7 @@ const VerticalSidebar = () => {
     
 
     return (
-        <section className={`bg-[#191919]  flex gap-6 min-h-screen border-r "border-gray-300" `}>
+        <section className={`bg-[#191919]  flex gap-6 min-h-screen border-r "border-gray-300 overflow-y-scroll" `}>
             <div
                 className={` min-h-screen  ${open ? "w-64" : "w-16"}  duration-500  px-4`}>
                 <div className="py-3 flex justify-end">

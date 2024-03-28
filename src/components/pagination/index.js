@@ -4,8 +4,11 @@ import { FcNext } from "react-icons/fc";
 
 const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
-  
+    let startPage = Math.max(1, currentPage - 4);
+    let endPage = Math.min(totalPages, startPage + 9);
+    startPage = Math.max(1, endPage - 9);
+    const pages = Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
+
     const handlePageChange = (page) => {
         if (page < 1) {
             onPageChange(totalPages);

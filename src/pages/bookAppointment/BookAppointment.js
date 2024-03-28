@@ -528,9 +528,17 @@ const handleAlertClose = () => {
   return (
     <Layout>
       <div className="md:mt-32 mt-20 w-[90%] mx-auto ">
+
+      <div className="flex justify-center items-center gap-5">
+        <h1 className="text-green-600 font-semibold text-lg">Select Gender : </h1>
+        <input type="radio" name="gender" value="Male" checked={gender === "M"} onChange={()=>handleGenderChange("M")} className="mt-3"/>
+        <h1 className="text-black font-semibold text-lg">MALE</h1>
+        <input type="radio" name="gender" value="Female" checked={gender === "F"} onChange={()=>handleGenderChange("F")} className="mt-3"/>
+        <h1 className="text-black font-semibold text-lg">FEMALE </h1>
+      </div>
     
      
-        <div className=""
+        {/* <div className=""
           style={{
             display: "flex",
             alignItems: "center",
@@ -538,6 +546,7 @@ const handleAlertClose = () => {
           }}
 
         >
+        <h1 className="text-green-600 text-lg font-semibold">SELECT GENDER:</h1>
           <label style={{ width: "70px" }}>
             <input
               type="radio"
@@ -581,16 +590,16 @@ const handleAlertClose = () => {
           {/* <div>
         Selected Gender: {gender && <strong>{gender}</strong>}
       </div> */}
-        </div>
+        {/* </div> */}
 
 
 
-        <div style={{ display: "flex", justifyContent: "space-between " }}>
-          <div className="flex mt-10">
+        <div className="">
+          <div className="flex mt-10 justify-between items-center flex-wrap">
         {/* CUSTOMER */}
-        <div className="flex flex-col border-2 border-gray-500 p-4 rounded-lg bg-slate-100 mr-2">
-        <div className="flex relative">
-            <div className=" ">
+        <div className="flex flex-col  p-4 rounded-lg bg-[#fffffe] mr-2 shadow-xl w-full">
+        <div className="flex justify-between items-center">
+            <div className="relative ">
               <h1 className="invoice-heading">Customer</h1>
               <input
                 type="text"
@@ -605,7 +614,7 @@ const handleAlertClose = () => {
               />
               {
           visible && phoneNumber?.length>0 && (
-            <div style={{}} className="absolute top-[100px] h-[104px] w-[283px] overflow-auto bg-white shadow-xl rounded-lg z-1" >
+            <div style={{}} className="absolute top-[100px] h-[104px] w-[283px] overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-1" >
             {userData.length > 0 &&
               userData?.map((item) => {
                 return (
@@ -646,8 +655,9 @@ const handleAlertClose = () => {
               style={{
                 content: {
                   width: "50%",
-                  height: "90%",
+                  height: "70%",
                   margin: "auto",
+                  marginTop: "70px",
                   border: "1px solid #ccc",
                   borderRadius: "8px",
                   boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
@@ -666,7 +676,7 @@ const handleAlertClose = () => {
                     <div>First Name</div>
                     <input
                       type="text"
-                      placeholder="Enter first name"
+                      placeholder="Enter name"
                       className="input-field"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
@@ -768,7 +778,7 @@ const handleAlertClose = () => {
 
 {/* ADD SERVICE SECTION */}
 
-            <h1 className="text-4xl font-bold block ml-3 mt-20 poppins-semibold text-black"> SERVICES </h1>
+            <h1 className="text-4xl font-bold block ml-3 mt-20 poppins-semibold text-green-600"> SERVICES </h1>
         <div
           style={{
             border: "",
@@ -920,34 +930,34 @@ const handleAlertClose = () => {
 
 {/* SMALL MEMBERSHIP SECTION BOX */}
 
-            <div className="border-2 border-gray-500  rounded-lg bg-slate-100 px-3 py-5 w-[279px]">
-              <p className=" text-lg font-bold text-black">NAME: <span className="text-md font-medium ml-1 text-green-600">{name}</span></p>
-              <p className=" text-lg font-bold text-black">MEMBERSHIP: <span className="text-md font-medium ml-1 text-green-600">{(membershipitem?.activeMembership?.length>0)? "Active" : "Inactive "}</span></p>
-              <p className=" text-lg font-bold text-black">TOTAL VISITS:<span className="text-md font-medium ml-1 text-green-600">0</span></p>
-              <p className=" text-lg font-bold text-black">CARD ON FILE:<span className="text-md font-medium ml-1 text-green-600">0</span></p>
-              <p className=" text-lg font-bold text-black">LAST VISIT:<span className="text-md font-medium ml-1 text-green-600">0</span></p>
-              <p className=" text-lg font-bold text-black">POINTS:<span className="text-md font-medium ml-1 text-green-600">0</span></p>
+            {/* <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl">
+              <p className=" text-lg font-bold text-black">NAME: <span className="text-md font-medium ml-1 text-green-800">{name}</span></p>
+              <p className=" text-lg font-bold text-black">MEMBERSHIP: <span className="text-md font-medium ml-1 text-green-800">{(membershipitem?.activeMembership?.length>0)? "Active" : "Inactive "}</span></p>
+              <p className=" text-lg font-bold text-black">TOTAL VISITS:<span className="text-md font-medium ml-1 text-green-800">0</span></p>
+              <p className=" text-lg font-bold text-black">CARD ON FILE:<span className="text-md font-medium ml-1 text-green-800">0</span></p>
+              <p className=" text-lg font-bold text-black">LAST VISIT:<span className="text-md font-medium ml-1 text-green-800">0</span></p>
+              <p className=" text-lg font-bold text-black">POINTS:<span className="text-md font-medium ml-1 text-green-800">0</span></p>
               <p  className=" text-lg font-bold text-black ">
-                {"SUBTOTAL:"} <span className="text-md font-medium ml-1 text-green-600">{subtotalPrice}</span>
+                {"SUBTOTAL:"} <span className="text-md font-medium ml-1 text-green-800">{subtotalPrice}</span>
               </p>
               <p className=" text-lg font-bold text-black">
-                {"DISCOUNT"} <span className="text-md font-medium ml-1 text-green-600">{countdiscount}</span>
+                {"DISCOUNT"} <span className="text-md font-medium ml-1 text-green-800">{countdiscount}</span>
               </p>
               <p className=" text-lg font-bold text-black">
                 {"TOTAL AMOUNT :"}
-                <span className="text-md font-medium ml-1 text-green-600">{payableAmount}</span>
+                <span className="text-md font-medium ml-1 text-green-800">{payableAmount}</span>
               </p>
               <p className=" text-lg font-bold text-black">
                 {"PRODUCT PRICE:"} 
-                <span className="text-md font-medium ml-1 text-green-600">{productTotalPrice}</span>
+                <span className="text-md font-medium ml-1 text-green-800">{productTotalPrice}</span>
               </p>
               <p className=" text-lg font-bold text-black">
                 {"PAYABLE AMOUNT :"}
                
-                <span className="text-md font-medium ml-1 text-green-600"> {totalProductServicePayable}</span>
+                <span className="text-md font-medium ml-1 text-green-800"> {totalProductServicePayable}</span>
 
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -982,8 +992,8 @@ const handleAlertClose = () => {
       {/* PRODUCTS SECTION */}
 
 
-        <div className="border-2 border-gray-500 p-4 rounded-lg bg-slate-100 w-[85%] mx-auto mt-12">
-        <h1 className="text-4xl text-center  font-bold block mb-10 mt-10 poppins-bold text-black">ADD PRODUCTS</h1>
+        <div className=" p-4 rounded-lg bg-[#fffffe] w-full mx-auto mt-12 shadow-xl">
+        <h1 className="text-4xl text-center  font-bold block mb-10 mt-10 poppins-bold text-green-600">ADD PRODUCTS</h1>
         {
           productDataReducer.length > 0 && (
             <div className="table-container">
@@ -1138,8 +1148,8 @@ const handleAlertClose = () => {
         {/* BOOK APPOINTMENT */}
 
 
-        <div className="border-2 border-slate-500 p-4 rounded-lg bg-[#f8f9fa] my-12 flex flex-col">
-        <h1 className="text-4xl font-bold mb-10 mt-10 text-center text-black">BOOK APPOINTMENT</h1>
+        <div className="  p-4 rounded-lg bg-[#fffffe] my-12 flex flex-col shadow-lg">
+        <h1 className="text-4xl font-bold mb-10 mt-10 text-center text-green-600">BOOK APPOINTMENT</h1>
 
           <div className="flex justify-start gap-3 items-center">
             <h1 className="text-lg font-semibold">Apply Discount</h1>
@@ -1194,8 +1204,42 @@ const handleAlertClose = () => {
           <button className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black" onClick={handldeBookAppointment}>Book Appointment</button>
 
         </div>
+        <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl mb-10 flex  items-center">
 
-        </div>    
+        <div className="w-1/2 ">
+              <p className=" text-lg font-bold text-black">NAME: <span className="text-md font-medium ml-1 text-green-800">{name}</span></p>
+              <p className=" text-lg font-bold text-black">MEMBERSHIP: <span className="text-md font-medium ml-1 text-green-800">{(membershipitem?.activeMembership?.length>0)? "Active" : "Inactive "}</span></p>
+              <p className=" text-lg font-bold text-black">TOTAL VISITS:<span className="text-md font-medium ml-1 text-green-800">0</span></p>
+              <p className=" text-lg font-bold text-black">CARD ON FILE:<span className="text-md font-medium ml-1 text-green-800">0</span></p>
+              <p className=" text-lg font-bold text-black">LAST VISIT:<span className="text-md font-medium ml-1 text-green-800">0</span></p>
+              <p className=" text-lg font-bold text-black">POINTS:<span className="text-md font-medium ml-1 text-green-800">0</span></p>
+        </div>
+        <div className="w-1/2">
+              <p  className=" text-lg font-bold text-black ">
+                {"SUBTOTAL:"} <span className="text-md font-medium ml-1 text-green-800">{subtotalPrice}</span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                {"DISCOUNT"} <span className="text-md font-medium ml-1 text-green-800">{countdiscount}</span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                {"TOTAL AMOUNT :"}
+                <span className="text-md font-medium ml-1 text-green-800">{payableAmount}</span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                {"PRODUCT PRICE:"} 
+                <span className="text-md font-medium ml-1 text-green-800">{productTotalPrice}</span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                {"PAYABLE AMOUNT :"}
+               
+                <span className="text-md font-medium ml-1 text-green-800"> {totalProductServicePayable}</span>
+
+              </p>
+        </div>
+            </div>
+
+        </div>  
+          
 
         {alertVisible && (
         <CustomAlert message={alertMessage} onClose={handleAlertClose} />

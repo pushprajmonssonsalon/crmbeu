@@ -11,8 +11,12 @@ import { IoPrintSharp } from "react-icons/io5";
 import { IoMdPersonAdd } from "react-icons/io";
 // import { FaAmazonPay } from "react-icons/fa6";
 import { FaCcAmazonPay } from "react-icons/fa6";
+import { MdCardMembership } from "react-icons/md";
 import OrderPaymentPopup from "../../components/popup/OrderPayment";
+import NewMembershipModal from "../../components/popup/NewMembershipPopup";
+import CustomizedTables from "../../components/MaterialTable";
 export default function Membership() {
+  const [isNewMembershipModal,setIsNewMembershipModal] = useState(false)
   const [isVisible,setIsVisible] = useState(false)
   const [add,setAdd] = useState(true)
   const [alertVisible, setAlertVisible] = useState(false);
@@ -119,13 +123,13 @@ export default function Membership() {
     getApiCall(
       "membership/getMembership",
       (resp) => {
-        setMembershipType(resp);
+        setMembershipType(resp.membershipList);
       },
       (error) => {
         console.log("error", error);
       }
     );
-  }, [phoneNumber]);
+  }, [phoneNumber,isNewMembershipModal]);
   console.log({membershiptype})
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
@@ -200,7 +204,7 @@ export default function Membership() {
       //     amount: +membership,
       //   },
       // ],
-      paymentMethods: paymentMethods,
+      paymentMethod: paymentMethods,
       userId: userId,
       employees: {
         name: filteredStaffData[0]?.name,
@@ -249,6 +253,9 @@ export default function Membership() {
   const onClose=()=>{
     setIsVisible(false)
   }
+  const onNewClose=()=>{
+    setIsNewMembershipModal(false)
+  }
   const onPayed =()=>{
     setIsPayed(true)
   }
@@ -288,8 +295,15 @@ export default function Membership() {
     ];
     setPaymentMethods(updatedPaymentMethods);
   };
+  const openNewMembershipModal=()=>{
+    setIsNewMembershipModal(true)
+  }
   console.log({paymentMethods})
   console.log("slected staff",selectStaff)
+
+  
+
+  const headings = ["NAME","PHONE NO.","EMPLOYEE","MEMBERSHIP NAME","PRICE","ACTION"];
 
   return (
     <Layout>
@@ -303,12 +317,12 @@ export default function Membership() {
         }}
         className="my-6 "
       >
-        <span style={{ fontSize: "30px", fontWeight: "500", color: "black",fontWeight: "bold" }} >
+        <span style={{ fontSize: "30px", fontWeight: "500", color: "green",fontWeight: "bold" }} >
           BUY MEMBERSHIP 
         </span>
       </div>
       <div className="flex justify-start items-center">
-      <h4 className="text-lg font-semibold text-black">Add a new customer </h4>
+      <h4 className="text-lg font-semibold text-black">Add new customer </h4>
       <button
               // className={`mx-4 ${isMobileValid ? 'bg-black text-white font-semibold px-3 py-2 cursor-pointer' : 'bg-gray-500 text-white font-semibold px-3 py-2 cursor-not-allowed'}`}
               className={`mx-4 bg-black text-white font-semibold px-3 py-2 cursor-pointer`}
@@ -318,9 +332,19 @@ export default function Membership() {
             >
               <IoMdPersonAdd />
             </button>
+            <h4 className="text-lg font-semibold text-black ml-20">Add new membership</h4>
+      <button
+              // className={`mx-4 ${isMobileValid ? 'bg-black text-white font-semibold px-3 py-2 cursor-pointer' : 'bg-gray-500 text-white font-semibold px-3 py-2 cursor-not-allowed'}`}
+              className={`mx-4 bg-black text-white font-semibold px-3 py-2 cursor-pointer`}
+
+              onClick={ openNewMembershipModal }
+         
+            >
+              <MdCardMembership/>
+            </button>
       </div>
       <div
-       className="flex justify-between items-center"
+       className="flex justify-between items-center shadow-lg px-4 py-2 rounded-lg bg-[#fffffe] mt-4"
       >
         <div style={{}} className="relative mt-[10px]">
           <input
@@ -369,8 +393,9 @@ export default function Membership() {
             style={{
               content: {
                 width: "50%",
-                height: "90%",
+                height: "70%",
                 margin: "auto",
+                marginTop: "70px",
                 border: "1px solid #ccc",
                 borderRadius: "8px",
                 boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
@@ -383,7 +408,7 @@ export default function Membership() {
             }}
           >
             <div className="formgroup-section">
-              <h1 className="form-heading">Add Customer Appointment</h1>
+              <h1 className="text-center text-xl font-semibold text-black">Add Customer Appointment</h1>
               <div className="first-row">
                 <div className="input-container">
                   <div>First Name</div>
@@ -553,6 +578,7 @@ export default function Membership() {
               fontSize: "20px",
               fontWeight: "400",
               alignItems: "center",
+              
             }}
           >
             <span className="totalContainer">Total Members</span>
@@ -589,7 +615,27 @@ export default function Membership() {
 
     {/* MEMBERSHIP TABLE */}
     {todayMembership.length >0  && (
-        <div className="table-container w-[90%] overflow-x-scroll">
+      <CustomizedTables headings={headings} data={todayMembership} handlePrint={handlePrint}/>
+        
+       )}
+    {alertVisible && (
+        <CustomAlert message={alertMessage} onClose={handleAlertClose} />
+      )}
+
+      {
+        isVisible && (
+          <OrderPaymentPopup isVisible={isVisible} onClose={onClose} membership={membership} onUpdatePayment={handleUpdatePayment} onPayed={onPayed}/>
+        )
+      }
+
+      <NewMembershipModal isVisible={isNewMembershipModal} onClose={onNewClose}/>
+    </Layout>
+  );
+}
+
+
+
+{/* <div className="table-container w-full overflow-x-scroll">
 
        
 <table className="styled-table">
@@ -602,37 +648,24 @@ export default function Membership() {
       <th>PRICE</th>
       {/* <th>GST</th>
       <th>TOTAL</th> */}
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {todayMembership?.map((item, index) => (
+//       <th>Action</th>
+//     </tr>
+//   </thead>
+//   <tbody>
+//     {todayMembership?.map((item, index) => (
    
   
-      <tr key={index} className="bg-white">
-        <td>{item?.customerName}</td>
-        <td>{item?.customerPhoneNumber}</td>
-        <td>{item?.employees?.name}</td>
-        <td>{item?.name}</td>
-        <td>{item?.price}</td>
-        {/* <td><MdDeleteOutline onClick={() => deleteService(index)} className="text-xl text-red-600 font-bold cursor-pointer"/></td> */}
-        <td><IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/></td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+//       <tr key={index} className="bg-white">
+//         <td>{item?.customerName}</td>
+//         <td>{item?.customerPhoneNumber}</td>
+//         <td>{item?.employees?.name}</td>
+//         <td>{item?.name}</td>
+//         <td>{item?.price}</td>
+//         {/* <td><MdDeleteOutline onClick={() => deleteService(index)} className="text-xl text-red-600 font-bold cursor-pointer"/></td> */}
+//         <td><IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/></td>
+//       </tr>
+//     ))}
+//   </tbody>
+// </table>
 
-</div>
-       )}
-    {alertVisible && (
-        <CustomAlert message={alertMessage} onClose={handleAlertClose} />
-      )}
-
-      {
-        isVisible && (
-          <OrderPaymentPopup isVisible={isVisible} onClose={onClose} membership={membership} onUpdatePayment={handleUpdatePayment} onPayed={onPayed}/>
-        )
-      }
-    </Layout>
-  );
-}
+// </div> */}

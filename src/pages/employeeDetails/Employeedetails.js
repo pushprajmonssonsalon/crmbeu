@@ -153,7 +153,7 @@ const Employeedetails = () => {
         // staffState ==='true'?
         <>
         <div>
-          <span className="teamMember">Current Team Members</span>
+          <span className="teamMember text-green-600">Current Team Members</span>
         </div>
         {/* <div className="table-container">
           {

@@ -14,6 +14,8 @@ import Table from "../../components/Table";
 import MyProductTable from "../../components/Table/myProduct";
 import OrderPopup from "../../components/popup/OrderPopup";
 import { AiOutlineShoppingCart } from "react-icons/ai";
+import MyProductPopup from "../../components/popup/MyProductPopup";
+import InventoryModel from "../../components/inventoryProductAdd/InventoryModel";
 const allProductHeading = {
   name: "NAME",
   mrp: "MRP",
@@ -93,9 +95,13 @@ console.log("getSalonProductslength",getSalonProducts)
   const [typeName,setTypeName] = useState(null);
   // const [purchaseModel,setPurchaseModel] = useState(false)
   const [showOrderPopup,setShowOrderPopup] = useState(false);
+  const [showInventryModel,setShowInventryModel] = useState(false)
   const [productOrderId,setProductOrderId] = useState([]);
-
-
+  const [showMyProductPopup,setShowMyProductPopup] = useState(false);
+  const [myProductId,setMyProductId] = useState("");
+  const [allProductId, setAllProductId] = useState("")
+  const [isChanged,setIsChanged] = useState(false)
+  const [isDelete,setIsDeleted]= useState(false)
   // my products states
 
   const [productName2,setProductName2] = useState("");
@@ -144,6 +150,12 @@ console.log("getSalonProductslength",getSalonProducts)
     },
     {
       brandName: "Argatinkeratin",
+    },
+    {
+      brandName: "Kerastase",
+    },
+    {
+      brandName: "Rica",
     },
   ];
   const TypeData = [{ productType: "Retail" }, { productType: "Professional" }];
@@ -275,7 +287,7 @@ console.log("getSalonProductslength",getSalonProducts)
   
   useEffect(() => {
     myproduct()
-  }, [isModalOpen,allProducts,productName2,brand2,type2]);
+  }, [isModalOpen,allProducts,productName2,brand2,type2,isChanged,isDelete]);
   // console.log({myProductList})
 
   useEffect(() => {
@@ -299,6 +311,11 @@ console.log("getSalonProductslength",getSalonProducts)
   const onchangeProduct = (e) => {
     setsearchProduct(e.target.value);
   };
+
+  const handleInventryOpen=(id)=>{
+    setAllProductId(id)
+    setShowInventryModel(true)
+  }
 
   const handleSubmit = () => {
     const data = {
@@ -356,6 +373,11 @@ console.log("getSalonProductslength",getSalonProducts)
     });
     
     console.log("result Ki maa ki chut",result);
+
+    const handleOpen=(id)=>{
+      setMyProductId(id);
+      setShowMyProductPopup(true)
+    }
   return (
     <Layout>
       <nav className="navbar w-[80%] mx-auto ">
@@ -976,7 +998,7 @@ console.log("getSalonProductslength",getSalonProducts)
             </select>
               <button className="px-3 py-2 bg-black roounded-lg text-white font-semibold" onClick={clearClick}>clear</button>
               </div>
-              <MyProductTable data={newMyProducts} startIndex={startIndex} endIndex={endIndex} getSalonProductsPress={getSalonProductsPress} />
+              <MyProductTable data={newMyProducts} startIndex={startIndex} endIndex={endIndex} getSalonProductsPress={getSalonProductsPress} isChanged={isDelete} setIsChanged={setIsDeleted} handleOpen={handleOpen}/>
               <Pagination 
               totalItems={newMyProducts.length}
               itemsPerPage={itemsPerPage}
@@ -1094,7 +1116,7 @@ console.log("getSalonProductslength",getSalonProducts)
               </tbody>
             </table>
            </div> */}
-           <Table header={allProductHeading} data={getSalonProducts} startIndex={startIndex1} endIndex={endIndex} addClick={addclick} orderClick={orderClick} getSalonProductsPress={getSalonProductsPress}/>
+           <Table header={allProductHeading} data={getSalonProducts} startIndex={startIndex1} endIndex={endIndex1} addClick={addclick} orderClick={orderClick} getSalonProductsPress={getSalonProductsPress} handleInventryOpen={handleInventryOpen}/>
            <Pagination 
               totalItems={getSalonProducts.length}
               itemsPerPage={itemsPerPage1}
@@ -1102,15 +1124,17 @@ console.log("getSalonProductslength",getSalonProducts)
               onPageChange={handlePageChange1} />
           </div>
         )}
-        {addproductModal && (
+        {/* {addproductModal && (
           <InventoryProductAddModal
             addproductModal={addproductModal}
             setAddProductModal={setAddProductModal}
             productDetailsModal={productDetailsModal}
           />
-        )}
+        )} */}
+        <InventoryModel data={getSalonProducts} isVisible={showInventryModel} onClose={()=>setShowInventryModel(false)} id={allProductId}/>
 
         <OrderPopup isVisible={showOrderPopup} onClose={()=>setShowOrderPopup(false)} id={productOrderId} data={result}/>
+        <MyProductPopup data={newMyProducts} isVisible={showMyProductPopup} onClose={()=>setShowMyProductPopup(false)} id={myProductId} isChanged={isChanged} setIsChanged={setIsChanged}/>
       </nav>
       {/* <Pagination
         postsPerPage={postsPerPage}

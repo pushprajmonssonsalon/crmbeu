@@ -57,7 +57,7 @@ const Orders = () => {
   return (
     <Layout>
         <div>
-            <h1 className='text-center text-black font-bold text-5xl mt-32'>Your Orders</h1>
+            <h1 className='text-center text-green-600 font-bold text-5xl mt-32'>Your Orders</h1>
 
             {/* Table of Recent Orders */}
             <table className="styled-table" style={{ height: "40px", marginTop:"60px" }}>
