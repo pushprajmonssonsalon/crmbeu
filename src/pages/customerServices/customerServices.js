@@ -56,6 +56,9 @@ const CategoryData = [
   },
   {
     name: "Spa"
+  },
+  {
+    name: "Nail"
   }
 ]
   // pagination 

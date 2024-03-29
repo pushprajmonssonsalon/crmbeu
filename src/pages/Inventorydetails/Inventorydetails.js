@@ -157,6 +157,9 @@ console.log("getSalonProductslength",getSalonProducts)
     {
       brandName: "Rica",
     },
+    {
+      brandName: "	Milk & Shake",
+    },
   ];
   const TypeData = [{ productType: "Retail" }, { productType: "Professional" }];
   // Add a state to store the product list

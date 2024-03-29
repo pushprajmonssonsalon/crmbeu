@@ -23,7 +23,7 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
       <div className="flex justify-center items-center mb-6 ">
         <FcPrevious 
           onClick={() => handlePageChange(currentPage - 1)}
-          className={`mx-1 rounded-lg hover:bg-black text-white text-2xl ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`mx-1 rounded-lg hover:bg-black text-white text-2xl ${currentPage === 1 ? 'opacity-50 ' : ''}`}
         />
         {pages.map((page) => (
           <button
@@ -36,7 +36,7 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
         ))}
         <FcNext 
           onClick={() => handlePageChange(currentPage + 1)}
-          className={`mx-1 rounded-lg hover:bg-black text-2xl ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`mx-1 rounded-lg hover:bg-black text-2xl ${currentPage === totalPages ? 'opacity-50 ' : ''}`}
         />
       </div>
     );

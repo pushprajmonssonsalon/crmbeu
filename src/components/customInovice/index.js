@@ -81,6 +81,7 @@ export default function  InvoiceGenrator() {
 
 
   const totalPayableAmount = ((Math.ceil(serviceTaxable/1.18)) + (Math.ceil(productTotalPrice/1.18)) + (productTotalPrice-Math.ceil(productTotalPrice/1.18))+(serviceTaxable-Math.ceil(serviceTaxable/1.18)))
+  
   return (
     <div class="invoice-wrapper" id="print-area" ref={targetRef}>
       <div class="invoice">
@@ -169,82 +170,70 @@ export default function  InvoiceGenrator() {
             </div>
           </div>
 
-          <div class="">
-            {/* <h1 className="text-lg font-bold text-black text-center my-5">BILLING:</h1> */}
-            <div class=" my-8">
-              <table>
-                <tbody>
-                  <tr>
-                    <td> Services Sub Total:</td>
-                    <td>Rs.{serviceTaxable}</td>
-                  </tr>
-                  <tr>
-                    <td>Discount</td>
-                    <td>Rs {data.discount}</td>
-                  </tr>
-
-                  <tr>
-                    <div className="tax-table-container">
-                      <h2 className="text-lg font-bold text-black text-center my-5">Tax Break-up</h2>
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Tax Break</th>
-                            <th>Taxable</th>
-                            <th>CGST Rate</th>
-                            <th>CGST Amount</th>
-                            <th>SGST Rate</th>
-                            <th>SGST Amount</th>
-                            <th>Total Payable</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>SERVICES</td>
-                            <td>{serviceFinalTax}</td>
-                            <td>9%</td>
-                            <td>{CGST.toFixed()}</td>
-                            <td>9%</td>
-                            <td>{SGST.toFixed()}</td>
-                            <td>{servicePayableAmount}</td>
-                          </tr>
-                          {/* Add more rows if needed */}
-                        </tbody>
-                      </table>
-                    </div>
-                  </tr>
-
-                  <tr>
-                    <td>(+)Total Tax:</td>
-                    <td>{CGST.toFixed() * 2}</td>
-                  </tr>
-                  <tr>
-                    <td>(+)Payable Amount:</td>
-                    <td>Rs.{servicePayableAmount}</td>
-                  </tr>
-
-                  {/* <!-- <tr>
-                                <td colspan="4">10</td>
-                                <td>$500.00</td>
-                            </tr> --> */}
-                </tbody>
-              </table>
-              {/* <div class = "invoice-body-bottom">
-                        <div class = "invoice-body-info-item border-bottom">
-                            <div class = "info-item-td text-end text-bold">Sub Total:</div>
-                            <div class = "info-item-td text-end">$2150.00</div>
-                        </div>
-                        <div class = "invoice-body-info-item border-bottom">
-                            <div class = "info-item-td text-end text-bold">Tax:</div>
-                            <div class = "info-item-td text-end">$215.00</div>
-                        </div>
-                        <div class = "invoice-body-info-item">
-                            <div class = "info-item-td text-end text-bold">Total:</div>
-                            <div class = "info-item-td text-end">$21365.00</div>
-                        </div>
-                    </div> */}
-            </div>
+          <div>
+            <table>
+              <thead>
+              <tr>
+                <th>Service Sub Total</th>
+                <th>Discount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Rs.{serviceTaxable}</td>
+                  <td>Rs {data.discount}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+
+
+          <div>
+          <h2 className="text-lg font-bold text-black text-center my-5">Tax Break-up</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tax Break</th>
+                  <th>Taxable</th>
+                  <th>CGST Rate</th>
+                  <th>CGST Amount</th>
+                  <th>SGST Rate</th>
+                  <th>SGST Amount</th>
+                  <th>Total Payable</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>SERVICES</td>
+                  <td>{serviceFinalTax}</td>
+                  <td>9%</td>
+                  <td>{CGST.toFixed()}</td>
+                  <td>9%</td>
+                  <td>{SGST.toFixed()}</td>
+                  <td>{servicePayableAmount}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <table>
+              <thead>
+              <tr>
+                <th>(+)Total Tax:</th>
+                <th>(+)Payable Amount:</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{CGST.toFixed() * 2}</td>
+                  <td>Rs.{servicePayableAmount}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          
           {
             data.products.length > 0 && (
 
@@ -471,3 +460,77 @@ export default function  InvoiceGenrator() {
     </div>
   );
 }
+
+
+
+
+
+// <div class="">
+//             {/* <h1 className="text-lg font-bold text-black text-center my-5">BILLING:</h1> */}
+//             <div class=" my-8">
+//               <table>
+//                 <tbody>
+                  
+
+//                   <tr>
+//                     <div className="tax-table-container">
+//                       <h2 className="text-lg font-bold text-black text-center my-5">Tax Break-up</h2>
+//                       <table>
+//                         <thead>
+//                           <tr>
+//                             <th>Tax Break</th>
+//                             <th>Taxable</th>
+//                             <th>CGST Rate</th>
+//                             <th>CGST Amount</th>
+//                             <th>SGST Rate</th>
+//                             <th>SGST Amount</th>
+//                             <th>Total Payable</th>
+//                           </tr>
+//                         </thead>
+//                         <tbody>
+//                           <tr>
+//                             <td>SERVICES</td>
+//                             <td>{serviceFinalTax}</td>
+//                             <td>9%</td>
+//                             <td>{CGST.toFixed()}</td>
+//                             <td>9%</td>
+//                             <td>{SGST.toFixed()}</td>
+//                             <td>{servicePayableAmount}</td>
+//                           </tr>
+//                           {/* Add more rows if needed */}
+//                         </tbody>
+//                       </table>
+//                     </div>
+//                   </tr>
+
+//                   <tr>
+//                     <td>(+)Total Tax:</td>
+//                     <td>{CGST.toFixed() * 2}</td>
+//                   </tr>
+//                   <tr>
+//                     <td>(+)Payable Amount:</td>
+//                     <td>Rs.{servicePayableAmount}</td>
+//                   </tr>
+
+//                   {/* <!-- <tr>
+//                                 <td colspan="4">10</td>
+//                                 <td>$500.00</td>
+//                             </tr> --> */}
+//                 </tbody>
+//               </table>
+//               {/* <div class = "invoice-body-bottom">
+//                         <div class = "invoice-body-info-item border-bottom">
+//                             <div class = "info-item-td text-end text-bold">Sub Total:</div>
+//                             <div class = "info-item-td text-end">$2150.00</div>
+//                         </div>
+//                         <div class = "invoice-body-info-item border-bottom">
+//                             <div class = "info-item-td text-end text-bold">Tax:</div>
+//                             <div class = "info-item-td text-end">$215.00</div>
+//                         </div>
+//                         <div class = "invoice-body-info-item">
+//                             <div class = "info-item-td text-end text-bold">Total:</div>
+//                             <div class = "info-item-td text-end">$21365.00</div>
+//                         </div>
+//                     </div> */}
+//             </div>
+//           </div>

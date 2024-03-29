@@ -43,7 +43,7 @@ const CustomerDetails = () => {
 
 
         <div className=' w-1/2 mx-auto flex justify-between items-center mt-14 '>
-        <input type='text' placeholder="Enter Name or Phone Number" className='outline-none w-2/3 border-black' onChange={(e)=>setPhoneNumber(e.target.value)}/>
+        <input type='text' placeholder="Enter Phone Number" className='outline-none w-2/3 border-black placeholder:text-black' onChange={(e)=>setPhoneNumber(e.target.value)}/>
     
         <button className='bg-black text-white font-semibold px-4 py-2 rounded-xl hover:bg-gray-700' onClick={handleSearchCustomerdetails}>Search</button>
         </div>
