@@ -306,6 +306,15 @@ const ViewAppointment = () => {
   }
 
   console.log({viewAppointmentDetails})
+  function FormatDate(date) {
+    const dates = new Date(date)
+    
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    const formattedDate = formatter.format(dates);
+  
+    return formattedDate;
+  }
   return (
     <Layout>
     <div className="w-[90%] mx-auto mt-32">
@@ -361,6 +370,7 @@ const ViewAppointment = () => {
               <tr>
                 <th>Name</th>
                 <th>Mobile No.</th>
+                <th>Appt. Date</th>
                 <th>Services</th>
                 {/* <th>Last Visit</th> */}
                 <th>Amount</th>
@@ -385,6 +395,7 @@ const ViewAppointment = () => {
                 >
                   <td>{item.customer.name}</td>
                   <td>{item.customer.phoneNumber}</td>
+                  <td>{FormatDate(item.createdAt)}</td>
                   {/* <td>
                     {item?.services.map((itemdata) => {
                       return (
