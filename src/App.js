@@ -27,6 +27,7 @@ import CustomerDetails from "./pages/customerDetails";
 import AppointmentBills from "./components/bills";
 import MembershipBill from "./components/bills/MembershipBill";
 import OrderBill from "./components/bills/OrderInvoice";
+import InvoiceWise from "./components/invoicewise";
 
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
               <Route path="/ownerservice" element={<PrivateRoute Component={OwnerService} />} />
               <Route path="/viewAppointment" element={<PrivateRoute Component={ViewAppointment} />} />
               <Route path="/reports" element={<PrivateRoute Component={Report} />} />
+              <Route path="/invoicewise" element={<PrivateRoute Component={InvoiceWise} />} />
               <Route path="/complitedAppointment" element={<PrivateRoute Component={CompltedAppointMent} />} />
               <Route path="/membership" element={<PrivateRoute Component={Membership} />} />
               <Route path="/invoicegenerator" element={<PrivateRoute Component={AppointmentBills} />} />

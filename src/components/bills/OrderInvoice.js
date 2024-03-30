@@ -23,6 +23,15 @@ const OrderBill = () => {
         );
       }, []);
       console.log("parlor detail list",parlorDetails)
+      function FormatDate(date) {
+        const dates = new Date(date)
+        
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formatter = new Intl.DateTimeFormat('en-US', options);
+        const formattedDate = formatter.format(dates);
+      
+        return formattedDate;
+      }
   return (
     <div className='px-5 py-4 flex flex-col w-1/2 mx-auto'>
         <div className='border-b-2 border-dotted border-black'>
@@ -37,7 +46,7 @@ const OrderBill = () => {
         <div className='grid grid-cols-2 gap-3'>
             
             <div className='text-black font-medium'>Date:</div>
-            <div className='text-black font-medium text-right'>{formattedDate}</div>
+            <div className='text-black font-medium text-right'>{FormatDate(orderList.createdAt)}</div>
         </div>
         </div>
         

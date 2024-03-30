@@ -1,44 +1,43 @@
-import React, {  useEffect, useState } from "react";
+import React, { useState } from "react";
 import { HiMenuAlt3 } from "react-icons/hi";
-
-import { MdApps, MdDashboard, MdEditSquare,MdRememberMe } from "react-icons/md";
+import { MdApps, MdDashboard, MdEditSquare, MdRememberMe } from "react-icons/md";
 import { RiAccountPinBoxFill } from "react-icons/ri";
 import { MdCardMembership } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
 import { LuView } from "react-icons/lu";
-import {FaTableList} from 'react-icons/fa6'
+import { FaTableList } from 'react-icons/fa6'
 import { RiShoppingCartFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { IoPeopleSharp } from "react-icons/io5";
 
-
 const VerticalSidebar = () => {
-    const menus =[
+    const menus = [
         { name: "Book Appointment", link: `/`, icon: FaBookOpen, num: 1 },
         { name: "View Appointment", link: `/viewAppointment`, icon: LuView, num: 2 },
         { name: "Inventory", link: `/inventory`, icon: FaTableList, num: 3 },
-        { name: "Reports", link: `/reports`, icon: MdEditSquare, num: 4 },
+        {
+            name: "Reports",
+            link: `/reports`,
+            icon: MdEditSquare,
+            num: 4,
+            submenus: [
+                { name: "Report", link: "/reports" },
+                { name: "Invoice wise collection", link: "/invoicewise" },
+            ]
+        },
         { name: "Employee", link: `/employee`, icon: RiAccountPinBoxFill, num: 5 },
-        { name: "Services", link: `/customerservices`, icon: MdRememberMe, num: 6  },
-        { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7  },
-        { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8  },
-        { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9  },
-    ] ;
+        { name: "Services", link: `/customerservices`, icon: MdRememberMe, num: 6 },
+        { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7 },
+        { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8 },
+        { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9 },
+    ];
 
     const [open, setOpen] = useState(true);
+    const [openAccordion, setOpenAccordion] = useState(false);
 
-   
-
-// const matchingIndices = menus
-//   .map((item, index) => (item.link === enteredValue ? index : -1))
-//   .filter(index => index !== -1);
-
-//console.log("Matching Indices:", matchingIndices);
-
-
-    
-    
-    
+    const toggleAccordion = () => {
+        setOpenAccordion(!openAccordion);
+    };
 
     return (
         <section className={`bg-[#191919]  flex gap-6 min-h-screen border-r "border-gray-300 overflow-y-scroll" `}>
@@ -53,38 +52,68 @@ const VerticalSidebar = () => {
                 </div>
                 <div className="mt-4 flex flex-col gap-4 fixed top-40">
                     {menus?.map((menu, i) => (
-                     
-                            <Link
-                           
-                                to={menu?.link}
-                                key={i}
-                                className={` ${menu?.margin && "mt-5"
-                            } group  no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2  text-gray-300 "hover:bg-gray-300"  rounded-md`}
-                                
-                            >
-                                <div >{React.createElement(menu?.icon, { size: "20" })}</div>
-                                <h2
-                                    className={`whitespace-pre  text-gray-300 hover:text-gray-500  text-sm ${!open && "opacity-0  overflow-hidden"
-                                }`}
-                                
-                            style={{
-                               
-                                 transitionDelay: `${0}00ms`,
-                            }}
+                        <React.Fragment key={i}>
+                            {menu.name === "Reports" ? (
+                                <div>
+                                    <div
+                                        className="cursor-pointer group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2 text-gray-300 rounded-md"
+                                        onClick={toggleAccordion}
+                                    >
+                                        <div>{React.createElement(menu.icon, { size: "20" })}</div>
+                                        <h2
+                                            className={`whitespace-pre text-gray-300 text-sm ${!open && "opacity-0  overflow-hidden"
+                                                }`}
+                                            style={{
+                                                transitionDelay: `${0}00ms`,
+                                            }}
+                                        >
+                                            {menu.name}
+                                        </h2>
+                                        <button
+                                            className="text-gray-300 bg-transparent hover:bg-transparent"
+                                            onClick={toggleAccordion}
+                                        >
+                                            {openAccordion ? "▲" : "▼"}
+                                        </button>
+                                    </div>
+                                    {openAccordion && (
+                                        <div className="ml-8">
+                                            {menu.submenus?.map((submenu, j) => (
+                                                <Link
+                                                    key={j}
+                                                    to={`${submenu.link}`}
+                                                    className={`group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2 text-gray-300 rounded-md`}
+                                                >
+                                                    <div>{submenu.name}</div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <Link
+                                    to={menu.link}
+                                    className={` ${menu.margin && "mt-5"
+                                        } group  no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2  text-gray-300 "hover:bg-gray-300"  rounded-md`}
                                 >
-                                    {menu?.name}
-                                </h2>
-                            </Link> 
+                                    <div>{React.createElement(menu.icon, { size: "20" })}</div>
+                                    <h2
+                                        className={`whitespace-pre  text-gray-300 text-sm ${!open && "opacity-0  overflow-hidden"
+                                            }`}
+                                        style={{
+                                            transitionDelay: `${0}00ms`,
+                                        }}
+                                    >
+                                        {menu.name}
+                                    </h2>
+                                </Link>
+                            )}
+                        </React.Fragment>
                     ))}
                 </div>
             </div>
-        </section> 
+        </section>
     );
 };
 
 export default VerticalSidebar;
-
-
-
-
- 

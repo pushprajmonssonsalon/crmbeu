@@ -23,6 +23,15 @@ const AppointmentBills = () => {
   console.log("dede bhaii data",data)
   console.log("dataitem", data.services);
   console.log('productdataitem',data.products)
+  function FormatDate(date) {
+    const dates = new Date(date)
+    
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formatter = new Intl.DateTimeFormat('en-US', options);
+    const formattedDate = formatter.format(dates);
+  
+    return formattedDate;
+  }
   const memberShipDataused = data?.membershipCreditUsed;
   const paymentMethodsValue = data?.paymentMethod;
   const currentDate = new Date();
@@ -95,7 +104,7 @@ const AppointmentBills = () => {
             <div className='text-black font-medium'>Invoice No:</div>
             <div className='text-black font-medium text-right'>{data.invoiceId}</div>
             <div className='text-black font-medium'>Date:</div>
-            <div className='text-black font-medium text-right'>{formattedDate}</div>
+            <div className='text-black font-medium text-right'>{FormatDate(data.createdAt)}</div>
         </div>
         </div>
         {/* CUSTOMER DETAILS  */}

@@ -141,7 +141,7 @@ const BookAppointment = () => {
   const productTotalPrice= productDataReducer.reduce((accumulator, { price, quantity }) => {
     return accumulator + quantity * price;
   }, 0);
-  const countdiscount = (subtotalPrice * applyDisountPer) / 100;
+  const countdiscount = Math.ceil((subtotalPrice * applyDisountPer) / 100);
   console.log("countdiscount", applyDisountPer);
   const payableAmount = subtotalPrice - countdiscount;
   const totalProductServicePayable=payableAmount+productTotalPrice

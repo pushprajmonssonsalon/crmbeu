@@ -41,6 +41,15 @@ const MembershipBill = () => {
         }
       );
     }, []);
+    function FormatDate(date) {
+        const dates = new Date(date)
+        
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formatter = new Intl.DateTimeFormat('en-US', options);
+        const formattedDate = formatter.format(dates);
+      
+        return formattedDate;
+      }
 
     const headings = ["NAME","PHONE NO.","EMPLOYEE","MEMBERSHIP NAME","PRICE","GST","TOTAL"]
   return (
@@ -58,7 +67,7 @@ const MembershipBill = () => {
             <div className='text-black font-medium'>Invoice No:</div>
             <div className='text-black font-medium text-right'>{membershipData.invoiceId}</div>
             <div className='text-black font-medium'>Date:</div>
-            <div className='text-black font-medium text-right'>{formattedDate}</div>
+            <div className='text-black font-medium text-right'>{FormatDate(membershipData?.createdAt)}</div>
         </div>
         </div>
         {/* CUSTOMER DETAILS  */}
