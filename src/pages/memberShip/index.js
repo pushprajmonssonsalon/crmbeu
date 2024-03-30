@@ -287,6 +287,7 @@ export default function Membership() {
       }
     );
   }
+  console.log("membeship ki maa ki chut", todayMembership)
   const handleUpdatePayment = (cash, card, upi) => {
     const updatedPaymentMethods = [
       { name: "Cash", amount: parseFloat(cash) || 0 },

@@ -11,6 +11,7 @@ const Orders = () => {
     const [orderProductList,setOrderProductLsit] = useState([])
     const [isVisible,setIsVisible] = useState(false)
     const [orderId,setOrderId] = useState('');
+    const [bool,setBool] = useState(false)
 
     const navigate = useNavigate();
     const onClose =()=>{
@@ -26,7 +27,7 @@ const Orders = () => {
                 console.log(error)
             }
         )
-    },[ordersList])
+    },[bool,ordersList])
     console.log({ordersList})
 
     function FormatDate(date) {
@@ -105,7 +106,7 @@ const Orders = () => {
               </tbody>
             </table>
         </div>
-        <ProductOrderPopup isVisible={isVisible} onClose={onClose} data={orderProductList} orderId={orderId}/>
+        <ProductOrderPopup isVisible={isVisible} onClose={onClose} data={orderProductList} orderId={orderId} bool={bool} setBool={setBool} />
     </Layout>
   )
 }

@@ -25,6 +25,8 @@ import Orders from "./pages/orders";
 import OrderInvoice from "./components/customInovice/OrderInvoice";
 import CustomerDetails from "./pages/customerDetails";
 import AppointmentBills from "./components/bills";
+import MembershipBill from "./components/bills/MembershipBill";
+import OrderBill from "./components/bills/OrderInvoice";
 
 
 function App() {
@@ -46,8 +48,10 @@ function App() {
               <Route path="/membership" element={<PrivateRoute Component={Membership} />} />
               <Route path="/invoicegenerator" element={<PrivateRoute Component={AppointmentBills} />} />
               {/* <Route path="/invoicegenerator" element={<PrivateRoute Component={InvoiceGenrator} />} /> */}
-              <Route path="/membershipinvoicegenerator" element={<PrivateRoute Component={MembershipInvoiceGenrator} />} />
-              <Route path="/orderinvoice" element={<PrivateRoute Component={OrderInvoice} />} />
+              <Route path="/membershipinvoicegenerator" element={<PrivateRoute Component={MembershipBill} />} />
+              {/* <Route path="/membershipinvoicegenerator" element={<PrivateRoute Component={MembershipInvoiceGenrator} />} /> */}
+              <Route path="/orderinvoice" element={<PrivateRoute Component={OrderBill} />} />
+              {/* <Route path="/orderinvoice" element={<PrivateRoute Component={OrderInvoice} />} /> */}
               <Route path="/viewAppoinment/:id" element={<PrivateRoute Component={Edit} />} />
               <Route path="/orders" element={<PrivateRoute Component={Orders} />} />
               <Route path="/details" element={<PrivateRoute Component={CustomerDetails} />} />

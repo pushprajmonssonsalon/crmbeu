@@ -12,55 +12,25 @@ const OrderPopup= ({isVisible,onClose,id,data}) => {
     useEffect(() => {
       setQuantities(data.map(() => 1));
     }, [data]);
+    console.log("sbki maa ki chud",data)
+
 
 
     const [bool,setBool] = useState(false);
-    console.log("product ki maa ki chud id", id)
+    console.log("product", id)
     const handleQuantityChange = (index, value) => {
         const newQuantities = [...quantities];
         newQuantities[index] = value;
         setQuantities(newQuantities);
       };
-
-    // useEffect(() => {
-    //     getApiCall(
-    //       "salonService/getSalonServices",
-    //       (resp) => {
-    //         console.log("servicerespone", resp);
-    //         setServiceData(resp.services);
-    //       },
-    //       (error) => {
-    //           console.log("errro", error);
-    //       }
-    //       );
-    //   }, [bool]);
-    //   console.log({serviceData})
-    // useEffect(() => {
-    //     const data = {
-          
-    //     };
-    //     postApiData(
-    //       `inventory/getAllProducts`,
-    //       data,
-    //       (resp) => {
-    //         console.log("getallproducts", resp);
-    //         setProductData(resp?.products);
-    //       },
-    //       (error) => {
-    //         console.log("error", error);
-    //       }
-    //     );
-    //   }, []);
-    //   console.log({productData})
     if(!isVisible) return null;
-    // console.log({id})
-//     var popupService = productData?.filter((item)=>item._id==id);
-//     console.log("popservice",popupService[0])
+    
 console.log("dyanmic quantities",quantities)
 
 const orderpayload = data.map((obj,index)=>({
     ...obj ,
-    quantity : quantities[index]
+    orderedQuantity : +quantities[index],
+    receivedQuantity: 0
 }))
 
 console.log("orderPayload",orderpayload)

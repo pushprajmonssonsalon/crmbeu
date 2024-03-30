@@ -93,9 +93,9 @@ const AppointmentBills = () => {
         <h1 className='text-center text-2xl font-bold text-black mb-4'>TAX INVOICE</h1>
         <div className='grid grid-cols-2 gap-3'>
             <div className='text-black font-medium'>Invoice No:</div>
-            <div className='text-black font-medium'>{data.invoiceId}</div>
+            <div className='text-black font-medium text-right'>{data.invoiceId}</div>
             <div className='text-black font-medium'>Date:</div>
-            <div className='text-black font-medium'>{formattedDate}</div>
+            <div className='text-black font-medium text-right'>{formattedDate}</div>
         </div>
         </div>
         {/* CUSTOMER DETAILS  */}
@@ -103,9 +103,9 @@ const AppointmentBills = () => {
             <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>CUSTOMER DETAILS</h1>
             <div className='grid grid-cols-2 gap-3'>
             <div className='text-black font-medium'>Name:</div>
-            <div className='text-black font-medium'>{data?.customer?.name}</div>
+            <div className='text-black font-medium text-right'>{data?.customer?.name}</div>
             <div className='text-black font-medium'>Contact No:</div>
-            <div className='text-black font-medium'>{data.customer.phoneNumber}</div>
+            <div className='text-black font-medium text-right'>{data.customer.phoneNumber}</div>
         </div>
         </div>
         {/* SERVICES */}
@@ -149,22 +149,22 @@ const AppointmentBills = () => {
             <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>SERVICE DISCOUNT</h1>
             <div className='grid grid-cols-2 gap-3'>
             <div className='text-black font-medium'>Discount:</div>
-            <div className='text-black font-medium'>Rs {data.discount}</div>
+            <div className='text-black font-medium text-right'>Rs {data.discount}</div>
             <div className='text-black font-medium'>Taxable Service:</div>
-            <div className='text-black font-medium'>Rs {serviceFinalTax}</div>
+            <div className='text-black font-medium text-right'>Rs {serviceFinalTax}</div>
             <div className='text-black font-medium'>CGST @ 9:</div>
-            <div className='text-black font-medium'>{CGST.toFixed()}</div>
+            <div className='text-black font-medium text-right'>{CGST.toFixed()}</div>
             <div className='text-black font-medium'>SGST @ 9:</div>
-            <div className='text-black font-medium'>{SGST.toFixed()}</div>
+            <div className='text-black font-medium text-right'>{SGST.toFixed()}</div>
             <div className='text-black font-medium'>Total:</div>
-            <div className='text-black font-medium'>Rs {servicePayableAmount}</div>
+            <div className='text-black font-medium text-right'>Rs {servicePayableAmount}</div>
         </div>
         </div>
         </div>
         {/* PRODUCTS */}
         {data?.products.length >0 && (
             <div className='mt-2'>
-            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>SERVICES</h1>
+            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>PRODUCTS</h1>
             <table>
                 <thead>
                     <tr>
@@ -203,13 +203,13 @@ const AppointmentBills = () => {
             <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>PRODUCT DISCOUNT</h1>
             <div className='grid grid-cols-2 gap-3'>
             <div className='text-black font-medium'>Taxable Service:</div>
-            <div className='text-black font-medium'>Rs {productTotalTaxtable}</div>
+            <div className='text-black font-medium text-right'>Rs {productTotalTaxtable}</div>
             <div className='text-black font-medium'>CGST @ 9:</div>
-            <div className='text-black font-medium'>{CGSTProduct.toFixed()}</div>
+            <div className='text-black font-medium text-right'>{CGSTProduct.toFixed()}</div>
             <div className='text-black font-medium'>SGST @ 9:</div>
-            <div className='text-black font-medium'>{SGSTProduct.toFixed()}</div>
+            <div className='text-black font-medium text-right'>{SGSTProduct.toFixed()}</div>
             <div className='text-black font-medium'>Total:</div>
-            <div className='text-black font-medium'>Rs {productFinalPayable}</div>
+            <div className='text-black font-medium text-right'>Rs {productFinalPayable}</div>
         </div>
         </div>
         </div>)}
