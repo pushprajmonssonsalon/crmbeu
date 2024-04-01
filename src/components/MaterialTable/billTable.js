@@ -8,6 +8,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { IoPrintSharp } from 'react-icons/io5';
+import { getApiCall } from '../../utils/services';
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -31,7 +33,23 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 
-export default function CustomizedTables({headings,data,handlePrint}) {
+export default function BillTables({headings,data}) {
+    console.log("table data", data)
+    const [staffData,setStaffData] = React.useState([])
+  React.useEffect(() => {
+    getApiCall(
+      "owner/getStaff",
+      (res) => {
+        setStaffData(res);
+      },
+      (error) => {
+        console.log("error", error);
+      }
+    );
+  }, []);
+  const stafflist = staffData.filter((item)=>item._id === data[0].staffId)
+  const staffname = stafflist[0]?.name
+  console.log("staffname",staffname)
 
   return (
     <TableContainer component={Paper}>
@@ -49,16 +67,12 @@ export default function CustomizedTables({headings,data,handlePrint}) {
           {data.map((row,index) => (
             <StyledTableRow key={index}>
               <StyledTableCell scope="row">
-                {row.customerName}
+                {row.miniSubcategory}
               </StyledTableCell>
-              <StyledTableCell >{row?.customerPhoneNumber}</StyledTableCell>
-              <StyledTableCell >{row?.employees?.name}</StyledTableCell>
-              <StyledTableCell >{row?.name}</StyledTableCell>
+              <StyledTableCell >{row?.category}</StyledTableCell>
               <StyledTableCell >{row?.price}</StyledTableCell>
-              <StyledTableCell >{row?.credits}</StyledTableCell>
-              <StyledTableCell align="right">
-              <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(row)}/>
-              </StyledTableCell>
+              <StyledTableCell >1</StyledTableCell>
+              <StyledTableCell>{staffname}</StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>

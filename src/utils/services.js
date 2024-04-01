@@ -1,9 +1,9 @@
 import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
-const BASE_URL = "https://crm.smartsalon.in/";
+// const BASE_URL = "https://crm.smartsalon.in/";
 // const BASE_URL = "http://localhost:8000/";
-// const BASE_URL = "http://192.168.2.18:4002";
+const BASE_URL = "http://192.168.2.18:4002";
 
 const token = localStorage.getItem("token");
 const authToken = store.getState();

@@ -28,6 +28,7 @@ import AppointmentBills from "./components/bills";
 import MembershipBill from "./components/bills/MembershipBill";
 import OrderBill from "./components/bills/OrderInvoice";
 import InvoiceWise from "./components/invoicewise";
+import TestExcel from "./components/invoicewise/TestExcel";
 
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
               <Route path="/viewAppoinment/:id" element={<PrivateRoute Component={Edit} />} />
               <Route path="/orders" element={<PrivateRoute Component={Orders} />} />
               <Route path="/details" element={<PrivateRoute Component={CustomerDetails} />} />
+              <Route path="/test" element={<PrivateRoute Component={TestExcel} />} />
               {/* <Route path="/login" element={<Login/>} />
        
        <Route path="/" element={<PrivateRoute ><BookAppointment/></PrivateRoute>}/>

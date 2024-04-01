@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useRef } from 'react'
 import { useLocation } from 'react-router';
 import { getApiCall } from '../../utils/services';
-
+import BillTables from '../MaterialTable/billTable';
+import { useReactToPrint } from 'react-to-print';
 const AppointmentBills = () => {
     const location = useLocation();
+    const contentToPrint = useRef(null);
 
   const [parlorDetails, setParlorDetails] = useState([]);
   const [staffData,setStaffData] = useState([])
@@ -88,9 +90,18 @@ const AppointmentBills = () => {
 
 
   const totalPayableAmount = ((Math.ceil(serviceTaxable/1.18)) + (Math.ceil(productTotalPrice/1.18)) + (productTotalPrice-Math.ceil(productTotalPrice/1.18))+(serviceTaxable-Math.ceil(serviceTaxable/1.18)))
-  
+  const serviceHeadings = ["Service Name","Category","Rate","QTY","Employee Name"]
+
+  const handlePrint = useReactToPrint({
+    documentTitle: "Apointment Bill",
+    onBeforePrint: () => console.log("before printing..."),
+    onAfterPrint: () => console.log("after printing..."),
+    removeAfterPrint: true,
+  });
+
   return (
-    <div className='px-5 py-4 flex flex-col w-1/2 mx-auto'>
+    <>
+    <div className='px-5 py-4 flex flex-col w-full mx-auto' ref={contentToPrint}>
         <div className='border-b-2 border-dotted border-black'>
             <h1 className='text-center text-2xl font-bold text-black mb-4'>SMART SALON</h1>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.address}</h2>
@@ -148,6 +159,8 @@ const AppointmentBills = () => {
                 }
                 </tbody>
             </table>
+
+
             <div className='grid grid-cols-2 gap-3 mt-2'>
             <div className='text-black font-medium '>Serive Total:</div>
             <div className='text-black font-medium text-right'>Rs.{serviceTaxable}</div>
@@ -206,6 +219,7 @@ const AppointmentBills = () => {
                   })}
                 </tbody>
             </table>
+          
 
             {/* PRODUCT DISCOUNT  */}
         <div className='mt-2'>
@@ -256,7 +270,15 @@ const AppointmentBills = () => {
         <h1 className='text-center text-lg font-bold  text-black mb-4'>Now Shop Your Favorite Home Care</h1>
         <h1 className='text-center text-lg font-bold  text-black mb-4'>Products at https://prosaloncart.com/</h1>
         </div>
+
+       
     </div>
+    <button onClick={() => {
+        handlePrint(null, () => contentToPrint.current);
+      }} className='w-full my-4'>
+        PRINT
+      </button>
+      </>
   )
 }
 

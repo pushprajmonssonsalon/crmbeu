@@ -287,7 +287,7 @@ export default function Membership() {
       }
     );
   }
-  console.log("membeship ki maa ki chut", todayMembership)
+  console.log("membeship", todayMembership)
   const handleUpdatePayment = (cash, card, upi) => {
     const updatedPaymentMethods = [
       { name: "Cash", amount: parseFloat(cash) || 0 },
@@ -304,7 +304,7 @@ export default function Membership() {
 
   
 
-  const headings = ["NAME","PHONE NO.","EMPLOYEE","MEMBERSHIP NAME","PRICE","ACTION"];
+  const headings = ["NAME","PHONE NO.","EMPLOYEE","MEMBERSHIP NAME","PRICE","CREDITS","ACTION"];
 
   return (
     <Layout>

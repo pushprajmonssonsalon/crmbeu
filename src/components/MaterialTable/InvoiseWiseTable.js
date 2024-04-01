@@ -43,15 +43,15 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 
-export default function CustomizedInvoiceWiseTables({headings,data}) {
+export default function CustomizedInvoiceWiseTables({headings,data,ref}) {
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+    <TableContainer component={Paper} >
+      <Table sx={{ minWidth: 700 }} aria-label="customized table" ref={ref}>
         <TableHead>
                 <TableRow >
         {
-            headings.map((item,index)=>(
+            headings?.map((item,index)=>(
                     <StyledTableCell>{item}</StyledTableCell>
             ))
         }
@@ -59,7 +59,7 @@ export default function CustomizedInvoiceWiseTables({headings,data}) {
         </TableHead>
         <TableBody>
         
-              {  data?.filter((item)=>item.status === 3).map((row,index) => (
+              {  data?.filter((item)=>item.status === 3)?.map((row,index) => (
             <StyledTableRow key={index}>
               <StyledTableCell scope="row">
                 {FormatDate(row.createdAt)}

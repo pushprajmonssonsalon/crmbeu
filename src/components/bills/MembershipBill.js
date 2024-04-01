@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useRef } from 'react'
 import { useLocation } from 'react-router';
 import { getApiCall } from '../../utils/services';
+import { useReactToPrint } from 'react-to-print';
 
 const MembershipBill = () => {
     const location = useLocation();
     const membershipData = location.state;
     console.log({membershipData})
+    const contentToPrint = useRef(null);
     // parlor details
     const [parlorDetails, setParlorDetails] = useState([]);
     const currentDate = new Date();
@@ -24,6 +26,7 @@ const MembershipBill = () => {
   const price = membershipData.price
   const GST = price-Math.ceil(price/1.18);
   const Total = Math.ceil(price/1.18)+GST;
+  const credits = membershipData.credits
 
   const data = [customerName,customerPhoneNumber,employees,membershiptype,price,GST,Total]
   console.log("dataaaaaaa------------",data)
@@ -51,9 +54,19 @@ const MembershipBill = () => {
         return formattedDate;
       }
 
+      const handlePrint = useReactToPrint({
+        documentTitle: "Membership Bill",
+        onBeforePrint: () => console.log("before printing..."),
+        onAfterPrint: () => console.log("after printing..."),
+        removeAfterPrint: true,
+      });
+
     const headings = ["NAME","PHONE NO.","EMPLOYEE","MEMBERSHIP NAME","PRICE","GST","TOTAL"]
+
   return (
-    <div className='px-5 py-4 flex flex-col w-1/2 mx-auto'>
+    <>
+ 
+    <div className='px-5 py-4 flex flex-col w-[90%] mx-auto' ref={contentToPrint}>
         <div className='border-b-2 border-dotted border-black'>
             <h1 className='text-center text-2xl font-bold text-black mb-4'>SMART SALON</h1>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.address}</h2>
@@ -88,6 +101,8 @@ const MembershipBill = () => {
             <div className='grid grid-cols-2 gap-3'>
             <div className='text-black font-medium'>Name:</div>
             <div className='text-black font-medium text-right'>{membershiptype}</div>
+            <div className='text-black font-medium'>Coins:</div>
+            <div className='text-black font-medium text-right'>{credits}</div>
             <div className='text-black font-medium'>Price:</div>
             <div className='text-black font-medium text-right'>{Math.ceil(price/1.18)}</div>
             <div className='text-black font-medium'>GST:</div>
@@ -105,25 +120,7 @@ const MembershipBill = () => {
             <div className='text-black font-medium'>Net Payable Amount:</div>
             <div className='text-black font-medium text-right'>Rs {Total}</div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Payment Options</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-            {paymentMethodsValue.map((item, index) => {
-                    console.log("item", item);
-                    return (
-                      <tr>
-                        <td>{item.name}</td>
-                        <td>{item.amount}</td>
-                      </tr>
-                    );
-                  })}
-            </tbody>
-        </table>
+       
         </div>
         <div className='mt-2 border-t-2 border-black border-dotted'>
         <h1 className='text-center text-lg font-bold  text-black mb-4'>*** THANK YOU ***</h1>
@@ -132,6 +129,12 @@ const MembershipBill = () => {
         <h1 className='text-center text-lg font-bold  text-black mb-4'>Products at https://prosaloncart.com/</h1>
         </div>
     </div>
+    <button onClick={() => {
+        handlePrint(null, () => contentToPrint.current);
+      }} className='w-full my-4'>
+        PRINT
+      </button>
+    </>
   )
 }
 

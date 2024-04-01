@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router';
 import { getApiCall } from '../../utils/services';
+import { useReactToPrint } from 'react-to-print';
 
 const OrderBill = () => {
     const location = useLocation();
     const orderList = location.state;
     console.log("order invoice list", orderList)
+    const contentToPrint = useRef(null);
     const [parlorDetails,setParlorDetails] = useState([])
     const currentDate = new Date();
   const formattedDate = currentDate.toDateString();
@@ -32,8 +34,15 @@ const OrderBill = () => {
       
         return formattedDate;
       }
+      const handlePrint = useReactToPrint({
+        documentTitle: "Apointment Bill",
+        onBeforePrint: () => console.log("before printing..."),
+        onAfterPrint: () => console.log("after printing..."),
+        removeAfterPrint: true,
+      });
   return (
-    <div className='px-5 py-4 flex flex-col w-1/2 mx-auto'>
+    <>
+    <div className='px-5 py-4 flex flex-col w-[90%] mx-auto' ref={contentToPrint}>
         <div className='border-b-2 border-dotted border-black'>
             <h1 className='text-center text-2xl font-bold text-black mb-4'>SMART SALON</h1>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.address}</h2>
@@ -113,6 +122,13 @@ const OrderBill = () => {
         <h1 className='text-center text-lg font-bold  text-black mb-4'>Products at https://prosaloncart.com/</h1>
         </div>
     </div>
+    <button onClick={() => {
+        handlePrint(null, () => contentToPrint.current);
+      }} className='w-full my-4'>
+        PRINT
+      </button>
+    
+    </>
   )
 }
 
