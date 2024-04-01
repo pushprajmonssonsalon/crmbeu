@@ -12,7 +12,7 @@ const OrderPopup= ({isVisible,onClose,id,data}) => {
     useEffect(() => {
       setQuantities(data.map(() => 1));
     }, [data]);
-    console.log("sbki maa ki chud",data)
+    
 
 
 

@@ -132,7 +132,7 @@ const Edit = () => {
             console.log(`newEdit page error: ${error}`)
         })
     },[])
-    console.log("gender ki maa ki chut", gender)
+ 
     console.log({appointmentDetails})
     console.log({appointementProducts})
     console.log({appointmentServices})
@@ -419,7 +419,7 @@ console.log()
       }
     );
   },[memberShipStatus])
-  console.log("add ki maa ki chut", addedAppointmentDetails)
+
   return (
     <Layout>
         <div className='my-40'>

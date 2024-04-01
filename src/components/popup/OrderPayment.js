@@ -3,7 +3,7 @@ import { MdOutlineClose } from 'react-icons/md';
 import { getApiCall } from '../../utils/services';
 
 const OrderPaymentPopup = ({isVisible,onClose,membership,onUpdatePayment,onPayed}) => {
-    console.log("membership ki maa ki chut", membership)
+    
     const [cash, setCash] = useState(0);
   const [card, setCard] = useState(0);
   const [upi, setUpi] = useState(0);

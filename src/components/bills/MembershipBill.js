@@ -14,7 +14,6 @@ const MembershipBill = () => {
   const formattedDate = currentDate.toDateString();
   const paymentMethodsValue = membershipData?.paymentMethod;
 
-  console.log("payment ki maa ki chud",paymentMethodsValue)
   
 
   //values 

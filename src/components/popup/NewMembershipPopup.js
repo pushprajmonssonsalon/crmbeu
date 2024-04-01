@@ -12,7 +12,7 @@ const NewMembershipModal= ({isVisible,onClose}) => {
     // console.log({id})
     
 
-    console.log("in value ki maa ki chud",expiry,name,price,coins)
+    
 
     const handleAddMembership=()=>{
         const data = {

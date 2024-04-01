@@ -128,6 +128,18 @@ const AppointmentBills = () => {
             <div className='text-black font-medium text-right'>{data.customer.phoneNumber}</div>
         </div>
         </div>
+        {/* Membership  */}
+        <div className='mt-2'>
+            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>MEMBERSHIP DETAILS</h1>
+            <div className='grid grid-cols-2 gap-3'>
+            <div className='text-black font-medium'>Name:</div>
+            <div className='text-black font-medium text-right'>{data?.userMembership?.name}</div>
+            <div className='text-black font-medium'>Amount:</div>
+            <div className='text-black font-medium text-right'>{data?.userMembership?.amount}</div>
+            <div className='text-black font-medium'>Coins Left:</div>
+            <div className='text-black font-medium text-right'>{data?.userMembership?.creditsLeft}</div>
+        </div>
+        </div>
         {/* SERVICES */}
         <div className='mt-2'>
             <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>SERVICES</h1>
@@ -137,7 +149,6 @@ const AppointmentBills = () => {
                         <th class="text-bold">ServiceName</th>
                         <th class="text-bold">Category</th>
                         <th class="text-bold">Rate</th>
-                        <th class="text-bold">QTY</th>
                         <th class="text-bold">Employee Name</th>
                     </tr>
                 </thead>
@@ -148,7 +159,6 @@ const AppointmentBills = () => {
                         <td>{item.miniSubcategory}</td>
                         <td>{item.category}</td>
                         <td>Rs.{item.price}</td>
-                        <td>1</td>
                         <td class="">{
           staffData?.filter((staff)=>staff._id === item.staffId)?.map((data)=>(
             <span>{data.name}</span>

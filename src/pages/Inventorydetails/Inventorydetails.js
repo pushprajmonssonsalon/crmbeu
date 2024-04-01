@@ -206,7 +206,7 @@ console.log("getSalonProductslength",getSalonProducts)
     }
    
   }
-  console.log("productorderidarray ki maa ki chut",productOrderId)
+
   const shopKartClick = () =>{
     setShowOrderPopup(true)
   }
@@ -375,7 +375,7 @@ console.log("getSalonProductslength",getSalonProducts)
       return matchingObject ? { name: matchingObject.name, size: matchingObject.size , itemId: matchingObject.itemId,brand: matchingObject.brand , type: matchingObject.type } : null;
     });
     
-    console.log("result Ki maa ki chut",result);
+  
 
     const handleOpen=(id)=>{
       setMyProductId(id);
