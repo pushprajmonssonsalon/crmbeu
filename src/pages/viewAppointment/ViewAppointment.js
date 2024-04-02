@@ -372,6 +372,7 @@ const ViewAppointment = () => {
                 <th>Mobile No.</th>
                 <th>Appt. Date</th>
                 <th>Services</th>
+                <th>Employee</th>
                 {/* <th>Last Visit</th> */}
                 <th>Amount</th>
                 <th>Membership<br></br>Credit Used</th>
@@ -380,6 +381,7 @@ const ViewAppointment = () => {
                 <th>Payment Mode</th>
                 {/* <th>Submit</th> */}
                 <th>Action</th>
+                <th>payment Method</th>
               
                 {/* <th>Category</th> */}
                 {/* Add more column headers as needed */}
@@ -415,6 +417,14 @@ const ViewAppointment = () => {
   ))}
   {item?.services.length > 3 && <span>...</span>}
 </td>
+                  <td>
+  {item?.services.map((itemdata, index) => (
+    <React.Fragment key={index}>
+      <h1>{itemdata.satffName}</h1>
+    </React.Fragment>
+  ))}
+ 
+</td>
                   {/* <td>{item.createdAt}</td> */}
                   <td>{item.total}</td>
                   {
@@ -447,6 +457,13 @@ const ViewAppointment = () => {
                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
                     </div>
                   </td>
+                  <td style={{ whiteSpace: 'pre-line' }}>
+                  {
+                    item.status === 3 && (
+                     item.paymentMethod.filter(item=>item.amount !== 0).map(item=>item.name).join('\n')
+                    )
+                  }
+                  </td>
                 
                 </tr>
               ))}
@@ -468,7 +485,7 @@ const ViewAppointment = () => {
                 <th>Name</th>
                 <th>Mobile No.</th>
                 <th>Services</th>
-                {/* <th>Last Visit</th> */}
+                <th>Employee Name</th>
                 <th>Amount</th>
                 <th>Credit<br></br>Used</th>
                 <th>Status</th>
@@ -498,6 +515,14 @@ const ViewAppointment = () => {
     </React.Fragment>
   ))}
   {item?.services.length > 3 && <span>...</span>}
+</td>
+<td>
+  {item?.services.map((itemdata, index) => (
+    <React.Fragment key={index}>
+      <h1>{itemdata.satffName}</h1>
+    </React.Fragment>
+  ))}
+
 </td>
                   {/* <td>{item.createdAt}</td> */}
                   <td>{item.total}</td>

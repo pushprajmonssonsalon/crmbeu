@@ -267,11 +267,15 @@ const BookAppointment = () => {
     });
   };
   const handlestaffChange = (e) => {
+    let splited = e.target.value.split('-');
+    let staffName = splited[1]
+    let staffId = splited[0]
+    console.log("staffffffff--------------",staffName ,staffId)
     console.log("staffselect", e.target.value);
     setServiceSelection({
       ...serviceSelection,
-      staffId: e.target.value,
-      satffName:e.target.value
+      staffId: staffId,
+      satffName:staffName
     });
   };
   const handldeAddButton = () => {
@@ -878,7 +882,7 @@ console.log("ye randi ka baccha store",services)
             {staffData?.map((item) => (
               <option
                 key={item._id}
-                value={item._id}
+                value={`${item._id}-${item.name}`}
                 className="border-none shadow-lg rounded-lg bg-white "
               >
                 {item.name}
