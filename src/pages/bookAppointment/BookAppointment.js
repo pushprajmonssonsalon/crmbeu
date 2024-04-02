@@ -268,16 +268,17 @@ const BookAppointment = () => {
   };
   const handlestaffChange = (e) => {
     let splited = e.target.value.split('-');
-    let staffName = splited[1]
-    let staffId = splited[0]
-    console.log("staffffffff--------------",staffName ,staffId)
+    let Name = splited[1]
+    let Id = splited[0]
+    console.log("staffffffff------",Name ,Id)
     console.log("staffselect", e.target.value);
     setServiceSelection({
       ...serviceSelection,
-      staffId: staffId,
-      satffName:staffName
+      staffId: Id,
+      satffName:Name
     });
   };
+  console.log("serveicekaname",serviceSelection.satffName)
   const handldeAddButton = () => {
     if (isServiceSelectionValid()) {
       dispatch(serviceAdded(serviceSelection));
@@ -288,6 +289,7 @@ const BookAppointment = () => {
       toast.error("All fields should be filled!")
     }
   };
+  console.log("seerrvice selection",serviceSelection)
   const handldeBookAppointment = () => {
     console.log("book Appointment");
     const data = {
@@ -874,7 +876,8 @@ console.log("ye randi ka baccha store",services)
           <select
             className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
             onChange={handlestaffChange}
-            value={serviceSelection.staffId}
+            // value={serviceSelection.satffName}
+            value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
           >
             <option value={staffData} className="bg-white" >
               Select Staff
@@ -883,6 +886,7 @@ console.log("ye randi ka baccha store",services)
               <option
                 key={item._id}
                 value={`${item._id}-${item.name}`}
+                //  value={`${item._id}`}
                 className="border-none shadow-lg rounded-lg bg-white "
               >
                 {item.name}
