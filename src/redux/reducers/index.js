@@ -12,7 +12,10 @@ export const serviceAddReducer = (state = serviceInitialState, action) => {
         ...state,
         serviceData: [...state.serviceData, payload],
       };
-    
+    case "Update_ServicesAmount":
+      return{
+        ...state,serviceData:payload,
+      }
     case "DELETE_ITEM":
       const updatedItems = state.serviceData.filter(
         (item, index) => index !== action.payload

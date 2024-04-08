@@ -77,3 +77,9 @@ export const parlordetail=(prolorDetails)=>{
         dispatch({type:'REMOVE_PRODUT_APPOINT',payload:{}})
     }
   }
+export const newUpdateService=(newservice)=>{
+    console.log("newservice",newservice)
+    return(dispatch)=>{
+        dispatch({type:'Update_ServicesAmount',payload:newservice})
+    }
+}
