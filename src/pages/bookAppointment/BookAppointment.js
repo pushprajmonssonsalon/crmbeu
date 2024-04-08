@@ -319,24 +319,24 @@ const BookAppointment = () => {
       membershipId: memberShipId,
     };
     // if (serviceDataReducerLength > 0) {
-      postApiData(
-        "appointment/bookAppointmentFromCrm",
-        data,
-        (resp) => {
-          if (resp) {
-            // alert("Appointment Booked Sucessfully");
-            toast.success("Appointment Booked Sucessfully");
-            console.log("appointment", resp);
-            dispatch(removeAppointmentProductsData());
-            navigate("/viewAppointment");
-          }
-        },
-        (error) => {
-          console.log("error", error);
-          // alert(" Booking Status Failed");
-          toast.error("Booking status failed!");
+    postApiData(
+      "appointment/bookAppointmentFromCrm",
+      data,
+      (resp) => {
+        if (resp) {
+          // alert("Appointment Booked Sucessfully");
+          toast.success("Appointment Booked Sucessfully");
+          console.log("appointment", resp);
+          dispatch(removeAppointmentProductsData());
+          navigate("/viewAppointment");
         }
-      );
+      },
+      (error) => {
+        console.log("error", error);
+        // alert(" Booking Status Failed");
+        toast.error("Booking status failed!");
+      }
+    );
     // }
   };
   // ...`
@@ -547,7 +547,7 @@ const BookAppointment = () => {
       i === index ? { ...item, price: +newPrice } : item
     );
     setServices(updatedServices);
-   dispatch(newUpdateService(updatedServices))
+    dispatch(newUpdateService(updatedServices));
   };
   // const handleChangePrice = (index) => {
   //   dispatch(serviceAdded(services));
@@ -975,8 +975,6 @@ const BookAppointment = () => {
                 </div>
               )}
             </div>
-
-          
           </div>
         </div>
         <div className=" p-4 rounded-lg bg-[#fffffe] w-full mx-auto mt-12 shadow-xl">

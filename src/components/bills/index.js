@@ -128,7 +128,7 @@ const AppointmentBills = () => {
             {parlorDetails.stateName}
           </h2>
           <h2 className="text-lg font-semibold text-black mb-2">
-            Phone No. - {parlorDetails.contactNumber}
+           Contact No. - {parlorDetails.contactNumber}
           </h2>
         </div>
         <div className="text-black font-medium text-center flex flex-row " style={{justifyContent:'center'}}>GST No:
