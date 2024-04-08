@@ -48,7 +48,7 @@ const OrderBill = () => {
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.address}</h2>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.address2}</h2>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.stateName}</h2>
-            <h2 className='text-lg font-semibold text-black mb-2'>Phone No. - {parlorDetails.contactNumber}</h2>
+            <h2 className='text-lg font-semibold text-black mb-2'>Contact No. - {parlorDetails.contactNumber}</h2>
         </div>
         <div className='my-2 mx-4'>
     
