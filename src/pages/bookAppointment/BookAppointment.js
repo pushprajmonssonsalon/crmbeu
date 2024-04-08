@@ -318,7 +318,7 @@ const BookAppointment = () => {
       discountPercentage: applyDisountPer,
       membershipId: memberShipId,
     };
-    if (serviceDataReducerLength > 0) {
+    // if (serviceDataReducerLength > 0) {
       postApiData(
         "appointment/bookAppointmentFromCrm",
         data,
@@ -337,7 +337,7 @@ const BookAppointment = () => {
           toast.error("Booking status failed!");
         }
       );
-    }
+    // }
   };
   // ...`
   const nameOnclick = (item) => {
