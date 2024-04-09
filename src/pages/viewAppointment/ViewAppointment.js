@@ -17,6 +17,35 @@ import { FaDollarSign } from "react-icons/fa6";
 import { FaAmazonPay } from "react-icons/fa6";
 import { LiaCcAmazonPay } from "react-icons/lia";
 
+import { styled } from '@mui/material/styles';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(odd)': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  // hide last border
+  '&:last-child td, &:last-child th': {
+    border: 0,
+  },
+}));
+
 const ViewAppointment = () => {
   const [tab,setTab] = useState("crm");
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
@@ -315,6 +344,8 @@ const ViewAppointment = () => {
   
     return formattedDate;
   }
+
+  const headings = ["Name","Mobile No.","Appt. Date","Services","Products","Employee","Amount","Membership Credit Used","Status","Payment Mode","Action","Payment Method"]
   return (
     <Layout>
     <div className="w-[90%] mx-auto mt-32">
@@ -363,112 +394,81 @@ const ViewAppointment = () => {
 
         {
           tab==="crm" ? (
-            <div className="table-containerValue w-full overflow-x-scroll" >
+            <div className="" >
          { viewAppointmentDetails.length > 0?
-         <table className="styled-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Mobile No.</th>
-                <th>Appt. Date</th>
-                <th>Services</th>
-                <th>Employee</th>
-                {/* <th>Last Visit</th> */}
-                <th>Amount</th>
-                <th>Membership<br></br>Credit Used</th>
-                <th>Status</th>
-                {/* <th>Status</th> */}
-                <th>Payment Mode</th>
-                {/* <th>Submit</th> */}
-                <th>Action</th>
-                <th>payment Method</th>
-              
-                {/* <th>Category</th> */}
-                {/* Add more column headers as needed */}
-              </tr>
-            </thead>
-            <tbody style={{ height: "80px" }}>
-              {viewAppointmentDetails?.filter((type)=>type.appointmentType === "crm")?.map((item, index) => (
-                // console.log("itemarray",item.services[0].category)
-
-                <tr
-                  key={index}
-                  //  onClick={() => getSalonProductsPress(item)}
-                >
-                  <td>{item.customer.name}</td>
-                  <td>{item.customer.phoneNumber}</td>
-                  <td>{FormatDate(item.createdAt)}</td>
-                  {/* <td>
-                    {item?.services.map((itemdata) => {
-                      return (
-                        <>
-                          <h1>
-                            {itemdata.miniSubcategory}
-                          </h1>
-                        </>
-                      );
-                    })}
-                  </td> */}
-                  <td>
-  {item?.services.slice(0, 3).map((itemdata, index) => (
-    <React.Fragment key={index}>
-      <h1>{itemdata.miniSubcategory}</h1>
-    </React.Fragment>
-  ))}
-  {item?.services.length > 3 && <span>...</span>}
-</td>
-                  <td>
-  {item?.services.map((itemdata, index) => (
-    <React.Fragment key={index}>
-      <h1>{itemdata.satffName}</h1>
-    </React.Fragment>
-  ))}
- 
-</td>
-                  {/* <td>{item.createdAt}</td> */}
-                  <td>{item.total}</td>
-                  {
-                  // item.membershipCreditUsed
-                  //  > 0 ? (
-
-                    // <td>{item.membershipCreditUsed}</td>
-                    <td>{(item.membershipUsed) ? item.membershipCreditUsed: 0}</td>
-                  // ) : (
-                  //   <td>{"0"}</td>
-                  // )
-                  }
-              <td className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{getStatusNumber(item.status)}</td>
-
-                 
-                  <td>
-                    <div className="cursor-pointer hover:text-blue-700 font-bold"
-                      onClick={()=>selectClick(item.total,item.membershipCreditUsed ,item.status)}>
-                        <div className="flex justify-center items-center">
-                        <button className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${item.status === 3 || item.status === 2 ? 'cursor-not-allowed': 'cursor-pointer'}`} >PAY</button>
-                        </div>
-                    </div>
-                  </td>
-                  <td>
-                    
-                    <div className="flex justify-between items-center">
-                    {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
-                    <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
-                    <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
-                    <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
-                    </div>
-                  </td>
-                  <td style={{ whiteSpace: 'pre-line' }}>
-                  {
-                    item.status === 3 && (
-                     item.paymentMethod.filter(item=>item.amount !== 0).map(item=>item.name).join('\n')
-                    )
-                  }
-                  </td>
-                
-                </tr>
+          <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+        <TableHead>
+                <TableRow >
+        {
+            headings.map((item,index)=>(
+                    <StyledTableCell>{item}</StyledTableCell>
+            ))
+        }
+                </TableRow>
+        </TableHead>
+        <TableBody>
+          {viewAppointmentDetails?.filter((type)=>type.appointmentType === "crm")?.map((item, index) => (
+            <StyledTableRow key={index}>
+              <StyledTableCell scope="row">
+              {item.customer.name}
+              </StyledTableCell>
+              <StyledTableCell >{item.customer.phoneNumber}</StyledTableCell>
+              <StyledTableCell >{FormatDate(item.createdAt)}</StyledTableCell>
+              <StyledTableCell>
+              {item?.services.slice(0, 3).map((itemdata, index) => (
+                <React.Fragment key={index}>
+                  <h1>{itemdata.miniSubcategory}</h1>
+                </React.Fragment>
               ))}
-            </tbody>
-          </table>:
+              </StyledTableCell>
+              <StyledTableCell>
+              {item?.products.map((itemdata, index) => (
+                <React.Fragment key={index}>
+                  <h1>{itemdata.name}</h1>
+                </React.Fragment>
+              ))}
+              </StyledTableCell>
+              <StyledTableCell>
+              {item?.services.map((itemdata, index) => (
+                   <React.Fragment key={index}>
+                     <h1>{itemdata.satffName}</h1>
+                   </React.Fragment>
+                 ))}
+              </StyledTableCell>
+              <StyledTableCell>{item.total}</StyledTableCell>
+              <StyledTableCell>{(item.membershipUsed) ? item.membershipCreditUsed: 0}</StyledTableCell>
+              <StyledTableCell><h1 className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{getStatusNumber(item.status)}</h1></StyledTableCell>
+              <StyledTableCell>
+              <div className="cursor-pointer hover:text-blue-700 font-bold"
+                         onClick={()=>selectClick(item.total,item.membershipCreditUsed ,item.status)}>
+                           <div className="flex justify-center items-center">
+                           <button className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${item.status === 3 || item.status === 2 ? 'cursor-not-allowed': 'cursor-pointer'}`} >PAY</button>
+                           </div>
+                       </div>
+              </StyledTableCell>
+              <StyledTableCell>
+              <div className="flex justify-between items-center gap-x-2">
+                     {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
+                     <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
+                     <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
+                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
+                     </div>
+              </StyledTableCell>
+              <StyledTableCell>
+              {
+                     item.status === 3 && (
+                      item.paymentMethod.filter(item=>item.amount !== 0).map(item=>item.name).join('\n')
+                     )
+                   }
+              </StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+          
+          :
           <div style={{display:'flex',justifyContent:'center',alignItems:'center',width:'100%',}}>
             <img 
             style={{height:'275px'}}
@@ -660,3 +660,111 @@ appointmentStatus
 //   ))}
 // </select>
 // </td> */}
+
+
+
+
+// <table className="styled-table">
+//             <thead>
+//               <tr>
+//                 <th>Name</th>
+//                 <th>Mobile No.</th>
+//                 <th>Appt. Date</th>
+//                 <th>Services</th>
+//                 <th>Employee</th>
+//                 {/* <th>Last Visit</th> */}
+//                 <th>Amount</th>
+//                 <th>Membership<br></br>Credit Used</th>
+//                 <th>Status</th>
+//                 {/* <th>Status</th> */}
+//                 <th>Payment Mode</th>
+//                 {/* <th>Submit</th> */}
+//                 <th>Action</th>
+//                 <th>payment Method</th>
+              
+//                 {/* <th>Category</th> */}
+//                 {/* Add more column headers as needed */}
+//               </tr>
+//             </thead>
+//             <tbody style={{ height: "80px" }}>
+//               {viewAppointmentDetails?.filter((type)=>type.appointmentType === "crm")?.map((item, index) => (
+//                 // console.log("itemarray",item.services[0].category)
+
+//                 <tr
+//                   key={index}
+//                   //  onClick={() => getSalonProductsPress(item)}
+//                 >
+//                   <td>{item.customer.name}</td>
+//                   <td>{item.customer.phoneNumber}</td>
+//                   <td>{FormatDate(item.createdAt)}</td>
+//                   {/* <td>
+//                     {item?.services.map((itemdata) => {
+//                       return (
+//                         <>
+//                           <h1>
+//                             {itemdata.miniSubcategory}
+//                           </h1>
+//                         </>
+//                       );
+//                     })}
+//                   </td> */}
+//                   <td>
+//   {item?.services.slice(0, 3).map((itemdata, index) => (
+//     <React.Fragment key={index}>
+//       <h1>{itemdata.miniSubcategory}</h1>
+//     </React.Fragment>
+//   ))}
+//   {item?.services.length > 3 && <span>...</span>}
+// </td>
+//                   <td>
+//   {item?.services.map((itemdata, index) => (
+//     <React.Fragment key={index}>
+//       <h1>{itemdata.satffName}</h1>
+//     </React.Fragment>
+//   ))}
+ 
+// </td>
+//                   {/* <td>{item.createdAt}</td> */}
+//                   <td>{item.total}</td>
+//                   {
+//                   // item.membershipCreditUsed
+//                   //  > 0 ? (
+
+//                     // <td>{item.membershipCreditUsed}</td>
+//                     <td>{(item.membershipUsed) ? item.membershipCreditUsed: 0}</td>
+//                   // ) : (
+//                   //   <td>{"0"}</td>
+//                   // )
+//                   }
+//               <td className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{getStatusNumber(item.status)}</td>
+
+                 
+//                   <td>
+//                     <div className="cursor-pointer hover:text-blue-700 font-bold"
+//                       onClick={()=>selectClick(item.total,item.membershipCreditUsed ,item.status)}>
+//                         <div className="flex justify-center items-center">
+//                         <button className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${item.status === 3 || item.status === 2 ? 'cursor-not-allowed': 'cursor-pointer'}`} >PAY</button>
+//                         </div>
+//                     </div>
+//                   </td>
+//                   <td>
+                    
+//                     <div className="flex justify-between items-center">
+//                     {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
+//                     <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
+//                     <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
+//                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
+//                     </div>
+//                   </td>
+//                   <td style={{ whiteSpace: 'pre-line' }}>
+//                   {
+//                     item.status === 3 && (
+//                      item.paymentMethod.filter(item=>item.amount !== 0).map(item=>item.name).join('\n')
+//                     )
+//                   }
+//                   </td>
+                
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>

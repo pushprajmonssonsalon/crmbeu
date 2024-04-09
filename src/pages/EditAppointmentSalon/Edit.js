@@ -419,6 +419,13 @@ console.log()
       }
     );
   },[memberShipStatus])
+  const handlePriceChange = (index, newPrice) => {
+    // const updatedServices = services.map((item, i) =>
+    //   i === index ? { ...item, price: +newPrice } : item
+    // );
+    // setServices(updatedServices);
+    // dispatch(newUpdateService(updatedServices));
+  };
 
   return (
     <Layout>
@@ -513,6 +520,7 @@ console.log()
                           ))}
                       </td>
                       <td>{item?.price}</td>
+                      
                       <td>
                         <MdDeleteOutline
                              onClick={() => deleteEditService(index)}

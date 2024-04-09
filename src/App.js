@@ -29,13 +29,14 @@ import MembershipBill from "./components/bills/MembershipBill";
 import OrderBill from "./components/bills/OrderInvoice";
 import InvoiceWise from "./components/invoicewise";
 import TestExcel from "./components/invoicewise/TestExcel";
-
+import {Toaster} from 'react-hot-toast';
 
 function App() {
  
 
   return (
     <BrowserRouter>
+     <Toaster />
             <Routes>
               <Route path="/login" element={<Login/>} />
        

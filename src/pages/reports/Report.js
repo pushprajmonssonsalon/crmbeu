@@ -87,10 +87,14 @@ const Report = () => {
     );
   };
   console.log({staffDistribution})
+  
+  const totalPayment = paymentMethodReport.reduce((acc, payment) => acc + payment.total, 0);
+
+  console.log("paymets",paymentMethodReport)
 
   return (
     <Layout>
-    <div ref={targetRef} className="mt-32 w-[90%] mx-auto mb-20">
+    <div className="mt-32 w-[90%] mx-auto mb-20">
         <div>
     <button onClick={() => toPDF()}>Download PDF</button>
  
@@ -167,6 +171,8 @@ const Report = () => {
           </label>
         </button>
       </div>
+
+ <div ref={targetRef} >     
       <div className="mt-10"
         style={{
           display: "flex",
@@ -196,10 +202,23 @@ const Report = () => {
                   <td>{item._id}</td>
                   <td>{item.total}</td>
                 </tr>
+
               </>
             );
           })}
+          <tr>
+            <td className="text-bold text-black">Total</td>
+            <td className="text-bold text-black">{totalPayment}</td>
+          </tr>
         </tbody>
+
+        {/* <div className="grid grid-cols-2 gap-3 w-full border-2 border-black">
+            <div className="text-black font-medium">Total :</div>
+            
+        <div className="text-black font-medium text-right">
+             {totalPayment}
+            </div>
+        </div> */}
       </table>
       <div
         style={{
@@ -386,6 +405,7 @@ const Report = () => {
         </tbody>
       </table> */}
       <ReportTable data={categoryWiseDistrubution} />
+      </div>
     </div>
     </Layout>
   );

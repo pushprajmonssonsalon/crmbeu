@@ -46,9 +46,9 @@ const Login = ({ onLogin }) => {
         }
       })
       .catch((error) => {
+        toast.error("please provide valid details")
         console.log("error", error);
         // alert("please provide valid details")
-        toast.error("please provide valid details")
       });
   };
 
