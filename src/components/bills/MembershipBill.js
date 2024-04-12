@@ -1,6 +1,6 @@
 import React, { useEffect, useState,useRef } from 'react'
 import { useLocation } from 'react-router';
-import { getApiCall } from '../../utils/services';
+import { getApiCall, postApiData } from '../../utils/services';
 import { useReactToPrint } from 'react-to-print';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -70,7 +70,7 @@ const MembershipBill = () => {
         console.log("uploaded to s3 bucket")
         const doc = new jsPDF();
         doc.html(current, {
-          html2canvas: { scale: 1/7, autoPaging: true },
+          html2canvas: { scale: 2/13, autoPaging: true },
           callback: (pdf) => {
             const pdfData = pdf.output('blob');
             const uniqueId = uuidv4();
@@ -92,6 +92,22 @@ const MembershipBill = () => {
               if (err) {
                 console.error('Error uploading PDF to S3:', err);
               } else {
+                const payload = {
+                  id:membershipData._id,
+                  invoiceUrl:data.Location,
+                  customerName:membershipData.customerName,
+                  customerPhoneNumber:membershipData.customerPhoneNumber
+                }
+                postApiData(
+                  "membership/sendMembershipInvoice",
+                  payload,
+                  (resp)=>{
+                    console.log("membership pdf has been uploaded ",resp)
+                  },
+                  (error)=>{
+                    console.log("Something error in uploading membership pdf",error)
+                  }
+                )
                 console.log('PDF uploaded successfully to S3:', data.Location);
               }
             });
@@ -123,7 +139,7 @@ const MembershipBill = () => {
         </div>
         {/* CUSTOMER DETAILS  */}
         <div className='mt-2'>
-            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>CUSTOMER DETAILS</h1>
+            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4 p-2'>CUSTOMER DETAILS</h1>
             <div className='grid grid-cols-2 gap-3'>
             <div className='text-black font-medium'>Name:</div>
             <div className='text-black font-medium text-right'>{customerName}</div>
@@ -135,7 +151,7 @@ const MembershipBill = () => {
      
             <div className='mt-2'>
         <div className='mt-2'>
-            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>MEMBERSHIP</h1>
+            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4 p-2'>MEMBERSHIP</h1>
             <div className='grid grid-cols-2 gap-3'>
             <div className='text-black font-medium'>Name:</div>
             <div className='text-black font-medium text-right'>{membershiptype}</div>
@@ -153,7 +169,7 @@ const MembershipBill = () => {
         
         {/* PAYMENT DETIALS  */}
         <div className='my-2 '>
-            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>PAYMENT DETAILS</h1>
+            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4 p-2'>PAYMENT DETAILS</h1>
             <div className='grid grid-cols-2 gap-3'>
             <div className='text-black font-medium'>Net Payable Amount:</div>
             <div className='text-black font-medium text-right'>Rs {Total}</div>

@@ -1,8 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router";
-import { getApiCall } from "../../utils/services";
+import { getApiCall, postApiData } from "../../utils/services";
 import BillTables from "../MaterialTable/billTable";
 import { useReactToPrint } from "react-to-print";
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import AWS from 'aws-sdk';
+import { v4 as uuidv4 } from 'uuid';
+import { ConstructionOutlined } from "@mui/icons-material";
 const AppointmentBills = () => {
   const location = useLocation();
   const contentToPrint = useRef(null);
@@ -20,6 +25,7 @@ const AppointmentBills = () => {
       }
     );
   }, []);
+  
   console.log({ staffData });
   const data = location.state;
   console.log("dede bhaii data", data);
@@ -107,6 +113,51 @@ const AppointmentBills = () => {
     onAfterPrint: () => console.log("after printing..."),
     removeAfterPrint: true,
   });
+  function handleChange(current)  {
+    console.log("uploaded to s3 bucket")
+    const doc = new jsPDF();
+    doc.html(current, {
+      html2canvas: { scale: 1/8, autoPaging: true },
+      callback: (pdf) => {
+        const pdfData = pdf.output('blob');
+        const uniqueId = uuidv4();
+        const s3 = new AWS.S3({
+          accessKeyId: 'AKIAYMT4VMYFJLJQD363',
+          secretAccessKey: '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',
+          region: 'ap-south-1',
+        });
+  
+        const params = {
+          Bucket: 'tphpdfs',
+          Key: `uploaded/pdf_${uniqueId}.pdf`,
+          Body: pdfData,
+          ContentType: 'application/pdf',
+          ACL: 'public-read',
+        };
+  
+        s3.upload(params, (err, data1) => {
+          if (err) {
+            console.error('Error uploading PDF to S3:', err);
+          } else {
+            const datas = {
+              appointmentId:data?._id,
+              invoiceUrl:data1.Location
+            }
+            console.log('PDF uploaded successfully to S3:', data1.Location);
+            postApiData("appointment/printAndSendInvoiceOfAppointment",
+            datas,
+            (resp)=>{
+              console.log("Pdf has been send through message",resp)
+            },
+            (err)=>{
+              console.log("Error in sending message",err)
+            }
+          )
+          }
+        });
+      },
+    });
+  };
 
   return (
     <>
@@ -147,13 +198,13 @@ const AppointmentBills = () => {
             </div>
             <div className="text-black font-medium">Date:</div>
             <div className="text-black font-medium text-right">
-              {FormatDate(data.createdAt)}
+              {FormatDate(data.appointmentDate)}
             </div>
           </div>
         </div>
         {/* CUSTOMER DETAILS  */}
         <div className="mt-2">
-          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4">
+          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
             CUSTOMER DETAILS
           </h1>
           <div className="grid grid-cols-2 gap-3">
@@ -169,7 +220,7 @@ const AppointmentBills = () => {
         </div>
         {/* Membership  */}
         <div className="mt-2">
-          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4">
+          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
             MEMBERSHIP DETAILS
           </h1>
           <div className="grid grid-cols-2 gap-3">
@@ -189,7 +240,7 @@ const AppointmentBills = () => {
         </div>
         {/* SERVICES */}
         <div className="mt-2">
-          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4">
+          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
             SERVICES
           </h1>
           <table>
@@ -222,12 +273,12 @@ const AppointmentBills = () => {
           <div className="grid grid-cols-2 gap-3 mt-2">
             <div className="text-black font-medium ">Serive Total:</div>
             <div className="text-black font-medium text-right">
-              Rs.{serviceTaxable}
+              Rs.{serviceTotal}
             </div>
           </div>
           {/* SERVICE DISCOUNT */}
           <div className="mt-2">
-            <h1 className="text-center text-2xl font-bold bg-black text-white mb-4">
+            <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2 ">
               SERVICE DISCOUNT
             </h1>
             <div className="grid grid-cols-2 gap-3">
@@ -257,7 +308,7 @@ const AppointmentBills = () => {
         {/* PRODUCTS */}
         {data?.products.length > 0 && (
           <div className="mt-2">
-            <h1 className="text-center text-2xl font-bold bg-black text-white mb-4">
+            <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
               PRODUCTS
             </h1>
             <table>
@@ -297,7 +348,7 @@ const AppointmentBills = () => {
 
             {/* PRODUCT DISCOUNT  */}
             <div className="mt-2">
-              <h1 className="text-center text-2xl font-bold bg-black text-white mb-4">
+              <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
                 PRODUCT DISCOUNT
               </h1>
               <div className="grid grid-cols-2 gap-3">
@@ -324,7 +375,7 @@ const AppointmentBills = () => {
 
         {/* PAYMENT DETIALS  */}
         <div className="my-2 ">
-          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4">
+          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
             PAYMENT DETAILS
           </h1>
           <div className="grid grid-cols-2 gap-3">
@@ -371,6 +422,7 @@ const AppointmentBills = () => {
       <button
         onClick={() => {
           handlePrint(null, () => contentToPrint.current);
+          handleChange(contentToPrint.current);
         }}
         className="w-full my-4"
       >

@@ -2,6 +2,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router';
 import { getApiCall } from '../../utils/services';
 import { useReactToPrint } from 'react-to-print';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import AWS from 'aws-sdk';
+import { v4 as uuidv4 } from 'uuid';
 
 const OrderBill = () => {
     const location = useLocation();
@@ -40,6 +44,39 @@ const OrderBill = () => {
         onAfterPrint: () => console.log("after printing..."),
         removeAfterPrint: true,
       });
+      function handleChange(current)  {
+        console.log("uploaded to s3 bucket")
+        const doc = new jsPDF();
+        doc.html(current, {
+          html2canvas: { scale: 2/13, autoPaging: true },
+          callback: (pdf) => {
+            const pdfData = pdf.output('blob');
+            const uniqueId = uuidv4();
+            const s3 = new AWS.S3({
+              accessKeyId: 'AKIAYMT4VMYFJLJQD363',
+              secretAccessKey: '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',
+              region: 'ap-south-1',
+            });
+      
+            const params = {
+              Bucket: 'tphpdfs',
+              Key: `uploaded/pdf_${uniqueId}.pdf`,
+              Body: pdfData,
+              ContentType: 'application/pdf',
+              ACL: 'public-read',
+            };
+      
+            s3.upload(params, (err, data) => {
+              if (err) {
+                console.error('Error uploading PDF to S3:', err);
+              } else {
+                console.log('PDF uploaded successfully to S3:', data.Location);
+              }
+            });
+          },
+        });
+      };
+
   return (
     <>
     <div className='px-5 py-4 flex flex-col w-[90%] mx-auto' ref={contentToPrint}>
@@ -61,7 +98,7 @@ const OrderBill = () => {
         
         {/* SERVICES */}
         <div className='mt-2'>
-            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4'>ORDERS</h1>
+            <h1 className='text-center text-2xl font-bold bg-black text-white mb-4 p-2'>ORDERS</h1>
             <table>
                 <thead>
                     <tr>
@@ -124,6 +161,7 @@ const OrderBill = () => {
     </div>
     <button onClick={() => {
         handlePrint(null, () => contentToPrint.current);
+        handleChange(contentToPrint.current);
       }} className='w-full my-4'>
         PRINT
       </button>
