@@ -30,6 +30,7 @@ import OrderBill from "./components/bills/OrderInvoice";
 import InvoiceWise from "./components/invoicewise";
 import TestExcel from "./components/invoicewise/TestExcel";
 import {Toaster} from 'react-hot-toast';
+import Revenue from "./components/revenue";
 
 function App() {
  
@@ -60,6 +61,7 @@ function App() {
               <Route path="/orders" element={<PrivateRoute Component={Orders} />} />
               <Route path="/details" element={<PrivateRoute Component={CustomerDetails} />} />
               <Route path="/test" element={<PrivateRoute Component={TestExcel} />} />
+              <Route path="/revenue" element={<PrivateRoute Component={Revenue} />} />
               {/* <Route path="/login" element={<Login/>} />
        
        <Route path="/" element={<PrivateRoute ><BookAppointment/></PrivateRoute>}/>

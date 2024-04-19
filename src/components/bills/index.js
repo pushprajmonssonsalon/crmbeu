@@ -81,14 +81,14 @@ const AppointmentBills = () => {
       (resp) => {
         console.log("getparlour", resp);
         setParlorDetails(resp);
-        parlorDetails(resp);
+        // parlorDetails(resp);
       },
       (error) => {
         console.log("error", error);
       }
     );
   }, []);
-  console.log(parlorDetails);
+  console.log("parlorDetails",parlorDetails.name);
   const paytax = Math.ceil(data.total / 1.18);
   // const CGST = (paytax * 9) / 100;
   // const SGST = (paytax * 9) / 100;
@@ -141,7 +141,8 @@ const AppointmentBills = () => {
           } else {
             const datas = {
               appointmentId:data?._id,
-              invoiceUrl:data1.Location
+              invoiceUrl:data1.Location,
+              salonName: parlorDetails.name
             }
             console.log('PDF uploaded successfully to S3:', data1.Location);
             postApiData("appointment/printAndSendInvoiceOfAppointment",
@@ -167,7 +168,7 @@ const AppointmentBills = () => {
       >
         <div className="border-b-2 border-dotted border-black">
           <h1 className="text-center text-2xl font-bold text-black mb-4">
-            SMART SALON
+            {parlorDetails.name}
           </h1>
           <h2 className="text-lg font-semibold text-black">
             {parlorDetails.address}

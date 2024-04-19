@@ -23,6 +23,7 @@ const VerticalSidebar = () => {
             submenus: [
                 { name: "Report", link: "/reports" },
                 { name: "Invoice wise collection", link: "/invoicewise" },
+                { name: "Revenue", link: "/revenue" }
             ]
         },
         { name: "Employee", link: `/employee`, icon: RiAccountPinBoxFill, num: 5 },
@@ -40,9 +41,9 @@ const VerticalSidebar = () => {
     };
 
     return (
-        <section className={`bg-[#191919]  flex gap-6 min-h-screen border-r "border-gray-300 overflow-y-scroll" `}>
+        <section className={`bg-[#191919]  flex gap-6 min-h-screen  `}>
             <div
-                className={` min-h-screen  ${open ? "w-64" : "w-16"}  duration-500  px-4`}>
+                className={`${open ? "w-64" : "w-16"}  duration-500  px-4 `} >
                 <div className="py-3 flex justify-end">
                     <HiMenuAlt3
                         size={30}
@@ -50,11 +51,11 @@ const VerticalSidebar = () => {
                         onClick={() => setOpen(!open)}
                     />
                 </div>
-                <div className="mt-4 flex flex-col gap-4 fixed top-40">
+                <div className="mt-4 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%]">
                     {menus?.map((menu, i) => (
                         <React.Fragment key={i}>
                             {menu.name === "Reports" ? (
-                                <div>
+                                <div className="">
                                     <div
                                         className="cursor-pointer group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2 text-gray-300 rounded-md"
                                         onClick={toggleAccordion}
@@ -64,7 +65,7 @@ const VerticalSidebar = () => {
                                             className={`whitespace-pre text-gray-300 text-sm ${!open && "opacity-0  overflow-hidden"
                                                 }`}
                                             style={{
-                                                transitionDelay: `${0}00ms`,
+                                                transitionDelay: `${1}00ms`,
                                             }}
                                         >
                                             {menu.name}

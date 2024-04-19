@@ -36,7 +36,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className='flex flex-row justify-between items-center nav px-6 flex-wrap bg-[#191919] fixed w-full z-10 '>
+    <nav className='flex flex-row justify-between items-center nav px-6 flex-wrap bg-[#191919] fixed  top-0 z-10 w-full '>
             <div className='flex flex-row items-center justify-center'>
             <img src={salonLogo} alt="" className='w-[152px] h-[80px] my-2 text-white'/>
             </div>

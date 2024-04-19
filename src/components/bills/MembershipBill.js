@@ -96,7 +96,8 @@ const MembershipBill = () => {
                   id:membershipData._id,
                   invoiceUrl:data.Location,
                   customerName:membershipData.customerName,
-                  customerPhoneNumber:membershipData.customerPhoneNumber
+                  customerPhoneNumber:membershipData.customerPhoneNumber,
+                  salonName:parlorDetails.name
                 }
                 postApiData(
                   "membership/sendMembershipInvoice",
@@ -122,7 +123,7 @@ const MembershipBill = () => {
  
     <div className='px-5 py-4 flex flex-col w-[90%] mx-auto' ref={contentToPrint}>
         <div className='border-b-2 border-dotted border-black'>
-            <h1 className='text-center text-2xl font-bold text-black mb-4'>SMART SALON</h1>
+            <h1 className='text-center text-2xl font-bold text-black mb-4'>{parlorDetails.name}</h1>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.address}</h2>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.address2}</h2>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.stateName}</h2>

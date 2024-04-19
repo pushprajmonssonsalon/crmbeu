@@ -52,7 +52,14 @@ export default function CustomizedTables({headings,data,handlePrint}) {
                 {row.customerName}
               </StyledTableCell>
               <StyledTableCell >{row?.customerPhoneNumber}</StyledTableCell>
-              <StyledTableCell >{row?.employees?.name}</StyledTableCell>
+              {/* <StyledTableCell >{row?.employees?.name}</StyledTableCell> */}
+              <StyledTableCell>
+                {
+                  row?.employees?.map((item)=>(
+                    <div>{item.name}</div>
+                  ))
+                }
+              </StyledTableCell>
               <StyledTableCell >{row?.name}</StyledTableCell>
               <StyledTableCell >{row?.price}</StyledTableCell>
               <StyledTableCell >{row?.credits}</StyledTableCell>

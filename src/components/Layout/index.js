@@ -7,13 +7,13 @@ import {Toaster} from 'react-hot-toast';
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-w-full bg-[#E9EAEC] container roboto-regular">
+    <div className="min-w-full bg-[#E9EAEC] container roboto-regular flex flex-col">
         {/* <Toaster /> */}
       <Navbar />
       <div className="content flex bg-[f7f9f9]">
         {/* <Sidebar /> */}
         <VerticalSidebar />
-        <main className='w-[90%] mx-auto '>{children}</main>
+        <main className='w-full mx-auto '>{children}</main>
       </div>
     </div>
   );

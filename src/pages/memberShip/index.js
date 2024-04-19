@@ -15,7 +15,10 @@ import { MdCardMembership } from "react-icons/md";
 import OrderPaymentPopup from "../../components/popup/OrderPayment";
 import NewMembershipModal from "../../components/popup/NewMembershipPopup";
 import CustomizedTables from "../../components/MaterialTable";
+import CheckBox from "../../components/checkbox";
 export default function Membership() {
+  const [expanded, setExpanded] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState([]);
   const [isNewMembershipModal,setIsNewMembershipModal] = useState(false)
   const [isVisible,setIsVisible] = useState(false)
   const [add,setAdd] = useState(true)
@@ -92,7 +95,7 @@ export default function Membership() {
       }
     );
   }, [add]);
-  console.log({todayMembership})
+  console.log("todayMembership",todayMembership)
   const handleSubmit = () => {
     const apiData = {
       name:modalName,
@@ -171,6 +174,7 @@ export default function Membership() {
     setfilteredStaffData(filteredStaffData);
     setSelectStaff(e.target.value);
   };
+  console.log("checkbox selected staff", selectedStaff)
   console.log('idddddddd',iddd)
   console.log("filter staff name",filteredStaffData)
   const handleMobileChange = (event) => {
@@ -206,13 +210,14 @@ export default function Membership() {
       // ],
       paymentMethod: paymentMethods,
       userId: userId,
-      employees: {
-        name: filteredStaffData[0]?.name,
-        id: filteredStaffData[0]?._id,
-      },
+      employees: selectedStaff,
+      // employees: {
+      //   name: filteredStaffData[0]?.name,
+      //   id: filteredStaffData[0]?._id,
+      // },
       membershipId: memberShipdata[0]?._id,
     };
-    if(phoneNumber!=="" && selectStaff!=="" && memberShipdata !== null && isPayed===true && membershipName!==""){
+    if(phoneNumber!=="" && selectedStaff.length>0  && memberShipdata !== null && isPayed===true && membershipName!==""){
       postApiData(
         "membership/buyMembership",
         data,
@@ -222,6 +227,8 @@ export default function Membership() {
               // alert("MemberShip Purchased SucessFully");
               toast.success("MemberShip Purchased SucessFully");
               setBuyClickNow(true);
+              setSelectedStaff([])
+              setExpanded(false)
               setAdd(!add)
               
             }
@@ -525,7 +532,7 @@ export default function Membership() {
         </select> */}
         {/* Pay button */}
         {/* <FaCcAmazonPay className="text-5xl  text-green-700 hover:text-green-900 hover:scale-105  cursor-pointer" onClick={()=>setIsVisible(true)}/> */}
-        <select
+        {/* <select
         className="mx-2 outline-none border-2 border-gray-400"
           style={{
             height: "40px",
@@ -543,7 +550,9 @@ export default function Membership() {
               {item?.name}
             </option>
           ))}
-        </select>
+        </select> */}
+        <CheckBox staffData={staffData} selectedStaff={selectedStaff} setSelectedStaff={setSelectedStaff} expanded={expanded} setExpanded={setExpanded}/>
+
         <button className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105" onClick={()=>setIsVisible(true)}>PAY</button>
         
         <div
