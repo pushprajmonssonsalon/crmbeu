@@ -31,6 +31,8 @@ import InvoiceWise from "./components/invoicewise";
 import TestExcel from "./components/invoicewise/TestExcel";
 import {Toaster} from 'react-hot-toast';
 import Revenue from "./components/revenue";
+import WeeklyReport from "./pages/weeklyReport";
+
 
 function App() {
  
@@ -62,6 +64,7 @@ function App() {
               <Route path="/details" element={<PrivateRoute Component={CustomerDetails} />} />
               <Route path="/test" element={<PrivateRoute Component={TestExcel} />} />
               <Route path="/revenue" element={<PrivateRoute Component={Revenue} />} />
+              <Route path="/weeklyreport" element={<PrivateRoute Component={WeeklyReport} />} />
               {/* <Route path="/login" element={<Login/>} />
        
        <Route path="/" element={<PrivateRoute ><BookAppointment/></PrivateRoute>}/>

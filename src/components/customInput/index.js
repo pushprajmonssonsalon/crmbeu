@@ -15,7 +15,6 @@ export default function CustomSearchInputFeild({startDate,setStartDate,endDate,s
       >
         <div
           style={{
-            marginLeft: "10px",
             flexDirection: "column",
             display: "flex",
           }}
@@ -27,6 +26,7 @@ export default function CustomSearchInputFeild({startDate,setStartDate,endDate,s
             selected={startDate}
             onChange={(date) => setStartDate(date)}
             startDate={startDate}
+            
           />
         </div>
 
@@ -45,6 +45,7 @@ export default function CustomSearchInputFeild({startDate,setStartDate,endDate,s
             endDate={endDate}
             startDate={startDate}
             minDate={startDate}
+    
           />
         </div>
 

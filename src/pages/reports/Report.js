@@ -24,6 +24,7 @@ const Report = () => {
   const [dataResponse,setDataResponse]=useState([]);
   const [categoryWiseDistrubution,setCategoryWiseDistrubution] = useState([])
   const [productDistribution,setProductDistribution] = useState([]);
+  const [membershipCredit,setMembershipCredit] = useState([])
   console.log("dataResponse",dataResponse)
   const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
   const tableHeaders = [
@@ -53,6 +54,7 @@ const Report = () => {
         setCategoryWiseDistrubution(resp.staffCategoryWiseRevenue)
         setMemberShipSale(resp.membershipSale);
         setProductDistribution(resp.productRevenueDistribution)
+        setMembershipCredit(resp.membershipCreditUsed)
         setDataResponse(resp)
       },
       (error) => {
@@ -72,13 +74,16 @@ const Report = () => {
       "reports/salonDailyReport",
       data,
       (resp) => {
+        console.log("data reponse",resp)
         console.log("reports", resp.appointmentPaymentMethodReport);
         setpaymentMethodeReport(resp.appointmentPaymentMethodReport);
         setAppointmentStatus(resp.appointmentStatus);
         setServiceDistribution(resp.serviceCategoryWiseRevenue);
         setStaffDistribution(resp.staffRevenueDistribution);
+        setCategoryWiseDistrubution(resp.staffCategoryWiseRevenue)
         setProductDistribution(resp.productRevenueDistribution)
         setMemberShipSale(resp.membershipSale);
+        setMembershipCredit(resp.membershipCreditUsed)
         setDataResponse(resp)
       },
       (error) => {
@@ -87,6 +92,8 @@ const Report = () => {
     );
   };
   console.log({staffDistribution})
+  const credits = membershipCredit[0]?.membershipCreditUsed;
+  console.log("credits",credits)
   
   const totalPayment = paymentMethodReport.reduce((acc, payment) => acc + payment.total, 0);
 
@@ -206,6 +213,10 @@ const Report = () => {
               </>
             );
           })}
+          <tr>
+            <td className="text-bold text-black">Membership Credit Used</td>
+            <td className="text-bold text-black">{credits}</td>
+          </tr>
           <tr>
             <td className="text-bold text-black">Total</td>
             <td className="text-bold text-black">{totalPayment}</td>

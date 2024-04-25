@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Layout from '../Layout'
+import Layout from '../../components/Layout';
 import CustomInputFeild from "../../components/customInput";
 import { postApiData } from '../../utils/services';
 import { styled } from '@mui/material/styles';
@@ -10,8 +10,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import DatePicker from "react-datepicker";
 import { IoPrintSharp } from 'react-icons/io5';
-
+ 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
@@ -31,21 +32,19 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-const Revenue = () => {
+const WeeklyReport = () => {
     const defaultStartDate = new Date();
   const [startDate, setStartDate] = useState(defaultStartDate);
-  const [endDate, setEndDate] = useState(defaultStartDate);
-  const [revenue,setRevenue] = useState([])
+  const [weeklyReport,setWeeklyReport] = useState([])
   useEffect(()=>{
     const data = {
-        startDate: startDate,
-        endDate: endDate
+      currentDate: startDate,
     }
-    postApiData("reports/getRevenueReportDayWise",
+    postApiData("reports/salonWeeklyReport",
     data,
     (resp)=>{
         console.log("revenue detail", resp)
-        setRevenue(resp)
+        setWeeklyReport(resp)
     },
     (error)=>{
         console.log("revenue error",error)
@@ -54,27 +53,35 @@ const Revenue = () => {
   },[])
   const searchClick=()=>{
     const data = {
-        startDate: startDate,
-        endDate: endDate
+      currentDate: startDate,
     }
-    postApiData("reports/getRevenueReportDayWise",
+    postApiData("reports/salonWeeklyReport",
     data,
     (resp)=>{
         console.log("revenue detail", resp)
-        setRevenue(resp)
+        setWeeklyReport(resp)
     },
     (error)=>{
         console.log("revenue error",error)
     }
 )
   }
-  console.log("revenue",revenue)
+  // console.log("revenue",revenue)
 
   const headings = ["Date","Appointments","Total Revenue","Services","Products","Membership Revenue"]
   return (
     <Layout>
         <div className='mt-32'>
-        <CustomInputFeild startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} submitClick={searchClick}/>
+        {/* <CustomInputFeild startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} submitClick={searchClick}/> */}
+        <div className='flex justify-center items-center gap-x-5'>
+        <DatePicker
+            selectsStart
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            startDate={startDate}
+          />
+          <button className='px-3 py-2 rounded-lg bg-black text-white font-bold ml-4' onClick={searchClick}>Search</button>
+          </div>
         </div>
         
 
@@ -90,7 +97,7 @@ const Revenue = () => {
                 </TableRow>
         </TableHead>
         <TableBody>
-          {revenue.map((row,index) => (
+          {/* {revenue.map((row,index) => (
             <StyledTableRow key={index}>
               <StyledTableCell scope="row">
                 {row._id}
@@ -101,7 +108,7 @@ const Revenue = () => {
               <StyledTableCell >{row?.products}</StyledTableCell>
               <StyledTableCell >{row?.membershipPoints}</StyledTableCell>
             </StyledTableRow>
-          ))}
+          ))} */}
         </TableBody>
       </Table>
     </TableContainer>
@@ -109,4 +116,4 @@ const Revenue = () => {
   )
 }
 
-export default Revenue
+export default WeeklyReport

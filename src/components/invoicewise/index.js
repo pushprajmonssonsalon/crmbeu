@@ -99,7 +99,7 @@ const InvoiceWise = () => {
               <td >Service</td>
               <td >{row?.subTotal - (row?.discount|| 0)}</td>
               <td >{row?.membershipCreditUsed}</td>
-              <td>{row?.subTotal - (row?.discount|| 0)}</td>
+              <td>{(row?.subTotal - (row?.discount|| 0) - ((row?.subTotal - (row?.discount|| 0))*0.18).toFixed(2))}</td>
               <td>{((row?.subTotal - (row?.discount|| 0))*0.18).toFixed(2)}</td>
             </tr>
           ))

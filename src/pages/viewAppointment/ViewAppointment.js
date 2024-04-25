@@ -10,7 +10,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Layout from "../../components/Layout";
 import { FaEdit } from "react-icons/fa";
 import { IoPrintSharp } from "react-icons/io5";
-import { GiCancel } from "react-icons/gi";
+import { GiCancel, GiMaterialsScience } from "react-icons/gi";
 import ViewPopup from "../../components/popup/ViewPopup";
 import {toast} from "react-hot-toast";
 import { FaDollarSign } from "react-icons/fa6";
@@ -25,6 +25,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import StickyHeadTable from "../../components/MaterialTable/stickytable";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -344,11 +345,21 @@ const ViewAppointment = () => {
   
     return formattedDate;
   }
+  function formatDateTime(timestamp) {
+    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+    const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+  
+    const date = new Date(timestamp);
+    const formattedDate = date.toLocaleDateString('en-IN', dateOptions);
+    const formattedTime = date.toLocaleTimeString('en-IN', timeOptions);
+  
+    return `${formattedDate}  ${formattedTime}`;
+  }
 
-  const headings = ["Name","Mobile No.","Appt. Date","Services","Products","Employee","Amount","Membership Credit Used","Status","Payment Mode","Action","Payment Method"]
+  const headings = ["Name","Mobile No.","Appointments Date/Time","Services","Products","Employee","Amount","Membership Credit Used","Status","Payment Mode","Action","Payment Method"]
   return (
     <Layout>
-    <div className="w-[90%] mx-auto mt-32">
+    <div className="w-[90%] mx-auto mt-28 ">
       <div className="">
         <div
           style={{
@@ -356,6 +367,7 @@ const ViewAppointment = () => {
             justifyContent: "center",
             alignItems: "center",
           }}
+          className=""
         >
           <CustomInputFeild startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} submitClick={searchClick}/>
           {/* <div
@@ -382,7 +394,7 @@ const ViewAppointment = () => {
 
         {/* Tab content */}
 
-        <div className="flex justify-evenly items-center my-10">
+        <div className="flex justify-evenly items-center my-5 ">
         <button className={`${tab==="crm"? 'bg-green-600':'bg-black'} px-4 py-2 rounded-lg  text-white font-bold`} onClick={handleCrmTab}>CRM</button>
         <button className={`${tab==="app"? 'bg-green-600':'bg-black'} px-4 py-2 rounded-lg text-white font-bold`} onClick={handleAppTab}>APP</button>
         </div>
@@ -396,78 +408,8 @@ const ViewAppointment = () => {
           tab==="crm" ? (
             <div className="" >
          { viewAppointmentDetails.length > 0?
-          <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} aria-label="customized table">
-        <TableHead>
-                <TableRow >
-        {
-            headings.map((item,index)=>(
-                    <StyledTableCell>{item}</StyledTableCell>
-            ))
-        }
-                </TableRow>
-        </TableHead>
-        <TableBody>
-          {viewAppointmentDetails?.filter((type)=>type.appointmentType === "crm")?.map((item, index) => (
-            <StyledTableRow key={index}>
-              <StyledTableCell scope="row">
-              {item.customer.name}
-              </StyledTableCell>
-              <StyledTableCell >{item.customer.phoneNumber}</StyledTableCell>
-              <StyledTableCell >{FormatDate(item.createdAt)}</StyledTableCell>
-              <StyledTableCell>
-              {item?.services.slice(0, 3).map((itemdata, index) => (
-                <React.Fragment key={index}>
-                  <h1>{itemdata.miniSubcategory}</h1>
-                </React.Fragment>
-              ))}
-              </StyledTableCell>
-              <StyledTableCell>
-              {item?.products.map((itemdata, index) => (
-                <React.Fragment key={index}>
-                  <h1>{itemdata.name}</h1>
-                </React.Fragment>
-              ))}
-              </StyledTableCell>
-              <StyledTableCell>
-              {item?.services.map((itemdata, index) => (
-                   <React.Fragment key={index}>
-                     <h1>{itemdata.satffName}</h1>
-                   </React.Fragment>
-                 ))}
-              </StyledTableCell>
-              <StyledTableCell>{item.total}</StyledTableCell>
-              <StyledTableCell>{(item.membershipUsed) ? item.membershipCreditUsed: 0}</StyledTableCell>
-              <StyledTableCell><h1 className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{getStatusNumber(item.status)}</h1></StyledTableCell>
-              <StyledTableCell>
-              <div className="cursor-pointer hover:text-blue-700 font-bold"
-                         onClick={()=>selectClick(item.total,item.membershipCreditUsed ,item.status)}>
-                           <div className="flex justify-center items-center">
-                           <button className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${item.status === 3 || item.status === 2 ? 'cursor-not-allowed': 'cursor-pointer'}`} >PAY</button>
-                           </div>
-                       </div>
-              </StyledTableCell>
-              <StyledTableCell>
-              <div className="flex justify-between items-center gap-x-2">
-                     {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
-                     <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
-                     <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
-                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
-                     </div>
-              </StyledTableCell>
-              <StyledTableCell>
-              {
-                     item.status === 3 && (
-                      item.paymentMethod.filter(item=>item.amount !== 0).map(item=>item.name).join('\n')
-                     )
-                   }
-              </StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
           
+          <StickyHeadTable data={viewAppointmentDetails} selectClick={selectClick} handlePrint={handlePrint} cancelPress={cancelPress} submitPress={submitPress}/>
           :
           <div style={{display:'flex',justifyContent:'center',alignItems:'center',width:'100%',}}>
             <img 
@@ -768,3 +710,81 @@ appointmentStatus
 //               ))}
 //             </tbody>
 //           </table>
+
+
+
+
+// Material UI Table 
+
+
+{/* <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 1000 }} aria-label="customized table" >
+        <TableHead>
+                <TableRow >
+        {
+            headings.map((item,index)=>(
+                    <StyledTableCell>{item}</StyledTableCell>
+            ))
+        }
+                </TableRow>
+        </TableHead>
+        <TableBody>
+          {viewAppointmentDetails?.filter((type)=>type.appointmentType === "crm")?.map((item, index) => (
+            <StyledTableRow key={index}>
+              <StyledTableCell scope="row">
+              {item.customer.name}
+              </StyledTableCell>
+              <StyledTableCell >{item.customer.phoneNumber}</StyledTableCell>
+              <StyledTableCell >{formatDateTime(item.createdAt)}</StyledTableCell>
+              <StyledTableCell>
+              {item?.services.slice(0, 3).map((itemdata, index) => (
+                <React.Fragment key={index}>
+                  <h1>{itemdata.miniSubcategory}</h1>
+                </React.Fragment>
+              ))}
+              </StyledTableCell>
+              <StyledTableCell>
+              {item?.products.map((itemdata, index) => (
+                <React.Fragment key={index}>
+                  <h1>{itemdata.name}</h1>
+                </React.Fragment>
+              ))}
+              </StyledTableCell>
+              <StyledTableCell>
+              {item?.services.map((itemdata, index) => (
+                   <React.Fragment key={index}>
+                     <h1>{itemdata.satffName}</h1>
+                   </React.Fragment>
+                 ))}
+              </StyledTableCell>
+              <StyledTableCell>{item.total}</StyledTableCell>
+              <StyledTableCell>{(item.membershipUsed) ? item.membershipCreditUsed: 0}</StyledTableCell>
+              <StyledTableCell><h1 className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{getStatusNumber(item.status)}</h1></StyledTableCell>
+              <StyledTableCell>
+              <div className="cursor-pointer hover:text-blue-700 font-bold"
+                         onClick={()=>selectClick(item.total,item.membershipCreditUsed ,item.status)}>
+                           <div className="flex justify-center items-center">
+                           <button className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${item.status === 3 || item.status === 2 ? 'cursor-not-allowed': 'cursor-pointer'}`} >PAY</button>
+                           </div>
+                       </div>
+              </StyledTableCell>
+              <StyledTableCell>
+              <div className="flex justify-between items-center gap-x-2">
+                     {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
+                     <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
+                     <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
+                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
+                     </div>
+              </StyledTableCell>
+              <StyledTableCell>
+              {
+                     item.status === 3 && (
+                      item.paymentMethod.filter(item=>item.amount !== 0).map(item=>item.name).join('\n')
+                     )
+                   }
+              </StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer> */}

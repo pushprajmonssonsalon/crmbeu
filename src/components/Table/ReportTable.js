@@ -12,7 +12,9 @@ const tableHeaders = [
     "TOTAL"
   ];
 
-const ReportTable = ({data}) => (
+const ReportTable = ({data}) => {
+  console.log("employeerevenues",data)
+  return(
     <table className="styled-table">
       <thead className="">
         <tr >
@@ -27,6 +29,7 @@ const ReportTable = ({data}) => (
         ))}
       </tbody>
     </table>
-  );
+  )
+};
   
   export default ReportTable;

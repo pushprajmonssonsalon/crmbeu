@@ -25,6 +25,7 @@ import { toast } from "react-hot-toast";
 import { IoMdPersonAdd } from "react-icons/io";
 import { maleData } from "../../Dummyjson/maleservice";
 
+
 const BookAppointment = () => {
   const [subTotalService, setSubTotalService] = useState(0);
   const [membershipCoin, setMembershipCoin] = useState(0);
@@ -100,14 +101,20 @@ const BookAppointment = () => {
     setMemberShipId(e.target.value);
   };
 
+  console.log("date",date)
+
   useEffect(() => {
     const currentDate = new Date().toISOString().split("T")[0];
     setDate(currentDate);
   }, []);
   useEffect(() => {
-    const currentTime = moment();
-    setTime(currentTime);
+    const currentTime = moment()._d.toString();
+    
+    const timeString = currentTime.split(" ")[4];
+    setTime(timeString);
   }, []);
+
+  console.log("setTime",time)
   const datePart = new Date(date);
   // Date object for the date part
 
@@ -123,18 +130,23 @@ const BookAppointment = () => {
   );
 
   const handleTimeChange = (selectedTime) => {
-    // Check if selectedTime is not null before accessing its properties
-    if (selectedTime && selectedTime.format) {
-      // Handle the time change
-      console.log("Selected time:", selectedTime.format("hh:mm A"));
-      setTime(selectedTime);
-      // Add your logic here
-    } else {
-      // Handle the case when selectedTime is null
-      console.error("Selected time is null");
-    }
+    const timeString = selectedTime._d.toString().split(" ")[4];
+    setTime(timeString)
+
+    // if (selectedTime && selectedTime.format) {
+    //   // Handle the time change
+    //   console.log("Selected time:", selectedTime.format("hh:mm A"));
+    //   setTime(selectedTime);
+    //   // Add your logic here
+    // } else {
+    //   // Handle the case when selectedTime is null
+    //   console.error("Selected time is null");
+    // }
   };
-  console.log({ time });
+  const handleAmPmChange = (ampm) => {
+    console.log('AM/PM changed:', ampm);
+  };
+  console.log("time",time );
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
   );
@@ -309,7 +321,7 @@ const BookAppointment = () => {
       subTotal: subtotalPrice,
       // total: subtotalPrice,
       total: totalProductServicePayable,
-      appointmentDate: combinedDateTime,
+      appointmentDate: date +"T"+ time+".000Z",
       membershipUsed: memberShipStatus,
       // membershipCreditUsed: +memberShip,
       membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
@@ -813,6 +825,8 @@ const BookAppointment = () => {
                     inputIcon
                     className=" mt-5"
                     defaultValue={moment()}
+                    defaultOpenValue={moment()}
+                    onAmPmChange={handleAmPmChange}
                   />
                 </div>
               </div>
