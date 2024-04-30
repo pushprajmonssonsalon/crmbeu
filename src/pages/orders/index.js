@@ -27,7 +27,7 @@ const Orders = () => {
                 console.log(error)
             }
         )
-    },[bool,ordersList])
+    },[bool])
     console.log({ordersList})
 
     function FormatDate(date) {
