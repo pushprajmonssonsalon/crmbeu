@@ -23,6 +23,7 @@
     "react-date-range": "^2.0.0-alpha.4",
     "react-datepicker": "^4.25.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-export-table-to-excel": "^1.0.6",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.12.0",

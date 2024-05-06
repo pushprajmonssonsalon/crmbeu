@@ -21,6 +21,7 @@ const allProductHeading = {
   mrp: "MRP",
   sp: "SELLING PRICE",
   type: "TYPE",
+  size:"SIZE",
   brand: "BRAND",
   add: "ADD",
   order: "PLACE ORDER"

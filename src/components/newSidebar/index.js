@@ -32,6 +32,7 @@ const VerticalSidebar = () => {
         { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7 },
         { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8 },
         { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9 },
+        { name: "Salon Details", link: `/salon-details`, icon: IoPeopleSharp, num: 10 },
     ];
 
     const [open, setOpen] = useState(true);

@@ -11,7 +11,7 @@ import { IoPrintSharp } from 'react-icons/io5';
 import { GiCancel } from 'react-icons/gi';
 import { Link } from 'react-router-dom';
 import { FaEdit } from 'react-icons/fa';
-const headings = ["Name","Mobile No.","Appointments Date/Time","Services","Products Sold","Edit UsedProduct quantity","Products Used","Employee","Amount","Membership Credit Used","Status","Payment Mode","Action","Payment Method"]
+const headings = ["Name","Mobile No.","Appointments Date/Time","Services","Products","Employee","Amount","Membership Credit Used","Status","Payment Mode","Action","Payment Method"]
 
 
 const columns = [
@@ -40,13 +40,6 @@ const columns = [
   {
     id: 'Products',
     label: 'Products',
-    minWidth: 270,
-    align: 'right',
-    format: (value) => value.toFixed(2),
-  },
-  {
-    id: 'ProductsUsed',
-    label: 'Products Used',
     minWidth: 270,
     align: 'right',
     format: (value) => value.toFixed(2),
@@ -104,7 +97,7 @@ const columns = [
 
 
 
-export default function StickyHeadTable({data,selectClick,handlePrint,cancelPress,submitPress,setShowQuantityPopup,showQuantityPopup,setApptId,apptId,setAlreadyAddedProduct}) {
+export default function StickyAppHeadTable({data,selectClick,handlePrint,cancelPress,submitPress}) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -158,13 +151,6 @@ return `${formattedDate} ${formattedTime}`
   }
   
 
-  const handleProductQuantityModal=(id,products)=>{
-    setApptId(id)
-    setAlreadyAddedProduct(products)
-    setShowQuantityPopup(true)
-  }
-  console.log("idddddddd-------",apptId)
-
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <TableContainer sx={{ maxHeight: 440 }}>
@@ -182,7 +168,7 @@ return `${formattedDate} ${formattedTime}`
           <TableBody>
           {data
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .filter((type)=>type.appointmentType === "crm")
+              .filter((type)=>type.appointmentType === "app")
               .map((item) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} >
@@ -192,7 +178,7 @@ return `${formattedDate} ${formattedTime}`
               <TableCell>
               {item?.services.slice(0, 3).map((itemdata, index) => (
                 <React.Fragment key={index}>
-                  <h1>{itemdata.miniSubcategory}</h1>
+                  <h1>{itemdata.name}</h1>
                 </React.Fragment>
               ))}
               </TableCell>
@@ -202,17 +188,6 @@ return `${formattedDate} ${formattedTime}`
                   <h1>{itemdata.name}</h1>
                 </React.Fragment>
               ))}
-              </TableCell>
-              <TableCell>
-              <button className={`text-md font-semibold text-white bg-green-600 px-3 py-1 rounded-lg hover:bg-green-800 hover:scale-105 `} onClick={()=>handleProductQuantityModal(item._id,item?.productUsed)}>Quantity Used</button>
-              </TableCell>
-              <TableCell>
-              {item?.productUsed.map((itemdata, index) => (
-                   <React.Fragment key={index}>
-                     <h1>{itemdata.name}</h1>
-                     {index < item.productUsed.length - 1 && <span>, </span>}
-                   </React.Fragment>
-                 ))}
               </TableCell>
               <TableCell>
               {item?.services.map((itemdata, index) => (

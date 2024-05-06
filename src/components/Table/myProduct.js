@@ -29,6 +29,7 @@ const MyProductTable = ({data,startIndex,endIndex,getSalonProductsPress,handleOp
                     <tr>
                       <th>NAME</th>
                       <th>QUANTITY</th>
+                      <th>TOTAL SIZE</th>
                       <th>PRICE</th>
                       <th>BRAND</th>
                       <th>ACTION</th>
@@ -39,6 +40,7 @@ const MyProductTable = ({data,startIndex,endIndex,getSalonProductsPress,handleOp
                       <tr key={index}  onClick={() => getSalonProductsPress(item)}>
                       <td>{item.products.name}</td>
                         <td>{item.products.stockQuantity}</td>
+                        <td>{item.products.totalSize} {" "} {item.products.unit}</td>
                         <td>{item.products.price}</td>
                         <td>{item.products.brand}</td>
                         <td>

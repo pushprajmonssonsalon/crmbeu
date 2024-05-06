@@ -32,6 +32,7 @@ import TestExcel from "./components/invoicewise/TestExcel";
 import {Toaster} from 'react-hot-toast';
 import Revenue from "./components/revenue";
 import WeeklyReport from "./pages/weeklyReport";
+import SalonDeatils from "./pages/salonDetails";
 
 
 function App() {
@@ -65,20 +66,7 @@ function App() {
               <Route path="/test" element={<PrivateRoute Component={TestExcel} />} />
               <Route path="/revenue" element={<PrivateRoute Component={Revenue} />} />
               <Route path="/weeklyreport" element={<PrivateRoute Component={WeeklyReport} />} />
-              {/* <Route path="/login" element={<Login/>} />
-       
-       <Route path="/" element={<PrivateRoute ><BookAppointment/></PrivateRoute>}/>
-       <Route path="/customerservices" element={<PrivateRoute ><CustomerServices/></PrivateRoute>}/>
-       <Route path="/inventory" element={<PrivateRoute ><Inventorydetails/></PrivateRoute>}/>
-       <Route path="/employee" element={<PrivateRoute ><Employeedetails/></PrivateRoute>}/>
-       <Route path="/ownerservice" element={<PrivateRoute ><OwnerService/></PrivateRoute>}/>
-       <Route path="/viewAppointment" element={<PrivateRoute ><ViewAppointment/></PrivateRoute>}/>
-       <Route path="/reports" element={<PrivateRoute ><Report/></PrivateRoute>}/>
-       <Route path="/complitedAppointment" element={<PrivateRoute ><CompltedAppointMent/></PrivateRoute>}/>
-       <Route path="/membership" element={<PrivateRoute ><Membership/></PrivateRoute>}/>
-       <Route path="/invoicegenerator" element={<PrivateRoute ><InvoiceGenrator/></PrivateRoute>}/>
-       <Route path="/membershipinvoicegenerator" element={<PrivateRoute ><MembershipInvoiceGenrator/></PrivateRoute>}/>
-       <Route path="/viewAppoinment/:id" element={<PrivateRoute ><EditAppointment/></PrivateRoute>}/> */}
+              <Route path="/salon-details" element={<PrivateRoute Component={SalonDeatils} />} />
             </Routes>
     </BrowserRouter>
   );
@@ -86,24 +74,3 @@ function App() {
 
 export default App;
 
-
-{/* <Routes>
-<Route path="/bookAppointment" element={<BookAppointment />} />
-{/* <Route path="/Home" element={<Home />} /> */}
-{/* <Route
-  path="/customerservices"
-  element={<CustomerServices />}
-/>
-<Route path="/inventory" element={<Inventorydetails />} />
-<Route path="/employee" element={<Employeedetails />} />
-<Route path="/OwnerService" element={<OwnerService />} />
-<Route path="/viewAppoinment" element={<ViewAppointment />} />
-<Route path="/reports" element={<Report />} />
-<Route
-  path="/CompltedAppointMent"
-  element={<CompltedAppointMent />}
-/>
-<Route path="/Membership" element={<Membership />} />
-<Route path="/invoiceGenrator" element={<InvoiceGenrator />} />
-<Route path="/viewAppoinment/:id" element={<EditAppointment />} />
-</Routes> */} 

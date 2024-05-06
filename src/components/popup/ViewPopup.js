@@ -35,7 +35,7 @@ const ViewPopup = ({
       console.log("membershipPoints",membershipPoints)
   return (
     <div className='fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center'>
-        <div className='absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-scroll'>
+        <div className='absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto'>
 
             <div className='bg-white p-4 rounded-xl '>
                 <div className='flex justify-around font-bold items-center'>

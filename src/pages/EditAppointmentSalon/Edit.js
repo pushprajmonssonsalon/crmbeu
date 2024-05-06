@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import { getApiCall, postApiData } from '../../utils/services'
-import { useNavigate, useParams } from 'react-router';
-import Layout from '../../components/Layout';
-import { MdDeleteOutline } from 'react-icons/md';
-import { FaSearch } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import { getApiCall, postApiData } from "../../utils/services";
+import { useNavigate, useParams } from "react-router";
+import Layout from "../../components/Layout";
+import { MdDeleteOutline } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
 const Edit = () => {
-    const { id } = useParams();
+  const { id } = useParams();
   console.log("parmasid", id);
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   //Staff data fiktering
   const [staffData, setStaffData] = useState([]);
   // states
-  const [appointmentDetails,setAppointmentDetails] = useState([]);
+  const [appointmentDetails, setAppointmentDetails] = useState([]);
   //appointment service and services state
-  const [appointmentServices,setAppointmentServices] = useState([]);
+  const [appointmentServices, setAppointmentServices] = useState([]);
   // appointment product and products state
-  const [appointementProducts,setAppointmentProducts] = useState([]);
+  const [appointementProducts, setAppointmentProducts] = useState([]);
   // after adding services state
-  const [addedAppointmentDetails,setAddedAppointmentDetails] = useState([])
-  const [userData,setUserData] = useState([])
-//   const [addedProductAppointmentDetails,setAddedProductAppointmentDetails] = useState([])
+  const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
+  const [userData, setUserData] = useState([]);
+  //   const [addedProductAppointmentDetails,setAddedProductAppointmentDetails] = useState([])
   // service selection obj
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
@@ -33,7 +33,7 @@ const Edit = () => {
   });
   const [productData, setProductData] = useState({});
   const [userId, setUserId] = useState("");
-  
+
   // services getting state
   const [service, setService] = useState([]);
   const [subservice, setSubService] = useState([]);
@@ -47,14 +47,36 @@ const Edit = () => {
   const [discount, setDiscount] = useState(0);
   const [totalSubServices, setTotalSubServices] = useState(0);
   // membership details
-  const [membershipDetails,setMembershipDetails] = useState([]);
+  const [membershipDetails, setMembershipDetails] = useState([]);
   const [memberShipStatus, setMemberShipStatus] = useState(false);
-  const [membershipCoin,setMembershipCoin] = useState(0);
-  const [filterMembershipId,setFilterMembershipId] = useState("");
+  const [membershipCoin, setMembershipCoin] = useState(0);
+  const [filterMembershipId, setFilterMembershipId] = useState("");
   const [memberShipId, setMemberShipId] = useState("");
-  const [creditUsed,setCreditUsed] = useState(0);
-  const [phoneNumber,setPhoneNumber] = useState("")
-  const [subServiceTotal, setSubServiceTotal] = useState(0)
+  const [creditUsed, setCreditUsed] = useState(0);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [subServiceTotal, setSubServiceTotal] = useState(0);
+  const [staffNames, setStaffNames] = useState(Array(addedAppointmentDetails.length).fill(""));
+
+  const handleStaffNameChange = (index, newName) => {
+    setStaffNames((prevStaffNames) => {
+      const newStaffNames = [...prevStaffNames];
+      newStaffNames[index] = newName;
+  
+      const newAddedAppointmentDetails = addedAppointmentDetails.map((appointment, i) => {
+        if (i === index) {
+          return {
+            ...appointment,
+            staffName: newName
+          };
+        }
+        return appointment;
+      });
+  
+      setAddedAppointmentDetails(newAddedAppointmentDetails);
+      return newStaffNames;
+    });
+  };
+  
 
   // api call for getting service category
   useEffect(() => {
@@ -63,7 +85,7 @@ const Edit = () => {
     //   };
     getApiCall(
       "salonService/getServiceCategory",
-      
+
       (resp) => {
         console.log("salonService", resp);
         setService(resp);
@@ -110,101 +132,100 @@ const Edit = () => {
   }, [serviceSelection.subCategory]);
 
   //single appointment api
-    useEffect(()=>{
-        getApiCall(`appointment/getSingleAppointmentDetails?id=${id}`,
-        (resp)=>{
-            console.log("new edit ki single data :",resp)
-            setDiscount(resp.discountPercentage)
-            setAppointmentDetails(resp)
-            setAddedAppointmentDetails(resp.services)
-            setAppointmentProducts(resp.products)
-            // setMembershipDetails(resp.customer.activeMembership)
-            setMemberShipStatus(resp.membershipUsed)
-            setFilterMembershipId(resp.membershipId)
-            setUserId(resp.customer._id)
-            setMemberShipId(resp.membershipId)
-            setTotalSubServices(resp.membershipCreditUsed)
-            setSubServiceTotal(resp.membershipCreditUsed)
-            setPhoneNumber(resp.customer.phoneNumber)
-            
-            // setCreditUsed(resp.membershipCreditUsed)
-        },(error)=>{
-            console.log(`newEdit page error: ${error}`)
-        })
-    },[])
- 
-    console.log({appointmentDetails})
-    console.log({appointementProducts})
-    console.log({appointmentServices})
-    // staff get api
-    useEffect(() => {
-        getApiCall(
-          "owner/getStaff",
-          (res) => {
-            setStaffData(res);
-          },
-          (error) => {
-            console.log("error", error);
-          }
-        );
-      }, [serviceSelection.subCategory]);
+  useEffect(() => {
+    getApiCall(
+      `appointment/getSingleAppointmentDetails?id=${id}`,
+      (resp) => {
+        console.log("new edit ki single data :", resp);
+        setDiscount(resp.discountPercentage);
+        setAppointmentDetails(resp);
+        setAddedAppointmentDetails(resp.services);
+        setAppointmentProducts(resp.products);
+        // setMembershipDetails(resp.customer.activeMembership)
+        setMemberShipStatus(resp.membershipUsed);
+        setFilterMembershipId(resp.membershipId);
+        setUserId(resp.customer._id);
+        setMemberShipId(resp.membershipId);
+        setTotalSubServices(resp.membershipCreditUsed);
+        setSubServiceTotal(resp.membershipCreditUsed);
+        setPhoneNumber(resp.customer.phoneNumber);
 
-      // handle buttons for add service
-      const serviceAddpress = () => {
-        console.log("click handle addon")
-       setAddedAppointmentDetails([
-        ...addedAppointmentDetails,
-        serviceSelection
-       ])
-      //  let myServicesPrice = getTotalServicePrice(addedAppointmentDetails, discount)
-      //  setTotalSubServices(myServicesPrice)
-      //  setSubServiceTotal(totalService)
-      };
-      console.log("adding or added services",addedAppointmentDetails)
-      const handleServiceChange = (e) => {
-        console.log("selected value", e.target.value);
-        setServiceSelection({
-          ...serviceSelection,
-          category: e.target.value,
-          subCategory: "",
-        });
-      };
-      const handleSubCategoryChange = (e) => {
-        console.log("selected value", e.target.value);
-        setServiceSelection({
-          ...serviceSelection,
-          subCategory: e.target.value,
-          miniSubcategory: "",
-        });
-      };
-    
-      const handleminiChange = (event) => {
-        // console.log("minichangedata", e.target.value);
-        const selectedOption = event.target.options[event.target.selectedIndex];
-        const selectedPrice = selectedOption.getAttribute("data-price");
-        console.log("selectedPrice", +selectedPrice);
-        // Now you have the selected price, you can use it as needed
-        setServiceSelection({
-          ...serviceSelection,
-          miniSubcategory: event.target.value,
-          price: +selectedPrice,
-        });
-      };
-      const handlestaffChange = (e) => {
-        console.log("staffselect", e.target.value);
-        setServiceSelection({
-          ...serviceSelection,
-          staffId: e.target.value,
-          satffName: e.target.value,
-        });
-      };
-   
-console.log()
-      console.log("added services ", addedAppointmentDetails)
+        // setCreditUsed(resp.membershipCreditUsed)
+      },
+      (error) => {
+        console.log(`newEdit page error: ${error}`);
+      }
+    );
+  }, []);
 
+  console.log({ appointmentDetails });
+  console.log({ appointementProducts });
+  console.log({ appointmentServices });
+  // staff get api
+  useEffect(() => {
+    getApiCall(
+      "owner/getStaff",
+      (res) => {
+        setStaffData(res);
+      },
+      (error) => {
+        console.log("error", error);
+      }
+    );
+  }, [serviceSelection.subCategory]);
 
-      // search product api
-      // on search product click
+  // handle buttons for add service
+  const serviceAddpress = () => {
+    console.log("click handle addon");
+    setAddedAppointmentDetails([...addedAppointmentDetails, serviceSelection]);
+    //  let myServicesPrice = getTotalServicePrice(addedAppointmentDetails, discount)
+    //  setTotalSubServices(myServicesPrice)
+    //  setSubServiceTotal(totalService)
+  };
+  console.log("adding or added services", addedAppointmentDetails);
+  const handleServiceChange = (e) => {
+    console.log("selected value", e.target.value);
+    setServiceSelection({
+      ...serviceSelection,
+      category: e.target.value,
+      subCategory: "",
+    });
+  };
+  const handleSubCategoryChange = (e) => {
+    console.log("selected value", e.target.value);
+    setServiceSelection({
+      ...serviceSelection,
+      subCategory: e.target.value,
+      miniSubcategory: "",
+    });
+  };
+
+  const handleminiChange = (event) => {
+    // console.log("minichangedata", e.target.value);
+    const selectedOption = event.target.options[event.target.selectedIndex];
+    const selectedPrice = selectedOption.getAttribute("data-price");
+    console.log("selectedPrice", +selectedPrice);
+    // Now you have the selected price, you can use it as needed
+    setServiceSelection({
+      ...serviceSelection,
+      miniSubcategory: event.target.value,
+      price: +selectedPrice,
+    });
+  };
+  const handlestaffChange = (e) => {
+    console.log("staffselect", e.target.value);
+    setServiceSelection({
+      ...serviceSelection,
+      staffId: e.target.value,
+      satffName: e.target.value,
+    });
+  };
+
+  console.log();
+  console.log("added services ", addedAppointmentDetails);
+
+  // search product api
+  // on search product click
   const searchProductOnchange = (e) => {
     setsearchProduct(e.target.value);
     const data = {
@@ -244,35 +265,34 @@ console.log()
 
     // dispatch(EditproductAdded(itemWithAdditionalInfo));
     // setProductData(itemWithAdditionalInfo)
-    setAppointmentProducts(
-        [
-            ...appointementProducts,
-            itemWithAdditionalInfo
-        ]
-    )
+    setAppointmentProducts([...appointementProducts, itemWithAdditionalInfo]);
   };
 
   const deleteEditService = (indexId) => {
     // const updatedDetails = [addedAppointmentDetails]
-    const updatedDetails = addedAppointmentDetails.filter((_, index) => index !== indexId);
+    const updatedDetails = addedAppointmentDetails.filter(
+      (_, index) => index !== indexId
+    );
     // console.log({updatedDetails, index})
     // updatedDetails.splice(index, 1);
     // let newArray = oldArray.filter((_, index) => index !== indexToRemove);
     setAddedAppointmentDetails(updatedDetails);
   };
   const deleteEditProduct = (indexId) => {
-    const updatedDetails =  appointementProducts.filter((_, index) => index !== indexId);
+    const updatedDetails = appointementProducts.filter(
+      (_, index) => index !== indexId
+    );
     // updatedDetails.splice(index, 1);
     setAppointmentProducts(updatedDetails);
   };
   const handleGenderChange = (selectedGender) => {
     setGender(selectedGender);
     setServiceSelection({
-      category: ""
-    })
-    setSubService(null)
-    setMiniService(null)
-    setStaffData(null)
+      category: "",
+    });
+    setSubService(null);
+    setMiniService(null);
+    setStaffData(null);
   };
 
   // handle book appointment
@@ -281,37 +301,36 @@ console.log()
 
     const data = {
       services: addedAppointmentDetails,
-    
+
       subTotal: subTotalServices,
       total: totalAmount,
-  
+
       membershipUsed: memberShipStatus,
       membershipId: memberShipStatus ? memberShipId : "",
       // membershipCreditUsed: (memberShipStatus)? (+subTotalServices):0,
-      membershipCreditUsed: memberShipStatus? (+creditUsed): 0,
+      membershipCreditUsed: memberShipStatus ? +creditUsed : 0,
       products: appointementProducts,
       discount: serviceDiscount,
-      discountPercentage: discount
+      discountPercentage: discount,
     };
-    
-      postApiData(
-        `appointment/editAppointmentBookedFromCrm?id=${id}`,
-        data,
-        (resp) => {
-          if (resp) {
-            // alert("Appointment Booked Sucessfully");
-            toast.success("Appointment Booked SuccessFully");
-            console.log("appointment", resp);
-            navigate('/viewAppointment')
-          }
-        },
-        (error) => {
-          console.log("error", error);
-          // alert(" Booking Status Failed");
-        //   toast.error("Booking Status Failed");
+
+    postApiData(
+      `appointment/editAppointmentBookedFromCrm?id=${id}`,
+      data,
+      (resp) => {
+        if (resp) {
+          // alert("Appointment Booked Sucessfully");
+          toast.success("Appointment Booked SuccessFully");
+          console.log("appointment", resp);
+          navigate("/viewAppointment");
         }
-      );
-    
+      },
+      (error) => {
+        console.log("error", error);
+        // alert(" Booking Status Failed");
+        //   toast.error("Booking Status Failed");
+      }
+    );
   };
   const applyMemberShip = () => {
     // console.log("before",subTotalService)
@@ -319,43 +338,41 @@ console.log()
     // post api = {"creditsUsed":650, "userId":"659ba793f289e0151305cba0", "memId":"65b0e6dc44201e04eae2ae7b"}
     // setMemberShipStatus(!memberShipStatus)
     const data = {
-    //   creditsUsed:5000,
-      creditsUsed: memberShipStatus ?  subServiceTotal : totalService ,
+      //   creditsUsed:5000,
+      creditsUsed: memberShipStatus ? subServiceTotal : totalService,
       // creditsUsed: totalSubServices,
       userId: userId,
       memId: memberShipId,
-      isMembershipUsed: !memberShipStatus
+      isMembershipUsed: !memberShipStatus,
     };
     // console.log("after",subTotalService)
-    console.log("------------------------------data",data)
-
+    console.log("------------------------------data", data);
 
     postApiData(
       "membership/applyMembership",
       data,
       (resp) => {
         if (resp) {
-          console.log("resp.data.creditsLeft",resp?.creditsLeft)
-          if(memberShipStatus){
-            setMembershipCoin(resp?.creditsLeft)
-            setMemberShipStatus(false)
+          console.log("resp.data.creditsLeft", resp?.creditsLeft);
+          if (memberShipStatus) {
+            setMembershipCoin(resp?.creditsLeft);
+            setMemberShipStatus(false);
             // setMemberShip(-memberShip)
             // setSubTotalService(subtotalPrice)
             // setIsMembershipUsed(true)
-            setCreditUsed(resp.creditsUsed - resp.remainingAmount)
-            setTotalSubServices(resp.creditsUsed)
-            toast.error("MemberShip Removed sucessfully")
-          } 
-          else {
+            setCreditUsed(resp.creditsUsed - resp.remainingAmount);
+            setTotalSubServices(resp.creditsUsed);
+            toast.error("MemberShip Removed sucessfully");
+          } else {
             // alert("MemberShip Applied sucessfully");
-            toast.success("MemberShip Applied sucessfully")
-            setMembershipCoin(resp.creditsLeft)
-            setSubServiceTotal(resp.creditsUsed - resp.remainingAmount)
+            toast.success("MemberShip Applied sucessfully");
+            setMembershipCoin(resp.creditsLeft);
+            setSubServiceTotal(resp.creditsUsed - resp.remainingAmount);
             // setSubServiceCoins(resp.creditsUsed - resp.remainingAmount)
-            setCreditUsed(resp.creditsUsed - resp.remainingAmount)
+            setCreditUsed(resp.creditsUsed - resp.remainingAmount);
             setMemberShipStatus(true);
-            // setIsMembershipUsed(false)      
-          // setMemberShip(-memberShip)
+            // setIsMembershipUsed(false)
+            // setMemberShip(-memberShip)
           }
         }
       },
@@ -365,45 +382,49 @@ console.log()
       }
     );
   };
-  const arr = membershipDetails?.filter((item)=>item?._id === filterMembershipId)
-  console.log({arr})
+  const arr = membershipDetails?.filter(
+    (item) => item?._id === filterMembershipId
+  );
+  console.log({ arr });
 
   // const getTotalServicePrice = (addedAppointmentDetails, discount) => {
   //   const subTotalServices = addedAppointmentDetails.reduce((acc,item)=>acc+item?.price,0);
 
-  
   //   const serviceDiscount = (subTotalServices*(discount/100));
   //   console.log("service ka discount",serviceDiscount)
-  
+
   //   const totalService = subTotalServices-serviceDiscount;
   //   console.log("total ka service",totalService)
   //   return totalService;
   // }
 
-  const subTotalServices = addedAppointmentDetails.reduce((acc,item)=>acc+item?.price,0);
-  
-  console.log("subtotalsumservice",subTotalServices)
+  const subTotalServices = addedAppointmentDetails.reduce(
+    (acc, item) => acc + item?.price,
+    0
+  );
+
+  console.log("subtotalsumservice", subTotalServices);
 
   const subProductTotal = appointementProducts
-  ?.map(item => item.price * item.quantity)
-  ?.reduce((acc, val) => acc + val, 0);
-  console.log("subproduct ka total",subProductTotal)
+    ?.map((item) => item.price * item.quantity)
+    ?.reduce((acc, val) => acc + val, 0);
+  console.log("subproduct ka total", subProductTotal);
 
-  const serviceDiscount = (subTotalServices*(discount/100));
-  console.log("service ka discount",serviceDiscount)
+  const serviceDiscount = subTotalServices * (discount / 100);
+  console.log("service ka discount", serviceDiscount);
 
-  const totalService = subTotalServices-serviceDiscount;
-  console.log("total ka service",totalService)
+  const totalService = subTotalServices - serviceDiscount;
+  console.log("total ka service", totalService);
 
-  const totalAmount = totalService+subProductTotal;
+  const totalAmount = totalService + subProductTotal;
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
     console.log("selectedMembership", selectedMembership);
     setMemberShipId(e.target.value);
-    setTotalSubServices(subTotalServices)
+    setTotalSubServices(subTotalServices);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const data = {
       phoneNumber: phoneNumber,
     };
@@ -418,7 +439,7 @@ console.log()
         console.log("error", error);
       }
     );
-  },[memberShipStatus])
+  }, [memberShipStatus]);
   const handlePriceChange = (index, newPrice) => {
     // const updatedServices = services.map((item, i) =>
     //   i === index ? { ...item, price: +newPrice } : item
@@ -429,15 +450,15 @@ console.log()
 
   return (
     <Layout>
-        <div className='my-40'>
-            {/* Services Table section*/}
-            <div className=""
+      <div className="my-40">
+        {/* Services Table section*/}
+        <div
+          className=""
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
-
         >
           <label style={{ width: "70px" }}>
             <input
@@ -483,13 +504,12 @@ console.log()
         Selected Gender: {gender && <strong>{gender}</strong>}
       </div> */}
         </div>
-            <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
+        <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             Your Services
           </h1>
           <div className="w-full overflow-x-auto my-4">
             <div className="table-container">
-              
               <table className="styled-table">
                 <thead>
                   <tr>
@@ -504,39 +524,41 @@ console.log()
                   </tr>
                 </thead>
                 <tbody>
+                  {addedAppointmentDetails?.length > 0
+                    ? addedAppointmentDetails.map((item, index) => (
+                        <tr key={index} className="bg-white">
+                          <td>{item?.miniSubcategory || item?.name}</td>
+                          <td>{item?.category}</td>
+                          <td>{item?.subCategory}</td>
+                          <td>
+                            {staffData
+                              ?.filter((staff) => staff._id === item.staffId)
+                              ?.map((data) => (
+                                <span>{data.name}</span>
+                              ))}
+                            {!staffData.some(
+                              (staff) => staff._id === item.staffId
+                            ) && (
+                              <input
+                                type="text"
+                                value={staffNames[index]}
+                                onChange={(e) =>
+                                  handleStaffNameChange(index, e.target.value)
+                                }
+                              />
+                            )}
+                          </td>
+                          <td>{item?.price}</td>
 
-{
-    addedAppointmentDetails?.length > 0 ? (
-        addedAppointmentDetails.map((item, index) => (
-                    <tr key={index} className="bg-white">
-                      <td>{item?.miniSubcategory}</td>
-                      <td>{item?.category}</td>
-                      <td>{item?.subCategory}</td>
-                      <td>
-                        {staffData
-                          ?.filter((staff) => staff._id === item.staffId)
-                          ?.map((data) => (
-                            <span>{data.name}</span>
-                          ))}
-                      </td>
-                      <td>{item?.price}</td>
-                      
-                      <td>
-                        <MdDeleteOutline
-                             onClick={() => deleteEditService(index)}
-                          className="text-xl text-red-600 font-bold cursor-pointer"
-                        />
-                      </td>
-                    </tr>
-                  ))
-    
-) : (
-    ''
-)
-}
-                  
-
-                 
+                          <td>
+                            <MdDeleteOutline
+                              onClick={() => deleteEditService(index)}
+                              className="text-xl text-red-600 font-bold cursor-pointer"
+                            />
+                          </td>
+                        </tr>
+                      ))
+                    : ""}
                 </tbody>
               </table>
             </div>
@@ -557,7 +579,7 @@ console.log()
               justifyContent: "space-between",
               alignItems: "center",
               padding: "10px",
-              paddingBottom:"30px",
+              paddingBottom: "30px",
               marginTop: "20px",
             }}
           >
@@ -566,9 +588,7 @@ console.log()
               onChange={handleServiceChange}
               value={serviceSelection.category} // Use 'value' for controlled components
             >
-              <option value={service} >
-                Select Category
-              </option>
+              <option value={service}>Select Category</option>
               {service?.map((item, index) => (
                 <option
                   key={item?.id}
@@ -585,9 +605,7 @@ console.log()
               onChange={handleSubCategoryChange}
               value={serviceSelection.subCategory} // Use 'value' for controlled components
             >
-              <option value={subservice} >
-                Select SubCategory
-              </option>
+              <option value={subservice}>Select SubCategory</option>
               {subservice?.map((item) => (
                 <option
                   key={item.id}
@@ -603,10 +621,8 @@ console.log()
               onChange={handleminiChange}
               value={serviceSelection.miniSubcategory}
             >
-              <option value={miniservice} >
-                Select MiniCategory
-              </option>
-              {miniservice?.map((item) => (    
+              <option value={miniservice}>Select MiniCategory</option>
+              {miniservice?.map((item) => (
                 <option
                   key={item.id}
                   value={item.value}
@@ -623,7 +639,7 @@ console.log()
               onChange={handlestaffChange}
               value={serviceSelection.staffId}
             >
-              <option value={staffData} className="bg-white" >
+              <option value={staffData} className="bg-white">
                 Select Staff
               </option>
               {staffData?.map((item) => (
@@ -643,9 +659,9 @@ console.log()
                 borderRadius: "20px solid grey",
                 width: "150px",
                 backgroundColor: "red",
-                cursor:"pointer"
+                cursor: "pointer",
               }}
-            onClick={serviceAddpress}
+              onClick={serviceAddpress}
             >
               <label
                 style={{ color: "white", fontSize: "14px", fontWeight: "500" }}
@@ -657,63 +673,53 @@ console.log()
         </div>
 
         {/* Product Table section */}
-        {
-            appointementProducts?.length > 0 && (
-                <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
-          <h1 className="text-4xl font-bold text-black mt-2 ml-2">
-            Your Products
-          </h1>
-          
-                <div className="w-full overflow-x-auto my-4">
-            <div className="table-container">
-              
-              <table className="styled-table">
-                <thead>
-                  <tr>
-                  <th>Name</th>
-                  <th>Price</th>
-                  <th>Brand</th>
-                  <th>Quantity</th>
-                  <th>Action</th>
+        {appointementProducts?.length > 0 && (
+          <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
+            <h1 className="text-4xl font-bold text-black mt-2 ml-2">
+              Your Products
+            </h1>
 
-                  </tr>
-                </thead>
-                <tbody>
-
-{
-    
-    appointementProducts?.map((item, index) => (
-                    <tr key={index} className="bg-white">
-                    <td>{item?.name}</td>
-                      <td>{item?.price}</td>
-                      <td>{item?.brand}</td>
-                      <td>{item?.quantity}</td>
-                      <td>
-                        {" "}
-                        <MdDeleteOutline  onClick={() => deleteEditProduct(index)}/>
-                      </td>
+            <div className="w-full overflow-x-auto my-4">
+              <div className="table-container">
+                <table className="styled-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Price</th>
+                      <th>Brand</th>
+                      <th>Quantity</th>
+                      <th>Action</th>
                     </tr>
-                  ))
-
-}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {appointementProducts?.map((item, index) => (
+                      <tr key={index} className="bg-white">
+                        <td>{item?.name}</td>
+                        <td>{item?.price}</td>
+                        <td>{item?.brand}</td>
+                        <td>{item?.quantity}</td>
+                        <td>
+                          {" "}
+                          <MdDeleteOutline
+                            onClick={() => deleteEditProduct(index)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-            
-        </div>
-            )
+        )}
 
-        }
-        
-
-{/* ADD PRODUTS SECTION */}
-<div className='mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto mt-10'>
-<h1 className="text-4xl font-bold text-black mt-2 ml-2">
+        {/* ADD PRODUTS SECTION */}
+        <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto mt-10">
+          <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             ADD Products
           </h1>
-    {/* Search Table */}
-    <div className="search-container h-auto ">
+          {/* Search Table */}
+          <div className="search-container h-auto ">
             <div className="flex flex-row relative mb-10 ">
               {/* <h1 className="text-lg font-semibold">Search Product</h1> */}
               <div className="flex relative w-[40%] mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
@@ -815,7 +821,7 @@ console.log()
                                 borderRadius: "20px solid grey",
                                 width: "150px",
                                 backgroundColor: "black",
-                                cursor:"pointer"
+                                cursor: "pointer",
                               }}
                               onClick={() =>
                                 addproductPress(item, productQnt, item._id)
@@ -826,7 +832,6 @@ console.log()
                                   color: "white",
                                   fontSize: "14px",
                                   fontWeight: "500",
-                                  
                                 }}
                               >
                                 Add Product
@@ -840,121 +845,161 @@ console.log()
               </div>
             )}
           </div>
-</div>
+        </div>
 
-{/* Book Appointment Section */}
-<div className="border-2 border-gray-300 p-4 rounded-lg bg-slate-100 my-12 flex flex-col w-[95%] mx-auto">
-        <h1 className="text-4xl font-bold mb-10 mt-10 text-center text-black">
-          BOOK APPOINTMENT
-        </h1>
+        {/* Book Appointment Section */}
+        <div className="border-2 border-gray-300 p-4 rounded-lg bg-slate-100 my-12 flex flex-col w-[95%] mx-auto">
+          <h1 className="text-4xl font-bold mb-10 mt-10 text-center text-black">
+            BOOK APPOINTMENT
+          </h1>
 
-        <div className="flex justify-between items-center">
-        <div className="flex flex-col">
-        <div className="flex justify-start gap-3 items-center">
-          <h1 className="text-lg font-semibold">Apply Discount</h1>
-          <input
-            type="number"
-            className="outline-none"
-            value={discount}
-            onChange={(e) => setDiscount(e.target.value)}
-          />
+          <div className="flex justify-between items-center">
+            <div className="flex flex-col">
+              <div className="flex justify-start gap-3 items-center">
+                <h1 className="text-lg font-semibold">Apply Discount</h1>
+                <input
+                  type="number"
+                  className="outline-none"
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                />
+                <button
+                  //    onClick={applyDiscount}
+                  className="bg-black"
+                >
+                  Apply Discount
+                </button>
+              </div>
+              <div className="flex mt-6 justify-start items-center mb-3">
+                {/* MEMBERSHIP STATUS */}
+                <div className="flex items-center justify-center">
+                  <h1 className="text-lg font-semibold">Membership</h1>
+                  <select
+                    className="mx-3 w-80 h-10 outline-none border-2 border-gray-500 rounded-lg"
+                    onChange={membershipPress}
+                    value={memberShipId}
+                    disabled={memberShipStatus ? true : false}
+                  >
+                    <option value="">Membership</option>
+                    {membershipDetails?.map((item) => {
+                      return (
+                        <option value={item._id}>
+                          {" "}
+                          {item?.name}
+                          {" -"}
+                          {item.creditsLeft}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* Membership Button */}
+
+                {memberShipStatus ? (
+                  <button
+                    onClick={applyMemberShip}
+                    className="bg-red-600 hover:bg-red-500"
+                  >
+                    Remove Membership
+                  </button>
+                ) : (
+                  <button
+                    onClick={applyMemberShip}
+                    className="bg-black hover:bg-gray-800"
+                  >
+                    Apply Membership
+                  </button>
+                )}
+
+                <div className="flex ml-6">
+                  <h3 className="text-lg font-bold text-black">
+                    BALANCE :{" "}
+                    <span className="text-green-600 font-bold">
+                      {membershipCoin}
+                    </span>
+                  </h3>
+                </div>
+              </div>
+            </div>
+            <div>
+              {arr?.length > 0 && (
+                <div className="flex flex-col">
+                  <p className=" text-lg font-bold text-black">
+                    MEMBERSHIP:{" "}
+                    <span className="text-md font-medium ml-1 text-green-600">
+                      {arr[0]?.name}
+                    </span>
+                  </p>
+                  <p className=" text-lg font-bold text-black">
+                    CREDITS LEFT:
+                    <span className="text-md font-medium ml-1 text-green-600">
+                      {arr[0]?.creditsLeft}
+                    </span>
+                  </p>
+                  <p className=" text-lg font-bold text-black">
+                    AMOUNT:
+                    <span className="text-md font-medium ml-1 text-green-600">
+                      {arr[0]?.amount}
+                    </span>
+                  </p>
+                </div>
+              )}
+              <p className=" text-lg font-bold text-black">
+                SubTotal Services:
+                <span className="text-md font-medium ml-1 text-green-600">
+                  {subTotalServices}
+                </span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                SubTotal Products:
+                <span className="text-md font-medium ml-1 text-green-600">
+                  {subProductTotal}
+                </span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                DISCOUNT:
+                <span className="text-md font-medium ml-1 text-green-600">
+                  {serviceDiscount}
+                </span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                Total Services:
+                <span className="text-md font-medium ml-1 text-green-600">
+                  {totalService}
+                </span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                Total Products:
+                <span className="text-md font-medium ml-1 text-green-600">
+                  {subProductTotal}
+                </span>
+              </p>
+              <p className=" text-lg font-bold text-black">
+                Total Payable:
+                <span className="text-md font-medium ml-1 text-green-600">
+                  {totalAmount}
+                </span>
+              </p>
+            </div>
+          </div>
+
           <button
-        //    onClick={applyDiscount}
-            className="bg-black">
-            Apply Discount
+            className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black"
+            onClick={handleBookAppointment}
+          >
+            Update Appointment
           </button>
         </div>
-        <div className="flex mt-6 justify-start items-center mb-3">
-          {/* MEMBERSHIP STATUS */}
-          <div className="flex items-center justify-center">
-            <h1 className="text-lg font-semibold">Membership</h1>
-            <select
-              className="mx-3 w-80 h-10 outline-none border-2 border-gray-500 rounded-lg"
-              onChange={membershipPress}
-              value={memberShipId}
-              disabled={memberShipStatus ? true : false}
-            >
-              <option value="" >
-                Membership
-              </option>
-              {membershipDetails?.map((item) => {
-                return (
-                  <option value={item._id}>
-                    {" "}
-                    {item?.name}
-                    {" -"}
-                    {item.creditsLeft}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-          
-
-          {/* Membership Button */}
-          
-          {memberShipStatus ? (
-            <button onClick={applyMemberShip} className="bg-red-600 hover:bg-red-500">
-              Remove Membership
-            </button>
-          ) : (
-            <button onClick={applyMemberShip} className="bg-black hover:bg-gray-800">
-              Apply Membership
-            </button>
-          )}
-
-          <div className="flex ml-6">
-            <h3 className="text-lg font-bold text-black">
-              BALANCE :{" "}
-              <span className="text-green-600 font-bold">{membershipCoin}</span>
-            </h3>
-          </div>
-
-          
-        </div>
-        </div>
-            <div>
-        {
-          arr?.length>0 && (
-            <div className='flex flex-col'>
-        <p className=" text-lg font-bold text-black">MEMBERSHIP: <span className="text-md font-medium ml-1 text-green-600">{arr[0]?.name}</span></p>
-              <p className=" text-lg font-bold text-black">CREDITS LEFT:<span className="text-md font-medium ml-1 text-green-600">{arr[0]?.creditsLeft}</span></p>
-              <p className=" text-lg font-bold text-black">AMOUNT:<span className="text-md font-medium ml-1 text-green-600">{arr[0]?.amount}</span></p>
-            </div>
-          )
-        }
-              <p className=" text-lg font-bold text-black">SubTotal Services:<span className="text-md font-medium ml-1 text-green-600">{subTotalServices}</span></p>
-              <p className=" text-lg font-bold text-black">SubTotal Products:<span className="text-md font-medium ml-1 text-green-600">{subProductTotal}</span></p>
-              <p className=" text-lg font-bold text-black">DISCOUNT:<span className="text-md font-medium ml-1 text-green-600">{serviceDiscount}</span></p>
-              <p className=" text-lg font-bold text-black">Total Services:<span className="text-md font-medium ml-1 text-green-600">{totalService}</span></p>
-              <p className=" text-lg font-bold text-black">Total Products:<span className="text-md font-medium ml-1 text-green-600">{subProductTotal}</span></p>
-              <p className=" text-lg font-bold text-black">Total Payable:<span className="text-md font-medium ml-1 text-green-600">{totalAmount}</span></p>
-        </div>
-       
-        </div>
-
-
-        
-
-        <button
-          className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black"
-          onClick={handleBookAppointment}
-        >
-          Update Appointment
-        </button>
       </div>
-        </div>
     </Layout>
-  )
-}
+  );
+};
 
-export default Edit
+export default Edit;
 
-
-
-
-
-{/* appointmentServices?.map((item, index) => (
+{
+  /* appointmentServices?.map((item, index) => (
                     <tr key={index} className="bg-white">
                       <td>{item?.miniSubcategory}</td>
                       <td>{item?.category}</td>
@@ -974,5 +1019,5 @@ export default Edit
                         />
                       </td>
                     </tr>
-                  )) */}
-                  
+                  )) */
+}
