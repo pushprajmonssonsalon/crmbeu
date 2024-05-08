@@ -14,7 +14,7 @@ import ReportTable from "../../components/Table/ReportTable";
 const Report = () => {
   const defaultStartDate = new Date();
   const [startDate, setStartDate] = useState(defaultStartDate);
-  const [endDate, setEndDate] = useState();
+  const [endDate, setEndDate] = useState(defaultStartDate);
   const [reports, setReports] = useState([]);
   const [membershipSale, setMemberShipSale] = useState([]);
   const [paymentMethodReport, setpaymentMethodeReport] = useState([]);

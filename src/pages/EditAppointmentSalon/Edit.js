@@ -67,7 +67,7 @@ const Edit = () => {
           return {
             ...appointment,
             staffName: newName
-          };
+          }; 
         }
         return appointment;
       });
@@ -213,11 +213,15 @@ const Edit = () => {
     });
   };
   const handlestaffChange = (e) => {
+    let splited = e.target.value.split("-");
+    let Name = splited[1];
+    let Id = splited[0];
+    console.log("staffffffff------", Name, Id);
     console.log("staffselect", e.target.value);
     setServiceSelection({
       ...serviceSelection,
-      staffId: e.target.value,
-      satffName: e.target.value,
+      staffId: Id,
+      satffName: Name,
     });
   };
 
@@ -635,23 +639,25 @@ const Edit = () => {
             </select>
 
             <select
-              className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={handlestaffChange}
-              value={serviceSelection.staffId}
-            >
-              <option value={staffData} className="bg-white">
-                Select Staff
-              </option>
-              {staffData?.map((item) => (
-                <option
-                  key={item._id}
-                  value={item._id}
-                  className="border-none shadow-lg rounded-lg bg-white "
+                  className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
+                  onChange={handlestaffChange}
+                  // value={serviceSelection.satffName}
+                  value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
                 >
-                  {item.name}
-                </option>
-              ))}
-            </select>
+                  <option value={staffData} className="bg-white">
+                    Select Staff
+                  </option>
+                  {staffData?.map((item) => (
+                    <option
+                      key={item._id}
+                      value={`${item._id}-${item.name}`}
+                      //  value={`${item._id}`}
+                      className="border-none shadow-lg rounded-lg bg-white "
+                    >
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
 
             <button
               style={{

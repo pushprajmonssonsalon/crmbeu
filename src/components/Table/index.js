@@ -17,6 +17,7 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
                   <th>{header.type}</th>
                   <th>{header.size}</th>
                   <th>{header.brand}</th>
+                  <th>{header.add}</th>
                   <th>{header.order}</th>
                 </tr>
               </thead>
@@ -29,7 +30,7 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
                     <td>{item.type}</td>
                     <td>{item.size}{" "}{item.unit}</td>
                     <td>{item.brand}</td>
-                    {/* <td>
+                    <td>
                       <div
                         style={{
                           background: "transparent",
@@ -52,7 +53,7 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
                          <BiSolidAddToQueue className="text-xl font-bold text-black" onClick={()=>handleInventryOpen(item._id)}/>
                         </p>
                       </div>
-                    </td> */}
+                    </td>
                     <td>
                     <div
                         style={{

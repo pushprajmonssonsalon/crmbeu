@@ -45,10 +45,7 @@ console.log("uploaded files:",images)
   const { getRootProps, getInputProps } = useDropzone({ onDrop: handleDrop });
 
   const handleSubmit=()=>{
-    if (!address || !address2 || !contactNumber || !images) {
-        toast.error("Enter all required details!");
-        return;
-      }
+    
     const data = {
         address:address,
         address2: address2,
