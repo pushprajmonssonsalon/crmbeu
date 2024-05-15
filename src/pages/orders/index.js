@@ -5,17 +5,24 @@ import { FaEdit } from 'react-icons/fa'
 import ProductOrderPopup from '../../components/popup/ProductOrderPopup'
 import { IoPrintSharp } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
+import { MdDriveFolderUpload } from "react-icons/md";
+import InvoiceUpload from '../../components/popup/InvoiceUpload'
 
 const Orders = () => {
     const [ordersList,setOrdersList] = useState([])
     const [orderProductList,setOrderProductLsit] = useState([])
     const [isVisible,setIsVisible] = useState(false)
+    const [isUpload,setIsUpload] = useState(false)
     const [orderId,setOrderId] = useState('');
     const [bool,setBool] = useState(false)
+    const [pdfUrls, setPdfUrls] = useState([])
 
     const navigate = useNavigate();
     const onClose =()=>{
       setIsVisible(false)
+    }
+    const onUploadClose=()=>{
+      setIsUpload(false)
     }
     useEffect(()=>{
         getApiCall(
@@ -73,6 +80,7 @@ const Orders = () => {
                   <th>Brand</th> */}
                   <th>Action</th>
                   <th>Status</th>
+                  <th>Upload</th>
                 </tr>
               </thead>
               <tbody>
@@ -100,13 +108,14 @@ const Orders = () => {
                     </td>
                     <td className={`font-semibold text-sm ${item.status === 1 ?  'text-red-500' : 'text-green-600'} `}>{item.status === 1 ? "Pending" : "Received"}</td>
                     
-                  
+                  <td><MdDriveFolderUpload className='text-xl text-center w-full text-black cursor-pointer' onClick={()=>setIsUpload(true)}/></td>
                   </tr>
                 ))}
               </tbody>
             </table>
         </div>
         <ProductOrderPopup isVisible={isVisible} onClose={onClose} data={orderProductList} orderId={orderId} bool={bool} setBool={setBool} />
+        <InvoiceUpload isVisible={isUpload} onClose={onUploadClose} pdfUrls={pdfUrls} setPdfUrls={setPdfUrls}/>
     </Layout>
   )
 }
