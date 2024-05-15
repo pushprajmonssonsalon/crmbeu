@@ -166,7 +166,7 @@ return `${formattedDate} ${formattedTime}`
   console.log("idddddddd-------",apptId)
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+    <Paper sx={{ width: '90%', overflow: 'hidden'}}>
       <TableContainer sx={{ maxHeight: 440 }}>
         <Table  aria-label="sticky table">
           <TableHead>

@@ -55,28 +55,31 @@ const Edit = () => {
   const [creditUsed, setCreditUsed] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [subServiceTotal, setSubServiceTotal] = useState(0);
-  const [staffNames, setStaffNames] = useState(Array(addedAppointmentDetails.length).fill(""));
+  const [staffNames, setStaffNames] = useState(
+    Array(addedAppointmentDetails.length).fill("")
+  );
 
   const handleStaffNameChange = (index, newName) => {
     setStaffNames((prevStaffNames) => {
       const newStaffNames = [...prevStaffNames];
       newStaffNames[index] = newName;
-  
-      const newAddedAppointmentDetails = addedAppointmentDetails.map((appointment, i) => {
-        if (i === index) {
-          return {
-            ...appointment,
-            staffName: newName
-          }; 
+
+      const newAddedAppointmentDetails = addedAppointmentDetails.map(
+        (appointment, i) => {
+          if (i === index) {
+            return {
+              ...appointment,
+              staffName: newName,
+            };
+          }
+          return appointment;
         }
-        return appointment;
-      });
-  
+      );
+
       setAddedAppointmentDetails(newAddedAppointmentDetails);
       return newStaffNames;
     });
   };
-  
 
   // api call for getting service category
   useEffect(() => {
@@ -277,9 +280,6 @@ const Edit = () => {
     const updatedDetails = addedAppointmentDetails.filter(
       (_, index) => index !== indexId
     );
-    // console.log({updatedDetails, index})
-    // updatedDetails.splice(index, 1);
-    // let newArray = oldArray.filter((_, index) => index !== indexToRemove);
     setAddedAppointmentDetails(updatedDetails);
   };
   const deleteEditProduct = (indexId) => {
@@ -323,7 +323,6 @@ const Edit = () => {
       data,
       (resp) => {
         if (resp) {
-          // alert("Appointment Booked Sucessfully");
           toast.success("Appointment Booked SuccessFully");
           console.log("appointment", resp);
           navigate("/viewAppointment");
@@ -331,16 +330,10 @@ const Edit = () => {
       },
       (error) => {
         console.log("error", error);
-        // alert(" Booking Status Failed");
-        //   toast.error("Booking Status Failed");
       }
     );
   };
   const applyMemberShip = () => {
-    // console.log("before",subTotalService)
-    // setIsMembershipUsed(!isMembershipUsed)
-    // post api = {"creditsUsed":650, "userId":"659ba793f289e0151305cba0", "memId":"65b0e6dc44201e04eae2ae7b"}
-    // setMemberShipStatus(!memberShipStatus)
     const data = {
       //   creditsUsed:5000,
       creditsUsed: memberShipStatus ? subServiceTotal : totalService,
@@ -361,22 +354,15 @@ const Edit = () => {
           if (memberShipStatus) {
             setMembershipCoin(resp?.creditsLeft);
             setMemberShipStatus(false);
-            // setMemberShip(-memberShip)
-            // setSubTotalService(subtotalPrice)
-            // setIsMembershipUsed(true)
             setCreditUsed(resp.creditsUsed - resp.remainingAmount);
             setTotalSubServices(resp.creditsUsed);
             toast.error("MemberShip Removed sucessfully");
           } else {
-            // alert("MemberShip Applied sucessfully");
             toast.success("MemberShip Applied sucessfully");
             setMembershipCoin(resp.creditsLeft);
             setSubServiceTotal(resp.creditsUsed - resp.remainingAmount);
-            // setSubServiceCoins(resp.creditsUsed - resp.remainingAmount)
             setCreditUsed(resp.creditsUsed - resp.remainingAmount);
             setMemberShipStatus(true);
-            // setIsMembershipUsed(false)
-            // setMemberShip(-memberShip)
           }
         }
       },
@@ -391,19 +377,8 @@ const Edit = () => {
   );
   console.log({ arr });
 
-  // const getTotalServicePrice = (addedAppointmentDetails, discount) => {
-  //   const subTotalServices = addedAppointmentDetails.reduce((acc,item)=>acc+item?.price,0);
-
-  //   const serviceDiscount = (subTotalServices*(discount/100));
-  //   console.log("service ka discount",serviceDiscount)
-
-  //   const totalService = subTotalServices-serviceDiscount;
-  //   console.log("total ka service",totalService)
-  //   return totalService;
-  // }
-
   const subTotalServices = addedAppointmentDetails.reduce(
-    (acc, item) => acc + item?.price,
+    (acc, item) => acc + +item?.price,
     0
   );
 
@@ -445,11 +420,9 @@ const Edit = () => {
     );
   }, [memberShipStatus]);
   const handlePriceChange = (index, newPrice) => {
-    // const updatedServices = services.map((item, i) =>
-    //   i === index ? { ...item, price: +newPrice } : item
-    // );
-    // setServices(updatedServices);
-    // dispatch(newUpdateService(updatedServices));
+    const updatedAppointments = [...addedAppointmentDetails];
+    updatedAppointments[index].price = newPrice;
+    setAddedAppointmentDetails(updatedAppointments);
   };
 
   return (
@@ -508,7 +481,7 @@ const Edit = () => {
         Selected Gender: {gender && <strong>{gender}</strong>}
       </div> */}
         </div>
-        <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
+        <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl  border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             Your Services
           </h1>
@@ -552,8 +525,16 @@ const Edit = () => {
                               />
                             )}
                           </td>
-                          <td>{item?.price}</td>
-
+                          {/* <td>{item?.price}</td> */}
+                          <td>
+                            <input
+                              type="number"
+                              value={item.price}
+                              onChange={(e) =>
+                                handlePriceChange(index, e.target.value)
+                              }
+                            />
+                          </td>
                           <td>
                             <MdDeleteOutline
                               onClick={() => deleteEditService(index)}
@@ -570,7 +551,7 @@ const Edit = () => {
         </div>
 
         {/*ADD Services Selection section */}
-        <div className="mx-auto my-14 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%]  overflow-y-auto">
+        <div className="mx-auto my-14 rounded-lg bg-[#fffffe] shadow-xl border-2 border-gray-300 w-[95%]  overflow-y-auto">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             ADD Services
           </h1>
@@ -639,25 +620,25 @@ const Edit = () => {
             </select>
 
             <select
-                  className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-                  onChange={handlestaffChange}
-                  // value={serviceSelection.satffName}
-                  value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
+              className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
+              onChange={handlestaffChange}
+              // value={serviceSelection.satffName}
+              value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
+            >
+              <option value={staffData} className="bg-white">
+                Select Staff
+              </option>
+              {staffData?.map((item) => (
+                <option
+                  key={item._id}
+                  value={`${item._id}-${item.name}`}
+                  //  value={`${item._id}`}
+                  className="border-none shadow-lg rounded-lg bg-white "
                 >
-                  <option value={staffData} className="bg-white">
-                    Select Staff
-                  </option>
-                  {staffData?.map((item) => (
-                    <option
-                      key={item._id}
-                      value={`${item._id}-${item.name}`}
-                      //  value={`${item._id}`}
-                      className="border-none shadow-lg rounded-lg bg-white "
-                    >
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
+                  {item.name}
+                </option>
+              ))}
+            </select>
 
             <button
               style={{
@@ -680,7 +661,7 @@ const Edit = () => {
 
         {/* Product Table section */}
         {appointementProducts?.length > 0 && (
-          <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
+          <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl  border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
             <h1 className="text-4xl font-bold text-black mt-2 ml-2">
               Your Products
             </h1>
@@ -720,12 +701,12 @@ const Edit = () => {
         )}
 
         {/* ADD PRODUTS SECTION */}
-        <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto mt-10">
+        <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl   border-2 border-gray-300 w-[95%] h-80 overflow-y-auto mt-10">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             ADD Products
           </h1>
           {/* Search Table */}
-          <div className="search-container h-auto ">
+          <div className="search-container h-auto  ">
             <div className="flex flex-row relative mb-10 ">
               {/* <h1 className="text-lg font-semibold">Search Product</h1> */}
               <div className="flex relative w-[40%] mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
@@ -854,7 +835,7 @@ const Edit = () => {
         </div>
 
         {/* Book Appointment Section */}
-        <div className="border-2 border-gray-300 p-4 rounded-lg bg-slate-100 my-12 flex flex-col w-[95%] mx-auto">
+        <div className="border-2 border-gray-300 p-4 rounded-lg bg-[#fffffe] shadow-xl  my-12 flex flex-col w-[95%] mx-auto">
           <h1 className="text-4xl font-bold mb-10 mt-10 text-center text-black">
             BOOK APPOINTMENT
           </h1>
@@ -1003,27 +984,3 @@ const Edit = () => {
 };
 
 export default Edit;
-
-{
-  /* appointmentServices?.map((item, index) => (
-                    <tr key={index} className="bg-white">
-                      <td>{item?.miniSubcategory}</td>
-                      <td>{item?.category}</td>
-                      <td>{item?.subCategory}</td>
-                      <td>
-                        {staffData
-                          ?.filter((staff) => staff._id === item.staffId)
-                          ?.map((data) => (
-                            <span>{data.name}</span>
-                          ))}
-                      </td>
-                      <td>{item?.price}</td>
-                      <td>
-                        <MdDeleteOutline
-                
-                          className="text-xl text-red-600 font-bold cursor-pointer"
-                        />
-                      </td>
-                    </tr>
-                  )) */
-}

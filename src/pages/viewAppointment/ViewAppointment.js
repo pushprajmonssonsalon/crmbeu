@@ -4,54 +4,18 @@ import { useEffect, useRef } from "react";
 import { getApiCall, postApiData } from "../../utils/services";
 import { useState } from "react";
 import "./ViewAppointment.css";
-import CustomModal from "../../components/customModal";
 import InvoiceGenrator from "../../components/customInovice";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout";
-import { FaEdit } from "react-icons/fa";
-import { IoPrintSharp } from "react-icons/io5";
-import { GiCancel, GiMaterialsScience } from "react-icons/gi";
 import ViewPopup from "../../components/popup/ViewPopup";
 import { toast } from "react-hot-toast";
-import { FaDollarSign } from "react-icons/fa6";
-import { FaAmazonPay } from "react-icons/fa6";
-import { LiaCcAmazonPay } from "react-icons/lia";
-
-import { styled } from "@mui/material/styles";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import StickyHeadTable from "../../components/MaterialTable/stickytable";
 import StickyAppHeadTable from "../../components/MaterialTable/stickyAppTable";
 import ProductQuantityPopup from "../../components/popup/ProductQuantityPopup";
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
-  },
-  // hide last border
-  "&:last-child td, &:last-child th": {
-    border: 0,
-  },
-}));
-
 const ViewAppointment = () => {
-  const [apptId,setApptId] = useState("");
-  const [alreadyAddedProduct,setAlreadyAddedProduct] = useState([]);
+  const [apptId, setApptId] = useState("");
+  const [alreadyAddedProduct, setAlreadyAddedProduct] = useState([]);
   const [tab, setTab] = useState("crm");
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
   const [status, setStatus] = useState(1);
@@ -82,7 +46,7 @@ const ViewAppointment = () => {
   const navigate = useNavigate();
 
   console.log({ viewAppointmentDetails });
-  console.log('alreadyAddedProduct',alreadyAddedProduct)
+  console.log("alreadyAddedProduct", alreadyAddedProduct);
 
   // ...
 
@@ -113,31 +77,7 @@ const ViewAppointment = () => {
       appointmentvalue: "Canceled",
     },
   ];
-  // useEffect(() => {
-  //   getApiCall(
-  //     "appointment/getAppointments",
-  //     (resp) => {
-  //       console.log("resp", resp);
-  //       setViewAppointmentDetails(resp);
-  //     },
-  //     (error) => {
-  //       console.log("error", error);
-  //     }
-  //   );
-  // }, [status,isStatusChange,appointmentstatus]);
-
-  // const handlePrint = () => {
-  //      const printWindow = window.open('', '_blank');
-  //   setPrintStatus(true)
-  //   printWindow.print();
-  //   printWindow.close();
-  // };
   const handlePrint = (item) => {
-    // setPrintStatus(true);
-    // setTimeout(() => {
-    //     window.print();
-    //     setPrintStatus(false);
-    // }, 500);
     console.log("mera h item", item);
     if (item.status === 2 || item.status === 1) {
       toast.error("Appointment is not completed!");
@@ -299,7 +239,7 @@ const ViewAppointment = () => {
         console.log("erro", error);
       }
     );
-  }, [isStatusChange,showQuantityPopup]);
+  }, [isStatusChange, showQuantityPopup]);
 
   const handleAppTab = () => {
     const data = {
@@ -385,10 +325,10 @@ const ViewAppointment = () => {
     return `${formattedDate}  ${formattedTime}`;
   }
 
-  console.log("appt Id ",apptId)
+  console.log("appt Id ", apptId);
   return (
     <Layout>
-      <div className="w-[90%] mx-auto mt-28 ">
+      <div className="w-[90%] mx-auto mt-28 overflow-x-auto">
         <div className="">
           <div className=" flex justify-center items-center">
             <CustomInputFeild
@@ -495,7 +435,7 @@ const ViewAppointment = () => {
           onUpdatePayment={handleUpdatePayment}
           membershipPoints={membershipPoints}
         />
-        <ProductQuantityPopup 
+        <ProductQuantityPopup
           isVisible={showQuantityPopup}
           onClose={() => setShowQuantityPopup(false)}
           id={apptId}

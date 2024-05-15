@@ -53,11 +53,10 @@ const AppointmentBills = () => {
   const serviceDiscount = data.discount;
   const serviceTaxable = serviceTotal - serviceDiscount;
   const serviceFinalTax = Math.ceil(serviceTaxable / 1.18);
-  const CGST = (serviceFinalTax * 9) / 100;
-  const SGST = (serviceFinalTax * 9) / 100;
-  const servicePayableAmount = Math.ceil(
-    (serviceFinalTax + CGST + SGST).toFixed()
-  );
+  const CGST = ((serviceFinalTax * 9) / 100).toFixed(2);
+  const SGST = ((serviceFinalTax * 9) / 100).toFixed(2);
+  const servicePayableAmount = Math.floor(Number(serviceFinalTax) + Number(CGST) + Number(SGST))
+  
   // const productSubtotalAmount=data.products;
   const productTotalPrice = data.products.reduce(
     (accumulator, { price, quantity }) => {
@@ -70,9 +69,7 @@ const AppointmentBills = () => {
   const CGSTProduct = (productTotalTaxtable * 9) / 100;
   const SGSTProduct = (productTotalTaxtable * 9) / 100;
   // const paytax = Math.ceil(data.total / 1.18);
-  const productFinalPayable = Math.ceil(
-    (productTotalTaxtable + CGSTProduct + SGSTProduct).toFixed()
-  );
+  const productFinalPayable = Math.ceil(productTotalTaxtable + CGSTProduct + SGSTProduct)
 
   // const taxableTotalamountPay = Math.ceil((paytax + CGST + SGST).toFixed());
   useEffect(() => {
@@ -92,7 +89,7 @@ const AppointmentBills = () => {
   const paytax = Math.ceil(data.total / 1.18);
   // const CGST = (paytax * 9) / 100;
   // const SGST = (paytax * 9) / 100;
-  const taxableTotalamountPay = Math.ceil((paytax + CGST + SGST).toFixed());
+  const taxableTotalamountPay = Math.ceil((paytax + CGST + SGST)).toFixed(2);
 
   const totalPayableAmount =
     Math.ceil(serviceTaxable / 1.18) +
@@ -293,11 +290,11 @@ const AppointmentBills = () => {
               </div>
               <div className="text-black font-medium">CGST @ 9:</div>
               <div className="text-black font-medium text-right">
-                {CGST.toFixed()}
+                {CGST}
               </div>
               <div className="text-black font-medium">SGST @ 9:</div>
               <div className="text-black font-medium text-right">
-                {SGST.toFixed()}
+                {SGST}
               </div>
               <div className="text-black font-medium">Total:</div>
               <div className="text-black font-medium text-right">
