@@ -53,9 +53,9 @@ const OrderBill = () => {
             const pdfData = pdf.output('blob');
             const uniqueId = uuidv4();
             const s3 = new AWS.S3({
-              accessKeyId: 'AKIAYMT4VMYFJLJQD363',
-              secretAccessKey: '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',
-              region: 'ap-south-1',
+              accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY ,
+              secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY ,
+              region: process.env.REACT_APP_AWS_REGION ,
             });
       
             const params = {

@@ -92,8 +92,8 @@ const handleSubmitOrder=()=>{
               <tbody>
                 {data.map((item, index) => (
                   <tr key={index} >
-                    <td>{item.name}</td>
-                    <td>{item.size}</td>
+                    <td>{item?.name}</td>
+                    <td>{item?.size}</td>
                     <td>
               <input
                 className='w-full h-full'

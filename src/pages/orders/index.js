@@ -7,6 +7,7 @@ import { IoPrintSharp } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom'
 import { MdDriveFolderUpload } from "react-icons/md";
 import InvoiceUpload from '../../components/popup/InvoiceUpload'
+import { FaFilePdf } from "react-icons/fa6";
 
 const Orders = () => {
     const [ordersList,setOrdersList] = useState([])
@@ -15,7 +16,7 @@ const Orders = () => {
     const [isUpload,setIsUpload] = useState(false)
     const [orderId,setOrderId] = useState('');
     const [bool,setBool] = useState(false)
-    const [pdfUrls, setPdfUrls] = useState([])
+    
 
     const navigate = useNavigate();
     const onClose =()=>{
@@ -60,6 +61,13 @@ const Orders = () => {
       const handleInvoice=(item)=>{
         navigate('/orderinvoice',{state: item})
       }
+      const handleUpload=(item)=>{
+        setOrderId(item._id)
+        setIsUpload(true)
+      }
+      const handlePDF=(url)=>{
+        window.location.href = url
+      }
 
 
   return (
@@ -81,6 +89,7 @@ const Orders = () => {
                   <th>Action</th>
                   <th>Status</th>
                   <th>Upload</th>
+                  <th>Invoice</th>
                 </tr>
               </thead>
               <tbody>
@@ -107,15 +116,27 @@ const Orders = () => {
                         </div>
                     </td>
                     <td className={`font-semibold text-sm ${item.status === 1 ?  'text-red-500' : 'text-green-600'} `}>{item.status === 1 ? "Pending" : "Received"}</td>
+                    {
+                    item?.poInvoiceUrl ? (
+                      <td><MdDriveFolderUpload className='text-xl text-center w-full text-green-700 cursor-not-allowed'/></td>
+                    ) : (
+                      <td><MdDriveFolderUpload className='text-xl text-center w-full text-blue-500 cursor-pointer' onClick={()=>handleUpload(item)}/></td>
+                    )
+                  }
                     
-                  <td><MdDriveFolderUpload className='text-xl text-center w-full text-black cursor-pointer' onClick={()=>setIsUpload(true)}/></td>
+                  {/* <td><MdDriveFolderUpload className='text-xl text-center w-full text-black cursor-pointer' onClick={()=>handleUpload(item)}/></td> */}
+                  {
+                    item?.poInvoiceUrl && (
+                      <td><FaFilePdf className='text-xl text-red-600 w-full text-center cursor-pointer' onClick={()=>handlePDF(item?.poInvoiceUrl)}/></td>
+                    )
+                  }
                   </tr>
                 ))}
               </tbody>
             </table>
         </div>
         <ProductOrderPopup isVisible={isVisible} onClose={onClose} data={orderProductList} orderId={orderId} bool={bool} setBool={setBool} />
-        <InvoiceUpload isVisible={isUpload} onClose={onUploadClose} pdfUrls={pdfUrls} setPdfUrls={setPdfUrls}/>
+        <InvoiceUpload isVisible={isUpload} onClose={onUploadClose} orderId={orderId}/>
     </Layout>
   )
 }

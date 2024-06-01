@@ -21,11 +21,11 @@ const allProductHeading = {
   mrp: "MRP",
   sp: "SELLING PRICE",
   type: "TYPE",
-  size:"SIZE",
+  size: "SIZE",
   brand: "BRAND",
   add: "ADD",
-  order: "PLACE ORDER"
-}
+  order: "PLACE ORDER",
+};
 
 const DropdownRow = ({ label, options, value, onChange }) => {
   return (
@@ -55,7 +55,7 @@ const DropdownRow = ({ label, options, value, onChange }) => {
 
 const Inventorydetails = () => {
   const [count, setCount] = useState(0);
-  const [newMyProducts,setNewMyProducts] = useState([]);
+  const [newMyProducts, setNewMyProducts] = useState([]);
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [cost, setCost] = useState("");
@@ -79,7 +79,7 @@ const Inventorydetails = () => {
   const [searchProdut, setsearchProduct] = useState(null);
   const [productDetailsModal, setProductDetailModal] = useState([]);
   const [postsPerPage] = useState(10);
-console.log("getSalonProductslength",getSalonProducts)
+  console.log("getSalonProductslength", getSalonProducts);
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
@@ -92,25 +92,25 @@ console.log("getSalonProductslength",getSalonProducts)
   const [myProductList, setMyProductList] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [productdetails, setProductdetails] = useState([]);
-  const [brandName,setBrandName] = useState(null);
-  const [typeName,setTypeName] = useState(null);
+  const [brandName, setBrandName] = useState(null);
+  const [typeName, setTypeName] = useState(null);
   // const [purchaseModel,setPurchaseModel] = useState(false)
-  const [showOrderPopup,setShowOrderPopup] = useState(false);
-  const [showInventryModel,setShowInventryModel] = useState(false)
-  const [productOrderId,setProductOrderId] = useState([]);
-  const [showMyProductPopup,setShowMyProductPopup] = useState(false);
-  const [myProductId,setMyProductId] = useState("");
-  const [allProductId, setAllProductId] = useState("")
-  const [isChanged,setIsChanged] = useState(false)
-  const [isDelete,setIsDeleted]= useState(false)
+  const [showOrderPopup, setShowOrderPopup] = useState(false);
+  const [showInventryModel, setShowInventryModel] = useState(false);
+  const [productOrderId, setProductOrderId] = useState([]);
+  const [showMyProductPopup, setShowMyProductPopup] = useState(false);
+  const [myProductId, setMyProductId] = useState("");
+  const [allProductId, setAllProductId] = useState("");
+  const [isChanged, setIsChanged] = useState(false);
+  const [isDelete, setIsDeleted] = useState(false);
+  const [salonAllProductsDetails, setSalonAllProductsDetails] = useState([])
   // my products states
 
-  const [productName2,setProductName2] = useState("");
-  const [brand2,setBrand2] = useState(null);
-  const [type2, setType2] = useState(null)
-  
+  const [productName2, setProductName2] = useState("");
+  const [brand2, setBrand2] = useState(null);
+  const [type2, setType2] = useState(null);
 
-  // pagination 
+  // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -119,7 +119,7 @@ console.log("getSalonProductslength",getSalonProducts)
   const [currentPage1, setCurrentPage1] = useState(1);
   const itemsPerPage1 = 10;
   const startIndex1 = (currentPage1 - 1) * itemsPerPage1;
-  const endIndex1 = currentPage1* itemsPerPage1;
+  const endIndex1 = currentPage1 * itemsPerPage1;
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -195,117 +195,131 @@ console.log("getSalonProductslength",getSalonProducts)
     setProductDetailModal(item);
   };
 
-  const orderClick = (item) =>{
+  const orderClick = (item) => {
     // setShowOrderPopup(true)
     // setProductOrderId(item)
     if (!productOrderId.includes(item)) {
       setProductOrderId([...productOrderId, item]);
       setCount(productOrderId.length + 1);
-      toast.success("Product added successfully")
-    }else{
-      toast.error("Product is already added!")
+      toast.success("Product added successfully");
+    } else {
+      toast.error("Product is already added!");
     }
-   
-  }
+  };
 
-  const shopKartClick = () =>{
-    setShowOrderPopup(true)
-  }
+  const shopKartClick = () => {
+    setShowOrderPopup(true);
+  };
 
   // clear button
 
-  const handleClear = () =>{
+  const handleClear = () => {
     setsearchProduct("");
     setBrandName("");
-    setTypeName("")
-  }
+    setTypeName("");
+  };
 
   // my product clear button
 
-  const clearClick = ()=>{
-    setProductName2("")
-    setBrand2("")
-    setType2("")
-  }
+  const clearClick = () => {
+    setProductName2("");
+    setBrand2("");
+    setType2("");
+  };
 
   // my Products
-  const myproduct =()=>{
+  const myproduct = () => {
     const data = {
       name: productName2,
       brand: brand2,
-      type: type2
-    }
+      type: type2,
+    };
     postApiData(
       "inventory/getSalonProducts",
       data,
       (resp) => {
         console.log("getMyProduct----------------------------------", resp);
         // setMyProductList(resp.products);
-        setNewMyProducts(resp)
-        setCurrentPage(1)
+        setNewMyProducts(resp);
+        setCurrentPage(1);
       },
       (error) => {
         console.log("error");
       }
     );
-  }
-  console.log({newMyProducts})
+  };
+  console.log({ newMyProducts });
+  useEffect(()=>{
+    const data = {
+      page: currentPage,
+      limit: postsPerPage,
+      name: '',
+      brand: '',
+      type: '',
+    };
+    postApiData(
+      `inventory/getAllProducts`,
+      data,
+      (resp) => {
+        console.log("getallproducts", resp);
+        setSalonAllProductsDetails(resp.products);
+        setCurrentPage1(1);
+      },
+      (error) => {
+        console.log("error", error);
+      }
+    );
+  },[])
   // All products
   useEffect(() => {
     const data = {
       page: currentPage,
-      limit:postsPerPage,
+      limit: postsPerPage,
       name: searchProdut,
       brand: brandName,
-      type: typeName
+      type: typeName,
     };
-
-    // let obj = {}
-    // if(currentPage) obj.page = currentPage
-    // if(postsPerPage) obj.limit = postsPerPage
-    // if(searchProdut) obj.name = searchProdut
-    // if(brandName) obj.brand = brandName
-    // if(typeName) obj.type = typeName
-  //   const params = new URLSearchParams({
-  //     page: currentPage,
-  //     limit: postsPerPage,
-  //     name: searchProdut ? searchProdut : '',
-  //     // brand: brandName ? brandName : null,
-  //     // type: typeName ? typeName : null
-  // });
     postApiData(
       `inventory/getAllProducts`,
       data,
       (resp) => {
         console.log("getallproducts", resp);
         setgetSalonProducts(resp.products);
-        setCurrentPage1(1)
+        setCurrentPage1(1);
       },
       (error) => {
         console.log("error", error);
       }
     );
-  }, [isModalOpen,brandName,searchProdut,typeName]);
-  console.log({getSalonProducts})
+  }, [isModalOpen, brandName, searchProdut, typeName]);
+  console.log({ getSalonProducts });
 
-  
   useEffect(() => {
-    myproduct()
-  }, [isModalOpen,allProducts,productName2,brand2,type2,isChanged,isDelete]);
+    myproduct();
+  }, [
+    isModalOpen,
+    allProducts,
+    productName2,
+    brand2,
+    type2,
+    isChanged,
+    isDelete,
+  ]);
   // console.log({myProductList})
 
   useEffect(() => {
-    const data={
-      brand:'',
-       name:'',
-        type:"",
-    }
+    const data = {
+      brand: "",
+      name: "",
+      type: "",
+    };
     postApiData(
-      "inventory/getFilteredProducts",data,
+      "inventory/getFilteredProducts",
+      data,
       (resp) => {
         console.log("getsalonproduct", resp);
         setMyProductList(resp.products);
-        setCurrentPage(1)
+        setCurrentPage(1);
       },
       (error) => {
         console.log("error");
@@ -316,10 +330,10 @@ console.log("getSalonProductslength",getSalonProducts)
     setsearchProduct(e.target.value);
   };
 
-  const handleInventryOpen=(id)=>{
-    setAllProductId(id)
-    setShowInventryModel(true)
-  }
+  const handleInventryOpen = (id) => {
+    setAllProductId(id);
+    setShowInventryModel(true);
+  };
 
   const handleSubmit = () => {
     const data = {
@@ -339,7 +353,7 @@ console.log("getSalonProductslength",getSalonProducts)
       (resp) => {
         if (resp) {
           // alert("prduct added sucessfully");
-          toast.success("Product Added sucessFully")
+          toast.success("Product Added sucessFully");
           setModalOpen(false);
         }
       },
@@ -351,7 +365,7 @@ console.log("getSalonProductslength",getSalonProducts)
 
   const getSalonProductsPress = (item) => {
     setSelectedItem(item);
-  }; 
+  };
   const editPress = () => {
     setModalOpen(true);
   };
@@ -364,61 +378,59 @@ console.log("getSalonProductslength",getSalonProducts)
   };
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = getSalonProducts.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = getSalonProducts.slice(
+    indexOfFirstPost,
+    indexOfLastPost
+  );
 
-    // Change page
-    const paginate = pageNumber => setCurrentPage(pageNumber);
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const result = productOrderId.map((id) => {
+    const matchingObject = salonAllProductsDetails.find((obj) => obj._id === id);
+    console.log("matching Object", matchingObject);
+    return matchingObject
+      ? {
+          name: matchingObject.name,
+          size: matchingObject.size,
+          itemId: matchingObject.itemId,
+          brand: matchingObject.brand,
+          type: matchingObject.type,
+        }
+      : null;
+  });
+  console.log("resultss------------", result);
 
-    const result = productOrderId.map((id) => {
-      const matchingObject = getSalonProducts.find((obj) => obj._id === id);
-      console.log("matching Object",matchingObject)
-      return matchingObject ? { name: matchingObject.name, size: matchingObject.size , itemId: matchingObject.itemId,brand: matchingObject.brand , type: matchingObject.type } : null;
-    });
-    
-  
-
-    const handleOpen=(id)=>{
-      setMyProductId(id);
-      setShowMyProductPopup(true)
-    }
+  const handleOpen = (id) => {
+    setMyProductId(id);
+    setShowMyProductPopup(true);
+  };
   return (
     <Layout>
       <nav className="navbar w-[80%] mx-auto ">
-        {/* <div className="flex justify-end items-end w-[80%] mx-auto mt-40">
-          {currentPosts.length > 0 && (
-            <div
-              style={{
-                backgroundColor: "black",
-                height: "40px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                width: "170px",
-                borderRadius: "12px",
-              }}
-            >
-              <CSVLink
-                data={getSalonProducts}
-                style={{ color: "white", fontSize: "15px", fontWeight: "500" }}
-              >
-                Export as CSV
-              </CSVLink>
-            </div>
-          )}
-        </div> */}
         <ul className="nav-list mt-40 ">
-          <li className=" hover:scale-110 px-6 bg-[#191919] text-white font-semibold py-4 rounded-lg cursor-pointer" onClick={allProduct} >
+          <li
+            className=" hover:scale-110 px-6 bg-[#191919] text-white font-semibold py-4 rounded-lg cursor-pointer"
+            onClick={allProduct}
+          >
             All PRODUCTS
           </li>
-          <li className="hover:scale-110 px-6 bg-[#191919] text-white font-semibold py-4 rounded-lg cursor-pointer" onClick={myProducts}>
+          <li
+            className="hover:scale-110 px-6 bg-[#191919] text-white font-semibold py-4 rounded-lg cursor-pointer"
+            onClick={myProducts}
+          >
             My Products
           </li>
-          <li className="relative"><AiOutlineShoppingCart  className="text-3xl font-bold cursor-pointer text-black hover:text-green-700" onClick={shopKartClick}/>
-          <span className="absolute -right-4 bottom-4 text-green-600 font-bold">{count}</span>
+          <li className="relative">
+            <AiOutlineShoppingCart
+              className="text-3xl font-bold cursor-pointer text-black hover:text-green-700"
+              onClick={shopKartClick}
+            />
+            <span className="absolute -right-4 bottom-4 text-green-600 font-bold">
+              {count}
+            </span>
           </li>
         </ul>
-        
 
         {allProducts == "myProducts" ? (
           <div style={{ display: "flex", width: "100%" }}>
@@ -473,7 +485,7 @@ console.log("getSalonProductslength",getSalonProducts)
                       }}
                     >
                       {/* Header */}
-                      {/* <div
+              {/* <div
                         style={{
                           borderBottom: "1px solid #ccc",
                           marginBottom: "10px",
@@ -923,7 +935,7 @@ console.log("getSalonProductslength",getSalonProducts)
                 <DropdownRow label="Brand" options={brands} />
                 <DropdownRow label="Type" options={types} />
                 <DropdownRow label="Qty" options={quantities} />
-              </div> */} 
+              </div> */}
               {/* <div className="table-container">
                 <table className="styled-table">
                   <thead>
@@ -950,201 +962,188 @@ console.log("getSalonProductslength",getSalonProducts)
                 </table>
               </div> */}
               <div className="flex justify-between items-center mt-6">
-              <input
-              value={productName2}
-              placeholder="Search by Product Name"
-              style={{
-                height: "40px",
-                border: "1px solid grey",
-                width: "270px",
-                borderRadius: "11px",
-                paddingRight: "30px", // Add space for the eye icon
-                marginTop:'14px',
-                outline:"none"
-              }}
-              onChange={(e)=>setProductName2(e.target.value)}
-            />
-               <select
-              style={{
-                height: "40px",
-                border: "1px solid grey",
-                width: "270px",
-                borderRadius: "11px",
-                paddingRight: "30px",
-              }}
-              onChange={(e)=>setBrand2(e.target.value)}
-              value={brand2}
-            >
-              <option value="" selected >
-                Search By Brand
-              </option>
-              {brandData.map((item, index) => {
-                return <option >{item?.brandName}</option>;
-              })}
-            </select>
-            <select
-              style={{
-                height: "40px",
-                border: "1px solid grey",
-                width: "270px",
-                borderRadius: "11px",
-                paddingRight: "30px", // Add space for the eye icon
-              }}
-              onChange={(e)=>setType2(e.target.value)}
-              value={type2}
-            >
-              <option value={""} selected>
-                Type
-              </option>
-              {TypeData.map((item, index) => {
-                return <option >{item?.productType}</option>;
-              })}
-            </select>
-              <button className="px-3 py-2 bg-black roounded-lg text-white font-semibold" onClick={clearClick}>clear</button>
+                <input
+                  value={productName2}
+                  placeholder="Search by Product Name"
+                  style={{
+                    height: "40px",
+                    border: "1px solid grey",
+                    width: "270px",
+                    borderRadius: "11px",
+                    paddingRight: "30px", // Add space for the eye icon
+                    marginTop: "14px",
+                    outline: "none",
+                  }}
+                  onChange={(e) => setProductName2(e.target.value)}
+                />
+                <select
+                  style={{
+                    height: "40px",
+                    border: "1px solid grey",
+                    width: "270px",
+                    borderRadius: "11px",
+                    paddingRight: "30px",
+                  }}
+                  onChange={(e) => setBrand2(e.target.value)}
+                  value={brand2}
+                >
+                  <option value="" selected>
+                    Search By Brand
+                  </option>
+                  {brandData.map((item, index) => {
+                    return <option>{item?.brandName}</option>;
+                  })}
+                </select>
+                <select
+                  style={{
+                    height: "40px",
+                    border: "1px solid grey",
+                    width: "270px",
+                    borderRadius: "11px",
+                    paddingRight: "30px", // Add space for the eye icon
+                  }}
+                  onChange={(e) => setType2(e.target.value)}
+                  value={type2}
+                >
+                  <option value={""} selected>
+                    Type
+                  </option>
+                  {TypeData.map((item, index) => {
+                    return <option>{item?.productType}</option>;
+                  })}
+                </select>
+                <button
+                  className="px-3 py-2 bg-black roounded-lg text-white font-semibold"
+                  onClick={clearClick}
+                >
+                  clear
+                </button>
               </div>
-              <MyProductTable data={newMyProducts} startIndex={startIndex} endIndex={endIndex} getSalonProductsPress={getSalonProductsPress} isChanged={isDelete} setIsChanged={setIsDeleted} handleOpen={handleOpen}/>
-              <Pagination 
-              totalItems={newMyProducts.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={handlePageChange} />
-          
-      
+              <MyProductTable
+                data={newMyProducts}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                getSalonProductsPress={getSalonProductsPress}
+                isChanged={isDelete}
+                setIsChanged={setIsDeleted}
+                handleOpen={handleOpen}
+              />
+              <Pagination
+                totalItems={newMyProducts.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
             </div>
-      
           </div>
         ) : (
           <div>
-            <div style={{justifyContent:'space-between',display:'flex',alignItems:'center',marginLeft:'20px'}}>
-
-            <input
-              value={searchProdut}
-              placeholder="Search by Product Name"
+            <div
               style={{
-                height: "40px",
-                border: "1px solid grey",
-                width: "270px",
-                borderRadius: "11px",
-                paddingRight: "30px", // Add space for the eye icon
-                marginTop:'14px',
-                outline:"none"
+                justifyContent: "space-between",
+                display: "flex",
+                alignItems: "center",
+                marginLeft: "20px",
               }}
-              onChange={onchangeProduct}
-            />
-            <select
-              style={{
-                height: "40px",
-                border: "1px solid grey",
-                width: "270px",
-                borderRadius: "11px",
-                paddingRight: "30px",
-              }}
-              onChange={(e)=>setBrandName(e.target.value)}
-              value={brandName}
             >
-              <option value="" selected >
-                Search By Brand
-              </option>
-              {brandData.map((item, index) => {
-                return <option >{item?.brandName}</option>;
-              })}
-            </select>
-            <select
-              style={{
-                height: "40px",
-                border: "1px solid grey",
-                width: "270px",
-                borderRadius: "11px",
-                paddingRight: "30px", // Add space for the eye icon
-              }}
-              onChange={(e)=>setTypeName(e.target.value)}
-              value={typeName}
-            >
-              <option value={""} selected>
-                Type
-              </option>
-              {TypeData.map((item, index) => {
-                return <option >{item?.productType}</option>;
-              })}
-            </select>
+              <input
+                value={searchProdut}
+                placeholder="Search by Product Name"
+                style={{
+                  height: "40px",
+                  border: "1px solid grey",
+                  width: "270px",
+                  borderRadius: "11px",
+                  paddingRight: "30px", // Add space for the eye icon
+                  marginTop: "14px",
+                  outline: "none",
+                }}
+                onChange={onchangeProduct}
+              />
+              <select
+                style={{
+                  height: "40px",
+                  border: "1px solid grey",
+                  width: "270px",
+                  borderRadius: "11px",
+                  paddingRight: "30px",
+                }}
+                onChange={(e) => setBrandName(e.target.value)}
+                value={brandName}
+              >
+                <option value="" selected>
+                  Search By Brand
+                </option>
+                {brandData.map((item, index) => {
+                  return <option>{item?.brandName}</option>;
+                })}
+              </select>
+              <select
+                style={{
+                  height: "40px",
+                  border: "1px solid grey",
+                  width: "270px",
+                  borderRadius: "11px",
+                  paddingRight: "30px", // Add space for the eye icon
+                }}
+                onChange={(e) => setTypeName(e.target.value)}
+                value={typeName}
+              >
+                <option value={""} selected>
+                  Type
+                </option>
+                {TypeData.map((item, index) => {
+                  return <option>{item?.productType}</option>;
+                })}
+              </select>
 
-            <button className="bg-black px-3 py-2 rounded-lg text-white font-bold" onClick={handleClear}>CLEAR</button>
+              <button
+                className="bg-black px-3 py-2 rounded-lg text-white font-bold"
+                onClick={handleClear}
+              >
+                CLEAR
+              </button>
             </div>
-
-           {/* <div className="h-[500px] overflow-y-scroll">
-           <table className="styled-table" style={{ height: "40px" }}>
-              <thead>
-                <tr>
-                  <th>NAME</th>
-                  <th>MRP</th>
-                  <th>SELLING PRICE</th>
-                  <th>TYPE</th>
-                  <th>BRAND</th>
-                  <th>ADD</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getSalonProducts.map((item, index) => (
-                  <tr key={index} onClick={() => getSalonProductsPress(item)}>
-                    <td>{item.name}</td>
-                    <td>{item.mrp}</td>
-                    <td>{item.price}</td>
-                    <td>{item.type}</td>
-                    <td>{item.brand}</td>
-                    <th>
-                      <div
-                        style={{
-                          background: "transparent",
-                          borderRadius: "10px",
-                          height: "35px",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          cursor:"pointer"
-                        }}
-                        onClick={() => addclick(item)}
-                      >
-                        <p
-                          style={{
-                            color: "white",
-                            fontSize: "15px",
-                            fontWeight: "500",
-                          }}
-                        >
-                         <BiSolidAddToQueue className="text-xl font-bold text-black"/>
-                        </p>
-                      </div>
-                    </th>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-           </div> */}
-           <Table header={allProductHeading} data={getSalonProducts} startIndex={startIndex1} endIndex={endIndex1} addClick={addclick} orderClick={orderClick} getSalonProductsPress={getSalonProductsPress} handleInventryOpen={handleInventryOpen}/>
-           <Pagination 
+            <Table
+              header={allProductHeading}
+              data={getSalonProducts}
+              startIndex={startIndex1}
+              endIndex={endIndex1}
+              addClick={addclick}
+              orderClick={orderClick}
+              getSalonProductsPress={getSalonProductsPress}
+              handleInventryOpen={handleInventryOpen}
+            />
+            <Pagination
               totalItems={getSalonProducts.length}
               itemsPerPage={itemsPerPage1}
               currentPage={currentPage1}
-              onPageChange={handlePageChange1} />
+              onPageChange={handlePageChange1}
+            />
           </div>
         )}
-        {/* {addproductModal && (
-          <InventoryProductAddModal
-            addproductModal={addproductModal}
-            setAddProductModal={setAddProductModal}
-            productDetailsModal={productDetailsModal}
-          />
-        )} */}
-        <InventoryModel data={getSalonProducts} isVisible={showInventryModel} onClose={()=>setShowInventryModel(false)} id={allProductId}/>
+        <InventoryModel
+          data={getSalonProducts}
+          isVisible={showInventryModel}
+          onClose={() => setShowInventryModel(false)}
+          id={allProductId}
+        />
 
-        <OrderPopup isVisible={showOrderPopup} onClose={()=>setShowOrderPopup(false)} id={productOrderId} data={result}/>
-        <MyProductPopup data={newMyProducts} isVisible={showMyProductPopup} onClose={()=>setShowMyProductPopup(false)} id={myProductId} isChanged={isChanged} setIsChanged={setIsChanged}/>
+        <OrderPopup
+          isVisible={showOrderPopup}
+          onClose={() => setShowOrderPopup(false)}
+          id={productOrderId}
+          data={result}
+        />
+        <MyProductPopup
+          data={newMyProducts}
+          isVisible={showMyProductPopup}
+          onClose={() => setShowMyProductPopup(false)}
+          id={myProductId}
+          isChanged={isChanged}
+          setIsChanged={setIsChanged}
+        />
       </nav>
-      {/* <Pagination
-        postsPerPage={postsPerPage}
-        totalPosts={getSalonProducts.length}
-        paginate={paginate}
-      /> */}
     </Layout>
   );
 };

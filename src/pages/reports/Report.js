@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import "./report.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { postApiData } from "../../utils/services";
+import { getApiCall, postApiData } from "../../utils/services";
 import { CSVLink } from "react-csv";
 import { usePDF } from 'react-to-pdf';
 import InvoiceGenrator from "../../components/customInovice";
 import Layout from "../../components/Layout";
 import { productAdded } from "../../redux/actions";
 import ReportTable from "../../components/Table/ReportTable";
+import { MdPeopleAlt } from "react-icons/md";
 
 const Report = () => {
   const defaultStartDate = new Date();
@@ -24,7 +25,9 @@ const Report = () => {
   const [dataResponse,setDataResponse]=useState([]);
   const [categoryWiseDistrubution,setCategoryWiseDistrubution] = useState([])
   const [productDistribution,setProductDistribution] = useState([]);
-  const [membershipCredit,setMembershipCredit] = useState([])
+  const [membershipCredit,setMembershipCredit] = useState([]);
+  const [wholeCustomerRevenue,setWholeCustomerRevenue] = useState("")
+  const [newCustomerRevenue,setNewCustomerRevenue] = useState("")
   console.log("dataResponse",dataResponse)
   const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
   const tableHeaders = [
@@ -91,6 +94,19 @@ const Report = () => {
       }
     );
   };
+
+  useEffect(()=>{
+    getApiCall("",
+      (resp)=>{
+        setWholeCustomerRevenue(resp)
+      }
+    )
+    getApiCall("",
+      (resp)=>{
+        setNewCustomerRevenue(resp)
+      }
+    )
+  },[])
   console.log({staffDistribution})
   const credits = membershipCredit[0]?.membershipCreditUsed;
   console.log("credits",credits)
@@ -104,7 +120,16 @@ const Report = () => {
     <div className="mt-32 w-[90%] mx-auto mb-20">
         <div>
     <button onClick={() => toPDF()}>Download PDF</button>
- 
+ </div>
+ <div className="w-full flex justify-evenly my-5 items-center">
+  <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
+    <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"> <MdPeopleAlt className="text-3xl"/>Whole Customer Revenue</h1>
+    <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ 50000</h3>
+  </div>
+  <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
+    <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"><MdPeopleAlt className="text-3xl"/> New Customer Revenue</h1>
+    <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ 50000</h3>
+  </div>
  </div>
       <div className="reportContainer">
         <span className="text-3xl font-bold text-green-600 ">REPORTS</span>
