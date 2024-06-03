@@ -18,7 +18,7 @@ const Report = () => {
   const [endDate, setEndDate] = useState(defaultStartDate);
   const [reports, setReports] = useState([]);
   const [membershipSale, setMemberShipSale] = useState([]);
-  const [paymentMethodReport, setpaymentMethodeReport] = useState([]);
+  const [paymentMethodReport, setPaymentMethodReport] = useState([]);
   const [appointmentStatus, setAppointmentStatus] = useState([]);
   const [serviceDistribution, setServiceDistribution] = useState([]);
   const [staffDistribution, setStaffDistribution] = useState([]);
@@ -49,8 +49,6 @@ const Report = () => {
       data,
       (resp) => {
         console.log("Checkrra hu console", resp)
-        console.log("reports", resp.appointmentPaymentMethodReport);
-        setpaymentMethodeReport(resp.appointmentPaymentMethodReport);
         setAppointmentStatus(resp.appointmentStatus);
         setServiceDistribution(resp.serviceCategoryWiseRevenue);
         setStaffDistribution(resp.staffRevenueDistribution);
@@ -59,6 +57,14 @@ const Report = () => {
         setProductDistribution(resp.productRevenueDistribution)
         setMembershipCredit(resp.membershipCreditUsed)
         setDataResponse(resp)
+        const paymentMethods = ["Card", "Upi", "Cash"];
+
+        let paymentReport = paymentMethods.map(method => ({
+          _id: method,
+          total: findTotalById(resp.appointmentPaymentMethodReport, method) +
+                findTotalById(resp.subscriptionPaymentMethodReport, method)
+        }));
+        setPaymentMethodReport(paymentReport)
       },
       (error) => {
         console.log("error", error);
@@ -68,6 +74,11 @@ const Report = () => {
   },[])
   console.log("category wise", categoryWiseDistrubution)
 
+  const findTotalById = (reportArray, id) => {
+    const report = reportArray.find(item => item._id === id);
+    return report ? report.total : 0;
+  }
+  
   const submitClick = () => {
     const data = {
       startDate: startDate,
@@ -79,7 +90,6 @@ const Report = () => {
       (resp) => {
         console.log("data reponse",resp)
         console.log("reports", resp.appointmentPaymentMethodReport);
-        setpaymentMethodeReport(resp.appointmentPaymentMethodReport);
         setAppointmentStatus(resp.appointmentStatus);
         setServiceDistribution(resp.serviceCategoryWiseRevenue);
         setStaffDistribution(resp.staffRevenueDistribution);
