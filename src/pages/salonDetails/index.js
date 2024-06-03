@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
 import { parlordetail } from '../../redux/actions';
 import { MdCancel } from "react-icons/md";
+import axios from 'axios';
 const s3 = new AWS.S3({
   accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY ,
   secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY ,
@@ -19,12 +20,16 @@ const SalonDeatils = () => {
   const [gst, setGst] = useState('');
   const [state, setState] = useState('');
   const [address2, setAddress2] = useState('');
+  const [del,setDel] = useState(false)
+  const [bool,setBool] = useState(false)
   const [contactNumber, setContactNumber] = useState('');
   const [images, setImages] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imageKey, setImageKey] = useState('');
   const [fileNames, setFileNames] = useState([]);
-  const [parlorDetails,setParlorDetails] = useState([])
+  const [parlorDetails,setParlorDetails] = useState([]);
+  
+  const token = localStorage.getItem("token");
   const handleFileChange = async(e) => {
     setImageFile(e.target.files[0]);
     console.log(e.target.files[0]);
@@ -34,32 +39,37 @@ const SalonDeatils = () => {
     console.log("imageData------",imageData)
   
     try {
-      const response = await fetch('http://192.168.2.19:4002/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      // const response = await fetch('http://192.168.2.19:4002/upload', {
+      //   method: 'POST',
+      //   body: formData,
+      // });
   
-      if (response.ok) {
-        console.log("images link", response.data)
-        // alert('Image uploaded successfully');
-        setImageKey(imageData.name); 
-      } else {
-        alert('Failed to upload image');
+      // if (response.ok) {
+      //   console.log("images link", response.data)
+      //   // alert('Image uploaded successfully');
+      //   setImageKey(imageData.name); 
+      // } else {
+      //   alert('Failed to upload image');
+      // }
+      // http://192.168.2.19:4002
+      // https://crm.smartsalon.in
+      const response = await axios.post("http://192.168.2.19:4002/upload",formData,{
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if(response){
+        console.log("resp------->",response.data.data)
+        setImages((prevUrls) => [...prevUrls, response.data.data]);
       }
     } catch (error) {
       console.error('Error uploading image:', error);
     }
-
-    getApiCall(`/get-signed-url?key=${imageData.name}-${parlorDetails._id}`,(resp)=>{
-      console.log("images resssp",resp)
-      setImages(resp)
-    },(error)=>{
-      console.log("errror")
-    })
   };
 
   console.log("images",images)
-
+  
 
 
 //   const handleDrop = async (acceptedFiles) => {
@@ -108,16 +118,20 @@ console.log("uploaded files:",images)
         console.log("error", error);
       }
     );
-  }, []);
+  }, [bool,del]);
+  useEffect(()=>{
+    setImages(parlorDetails?.images)
+  },[parlorDetails])
 
   const handleSubmit=()=>{
     
     const data = {
+      gstNumber: gst,
+      stateName: state,
         address:address,
         address2: address2,
         contactNumber: contactNumber, 
         images: images
-
     }
     postApiData("parlor/editParlorDetails",data,
     (resp)=>{
@@ -128,6 +142,7 @@ console.log("uploaded files:",images)
         setContactNumber("")
         setImages([])
         setFileNames([])
+        setBool(!bool)
     },
     (error)=>{
         toast.error("Something went wrong!");
@@ -135,9 +150,13 @@ console.log("uploaded files:",images)
     }
 )
   }
-  const handleCancelImages=()=>{
-    console.log("delete single image")
+
+  const handleCancelImages=(index)=>{
+    images.splice(index,1);
+    setImages([...images]);
+    handleSubmit()
   }
+  
 
   return (
     <Layout>
@@ -170,7 +189,7 @@ console.log("uploaded files:",images)
             <label htmlFor='text'>
               <span className='font-bold text-md font-serif '>GST Number :</span>
             </label>
-            <input type='text' placeholder='Contact Number' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails.gstNumber} onChange={(e) => setGst(e.target.value)} />
+            <input type='text' placeholder='GST Number' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails.gstNumber} onChange={(e) => setGst(e.target.value)} />
             <label htmlFor='text'>
               <span className='font-bold text-md font-serif '>Images :</span>
             </label>
@@ -197,9 +216,9 @@ console.log("uploaded files:",images)
         <div className='flex justify-evenly items-center flex-wrap w-full'>
         {
           parlorDetails?.images?.map((image,index)=>(
-            <div className=' w-1/4 h-[150px] border-2 border-black relative'>
+            <div className='w-1/4 h-[150px] relative'>
               <img src={image} alt="img" className='w-full h-full bg-cover'/>
-              <MdCancel className='absolute text-2xl text-black top-0 right-0 cursor-pointer' onClick={handleCancelImages}/>
+              <MdCancel className='absolute text-2xl text-black top-0 right-0 cursor-pointer' onClick={()=>handleCancelImages(index)}/>
             </div>
           ))
         }
