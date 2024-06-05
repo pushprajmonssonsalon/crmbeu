@@ -53,7 +53,7 @@ const SalonDeatils = () => {
       // }
       // http://192.168.2.19:4002
       // https://crm.smartsalon.in
-      const response = await axios.post("http://192.168.2.19:4002/upload",formData,{
+      const response = await axios.post("https://crm.smartsalon.in/upload",formData,{
         headers: {
           'Authorization': `Bearer ${token}`
         }
