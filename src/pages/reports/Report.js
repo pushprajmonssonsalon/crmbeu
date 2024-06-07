@@ -65,6 +65,7 @@ const Report = () => {
                 findTotalById(resp.subscriptionPaymentMethodReport, method)
         }));
         setPaymentMethodReport(paymentReport)
+        console.log(paymentMethodReport)
       },
       (error) => {
         console.log("error", error);
@@ -97,7 +98,15 @@ const Report = () => {
         setProductDistribution(resp.productRevenueDistribution)
         setMemberShipSale(resp.membershipSale);
         setMembershipCredit(resp.membershipCreditUsed)
-        setDataResponse(resp)
+        setDataResponse(resp);
+        const paymentMethods = ["Card", "Upi", "Cash"];
+
+        let paymentReport = paymentMethods.map(method => ({
+          _id: method,
+          total: findTotalById(resp.appointmentPaymentMethodReport, method) +
+                findTotalById(resp.subscriptionPaymentMethodReport, method)
+        }));
+        setPaymentMethodReport(paymentReport)
       },
       (error) => {
         console.log("error", error);
