@@ -140,7 +140,7 @@ const Report = () => {
         <div>
     <button onClick={() => toPDF()}>Download PDF</button>
  </div>
- <div className="w-full flex justify-evenly my-5 items-center">
+ {/* <div className="w-full flex justify-evenly my-5 items-center">
   <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
     <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"> <MdPeopleAlt className="text-3xl"/>Whole Customer Revenue</h1>
     <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ 50000</h3>
@@ -149,7 +149,7 @@ const Report = () => {
     <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"><MdPeopleAlt className="text-3xl"/> New Customer Revenue</h1>
     <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ 50000</h3>
   </div>
- </div>
+ </div> */}
       <div className="reportContainer">
         <span className="text-3xl font-bold text-green-600 ">REPORTS</span>
       </div>

@@ -33,6 +33,7 @@ import {Toaster} from 'react-hot-toast';
 import Revenue from "./components/revenue";
 import WeeklyReport from "./pages/weeklyReport";
 import SalonDeatils from "./pages/salonDetails";
+import Royalities from "./pages/royalities";
 
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
               <Route path="/revenue" element={<PrivateRoute Component={Revenue} />} />
               <Route path="/weeklyreport" element={<PrivateRoute Component={WeeklyReport} />} />
               <Route path="/salon-details" element={<PrivateRoute Component={SalonDeatils} />} />
+              <Route path="/royalities" element={<PrivateRoute Component={Royalities} />} />
             </Routes>
     </BrowserRouter>
   );

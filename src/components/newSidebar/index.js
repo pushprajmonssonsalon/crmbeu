@@ -7,6 +7,8 @@ import { FaBookOpen } from "react-icons/fa";
 import { LuView } from "react-icons/lu";
 import { FaTableList } from 'react-icons/fa6'
 import { RiShoppingCartFill } from "react-icons/ri";
+import { GiRoyalLove } from "react-icons/gi";
+import { BiMessageAltDetail } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { IoPeopleSharp } from "react-icons/io5";
 
@@ -32,11 +34,16 @@ const VerticalSidebar = () => {
         { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7 },
         { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8 },
         { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9 },
-        { name: "Salon Details", link: `/salon-details`, icon: IoPeopleSharp, num: 10 },
+        { name: "Salon Details", link: `/salon-details`, icon: BiMessageAltDetail, num: 10 },
+        { name: "Royality", link: `/royalities`, icon: GiRoyalLove, num: 10 },
     ];
 
     const [open, setOpen] = useState(true);
     const [openAccordion, setOpenAccordion] = useState(false);
+    const handleOpen=()=>{
+        setOpenAccordion(false)
+        setOpen(!open)
+    }
 
     const toggleAccordion = () => {
         setOpenAccordion(!openAccordion);
@@ -50,10 +57,10 @@ const VerticalSidebar = () => {
                     <HiMenuAlt3
                         size={30}
                         className={`text-gray-500 cursor-pointer fixed top-32`}
-                        onClick={() => setOpen(!open)}
+                        onClick={handleOpen}
                     />
                 </div>
-                <div className="mt-4 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%]">
+                <div className={`mt-4 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar`}>
                     {menus?.map((menu, i) => (
                         <React.Fragment key={i}>
                             {menu.name === "Reports" ? (
@@ -73,7 +80,7 @@ const VerticalSidebar = () => {
                                             {menu.name}
                                         </h2>
                                         <button
-                                            className="text-gray-300 bg-transparent hover:bg-transparent"
+                                            className={`text-gray-300 bg-transparent hover:bg-transparent ${!open ? 'hidden' : ''}`}
                                             onClick={toggleAccordion}
                                         >
                                             {openAccordion ? "▲" : "▼"}
