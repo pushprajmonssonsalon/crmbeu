@@ -81,7 +81,7 @@ const ViewAppointment = () => {
     console.log("mera h item", item);
     if (item.status === 2 || item.status === 1) {
       toast.error("Appointment is not completed!");
-    } else navigate("/invoicegenerator", { state: item });
+    } else window.open(item.invoiceUrl,'_blank');
   };
   const handleAppointmentChange = (e) => {
     setStatus(e.target.value);

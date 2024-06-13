@@ -4,7 +4,7 @@ import { postApiData } from '../../utils/services'
 import CustomInputFeild from "../../components/customInput";
 import CustomizedInvoiceWiseTables from '../MaterialTable/InvoiseWiseTable';
 import { downloadExcel, useDownloadExcel } from 'react-export-table-to-excel';
-
+import { FaFilePdf } from "react-icons/fa6";
 const InvoiceWise = () => {
     const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
     const tableRef = useRef(null);
@@ -52,7 +52,7 @@ const InvoiceWise = () => {
       }
       console.log("invoise wise collections",viewAppointmentDetails)
       
-      const headings= ["Date","Invoice No.","Service/Product","Price","Membership Redemption","Net","Gst"];
+      const headings= ["Date","Invoice No.","Service/Product","Price","Membership Redemption","Net","Gst","invoice"];
       function FormatDate(date) {
         const dates = new Date(date)
         
@@ -67,6 +67,10 @@ const InvoiceWise = () => {
         filename: 'invoisewise',
         sheet: 'invoisewise'
     })
+
+    const handleUrl=(url)=>{
+      window.open(url, '_blank');
+    }
     
   return (  
     <Layout>
@@ -101,6 +105,7 @@ const InvoiceWise = () => {
               <td >{row?.membershipCreditUsed}</td>
               <td>{((row?.subTotal - (row?.discount|| 0))/ 1.18).toFixed(2)}</td>
               <td>{((row?.subTotal - (row?.discount|| 0))-(((row?.subTotal - (row?.discount|| 0))/ 1.18).toFixed(2))).toFixed(2)}</td>
+              <td><FaFilePdf className='text-2xl text-black font-bold cursor-pointer' onClick={()=>handleUrl(row?.invoiceUrl)}/></td>
             </tr>
           ))
             
