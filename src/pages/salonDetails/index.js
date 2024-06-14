@@ -27,7 +27,7 @@ const SalonDeatils = () => {
   const [imageFile, setImageFile] = useState(null);
   const [imageKey, setImageKey] = useState('');
   const [fileNames, setFileNames] = useState([]);
-  const [parlorDetails,setParlorDetails] = useState([]);
+  const [parlorDetails, setParlorDetails] = useState([]);
   
   const token = localStorage.getItem("token");
   const handleFileChange = async(e) => {
