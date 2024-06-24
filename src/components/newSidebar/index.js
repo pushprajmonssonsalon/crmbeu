@@ -26,7 +26,7 @@ const VerticalSidebar = () => {
                 { name: "Report", link: "/reports" },
                 { name: "Invoice wise collection", link: "/invoicewise" },
                 { name: "Revenue", link: "/revenue" },
-                // { name: "Weekly Report", link: "/weeklyreport" }
+                { name: "Weekly Report", link: "/weeklyreport" }
             ]
         },
         { name: "Employee", link: `/employee`, icon: RiAccountPinBoxFill, num: 5 },
