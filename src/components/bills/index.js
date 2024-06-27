@@ -178,10 +178,10 @@ const AppointmentBills = () => {
           <h2 className="text-lg font-semibold text-black">
             {parlorDetails.stateName}
           </h2>
-          <h2 className="text-lg font-semibold text-black mb-2">
+          <h2 className="text-lg font-bold text-black mb-2">
            Contact No. - {parlorDetails.contactNumber}
           </h2>
-          <h2 className="text-lg font-semibold text-black mb-2">
+          <h2 className="text-lg font-bold text-black mb-2">
           GST No - {parlorDetails?.gstNumber}
           </h2>
         </div>
@@ -219,6 +219,8 @@ const AppointmentBills = () => {
           </div>
         </div>
         {/* Membership  */}
+        {
+          data?.membershipCreditUsed > 0 && (
         <div className="mt-2">
           <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
             MEMBERSHIP DETAILS
@@ -238,6 +240,8 @@ const AppointmentBills = () => {
             </div>
           </div>
         </div>
+          )
+        }
         {/* SERVICES */}
         <div className="mt-2">
           <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
@@ -246,13 +250,13 @@ const AppointmentBills = () => {
           <table>
             <thead>
               <tr>
-                <th class="text-bold">ServiceName</th>
-                <th class="text-bold">Category</th>
-                <th class="text-bold">Rate</th>
-                <th class="text-bold">Employee Name</th>
+                <th class="text-bold text-black">ServiceName</th>
+                <th class="text-bold text-black">Category</th>
+                <th class="text-bold text-black">Rate</th>
+                <th class="text-bold text-black">Employee Name</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="text-black font-medium">
               {data.services.map((item, index) => (
                 <tr key={index}>
                   <td>{item.miniSubcategory}</td>
@@ -386,7 +390,7 @@ const AppointmentBills = () => {
           </div>
           <table>
             <thead>
-              <tr>
+              <tr className="text-black">
                 <th>Payment Options</th>
                 <th>Amount</th>
               </tr>
@@ -395,7 +399,7 @@ const AppointmentBills = () => {
               {paymentMethodsValue.map((item, index) => {
                 console.log("item", item);
                 return (
-                  <tr>
+                  <tr className="text-black font-medium">
                     <td>{item.name}</td>
                     <td>{item.amount}</td>
                   </tr>
@@ -422,7 +426,7 @@ const AppointmentBills = () => {
       <button
         onClick={() => {
           handlePrint(null, () => contentToPrint.current);
-          handleChange(contentToPrint.current);
+          // handleChange(contentToPrint.current);
         }}
         className="w-full my-4"
       >

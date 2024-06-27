@@ -15,6 +15,7 @@ import ProductQuantityPopup from "../../components/popup/ProductQuantityPopup";
 
 const ViewAppointment = () => {
   const [apptId, setApptId] = useState("");
+  const [loadingStates, setLoadingStates] = useState({})
   const [alreadyAddedProduct, setAlreadyAddedProduct] = useState([]);
   const [tab, setTab] = useState("crm");
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
@@ -81,7 +82,10 @@ const ViewAppointment = () => {
     console.log("mera h item", item);
     if (item.status === 2 || item.status === 1) {
       toast.error("Appointment is not completed!");
-    } else window.open(item.invoiceUrl,'_blank');
+    } else {
+      navigate('/invoicegenerator',{state: item})
+    }
+    //  window.open(item.invoiceUrl,'_blank');
   };
   const handleAppointmentChange = (e) => {
     setStatus(e.target.value);
@@ -108,6 +112,10 @@ const ViewAppointment = () => {
       id: item._id,
       paymentMethod: paymentMethods,
     };
+    setLoadingStates((prevLoadingStates) => ({
+      ...prevLoadingStates,
+      [item._id]: true,
+    }));
 
     postApiData(
       "appointment/changeAppointmentStatus",
@@ -115,6 +123,10 @@ const ViewAppointment = () => {
       (resp) => {
         console.log("response", resp);
         if (resp) {
+          setLoadingStates((prevLoadingStates) => ({
+            ...prevLoadingStates,
+            [item._id]: false,
+          }));
           setAppointmentStatus(true);
           // setStatus(3)
           setIsStatusChange(!isStatusChange);
@@ -122,6 +134,10 @@ const ViewAppointment = () => {
         }
       },
       (error) => {
+        setLoadingStates((prevLoadingStates) => ({
+          ...prevLoadingStates,
+          [item._id]: false,
+        }));
         console.log("error", error);
       }
     );
@@ -377,6 +393,7 @@ const ViewAppointment = () => {
                   setApptId={setApptId}
                   apptId={apptId}
                   setAlreadyAddedProduct={setAlreadyAddedProduct}
+                  loading={loadingStates}
                 />
               ) : (
                 <div

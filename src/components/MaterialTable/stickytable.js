@@ -104,7 +104,7 @@ const columns = [
 
 
 
-export default function StickyHeadTable({data,selectClick,handlePrint,cancelPress,submitPress,setShowQuantityPopup,showQuantityPopup,setApptId,apptId,setAlreadyAddedProduct}) {
+export default function StickyHeadTable({data,selectClick,handlePrint,cancelPress,submitPress,setShowQuantityPopup,showQuantityPopup,setApptId,apptId,setAlreadyAddedProduct,loading}) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -237,7 +237,7 @@ return `${formattedDate} ${formattedTime}`
                      {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
                      <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
                      <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
-                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
+                     <button className="cursor-pointer" onClick={() => submitPress(item)}>{loading[item._id] ?'loading...':'Submit'}</button>
                      </div>
               </TableCell>
               <TableCell>
