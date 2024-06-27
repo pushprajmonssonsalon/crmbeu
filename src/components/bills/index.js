@@ -317,7 +317,7 @@ const AppointmentBills = () => {
             </h1>
             <table>
               <thead>
-                <tr>
+                <tr className="text-black">
                   <th class="text-bold">productName</th>
                   <th class="text-bold">Brand</th>
                   <th class="text-bold">Rate</th>
@@ -331,7 +331,7 @@ const AppointmentBills = () => {
                   // console.log("itemdata",item)
                   const totalPrice = item.quantity * item.price;
                   return (
-                    <tr>
+                    <tr className="text-black font-semibold">
                       <td>{item.name}</td>
                       <td>{item.brand}</td>
                       <td>Rs.{item.price}</td>
