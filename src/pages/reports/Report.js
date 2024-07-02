@@ -114,25 +114,48 @@ const Report = () => {
     );
   };
 
-  useEffect(()=>{
-    getApiCall("",
-      (resp)=>{
-        setWholeCustomerRevenue(resp)
-      }
-    )
-    getApiCall("",
-      (resp)=>{
-        setNewCustomerRevenue(resp)
-      }
-    )
-  },[])
+  // useEffect(()=>{
+  //   getApiCall("",
+  //     (resp)=>{
+  //       setWholeCustomerRevenue(resp)
+  //     }
+  //   )
+  //   getApiCall("",
+  //     (resp)=>{
+  //       setNewCustomerRevenue(resp)
+  //     }
+  //   )
+  // },[])
   console.log({staffDistribution})
   const credits = membershipCredit[0]?.membershipCreditUsed;
   console.log("credits",credits)
   
   const totalPayment = paymentMethodReport.reduce((acc, payment) => acc + payment.total, 0);
 
-  console.log("paymets",paymentMethodReport)
+  console.log("paymets",paymentMethodReport);
+
+  useEffect(()=>{
+    const data = {
+      startDate:startDate,
+      endDate: endDate
+    }
+    postApiData("reports/getSalesReportOfCustomers",data,
+      (resp)=>{
+        const result = resp.reduce((acc, item) => {
+          acc[item._id] = {
+            ...item,
+            totalRevenue: (item.total - item.discount).toFixed(2)
+          };
+          return acc;
+        }, {});
+        setWholeCustomerRevenue(result?.old?.totalRevenue)
+        setNewCustomerRevenue(result?.new?.totalRevenue)
+        console.log("new customer result",result)
+      },(error)=>{
+        console.log(error)
+      }
+    )
+  },[startDate,endDate])
 
   return (
     <Layout>
@@ -140,16 +163,16 @@ const Report = () => {
         <div>
     <button onClick={() => toPDF()}>Download PDF</button>
  </div>
- {/* <div className="w-full flex justify-evenly my-5 items-center">
+ <div className="w-full flex justify-evenly my-5 items-center">
   <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
-    <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"> <MdPeopleAlt className="text-3xl"/>Whole Customer Revenue</h1>
-    <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ 50000</h3>
+    <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"> <MdPeopleAlt className="text-3xl"/>Old Customer Revenue</h1>
+    <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {wholeCustomerRevenue}</h3>
   </div>
   <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
     <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"><MdPeopleAlt className="text-3xl"/> New Customer Revenue</h1>
-    <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ 50000</h3>
+    <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {newCustomerRevenue}</h3>
   </div>
- </div> */}
+ </div>
       <div className="reportContainer">
         <span className="text-3xl font-bold text-green-600 ">REPORTS</span>
       </div>

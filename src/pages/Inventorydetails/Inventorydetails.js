@@ -160,7 +160,10 @@ const Inventorydetails = () => {
       brandName: "Rica",
     },
     {
-      brandName: "	Milk & Shake",
+      brandName: "Milk & Shake",
+    },
+    {
+      brandName: "Casmara",
     },
   ];
   const TypeData = [{ productType: "Retail" }, { productType: "Professional" }];
