@@ -219,6 +219,8 @@ console.log("uploaded files:",images)
             <div className='w-1/4 h-[150px] relative'>
               <img src={image} alt="img" className='w-full h-full bg-cover'/>
               <MdCancel className='absolute text-2xl text-black top-0 right-0 cursor-pointer' onClick={()=>handleCancelImages(index)}/>
+           
+           
             </div>
           ))
         }

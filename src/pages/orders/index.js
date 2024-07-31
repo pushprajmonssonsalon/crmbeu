@@ -56,12 +56,13 @@ const Orders = () => {
       console.log("all order product list", orderProductList)
 
       
-      console.log("order id",orderId)
+      // console.log("order id",orderId)
 
       const handleInvoice=(item)=>{
         navigate('/orderinvoice',{state: item})
       }
       const handleUpload=(item)=>{
+        console.log("itemcoming",item)
         setOrderId(item._id)
         setIsUpload(true)
       }
