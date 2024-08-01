@@ -8,7 +8,6 @@ import axios from 'axios';
 import { MdCancel } from "react-icons/md";
 
 const InvoiceUpload = ({ isVisible, onClose, orderId }) => {
-  let fileId=orderId
   console.log("orderId",orderId)
   const [pdfNames, setPdfNames] = useState([]);
   const [pdfUrls, setPdfUrls] = useState([]);
@@ -32,13 +31,12 @@ const InvoiceUpload = ({ isVisible, onClose, orderId }) => {
 },[isVisible,imageFiles,cancel])
   const handleFileChange = async (e) => {
     setImageFiles(e.target.files[0]);
-    console.log(e.target.files[0]);
     let imageData = e.target.files[0];
     const formData = new FormData();
     formData.append("image", imageData);
     // formData.append("fileId", fileId);
     formData.append("fieldId", orderId);
-    console.log("imageData------", imageData);
+    // console.log("imageData------", imageData);
 
     try {
       const response = await axios.post(
@@ -58,7 +56,7 @@ const InvoiceUpload = ({ isVisible, onClose, orderId }) => {
         getApiCall(
           "purchaseorder/getPurchaseOrders",
           (res)=>{
-              console.log("orders ki list",res)
+              console.log("orderlist",res)
               setOrdersList(res)
               
              
