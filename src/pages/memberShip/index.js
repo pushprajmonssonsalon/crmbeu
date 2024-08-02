@@ -217,7 +217,7 @@ export default function Membership() {
       // },
       membershipId: memberShipdata[0]?._id,
     };
-    if(phoneNumber!=="" && selectedStaff.length>0  && memberShipdata !== null && isPayed===true && membershipName!==""){
+    if(phoneNumber!= "" && selectedStaff.length>0  && memberShipdata != null && isPayed===true && membershipName!=""){
       postApiData(
         "membership/buyMembership",
         data,

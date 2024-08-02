@@ -421,7 +421,8 @@ const Edit = () => {
   }, [memberShipStatus]);
   const handlePriceChange = (index, newPrice) => {
     const updatedAppointments = [...addedAppointmentDetails];
-    updatedAppointments[index].price = newPrice;
+    updatedAppointments[index].price = +newPrice;
+    console.log("newprice",+newPrice)
     setAddedAppointmentDetails(updatedAppointments);
   };
 
