@@ -10,9 +10,7 @@ export const loginUser=(useDetails)=>{
 
             },(error)=>{
                 console.log("error",error)
-
             })
-
         }
 }
 

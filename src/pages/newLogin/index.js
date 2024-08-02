@@ -42,7 +42,7 @@ const NewLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://192.168.2.203:4002/parlor/login", {
+      const res = await axios.post("https://crm.smartsalon.in/parlor/login", {
         mobileNumber,
         password,
       });
