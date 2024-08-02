@@ -510,12 +510,12 @@ const Edit = () => {
                           <td>{item?.subCategory}</td>
                           <td>
                             {staffData
-                              ?.filter((staff) => staff._id === item.staffId)
+                              ?.filter((staff) => staff?._id === item?.staffId)
                               ?.map((data) => (
                                 <span>{data.name}</span>
                               ))}
-                            {!staffData.some(
-                              (staff) => staff._id === item.staffId
+                            {!staffData?.some(
+                              (staff) => staff?._id === item?.staffId
                             ) && (
                               <input
                                 type="text"
