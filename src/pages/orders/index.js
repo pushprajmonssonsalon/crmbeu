@@ -75,6 +75,7 @@ const Orders = () => {
         >
           <thead>
             <tr>
+            <th>Po id</th>
               <th>Order Date</th>
               <th>Receive Date</th>
               <th>Category</th>
@@ -88,6 +89,7 @@ const Orders = () => {
           <tbody>
             {ordersList.map((item, index) => (
               <tr key={index}>
+                     <td>{item?.poId}</td>
                 <td>{FormatDate(item.createdAt)}</td>
                 <td>{FormatDate(item?.updatedAt)}</td>
                 <td>

@@ -20,7 +20,6 @@ const Edit = () => {
   const [appointementProducts, setAppointmentProducts] = useState([]);
   // after adding services state
   const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
-  const [userData, setUserData] = useState([]);
   //   const [addedProductAppointmentDetails,setAddedProductAppointmentDetails] = useState([])
   // service selection obj
   const [serviceSelection, setServiceSelection] = useState({
@@ -58,6 +57,7 @@ const Edit = () => {
   const [staffNames, setStaffNames] = useState(
     Array(addedAppointmentDetails.length).fill("")
   );
+  const [appStaffData,setAppStaffData]=useState([])
 
   const handleStaffNameChange = (index, newName) => {
     setStaffNames((prevStaffNames) => {
@@ -80,6 +80,17 @@ const Edit = () => {
       return newStaffNames;
     });
   };
+  useEffect(() => {
+    getApiCall(
+      "owner/getStaff",
+      (res) => {
+        setAppStaffData(res);
+      },
+      (error) => {
+        console.log("error", error);
+      }
+    );
+  }, [serviceSelection.subCategory]);
 
   // api call for getting service category
   useEffect(() => {
@@ -517,13 +528,27 @@ const Edit = () => {
                             {!staffData?.some(
                               (staff) => staff?._id === item?.staffId
                             ) && (
-                              <input
-                                type="text"
-                                value={staffNames[index]}
-                                onChange={(e) =>
-                                  handleStaffNameChange(index, e.target.value)
-                                }
-                              />
+                              <select
+                              className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
+                              onChange={handlestaffChange}
+                              // value={serviceSelection.satffName}
+                              value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
+                            >
+                              <option value={appStaffData} className="bg-white">
+                                Select Staff
+                              </option>
+                              { appStaffData?.map((item) => (
+                                <option
+                                  key={item._id}
+                                  value={`${item._id}-${item.name}`}
+                                  //  value={`${item._id}`}
+                                  className="border-none shadow-lg rounded-lg bg-white "
+                                >
+                                  {item.name}
+                                </option>
+                              ))}
+                            </select>
+                
                             )}
                           </td>
                           {/* <td>{item?.price}</td> */}
@@ -589,7 +614,7 @@ const Edit = () => {
             <select
               className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
               onChange={handleSubCategoryChange}
-              value={serviceSelection.subCategory} // Use 'value' for controlled components
+              value={serviceSelection.subCategory} 
             >
               <option value={subservice}>Select SubCategory</option>
               {subservice?.map((item) => (
@@ -629,7 +654,17 @@ const Edit = () => {
               <option value={staffData} className="bg-white">
                 Select Staff
               </option>
-              {staffData?.map((item) => (
+              {  staffData?
+              staffData?.map((item) => (
+                <option
+                  key={item._id}
+                  value={`${item._id}-${item.name}`}
+                  //  value={`${item._id}`}
+                  className="border-none shadow-lg rounded-lg bg-white "
+                >
+                  {item.name}
+                </option>
+              )):staffData?.map((item) => (
                 <option
                   key={item._id}
                   value={`${item._id}-${item.name}`}

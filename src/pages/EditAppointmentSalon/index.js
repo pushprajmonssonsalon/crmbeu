@@ -578,9 +578,9 @@ console.log("mergedArray", mergedArray);
         {/* your servic section */}
 
         <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
-          <h1 className="text-4xl font-bold text-black mt-2 ml-2">
+          {/* <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             Your Services
-          </h1>
+          </h1> */}
           <div className="w-full overflow-x-auto my-4">
             <div className="table-container">
               {/* <table className="styled-table">
