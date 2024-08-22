@@ -1,5 +1,4 @@
-import React from 'react'
-import { BiSolidAddToQueue } from 'react-icons/bi'
+import { BiSolidAddToQueue } from 'react-icons/bi';
 import { MdOutlineAddShoppingCart } from "react-icons/md";
 
 
@@ -8,7 +7,7 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
 
   return (
     <>
-        <table className="styled-table" style={{ height: "40px" }}>
+        <table className="styled-table w-[90%] overflow-x-auto mx-auto" style={{ height: "40px" }}>
               <thead>
                 <tr>
                   <th>{header.name}</th>
@@ -22,7 +21,7 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
                 </tr>
               </thead>
               <tbody>
-                {data.slice(startIndex, endIndex).map((item, index) => (
+                {data.map((item, index) => (
                   <tr key={index}  onClick={() => getSalonProductsPress(item)}>
                     <td>{item.name}</td>
                     <td>{item.mrp}</td>

@@ -18,6 +18,10 @@ const s3 = new AWS.S3({
 const SalonDeatils = () => {
   const [address, setAddress] = useState('');
   const [gst, setGst] = useState('');
+  const [tradename, setTradeName] = useState('');
+  const [email, setEmail] = useState('');
+  const [owner, setOwner] = useState('');
+  const [openDate, setOpenDate] = useState('');
   const [state, setState] = useState('');
   const [address2, setAddress2] = useState('');
   const [del,setDel] = useState(false)
@@ -131,7 +135,11 @@ console.log("uploaded files:",images)
         address:address,
         address2: address2,
         contactNumber: contactNumber, 
-        images: images
+        images: images,
+        email:email,
+        trade:tradename,
+        owner:owner,
+        live:openDate
     }
     postApiData("parlor/editParlorDetails",data,
     (resp)=>{
@@ -167,15 +175,15 @@ console.log("uploaded files:",images)
           </div>
           <div className='grid grid-cols-2 w-full items-center'>
             <label htmlFor='name'>
-              <span className='font-bold text-md font-serif '>Name :</span>
+              <span className='font-bold text-md font-serif '>Salon Catergory :</span>
             </label>
             <input type='text' placeholder='Name' className='rounded-lg border-none bg-white placeholder:font-semibold'  value={parlorDetails.name} disabled/>
             <label htmlFor='name'>
-              <span className='font-bold text-md font-serif '>Address :</span>
+              <span className='font-bold text-md font-serif '>Location :</span>
             </label>
             <input type='text' placeholder='Address' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails.address} onChange={(e) => setAddress(e.target.value)} />
             <label htmlFor='name'>
-              <span className='font-bold text-md font-serif '>Address 2 :</span>
+              <span className='font-bold text-md font-serif '>Address  :</span>
             </label>
             <input type='text' placeholder='Address 2' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails.address2} onChange={(e) => setAddress2(e.target.value)} />
             <label htmlFor='name'>
@@ -190,6 +198,22 @@ console.log("uploaded files:",images)
               <span className='font-bold text-md font-serif '>GST Number :</span>
             </label>
             <input type='text' placeholder='GST Number' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails.gstNumber} onChange={(e) => setGst(e.target.value)} />
+            <label htmlFor='text'>
+              <span className='font-bold text-md font-serif '>Trade Name :</span>
+            </label>
+            <input type='text' placeholder='Trade Name' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails?.trade} onChange={(e) => setTradeName(e.target.value)} />
+            <label htmlFor='text'>
+              <span className='font-bold text-md font-serif '>Email :</span>
+            </label>
+            <input type='text' placeholder='Email' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails?.email} onChange={(e) => setEmail(e.target.value)} />
+            <label htmlFor='text'>
+              <span className='font-bold text-md font-serif '>Owner Name :</span>
+            </label>
+            <input type='text' placeholder='Owner Name' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails?.owner} onChange={(e) => setOwner(e.target.value)} />
+            <label htmlFor='text'>
+              <span className='font-bold text-md font-serif '>Salon Operational Date :</span>
+            </label>
+            <input type='text' placeholder='Salon Operational Date' className='rounded-lg border-none bg-white placeholder:font-semibold' defaultValue={parlorDetails?.live} onChange={(e) => setOpenDate(e.target.value)} />
             <label htmlFor='text'>
               <span className='font-bold text-md font-serif '>Images :</span>
             </label>

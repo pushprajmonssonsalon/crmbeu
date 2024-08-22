@@ -1,10 +1,9 @@
-import React from 'react'
 import { BiSolidAddToQueue } from 'react-icons/bi'
 import { GiCancel } from 'react-icons/gi'
 import { postApiData } from '../../utils/services'
 import toast from 'react-hot-toast'
 
-const MyProductTable = ({data,startIndex,endIndex,getSalonProductsPress,handleOpen,setIsChanged,isChanged}) => {
+const MyProductTable = ({data,getSalonProductsPress,handleOpen,setIsChanged,isChanged}) => {
   console.log("handle open data",data)
   const handleDelete=(id)=>{
     const data = {
@@ -24,7 +23,7 @@ const MyProductTable = ({data,startIndex,endIndex,getSalonProductsPress,handleOp
   }
     return (
         <>
-            <table className="styled-table" style={{ height: "40px" }}>
+            <table className="styled-table w-[95%] mx-auto overflow-x-auto" style={{ height: "40px" }}>
                   <thead>
                     <tr>
                       <th>NAME</th>
@@ -36,7 +35,7 @@ const MyProductTable = ({data,startIndex,endIndex,getSalonProductsPress,handleOp
                     </tr>
                   </thead>
                   <tbody>
-                    {data.slice(startIndex, endIndex).map((item, index) => (
+                    {data.map((item, index) => (
                       <tr key={index}  onClick={() => getSalonProductsPress(item)}>
                       <td>{item.products.name}</td>
                         <td>{item.products.stockQuantity}</td>

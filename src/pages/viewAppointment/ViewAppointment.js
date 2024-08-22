@@ -1,33 +1,34 @@
-import React from "react";
 import CustomInputFeild from "../../components/customInput";
-import { useEffect, useRef } from "react";
-import { getApiCall, postApiData } from "../../utils/services";
+import { useEffect } from "react";
+import { postApiData } from "../../utils/services";
 import { useState } from "react";
 import "./ViewAppointment.css";
 import InvoiceGenrator from "../../components/customInovice";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "../../components/Layout";
-import ViewPopup from "../../components/popup/ViewPopup";
 import { toast } from "react-hot-toast";
 import StickyHeadTable from "../../components/MaterialTable/stickytable";
 import StickyAppHeadTable from "../../components/MaterialTable/stickyAppTable";
 import ProductQuantityPopup from "../../components/popup/ProductQuantityPopup";
+import ViewPopup from "../../components/popup/ViewPopup";
 
 const ViewAppointment = () => {
+  const [params] = useSearchParams();
+  const start = params.get("start");
+  const end = params.get("end");
   const [apptId, setApptId] = useState("");
-  const [loadingStates, setLoadingStates] = useState({})
+  const [loadingStates, setLoadingStates] = useState({});
   const [alreadyAddedProduct, setAlreadyAddedProduct] = useState([]);
   const [tab, setTab] = useState("crm");
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
+  const [activeAppointment, setActiveAppointment] = useState({});
+
   const [status, setStatus] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState([]);
-  console.log("selectedoptions", selectedOptions);
   const [modal, setModal] = useState(false);
   const [calculatedValues, setCalculatedValues] = useState([]);
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  console.log("paymentMethods", paymentMethods);
-  console.log("viewAppointmentDetails", viewAppointmentDetails);
   const [appointmentstatus, setAppointmentStatus] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
   const [printStatus, setPrintStatus] = useState(false);
   const [modalAmount, setModalAmount] = useState(0);
   const [membershipPoints, setMemberShipPoints] = useState(0);
@@ -41,8 +42,12 @@ const ViewAppointment = () => {
 
   //date
   const defaultStartDate = new Date();
-  const [startDate, setStartDate] = useState(defaultStartDate);
-  const [endDate, setEndDate] = useState(defaultStartDate);
+  const [startDate, setStartDate] = useState(
+    start ? new Date(start) : defaultStartDate
+  );
+  const [endDate, setEndDate] = useState(
+    end ? new Date(end) : defaultStartDate
+  );
 
   const navigate = useNavigate();
 
@@ -83,7 +88,7 @@ const ViewAppointment = () => {
     if (item.status === 2 || item.status === 1) {
       toast.error("Appointment is not completed!");
     } else {
-      navigate('/invoicegenerator',{state: item})
+      navigate("/invoicegenerator", { state: item });
     }
     //  window.open(item.invoiceUrl,'_blank');
   };
@@ -97,50 +102,49 @@ const ViewAppointment = () => {
       setStatus(3);
     }
   };
-  const handleUpdatePayment = (cash, card, upi) => {
-    const updatedPaymentMethods = [
-      { name: "Cash", amount: parseFloat(cash) || 0 },
-      { name: "Card", amount: parseFloat(card) || 0 },
-      { name: "Upi", amount: parseFloat(upi) || 0 },
-    ];
-    setPaymentMethods(updatedPaymentMethods);
-  };
 
   const submitPress = (item) => {
-    const data = {
-      status: 3,
-      id: item._id,
-      paymentMethod: paymentMethods,
-    };
-    setLoadingStates((prevLoadingStates) => ({
-      ...prevLoadingStates,
-      [item._id]: true,
-    }));
+    const activeAppointment = viewAppointmentDetails.find(
+      (elm) => elm._id === item._id
+    );
+    if (activeAppointment) {
+      const data = {
+        status: 3,
+        id: item._id,
+        paymentMethod: activeAppointment?.paymentMethod,
+      };
+      setLoadingStates((prevLoadingStates) => ({
+        ...prevLoadingStates,
+        [item._id]: true,
+      }));
 
-    postApiData(
-      "appointment/changeAppointmentStatus",
-      data,
-      (resp) => {
-        console.log("response", resp);
-        if (resp) {
+      postApiData(
+        "appointment/changeAppointmentStatus",
+        data,
+        (resp) => {
+          console.log("response", resp);
+          if (resp) {
+            setLoadingStates((prevLoadingStates) => ({
+              ...prevLoadingStates,
+              [item._id]: false,
+            }));
+            setAppointmentStatus(true);
+            // setStatus(3)
+            setIsStatusChange(!isStatusChange);
+            toast.success("Appointment Completed!");
+          }
+        },
+        (error) => {
           setLoadingStates((prevLoadingStates) => ({
             ...prevLoadingStates,
             [item._id]: false,
           }));
-          setAppointmentStatus(true);
-          // setStatus(3)
-          setIsStatusChange(!isStatusChange);
-          toast.success("Appointment Completed!");
+          console.log("error", error);
         }
-      },
-      (error) => {
-        setLoadingStates((prevLoadingStates) => ({
-          ...prevLoadingStates,
-          [item._id]: false,
-        }));
-        console.log("error", error);
-      }
-    );
+      );
+    } else {
+      toast.error("Appointment not found!");
+    }
   };
   const cancelPress = (item) => {
     if (item.status === 3) {
@@ -149,7 +153,7 @@ const ViewAppointment = () => {
     const data = {
       status: 2,
       id: item._id,
-      paymentMethod: paymentMethods,
+      paymentMethod: viewAppointmentDetails?.paymentMethods,
     };
 
     postApiData(
@@ -176,7 +180,7 @@ const ViewAppointment = () => {
     const data = {
       status: 2,
       id: item._id,
-      paymentMethod: paymentMethods,
+      paymentMethod: viewAppointmentDetails?.paymentMethods,
     };
 
     postApiData(
@@ -197,16 +201,31 @@ const ViewAppointment = () => {
     );
   };
 
-  const handleChangePayment = (e) => {
-    const selectedValue = e.target.value;
-    setSelectedOptions([...selectedOptions, selectedValue]);
-  };
-  const selectClick = (amount, membershipPoints, status) => {
-    console.log("amountpayable", membershipPoints);
-    setModalAmount(amount);
-    setMemberShipPoints(membershipPoints);
+  // const handleChangePayment = (e) => {
+  //   const selectedValue = e.target.value;
+  //   setSelectedOptions([...selectedOptions, selectedValue]);
+  // };
+  const selectClick = ({
+    total,
+    membershipCreditUsed,
+    status,
+    isPaid,
+    isCaptured,
+    _id,
+  }) => {
+    console.log("amountpayable", membershipPoints, isCaptured, isPaid);
+
+    setModalAmount(total);
+    setMemberShipPoints(membershipCreditUsed);
     setModal(true);
+    const appointment = viewAppointmentDetails.find((elm) => elm._id === _id);
+    if (appointment.paymentMethod.length === 0) {
+      appointment.paymentMethod = paymentMethods;
+    }
+
     if (status === 1) {
+      setIsPaid(isPaid && isCaptured);
+      setActiveAppointment(appointment);
       setShowPopup(true);
     }
   };
@@ -304,8 +323,9 @@ const ViewAppointment = () => {
       startDate: startDate,
       endDate: endDate,
     };
+
     postApiData(
-      "appointment/getAppointments",
+      `appointment/getAppointments/?start=${start}&end=${end}`,
       data,
       (resp) => {
         console.log("tabresp", resp);
@@ -321,30 +341,40 @@ const ViewAppointment = () => {
   };
 
   console.log({ viewAppointmentDetails });
-  function FormatDate(date) {
-    const dates = new Date(date);
+  // function FormatDate(date) {
+  //   const dates = new Date(date);
 
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const formatter = new Intl.DateTimeFormat("en-US", options);
-    const formattedDate = formatter.format(dates);
+  //   const options = { year: "numeric", month: "long", day: "numeric" };
+  //   const formatter = new Intl.DateTimeFormat("en-US", options);
+  //   const formattedDate = formatter.format(dates);
 
-    return formattedDate;
-  }
-  function formatDateTime(timestamp) {
-    const dateOptions = { day: "numeric", month: "long", year: "numeric" };
-    const timeOptions = { hour: "numeric", minute: "2-digit", hour12: true };
+  //   return formattedDate;
+  // }
+  // function formatDateTime(timestamp) {
+  //   const dateOptions = { day: "numeric", month: "long", year: "numeric" };
+  //   const timeOptions = { hour: "numeric", minute: "2-digit", hour12: true };
 
-    const date = new Date(timestamp);
-    const formattedDate = date.toLocaleDateString("en-IN", dateOptions);
-    const formattedTime = date.toLocaleTimeString("en-IN", timeOptions);
+  //   const date = new Date(timestamp);
+  //   const formattedDate = date.toLocaleDateString("en-IN", dateOptions);
+  //   const formattedTime = date.toLocaleTimeString("en-IN", timeOptions);
 
-    return `${formattedDate}  ${formattedTime}`;
-  }
-
+  //   return `${formattedDate}  ${formattedTime}`;
+  // }
+  const updatePaymentMethod = () => {
+    setViewAppointmentDetails((prev) =>
+      prev.map((item) => {
+        if (item._id === activeAppointment._id) {
+          return activeAppointment;
+        }
+        return item;
+      })
+    );
+    setShowPopup(false);
+  };
   console.log("appt Id ", apptId);
   return (
     <Layout>
-      <div className="w-[90%] mx-auto mt-28 overflow-x-auto">
+      <div className="w-[90%] mx-auto mt-28 overflow-x-auto my-10">
         <div className="">
           <div className=" flex justify-center items-center">
             <CustomInputFeild
@@ -381,7 +411,7 @@ const ViewAppointment = () => {
 
           {tab === "crm" ? (
             <div className="">
-              {viewAppointmentDetails.length > 0 ? (
+              {viewAppointmentDetails?.length > 0 ? (
                 <StickyHeadTable
                   data={viewAppointmentDetails}
                   selectClick={selectClick}
@@ -414,13 +444,13 @@ const ViewAppointment = () => {
             </div>
           ) : (
             <div className="table-containerValue w-full overflow-x-scroll">
-              {viewAppointmentDetails.length > 0 ? (
+              {viewAppointmentDetails?.length > 0 ? (
                 <StickyAppHeadTable
                   data={viewAppointmentDetails}
-                  selectClick={selectClick}
                   handlePrint={handlePrint}
                   cancelPress={cancelAppPress}
                   submitPress={submitPress}
+                  selectClick={selectClick}
                 />
               ) : (
                 <div
@@ -441,17 +471,28 @@ const ViewAppointment = () => {
             </div>
           )}
         </div>
-
         <ViewPopup
+          isVisible={showPopup}
+          onClose={() => setShowPopup(false)}
+          modal={modal}
+          isPaid={activeAppointment?.isPaid && activeAppointment?.isCaptured}
+          setModal={setModal}
+          onUpdate={updatePaymentMethod}
+          setActiveAppointment={setActiveAppointment}
+          activeAppointment={activeAppointment}
+        />
+        {/* <ViewPopup
           selectedOptions={selectedOptions}
           isVisible={showPopup}
           onClose={() => setShowPopup(false)}
           modal={modal}
+          isPaid={isPaid}
           setModal={setModal}
+          paymentMethods={viewAppointmentDetails?.paymentMethods}
           payableAmount={modalAmount}
-          onUpdatePayment={handleUpdatePayment}
+          setPaymentMethods={setViewAppointmentDetails}
           membershipPoints={membershipPoints}
-        />
+        /> */}
         <ProductQuantityPopup
           isVisible={showQuantityPopup}
           onClose={() => setShowQuantityPopup(false)}
@@ -464,5 +505,25 @@ const ViewAppointment = () => {
     </Layout>
   );
 };
+
+const paymentMethods = 
+  [
+    {
+      name: "Cash",
+      amount: 0,
+    },
+    {
+      name: "Upi",
+      amount: 0,
+    },
+    {
+      name: "Card",
+      amount: 0,
+    },
+    {
+      name: "Online",
+      amount: 0,
+    },
+  ]
 
 export default ViewAppointment;

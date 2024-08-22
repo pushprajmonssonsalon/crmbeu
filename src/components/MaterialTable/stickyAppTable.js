@@ -1,103 +1,122 @@
-import * as React from 'react';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import { IoPrintSharp } from 'react-icons/io5';
-import { GiCancel } from 'react-icons/gi';
-import { Link } from 'react-router-dom';
-import { FaEdit } from 'react-icons/fa';
-const headings = ["Name","Mobile No.","Appointments Date/Time","Services","Products","Employee","Amount","Membership Credit Used","Status","Payment Mode","Action","Payment Method"]
-
+import * as React from "react";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import { IoPrintSharp } from "react-icons/io5";
+import { GiCancel } from "react-icons/gi";
+import { Link } from "react-router-dom";
+import { FaEdit } from "react-icons/fa";
+import { useState } from "react";
+import { useEffect } from "react";
+const headings = [
+  "Name",
+  "Mobile No.",
+  "Appointments Date/Time",
+  "Services",
+  "Products",
+  "Employee",
+  "Amount",
+  "Membership Credit Used",
+  "Status",
+  "Payment Mode",
+  "Action",
+  "Payment Method",
+];
 
 const columns = [
-  { id: 'name', label: 'Name', minWidth: 170 },
+  { id: "name", label: "Name", minWidth: 170 },
   {
-    id: 'mobile',
-    label: 'Mobile No.',
+    id: "mobile",
+    label: "Mobile No.",
     minWidth: 170,
-    align: 'right',
-    format: (value) => value.toLocaleString('en-US'),
+    align: "right",
+    format: (value) => value.toLocaleString("en-US"),
   },
   {
-    id: 'size',
-    label: 'Appointments Date/Time',
+    id: "size",
+    label: "Appointments Date/Time",
     minWidth: 170,
-    align: 'right',
-    format: (value) => value.toLocaleString('en-US'),
+    align: "right",
+    format: (value) => value.toLocaleString("en-US"),
   },
   {
-    id: 'Services',
-    label: 'Services',
+    id: "Services",
+    label: "Services",
     minWidth: 170,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
   {
-    id: 'Products',
-    label: 'Products',
+    id: "Products",
+    label: "Products",
     minWidth: 270,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
   {
-    id: 'Employee',
-    label: 'Employee',
+    id: "Employee",
+    label: "Employee",
     minWidth: 170,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
   {
-    id: 'Amount',
-    label: 'Amount',
+    id: "Amount",
+    label: "Amount",
     minWidth: 170,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
   {
-    id: 'membership',
-    label: 'Membership Credit Used',
+    id: "membership",
+    label: "Membership Credit Used",
     minWidth: 170,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
   {
-    id: 'Status',
-    label: 'Status',
+    id: "Status",
+    label: "Status",
     minWidth: 170,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
   {
-    id: 'Payment',
-    label: 'Payment Mode',
+    id: "Payment",
+    label: "Payment Mode",
     minWidth: 170,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
   {
-    id: 'Action',
-    label: 'Action',
+    id: "Action",
+    label: "Action",
     minWidth: 170,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
   {
-    id: 'Payment',
-    label: 'Payment Method',
+    id: "Payment",
+    label: "Payment Method",
     minWidth: 170,
-    align: 'right',
+    align: "right",
     format: (value) => value.toFixed(2),
   },
 ];
 
+export default function StickyAppHeadTable({
+  selectClick,
+  data,
+  handlePrint,
+  cancelPress,
+  submitPress,
+}) {
 
-
-export default function StickyAppHeadTable({data,selectClick,handlePrint,cancelPress,submitPress}) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -111,7 +130,7 @@ export default function StickyAppHeadTable({data,selectClick,handlePrint,cancelP
   };
 
   const getStatusNumber = (status) => {
-    console.log("status",status)
+    console.log("status", status);
     switch (status) {
       case 1:
         return "Pending";
@@ -123,120 +142,205 @@ export default function StickyAppHeadTable({data,selectClick,handlePrint,cancelP
         // Handle other cases if needed
         return null; // or 'N/A'
     }
-  
   };
 
   function formatDateTime(timestamp) {
-console.log("timestamp", timestamp);
+    console.log("timestamp", timestamp);
 
-// Parse the timestamp
-const [dateString, timeString] = timestamp.split('T');
-const [year, month, day] = dateString.split('-').map(Number);
-const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    // Parse the timestamp
+    const [dateString, timeString] = timestamp.split("T");
+    const [year, month, day] = dateString.split("-").map(Number);
+    const [hours, minutes, seconds] = timeString.split(":").map(Number);
 
-// Create a new Date object with UTC values
-const date = new Date(Date.UTC(year, month - 1, day, hours, minutes, seconds));
+    // Create a new Date object with UTC values
+    const date = new Date(
+      Date.UTC(year, month - 1, day, hours, minutes, seconds)
+    );
 
-// Format date
-const formattedDate = `${year}-${month}-${day}`;
+    // Format date
+    const formattedDate = `${year}-${month}-${day}`;
 
-// Format time to AM/PM
-const period = hours >= 12 ? 'PM' : 'AM';
-const formattedHours = hours % 12 || 12;
-const formattedTime = `${formattedHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+    // Format time to AM/PM
+    const period = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12;
+    const formattedTime = `${formattedHours}:${minutes
+      .toString()
+      .padStart(2, "0")} ${period}`;
 
-console.log(`Date: ${formattedDate}, Time: ${formattedTime}`);
-return `${formattedDate} ${formattedTime}`
-
+    console.log(`Date: ${formattedDate}, Time: ${formattedTime}`);
+    return `${formattedDate} ${formattedTime}`;
   }
-  
+  // const selectClick = ({ _id, status }) => {
+  //   // console.log("amountpayable", isCaptured, isPaid);
 
+  //   setModal(true);
+
+  //   if (status === 1) {
+  //     setShowPopup(true);
+  //     setActiveAppointment(data.find((item) => item._id === _id));
+  //   }
+  // };
+  // const updatePaymentMethod = () => {
+  //   setData((prev) =>
+  //     prev.map((item) => {
+  //       if (item._id === activeAppointment._id) {
+  //         return activeAppointment;
+  //       }
+  //       return item;
+  //     })
+  //   );
+  // };
+  useEffect(() => {
+    console.log("data", data);
+  }, [data]);
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table  aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {headings.map((column) => (
-                <TableCell
-                >
-                  {column}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-          {data
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .filter((type)=>type.appointmentType === "app")
-              .map((item) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} >
-                    <TableCell>{item.customer.name}</TableCell>
-                    <TableCell>{item.customer.phoneNumber}</TableCell>
-                    <TableCell >{formatDateTime(item.appointmentDate)}</TableCell>
-              <TableCell>
-              {item?.services.slice(0, 3).map((itemdata, index) => (
-                <React.Fragment key={index}>
-                  <h1>{itemdata.name}</h1>
-                </React.Fragment>
-              ))}
-              </TableCell>
-              <TableCell>
-              {item?.products.map((itemdata, index) => (
-                <React.Fragment key={index}>
-                  <h1>{itemdata.name}</h1>
-                </React.Fragment>
-              ))}
-              </TableCell>
-              <TableCell>
-              {item?.services.map((itemdata, index) => (
-                   <React.Fragment key={index}>
-                     <h1>{itemdata.satffName}</h1>
-                   </React.Fragment>
-                 ))}
-              </TableCell>
-              <TableCell>{item.total}</TableCell>
-              <TableCell>{(item.membershipUsed) ? item.membershipCreditUsed: 0}</TableCell>
-              <TableCell><h1 className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{getStatusNumber(item.status)}</h1></TableCell>
-              <TableCell>
-              <div className="cursor-pointer hover:text-blue-700 font-bold"
-                         onClick={()=>selectClick(item.total,item.membershipCreditUsed ,item.status)}>
-                           <div className="flex justify-center items-center">
-                           <button className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${item.status === 3 || item.status === 2 ? 'cursor-not-allowed': 'cursor-pointer'}`} >PAY</button>
-                           </div>
-                       </div>
-              </TableCell>
-              <TableCell>
-              <div className="flex justify-between items-center gap-x-2">
-                     {item.status === 1  && (<Link to={`/viewAppoinment/${item._id}`}><FaEdit  className="text-black text-xl cursor-pointer" /></Link>)}
-                     <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(item)}/>
-                     <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={() => cancelPress(item)}/>
-                     <button className="cursor-pointer" onClick={() => submitPress(item)}>Submit</button>
-                     </div>
-              </TableCell>
-              <TableCell>
-              {
-                     item.status === 3 && (
-                      item.paymentMethod.filter(item=>item.amount !== 0).map(item=>item.name).join('\n')
-                     )
-                   }
-              </TableCell>
-                  </TableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={data.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Paper>
+    <>
+      <Paper sx={{ width: "100%", overflow: "hidden" }}>
+        <TableContainer sx={{ maxHeight: 440 }}>
+          <Table aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {headings.map((column) => (
+                  <TableCell>{column}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .filter((type) => type.appointmentType === "app")
+                .map((item) => {
+                  return (
+                    <TableRow hover role="checkbox" tabIndex={-1}>
+                      <TableCell>{item.customer.name}</TableCell>
+                      <TableCell>{item.customer.phoneNumber}</TableCell>
+                      <TableCell>
+                        {formatDateTime(item.appointmentDate)}
+                      </TableCell>
+                      <TableCell>
+                        {item?.services.slice(0, 3).map((itemdata, index) => (
+                          <React.Fragment key={index}>
+                            <h1>{itemdata.name}</h1>
+                          </React.Fragment>
+                        ))}
+                      </TableCell>
+                      <TableCell>
+                        {item?.products.map((itemdata, index) => (
+                          <React.Fragment key={index}>
+                            <h1>{itemdata.name}</h1>
+                          </React.Fragment>
+                        ))}
+                      </TableCell>
+                      <TableCell>
+                        {item?.services.map((itemdata, index) => (
+                          <React.Fragment key={index}>
+                            <h1>{itemdata.satffName}</h1>
+                          </React.Fragment>
+                        ))}
+                      </TableCell>
+                      <TableCell>{item.total}</TableCell>
+                      <TableCell>
+                        {item.membershipUsed ? item.membershipCreditUsed : 0}
+                      </TableCell>
+                      <TableCell>
+                        <h1
+                          className={`font-semibold text-sm ${
+                            item.status === 1
+                              ? "text-blue-500"
+                              : item.status === 2
+                              ? "text-red-500"
+                              : "text-green-600"
+                          }`}
+                        >
+                          {getStatusNumber(item.status)}
+                        </h1>
+                      </TableCell>
+                      <TableCell>
+                        <div className="cursor-pointer hover:text-blue-700 font-bold">
+                          <div
+                            onClick={() => selectClick(item)}
+                            className="flex justify-center items-center"
+                          >
+                            {item.isPaid ? (
+                              <button
+                                className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg ${
+                                  item.status === 3 || item.status === 2
+                                    ? "cursor-not-allowed"
+                                    : "cursor-pointer"
+                                }`}
+                              >
+                                PREPAID
+                              </button>
+                            ) : (
+                              <button
+                                className={`text-xl font-semibold text-white bg-blue-600 px-6 py-1 rounded-lg hover:bg-blue-800 hover:scale-105 ${
+                                  item.status === 3 || item.status === 2
+                                    ? "cursor-not-allowed"
+                                    : "cursor-pointer"
+                                }`}
+                              >
+                                PAY
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-between items-center gap-x-2">
+                          {item.status === 1 && (
+                            <Link to={`/viewAppoinment/${item._id}`}>
+                              <FaEdit className="text-black text-xl cursor-pointer" />
+                            </Link>
+                          )}
+                          <IoPrintSharp
+                            className={`text-green-600 text-xl cursor-pointer hover:text-green-950`}
+                            onClick={() => handlePrint(item)}
+                          />
+                          <GiCancel
+                            className="text-red-600 text-xl cursor-pointer"
+                            onClick={() => cancelPress(item)}
+                          />
+                          <button
+                            className="cursor-pointer"
+                            onClick={() => submitPress(item)}
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {item.status === 3 &&
+                          item.paymentMethod
+                            .filter((item) => item.amount !== 0)
+                            .map((item) => item.name)
+                            .join("\n")}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={data.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+      {/* <ViewPopup
+        isVisible={showPopup}
+        onClose={() => setShowPopup(false)}
+        modal={modal}
+        isPaid={activeAppointment?.isPaid && activeAppointment?.isCaptured}
+        setModal={setModal}
+        onUpdate={updatePaymentMethod}
+        setActiveAppointment={setActiveAppointment}
+        activeAppointment={activeAppointment}
+      /> */}
+    </>
   );
 }

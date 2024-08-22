@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./report.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getApiCall, postApiData } from "../../utils/services";
-import { CSVLink } from "react-csv";
+import { postApiData } from "../../utils/services";
 import { usePDF } from 'react-to-pdf';
-import InvoiceGenrator from "../../components/customInovice";
 import Layout from "../../components/Layout";
-import { productAdded } from "../../redux/actions";
 import ReportTable from "../../components/Table/ReportTable";
 import { MdPeopleAlt } from "react-icons/md";
 
@@ -85,6 +82,7 @@ const Report = () => {
       startDate: startDate,
       endDate: endDate,
     };
+
     postApiData(
       "reports/salonDailyReport",
       data,

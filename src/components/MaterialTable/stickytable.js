@@ -226,7 +226,7 @@ return `${formattedDate} ${formattedTime}`
               <TableCell><h1 className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{getStatusNumber(item.status)}</h1></TableCell>
               <TableCell>
               <div className="cursor-pointer hover:text-blue-700 font-bold"
-                         onClick={()=>selectClick(item.total,item.membershipCreditUsed ,item.status)}>
+                         onClick={()=>selectClick(item)}>
                            <div className="flex justify-center items-center">
                            <button className={`text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${item.status === 3 || item.status === 2 ? 'cursor-not-allowed': 'cursor-pointer'}`} >PAY</button>
                            </div>

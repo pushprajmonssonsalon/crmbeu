@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getApiCall, postApiData } from "../../utils/services";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../../components/Layout";
@@ -20,6 +20,7 @@ const Edit = () => {
   const [appointementProducts, setAppointmentProducts] = useState([]);
   // after adding services state
   const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
+  const [userData, setUserData] = useState([]);
   //   const [addedProductAppointmentDetails,setAddedProductAppointmentDetails] = useState([])
   // service selection obj
   const [serviceSelection, setServiceSelection] = useState({
@@ -42,7 +43,11 @@ const Edit = () => {
   const [showSearchProduct, setShowSearchProduct] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productQnt, setProductQnt] = useState(0);
-  const [productStaff, setProductStaff] = useState("");
+  const [productStaff, setProductStaff] = useState({
+    staffId: "",
+    staffName: "",
+  
+  });
   const [discount, setDiscount] = useState(0);
   const [totalSubServices, setTotalSubServices] = useState(0);
   // membership details
@@ -57,7 +62,6 @@ const Edit = () => {
   const [staffNames, setStaffNames] = useState(
     Array(addedAppointmentDetails.length).fill("")
   );
-  const [appStaffData,setAppStaffData]=useState([])
 
   const handleStaffNameChange = (index, newName) => {
     setStaffNames((prevStaffNames) => {
@@ -80,17 +84,6 @@ const Edit = () => {
       return newStaffNames;
     });
   };
-  useEffect(() => {
-    getApiCall(
-      "owner/getStaff",
-      (res) => {
-        setAppStaffData(res);
-      },
-      (error) => {
-        console.log("error", error);
-      }
-    );
-  }, [serviceSelection.subCategory]);
 
   // api call for getting service category
   useEffect(() => {
@@ -150,15 +143,17 @@ const Edit = () => {
     getApiCall(
       `appointment/getSingleAppointmentDetails?id=${id}`,
       (resp) => {
-        console.log("new edit ki single data :", resp);
-        setDiscount(resp.discountPercentage);
+        console.log("new edit ki single data :", resp.discountPercentage);
+        setDiscount(resp?.discountPercentage || 0);
         setAppointmentDetails(resp);
-        setAddedAppointmentDetails(resp.services);
+        setAddedAppointmentDetails(
+          resp.services.map((item) => ({ ...item, staffId: item?.staffId|| "", satffName: item?.satffName|| "" }))
+        );
         setAppointmentProducts(resp.products);
         // setMembershipDetails(resp.customer.activeMembership)
         setMemberShipStatus(resp.membershipUsed);
         setFilterMembershipId(resp.membershipId);
-        setUserId(resp.customer._id);
+        // setUserId(resp.customer._id);
         setMemberShipId(resp.membershipId);
         setTotalSubServices(resp.membershipCreditUsed);
         setSubServiceTotal(resp.membershipCreditUsed);
@@ -187,6 +182,25 @@ const Edit = () => {
       }
     );
   }, [serviceSelection.subCategory]);
+
+  useEffect(()=>{
+    if(phoneNumber)
+    postApiData(
+      `/membership/getActiveMembershipOfUser`,
+     {phoneNumber},
+      (resp) => {
+        if (resp) {
+          // console.log("membership", resp[0]);
+          setMembershipDetails(resp[0]?.activeMembership)
+          setUserId(resp[0]?._id)
+          
+        }
+      },
+      (error) => {
+        console.log("error", error);
+      }
+    );
+  },[phoneNumber])
 
   // handle buttons for add service
   const serviceAddpress = () => {
@@ -226,17 +240,32 @@ const Edit = () => {
       price: +selectedPrice,
     });
   };
-  const handlestaffChange = (e) => {
+  const handlestaffChange = (e, index, newService) => {
     let splited = e.target.value.split("-");
     let Name = splited[1];
     let Id = splited[0];
     console.log("staffffffff------", Name, Id);
     console.log("staffselect", e.target.value);
-    setServiceSelection({
-      ...serviceSelection,
-      staffId: Id,
-      satffName: Name,
-    });
+    if (newService) {
+      setServiceSelection({
+        ...serviceSelection,
+        staffId: Id,
+        satffName: Name,
+      });
+    } else {
+      setAddedAppointmentDetails((prev) =>
+        prev.map((item, idx) => {
+          if (index === idx) {
+            return {
+              ...item,
+              staffId: Id,
+              satffName: Name,
+            };
+          }
+          return item;
+        })
+      );
+    }
   };
 
   console.log();
@@ -272,18 +301,43 @@ const Edit = () => {
       name: e.target.value,
     });
   };
-  const addproductPress = (item, productQnt, productStaffid) => {
+  const addproductPress = (item, productQnt) => {
+
+    if(productQnt===0||!productQnt){
+
+      toast.error("Please Select  Quantity")
+      return ;
+      
+    }
+    if(!productStaff.staffId || !productStaff.staffName){
+
+      toast.error("Please Select Staff")
+      return ;
+      
+    }
     // productQnt,productStaffid
     const itemWithAdditionalInfo = {
       ...item, // Copying existing properties of item
       quantity: +productQnt, // Adding quantity key
-      staffId: productStaffid, // Adding staffId key
-    };
+      staffId: productStaff.staffId,
+      staffName: productStaff.staffName,
+    }; // Adding staffId key
+    
     console.log("product data coming", itemWithAdditionalInfo);
-
+    setAppointmentProducts((prev) => {
+      const index = prev.findIndex((elm) => elm._id === item._id);
+  
+      if (index !== -1) {
+        return prev.map((elm, i) => 
+          i === index ? itemWithAdditionalInfo : elm
+        );
+      } else {
+        return [...prev, itemWithAdditionalInfo];
+      }
+    });
+  
     // dispatch(EditproductAdded(itemWithAdditionalInfo));
     // setProductData(itemWithAdditionalInfo)
-    setAppointmentProducts([...appointementProducts, itemWithAdditionalInfo]);
   };
 
   const deleteEditService = (indexId) => {
@@ -336,7 +390,7 @@ const Edit = () => {
         if (resp) {
           toast.success("Appointment Booked SuccessFully");
           console.log("appointment", resp);
-          navigate("/viewAppointment");
+          navigate(-1);
         }
       },
       (error) => {
@@ -349,7 +403,7 @@ const Edit = () => {
       //   creditsUsed:5000,
       creditsUsed: memberShipStatus ? subServiceTotal : totalService,
       // creditsUsed: totalSubServices,
-      userId: userId,
+      userId,
       memId: memberShipId,
       isMembershipUsed: !memberShipStatus,
     };
@@ -393,7 +447,7 @@ const Edit = () => {
     0
   );
 
-  console.log("subtotalsumservice", subTotalServices);
+  console.log("subtotalsumservice", discount);
 
   const subProductTotal = appointementProducts
     ?.map((item) => item.price * item.quantity)
@@ -414,28 +468,30 @@ const Edit = () => {
     setTotalSubServices(subTotalServices);
   };
 
-  useEffect(() => {
-    const data = {
-      phoneNumber: phoneNumber,
-    };
-    postApiData(
-      "user/searchUser",
-      data,
-      (resp) => {
-        console.log("respons", resp);
-        setMembershipDetails(resp[0].activeMembership);
-      },
-      (error) => {
-        console.log("error", error);
-      }
-    );
-  }, [memberShipStatus]);
+  // useEffect(() => {
+  //   const data = {
+  //     phoneNumber: phoneNumber,
+  //   };
+  //   postApiData(
+  //     "user/searchUser",
+  //     data,
+  //     (resp) => {
+  //       console.log("respons", resp);
+  //       setMembershipDetails(resp[0].activeMembership);
+  //     },
+  //     (error) => {
+  //       console.log("error", error);
+  //     }
+  //   );
+  // }, [memberShipStatus]);
   const handlePriceChange = (index, newPrice) => {
     const updatedAppointments = [...addedAppointmentDetails];
-    updatedAppointments[index].price = +newPrice;
-    console.log("newprice",+newPrice)
+    updatedAppointments[index].price =+ newPrice;
     setAddedAppointmentDetails(updatedAppointments);
   };
+  useEffect(()=>{
+console.log(appointementProducts,"appointmenproducts")
+  },[appointementProducts])
 
   return (
     <Layout>
@@ -520,36 +576,35 @@ const Edit = () => {
                           <td>{item?.category}</td>
                           <td>{item?.subCategory}</td>
                           <td>
-                            {staffData
-                              ?.filter((staff) => staff?._id === item?.staffId)
+                            {/* {staffData
+                              ?.filter((staff) => staff._id === item.staffId)
                               ?.map((data) => (
                                 <span>{data.name}</span>
-                              ))}
-                            {!staffData?.some(
-                              (staff) => staff?._id === item?.staffId
-                            ) && (
-                              <select
+                              ))} */}
+                            {/* {!staffData.some(
+                              (staff) => staff._id === item.staffId
+                            ) &&  */}
+
+                            <select
                               className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-                              onChange={handlestaffChange}
-                              // value={serviceSelection.satffName}
-                              value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
+                              onChange={(e) =>
+                                handlestaffChange(e, index, false)
+                              }
+                              // value={item.staffId}
+                              value={`${item.staffId}-${item.satffName}`}
                             >
-                              <option value={appStaffData} className="bg-white">
-                                Select Staff
-                              </option>
-                              { appStaffData?.map((item) => (
+                              <option className="bg-white">Select Staff</option>
+                              {staffData?.map((elm) => (
                                 <option
-                                  key={item._id}
-                                  value={`${item._id}-${item.name}`}
+                                  key={elm._id}
+                                  value={`${elm._id}-${elm.name}`}
                                   //  value={`${item._id}`}
                                   className="border-none shadow-lg rounded-lg bg-white "
                                 >
-                                  {item.name}
+                                  {elm.name}
                                 </option>
                               ))}
                             </select>
-                
-                            )}
                           </td>
                           {/* <td>{item?.price}</td> */}
                           <td>
@@ -614,7 +669,7 @@ const Edit = () => {
             <select
               className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
               onChange={handleSubCategoryChange}
-              value={serviceSelection.subCategory} 
+              value={serviceSelection.subCategory} // Use 'value' for controlled components
             >
               <option value={subservice}>Select SubCategory</option>
               {subservice?.map((item) => (
@@ -647,24 +702,11 @@ const Edit = () => {
 
             <select
               className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={handlestaffChange}
-              // value={serviceSelection.satffName}
+              onChange={(e) => handlestaffChange(e, 0, true)}
               value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
             >
-              <option value={staffData} className="bg-white">
-                Select Staff
-              </option>
-              {  staffData?
-              staffData?.map((item) => (
-                <option
-                  key={item._id}
-                  value={`${item._id}-${item.name}`}
-                  //  value={`${item._id}`}
-                  className="border-none shadow-lg rounded-lg bg-white "
-                >
-                  {item.name}
-                </option>
-              )):staffData?.map((item) => (
+              <option className="bg-white">Select Staff</option>
+              {staffData?.map((item) => (
                 <option
                   key={item._id}
                   value={`${item._id}-${item.name}`}
@@ -711,6 +753,8 @@ const Edit = () => {
                       <th>Price</th>
                       <th>Brand</th>
                       <th>Quantity</th>
+                      <th>Staff Name</th>
+
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -721,6 +765,7 @@ const Edit = () => {
                         <td>{item?.price}</td>
                         <td>{item?.brand}</td>
                         <td>{item?.quantity}</td>
+                        <td>{item?.staffName}</td>
                         <td>
                           {" "}
                           <MdDeleteOutline
@@ -816,20 +861,23 @@ const Edit = () => {
                                 height: "30px",
                                 borderRadius: "8px",
                               }}
-                              onChange={handlestaffChange}
-                              value={serviceSelection.staffId}
+                              onChange={(e) =>
+                                    setProductStaff({
+                                      staffId: e.target.value.split("-")[0],
+                                      staffName: e.target.value.split("-")[1],
+                                    })
+                                  }
+                              value={`${productStaff.staffId}-${productStaff.staffName}`}
                             >
-                              <option value="" disabled>
+                              <option >
                                 Select Staff
                               </option>
                               {staffData?.map((item) => (
                                 <option
                                   key={item._id}
-                                  value={item._id}
+                                  value={`${item._id}-${item.name}`}
                                   style={{ width: "300px" }}
-                                  onChange={(e) =>
-                                    setProductStaff(e.target.value)
-                                  }
+                               
                                 >
                                   {item.name}
                                 </option>
@@ -847,7 +895,7 @@ const Edit = () => {
                                 cursor: "pointer",
                               }}
                               onClick={() =>
-                                addproductPress(item, productQnt, item._id)
+                                addproductPress(item, productQnt)
                               }
                             >
                               <label

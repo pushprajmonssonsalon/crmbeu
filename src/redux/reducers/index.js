@@ -47,10 +47,23 @@ export const ProductAddReducer = (state = productDataIntialState, action) => {
   switch (type) {
 
       case 'PRODUCT_DATA_ADDED':
-        return {
-          ...state,
-          ProductData: [...state.ProductData, payload],
-        };
+        const index = state.ProductData.findIndex((item) => item._id === payload._id);
+
+        if(index!==-1){
+          
+          const updatedprod= state.ProductData.map((item)=>(item._id===payload._id?payload:item))
+          return {
+            ...state,
+            ProductData: updatedprod,
+          };
+        }
+        else {
+          return {
+            ...state,
+            ProductData: [...state.ProductData, payload],
+          };
+        }
+       
        
         case "DELETE_ITEM _PRODUCT":
           const updatedItems = state.ProductData.filter(
@@ -148,5 +161,26 @@ export const UpadateProductReducer = (state = UpdateproductDataIntialState, acti
   }
 };
 
+const SiderbarReducerIntialState = {
+  open:true,
+  openAccordion:false
+};
+export const SidebarReducer =(state=SiderbarReducerIntialState,action)=>{
+  const { type, payload } = action;
+
+  switch(type){
+    case "TOGGLE_SIDEBAR":
+      return{
+        ...state,open:payload,
+      }
+      case "TOGGLE_ACCORDION":
+        return{
+          ...state,openAccordion:payload
+        }
+    default:
+      return state;
+  }
+
+}
 
 

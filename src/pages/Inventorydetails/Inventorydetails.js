@@ -1,14 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./inventorydetails.css";
-import { HiDotsVertical } from "react-icons/hi";
-import Modal from "react-modal";
 import productList from "./productlist";
-import { CSVLink } from "react-csv";
-import { getApiCall, postApiData } from "../../utils/services";
-import InventoryProductAddModal from "../../components/inventoryProductAdd";
+import { postApiData } from "../../utils/services";
 import Pagination from "../../components/pagination";
 import Layout from "../../components/Layout";
-import { BiSolidAddToQueue } from "react-icons/bi";
 import { toast } from "react-hot-toast";
 import Table from "../../components/Table";
 import MyProductTable from "../../components/Table/myProduct";
@@ -17,6 +12,7 @@ import { AiOutlineShoppingCart } from "react-icons/ai";
 import MyProductPopup from "../../components/popup/MyProductPopup";
 import InventoryModel from "../../components/inventoryProductAdd/InventoryModel";
 import * as XLSX from 'xlsx';
+import GridRows from "../../components/pagination/gridRows";
 const allProductHeading = {
   name: "NAME",
   mrp: "MRP",
@@ -57,40 +53,31 @@ const DropdownRow = ({ label, options, value, onChange }) => {
 const Inventorydetails = () => {
   const [count, setCount] = useState(0);
   const [newMyProducts, setNewMyProducts] = useState([]);
+  const [totalMyProducts, setTotalMyProducts] = useState(0);
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [cost, setCost] = useState("");
-  const [date, setDate] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
+
   const [skuNumber, setSkuNumber] = useState("");
   const [remarks, setRemarks] = useState("");
   const [type, setType] = useState("");
   const [productName, setProductName] = useState("");
-  const [subCategory, setSubCategory] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [lotNumber, setLotNumber] = useState("");
-  const [measurement, setMeasurement] = useState("");
-  const [unit, setUnit] = useState("");
-  const [lowQuantity, setLowQuantity] = useState("");
-  const [hsnCode, setHsnCode] = useState("");
+  
+  
   const [brand, setBrand] = useState("");
   const [getSalonProducts, setgetSalonProducts] = useState([]);
+  const [totalProducts,setTotalProducts]=useState([])
   const [selectedItem, setSelectedItem] = useState(null);
   const [addproductModal, setAddProductModal] = useState(false);
   const [searchProdut, setsearchProduct] = useState(null);
   const [productDetailsModal, setProductDetailModal] = useState([]);
-  const [postsPerPage] = useState(10);
-  console.log("getSalonProductslength", getSalonProducts);
+  const [postsPerPage,setPostsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
-  const categories = ["Skincare", "category2", "category3"];
-  const subcategory = ["Serums", "subcategory2", "subcategory3"];
-  const brands = ["brand1", "brand2", "brand3"];
-  const types = ["Retail", "Non-retail", "Both"];
-  const quantities = ["quantity1", "quantity2", "quantity3"];
+ 
   const [allProducts, setAllproducts] = useState("allProducts");
-  const [myProductList, setMyProductList] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [productdetails, setProductdetails] = useState([]);
   const [brandName, setBrandName] = useState(null);
@@ -113,12 +100,12 @@ const Inventorydetails = () => {
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage,setItemsPerPage] = useState(10);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = currentPage * itemsPerPage;
 
   const [currentPage1, setCurrentPage1] = useState(1);
-  const itemsPerPage1 = 10;
+  const [itemsPerPage1,setItemsPerPage1]=useState(10)
   const startIndex1 = (currentPage1 - 1) * itemsPerPage1;
   const endIndex1 = currentPage1 * itemsPerPage1;
 
@@ -128,6 +115,14 @@ const Inventorydetails = () => {
   const handlePageChange1 = (page) => {
     setCurrentPage1(page);
   };
+  const handleRowschange=(e)=>{
+    const {value}=e.target
+    setItemsPerPage(+value)
+  }
+  const handleRows1change=(e)=>{
+    const {value}=e.target
+    setItemsPerPage1(+value)
+  }
   const showopen = () => {
     setOpen(!open);
   };
@@ -239,13 +234,13 @@ const Inventorydetails = () => {
       type: type2,
     };
     postApiData(
-      "inventory/getSalonProducts",
+      `inventory/getSalonProducts/?limit=${itemsPerPage}&page=${currentPage}`,
       data,
       (resp) => {
         console.log("getMyProduct----------------------------------", resp);
         // setMyProductList(resp.products);
-        setNewMyProducts(resp);
-        setCurrentPage(1);
+        setNewMyProducts(resp.products);
+        setTotalMyProducts(resp.totalCount)
       },
       (error) => {
         console.log("error");
@@ -253,27 +248,7 @@ const Inventorydetails = () => {
     );
   };
   console.log({ newMyProducts });
-  useEffect(()=>{
-    const data = {
-      page: currentPage,
-      limit: postsPerPage,
-      name: '',
-      brand: '',
-      type: '',
-    };
-    postApiData(
-      `inventory/getAllProducts`,
-      data,
-      (resp) => {
-        console.log("getallproducts", resp);
-        setSalonAllProductsDetails(resp.products);
-        setCurrentPage1(1);
-      },
-      (error) => {
-        console.log("error", error);
-      }
-    );
-  },[])
+  
   // All products
   useEffect(() => {
     const data = {
@@ -284,19 +259,18 @@ const Inventorydetails = () => {
       type: typeName,
     };
     postApiData(
-      `inventory/getAllProducts`,
+      `inventory/getAllProducts/?limit=${itemsPerPage1}&page=${currentPage1}`,
       data,
       (resp) => {
         console.log("getallproducts", resp);
         setgetSalonProducts(resp.products);
-        setCurrentPage1(1);
+        setTotalProducts(resp?.total)
       },
       (error) => {
         console.log("error", error);
       }
     );
-  }, [isModalOpen, brandName, searchProdut, typeName]);
-  console.log({ getSalonProducts });
+  }, [isModalOpen, brandName, searchProdut, typeName,currentPage1,itemsPerPage1]);
 
   useEffect(() => {
     myproduct();
@@ -308,28 +282,10 @@ const Inventorydetails = () => {
     type2,
     isChanged,
     isDelete,
+    currentPage,
+    itemsPerPage
   ]);
-  // console.log({myProductList})
-
-  useEffect(() => {
-    const data = {
-      brand: "",
-      name: "",
-      type: "",
-    };
-    postApiData(
-      "inventory/getFilteredProducts",
-      data,
-      (resp) => {
-        console.log("getsalonproduct", resp);
-        setMyProductList(resp.products);
-        setCurrentPage(1);
-      },
-      (error) => {
-        console.log("error");
-      }
-    );
-  }, []);
+  
   const onchangeProduct = (e) => {
     setsearchProduct(e.target.value);
   };
@@ -339,33 +295,7 @@ const Inventorydetails = () => {
     setShowInventryModel(true);
   };
 
-  const handleSubmit = () => {
-    const data = {
-      name: productName,
-      quantity: quantity,
-      price: price,
-      brand: brand,
-      category: category,
-      mrp: cost,
-      skucode: skuNumber,
-      type: type,
-      description: remarks,
-    };
-    postApiData(
-      "inventory/addproduct",
-      data,
-      (resp) => {
-        if (resp) {
-          // alert("prduct added sucessfully");
-          toast.success("Product Added sucessFully");
-          setModalOpen(false);
-        }
-      },
-      (error) => {
-        console.log("error", error);
-      }
-    );
-  };
+ 
 
   const getSalonProductsPress = (item) => {
     setSelectedItem(item);
@@ -387,8 +317,7 @@ const Inventorydetails = () => {
     indexOfLastPost
   );
 
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
 
   const result = productOrderId.map((id) => {
     const matchingObject = salonAllProductsDetails.find((obj) => obj._id === id);
@@ -455,9 +384,9 @@ const Inventorydetails = () => {
         </ul>
 
         {allProducts == "myProducts" ? (
-          <div style={{ display: "flex", width: "100%" }}>
+          <div className="flex ">
             <div className="inventory-container-main">
-              <div className="flex justify-between items-center mt-6">
+              <div className="flex flex-wrap gap-3 justify-between items-center mt-6">
                 <input
                   value={productName2}
                   placeholder="Search by Product Name"
@@ -523,15 +452,16 @@ const Inventorydetails = () => {
               </div>
               <MyProductTable
                 data={newMyProducts}
-                startIndex={startIndex}
-                endIndex={endIndex}
+              
                 getSalonProductsPress={getSalonProductsPress}
                 isChanged={isDelete}
                 setIsChanged={setIsDeleted}
                 handleOpen={handleOpen}
               />
+                        <GridRows itemsPerPage={itemsPerPage} handleRowschange={handleRowschange}/>
+
               <Pagination
-                totalItems={newMyProducts.length}
+                totalItems={totalMyProducts}
                 itemsPerPage={itemsPerPage}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
@@ -616,8 +546,10 @@ const Inventorydetails = () => {
               getSalonProductsPress={getSalonProductsPress}
               handleInventryOpen={handleInventryOpen}
             />
+          <GridRows itemsPerPage={itemsPerPage1} handleRowschange={handleRows1change}/>
+            
             <Pagination
-              totalItems={getSalonProducts.length}
+              totalItems={totalProducts}
               itemsPerPage={itemsPerPage1}
               currentPage={currentPage1}
               onPageChange={handlePageChange1}

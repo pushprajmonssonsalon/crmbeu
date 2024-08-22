@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./BookAppointment.css";
 import Modal from "react-modal";
 import { getApiCall, postApiData } from "../../utils/services";
@@ -19,7 +19,6 @@ import "rc-time-picker/assets/index.css";
 import Layout from "../../components/Layout";
 import moment from "moment";
 import { useNavigate } from "react-router";
-import { isVisible } from "@testing-library/user-event/dist/utils";
 import CustomAlert from "../../components/customAlert";
 import { toast } from "react-hot-toast";
 import { IoMdPersonAdd } from "react-icons/io";
@@ -527,14 +526,34 @@ const BookAppointment = () => {
       name: e.target.value,
     });
   };
-  const addproductPress = (item, productQnt, productStaffid) => {
+  const addproductPress = (item, productQnt, productStaffid,productStaffName) => {
+    console.log("staff",productStaffName,productStaffid,serviceSelection)
+    if(productQnt==="0"||!productQnt){
+      toast.error("Please Enter Quantiy");
+     
+
+      return;
+
+    }
+    if(!productStaffid || !productStaffName){
+      toast.error("Please Select Staff");
+     
+
+      return;
+
+    }
+    
     // productQnt,productStaffid
     const itemWithAdditionalInfo = {
       ...item, // Copying existing properties of item
       quantity: +productQnt, // Adding quantity key
-      staffId: productStaffid, // Adding staffId key
+      staffId: productStaffid,
+      staffName:productStaffName// Adding staffId key
     };
-    console.log("product data coming", itemWithAdditionalInfo);
+    
+    
+    
+    console.log("product data coming", itemWithAdditionalInfo,productDataReducer);
 
     dispatch(productAdded(itemWithAdditionalInfo));
     toast.success("product added succesfully");
@@ -904,7 +923,7 @@ const BookAppointment = () => {
                   // value={serviceSelection.satffName}
                   value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
                 >
-                  <option value={staffData} className="bg-white">
+                  <option  className="bg-white">
                     Select Staff
                   </option>
                   {staffData?.map((item) => (
@@ -1004,6 +1023,7 @@ const BookAppointment = () => {
                     <th>Price</th>
                     <th>Brand</th>
                     <th>Quantity</th>
+                    <th>Staff</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -1014,6 +1034,7 @@ const BookAppointment = () => {
                       <td>{item?.price}</td>
                       <td>{item?.brand}</td>
                       <td>{item?.quantity}</td>
+                      <td>{item?.staffName}</td>
                       <td>
                         {" "}
                         <MdDeleteOutline
@@ -1104,15 +1125,15 @@ const BookAppointment = () => {
                                 borderRadius: "8px",
                               }}
                               onChange={handlestaffChange}
-                              value={serviceSelection.staffId}
+                              value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
                             >
-                              <option value="" disabled>
+                              <option value="">
                                 Select Staff
                               </option>
                               {staffData?.map((item) => (
                                 <option
                                   key={item._id}
-                                  value={item._id}
+                                  value={`${item._id}-${item.name}`}
                                   style={{ width: "300px" }}
                                   onChange={(e) =>
                                     setProductStaff(e.target.value)
@@ -1136,7 +1157,8 @@ const BookAppointment = () => {
                                 addproductPress(
                                   item,
                                   productQnt,
-                                  serviceSelection.staffId
+                                  serviceSelection.staffId,
+                                  serviceSelection.satffName
                                 )
                               }
                             >

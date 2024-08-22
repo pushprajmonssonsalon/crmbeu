@@ -1,129 +1,200 @@
-import React, { useState } from "react";
+import React from "react";
 import { HiMenuAlt3 } from "react-icons/hi";
-import { MdApps, MdDashboard, MdEditSquare, MdRememberMe } from "react-icons/md";
+import { MdEditSquare, MdRememberMe } from "react-icons/md";
 import { RiAccountPinBoxFill } from "react-icons/ri";
 import { MdCardMembership } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
 import { LuView } from "react-icons/lu";
-import { FaTableList } from 'react-icons/fa6'
+import { FaTableList } from "react-icons/fa6";
 import { RiShoppingCartFill } from "react-icons/ri";
 import { GiRoyalLove } from "react-icons/gi";
 import { BiMessageAltDetail } from "react-icons/bi";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { IoPeopleSharp } from "react-icons/io5";
+import { useDispatch, useSelector } from "react-redux";
 
 const VerticalSidebar = () => {
-    const menus = [
-        { name: "Book Appointment", link: `/`, icon: FaBookOpen, num: 1 },
-        { name: "View Appointment", link: `/viewAppointment`, icon: LuView, num: 2 },
-        { name: "Inventory", link: `/inventory`, icon: FaTableList, num: 3 },
-        {
-            name: "Reports",
-            link: `/reports`,
-            icon: MdEditSquare,
-            num: 4,
-            submenus: [
-                { name: "Report", link: "/reports" },
-                { name: "Invoice wise collection", link: "/invoicewise" },
-                { name: "Revenue", link: "/revenue" },
-                { name: "Weekly Report", link: "/weeklyreport" }
-            ]
-        },
-        { name: "Employee", link: `/employee`, icon: RiAccountPinBoxFill, num: 5 },
-        { name: "Services", link: `/customerservices`, icon: MdRememberMe, num: 6 },
-        { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7 },
-        { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8 },
-        { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9 },
-        { name: "Salon Details", link: `/salon-details`, icon: BiMessageAltDetail, num: 10 },
-        { name: "Royality", link: `/royalities`, icon: GiRoyalLove, num: 10 },
-    ];
+  const location = useLocation();
+  const { pathname } = location;
+  const menus = [
+    { name: "Book Appointment", link: `/`, icon: FaBookOpen, num: 1 },
+    {
+      name: "View Appointment",
+      link: `/viewAppointment`,
+      icon: LuView,
+      num: 2,
+    },
+    { name: "Inventory", link: `/inventory`, icon: FaTableList, num: 3 },
+    {
+      name: "Reports",
+      link: `/reports`,
+      icon: MdEditSquare,
+      num: 4,
+      submenus: [
+        { name: "Report", link: "/reports" },
+        { name: "Invoice wise collection", link: "/invoicewise" },
+        { name: "Revenue", link: "/revenue" },
+        { name: "Weekly Report", link: "/weeklyreport" },
+      ],
+    },
+    { name: "Employee", link: `/employee`, icon: RiAccountPinBoxFill, num: 5 },
+    { name: "Services", link: `/customerservices`, icon: MdRememberMe, num: 6 },
+    { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7 },
+    { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8 },
+    { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9 },
+    {
+      name: "Salon Details",
+      link: `/salon-details`,
+      icon: BiMessageAltDetail,
+      num: 10,
+    },
+    { name: "Royality", link: `/royalities`, icon: GiRoyalLove, num: 10 },
+  ];
+  const dispatch = useDispatch();
 
-    const [open, setOpen] = useState(true);
-    const [openAccordion, setOpenAccordion] = useState(false);
-    const handleOpen=()=>{
-        setOpenAccordion(false)
-        setOpen(!open)
-    }
+  const { open, openAccordion } = useSelector((state) => state.SidebarReducer);
+  console.log("open", open);
+  //   const [open, setOpen] = useState(true);
+  //   const [openAccordion, setOpenAccordion] = useState(false);
+  const handleOpen = () => {
+    // setOpenAccordion(false);
+    dispatch({ type: "TOGGLE_ACCORDION", payload: false });
 
-    const toggleAccordion = () => {
-        setOpenAccordion(!openAccordion);
-    };
+    dispatch({ type: "TOGGLE_SIDEBAR", payload: !open });
+    // setOpen(!open);
+  };
 
-    return (
-        <section className={`bg-[#191919]  flex gap-6 min-h-screen  `}>
-            <div
-                className={`${open ? "w-64" : "w-16"}  duration-500  px-4 `} >
-                <div className="py-3 flex justify-end">
-                    <HiMenuAlt3
-                        size={30}
-                        className={`text-gray-500 cursor-pointer fixed top-32`}
-                        onClick={handleOpen}
-                    />
+  const toggleAccordion = () => {
+    dispatch({ type: "TOGGLE_ACCORDION", payload: !openAccordion });
+  };
+
+   const isReportLinkActive =()=>{
+    const reportObj =menus.find((item=>item.name==="Reports"))
+   const Index =reportObj.submenus.findIndex((item)=>item.link===pathname)
+   if(Index!==-1){
+    return true
+   }
+   return false
+   
+  
+     
+  } 
+  return (
+    <section className={`bg-[#191919]  flex gap-6 min-h-screen  `}>
+      <div className={`${open ? "w-64" : "w-16"}  duration-500  px-4 `}>
+        <div className="py-3 flex justify-end">
+          <HiMenuAlt3
+            size={30}
+            className={`text-gray-500 cursor-pointer fixed top-32`}
+            onClick={handleOpen}
+          />
+        </div>
+        <div
+          className={`mt-4 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar`}
+        >
+          {menus?.map((menu, i) => (
+            <React.Fragment key={i}>
+              {menu.name === "Reports" ? (
+                <div className="">
+                  <div
+                    className="cursor-pointer group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2 text-gray-300 rounded-md"
+                    onClick={() => {
+                      if (!open)
+                        dispatch({ type: "TOGGLE_SIDEBAR", payload: !open });
+
+                      toggleAccordion();
+                    }}
+                  >
+                    <div
+                      className={`${
+                       isReportLinkActive() && openAccordion
+                          ? "text-white opacity-100"
+                          : "text-gray-300"
+                      }`}
+                    >
+                      {React.createElement(menu.icon, { size: "20" })}
+                    </div>
+                    <h2
+                      className={`whitespace-pre text-sm ${
+                       isReportLinkActive() && openAccordion
+                          ? "text-white opacity-100"
+                          : "text-gray-300"
+                      } ${!open && "opacity-0  overflow-hidden"}`}
+                      style={{
+                        transitionDelay: `${1}00ms`,
+                      }}
+                    >
+                      {menu.name}
+                    </h2>
+                    <button
+                      className={`text-gray-300 bg-transparent hover:bg-transparent ${
+                       isReportLinkActive() && openAccordion
+                          ? "text-white opacity-100"
+                          : "text-gray-300"
+                      } ${
+                        !open ? "hidden" : ""
+                      }`}
+                      onClick={toggleAccordion}
+                    >
+                      {openAccordion ? "▲" : "▼"}
+                    </button>
+                  </div>
+                  {openAccordion && (
+                    <div className="ml-8">
+                      {menu.submenus?.map((submenu, j) => (
+                        <Link
+                          key={j}
+                          to={`${submenu.link}`}
+                          className={`group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2  rounded-md  ${
+                   ( submenu.link === pathname && open)
+                          ? "text-white opacity-100"
+                          : "text-gray-300"
+                      }`}
+                        >
+                          <div>{submenu.name}</div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className={`mt-4 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar`}>
-                    {menus?.map((menu, i) => (
-                        <React.Fragment key={i}>
-                            {menu.name === "Reports" ? (
-                                <div className="">
-                                    <div
-                                        className="cursor-pointer group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2 text-gray-300 rounded-md"
-                                        onClick={toggleAccordion}
-                                    >
-                                        <div>{React.createElement(menu.icon, { size: "20" })}</div>
-                                        <h2
-                                            className={`whitespace-pre text-gray-300 text-sm ${!open && "opacity-0  overflow-hidden"
-                                                }`}
-                                            style={{
-                                                transitionDelay: `${1}00ms`,
-                                            }}
-                                        >
-                                            {menu.name}
-                                        </h2>
-                                        <button
-                                            className={`text-gray-300 bg-transparent hover:bg-transparent ${!open ? 'hidden' : ''}`}
-                                            onClick={toggleAccordion}
-                                        >
-                                            {openAccordion ? "▲" : "▼"}
-                                        </button>
-                                    </div>
-                                    {openAccordion && (
-                                        <div className="ml-8">
-                                            {menu.submenus?.map((submenu, j) => (
-                                                <Link
-                                                    key={j}
-                                                    to={`${submenu.link}`}
-                                                    className={`group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2 text-gray-300 rounded-md`}
-                                                >
-                                                    <div>{submenu.name}</div>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <Link
-                                    to={menu.link}
-                                    className={` ${menu.margin && "mt-5"
-                                        } group  no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2  text-gray-300 "hover:bg-gray-300"  rounded-md`}
-                                >
-                                    <div>{React.createElement(menu.icon, { size: "20" })}</div>
-                                    <h2
-                                        className={`whitespace-pre  text-gray-300 text-sm ${!open && "opacity-0  overflow-hidden"
-                                            }`}
-                                        style={{
-                                            transitionDelay: `${0}00ms`,
-                                        }}
-                                    >
-                                        {menu.name}
-                                    </h2>
-                                </Link>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
+              ) : (
+                <Link
+                  to={menu.link}
+                  className={` ${
+                    menu.margin && "mt-5"
+                  } group  no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2  text-gray-300 "hover:bg-gray-300"  rounded-md`}
+                >
+                  <div
+                    className={`${
+                      menu.link === pathname 
+                        ? "text-white opacity-100"
+                        : "text-gray-300"
+                    }`}
+                  >
+                    {React.createElement(menu.icon, { size: "20" })}
+                  </div>
+                  <h2
+                    className={`whitespace-pre   text-sm  ${
+                      !open && "opacity-0  overflow-hidden"
+                    } ${
+                      menu.link === pathname && open
+                        ? "text-white opacity-100"
+                        : "text-gray-300"
+                    }`}
+                    style={{
+                      transitionDelay: `${0}00ms`,
+                    }}
+                  >
+                    {menu.name}
+                  </h2>
+                </Link>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default VerticalSidebar;
