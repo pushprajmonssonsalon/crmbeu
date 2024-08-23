@@ -64,7 +64,7 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
                           alignItems: "center",
                           cursor:"pointer"
                         }}
-                         onClick={() => orderClick(item._id)}
+                         onClick={() => orderClick(item)}
                       >
                         <p
                           style={{

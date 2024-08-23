@@ -11,7 +11,7 @@ import OrderPopup from "../../components/popup/OrderPopup";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import MyProductPopup from "../../components/popup/MyProductPopup";
 import InventoryModel from "../../components/inventoryProductAdd/InventoryModel";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import GridRows from "../../components/pagination/gridRows";
 const allProductHeading = {
   name: "NAME",
@@ -54,29 +54,19 @@ const Inventorydetails = () => {
   const [count, setCount] = useState(0);
   const [newMyProducts, setNewMyProducts] = useState([]);
   const [totalMyProducts, setTotalMyProducts] = useState(0);
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [cost, setCost] = useState("");
+  const [cart, setCart] = useState([]);
 
-  const [skuNumber, setSkuNumber] = useState("");
-  const [remarks, setRemarks] = useState("");
-  const [type, setType] = useState("");
-  const [productName, setProductName] = useState("");
-  const [quantity, setQuantity] = useState("");
-  
-  
-  const [brand, setBrand] = useState("");
   const [getSalonProducts, setgetSalonProducts] = useState([]);
-  const [totalProducts,setTotalProducts]=useState([])
+  const [totalProducts, setTotalProducts] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [addproductModal, setAddProductModal] = useState(false);
   const [searchProdut, setsearchProduct] = useState(null);
   const [productDetailsModal, setProductDetailModal] = useState([]);
-  const [postsPerPage,setPostsPerPage] = useState(10);
+  const [postsPerPage, setPostsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
- 
+
   const [allProducts, setAllproducts] = useState("allProducts");
   const [isModalOpen, setModalOpen] = useState(false);
   const [productdetails, setProductdetails] = useState([]);
@@ -91,7 +81,6 @@ const Inventorydetails = () => {
   const [allProductId, setAllProductId] = useState("");
   const [isChanged, setIsChanged] = useState(false);
   const [isDelete, setIsDeleted] = useState(false);
-  const [salonAllProductsDetails, setSalonAllProductsDetails] = useState([])
   // my products states
 
   const [productName2, setProductName2] = useState("");
@@ -100,12 +89,10 @@ const Inventorydetails = () => {
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage,setItemsPerPage] = useState(10);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = currentPage * itemsPerPage;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [currentPage1, setCurrentPage1] = useState(1);
-  const [itemsPerPage1,setItemsPerPage1]=useState(10)
+  const [itemsPerPage1, setItemsPerPage1] = useState(10);
   const startIndex1 = (currentPage1 - 1) * itemsPerPage1;
   const endIndex1 = currentPage1 * itemsPerPage1;
 
@@ -115,14 +102,14 @@ const Inventorydetails = () => {
   const handlePageChange1 = (page) => {
     setCurrentPage1(page);
   };
-  const handleRowschange=(e)=>{
-    const {value}=e.target
-    setItemsPerPage(+value)
-  }
-  const handleRows1change=(e)=>{
-    const {value}=e.target
-    setItemsPerPage1(+value)
-  }
+  const handleRowschange = (e) => {
+    const { value } = e.target;
+    setItemsPerPage(+value);
+  };
+  const handleRows1change = (e) => {
+    const { value } = e.target;
+    setItemsPerPage1(+value);
+  };
   const showopen = () => {
     setOpen(!open);
   };
@@ -195,11 +182,10 @@ const Inventorydetails = () => {
   };
 
   const orderClick = (item) => {
-    // setShowOrderPopup(true)
-    // setProductOrderId(item)
-    if (!productOrderId.includes(item)) {
-      setProductOrderId([...productOrderId, item]);
-      setCount(productOrderId.length + 1);
+    const product = cart?.find((elm) => item._id === elm._id);
+
+    if (!product) {
+      setCart((prev) => [...prev, item]);
       toast.success("Product added successfully");
     } else {
       toast.error("Product is already added!");
@@ -240,7 +226,7 @@ const Inventorydetails = () => {
         console.log("getMyProduct----------------------------------", resp);
         // setMyProductList(resp.products);
         setNewMyProducts(resp.products);
-        setTotalMyProducts(resp.totalCount)
+        setTotalMyProducts(resp.totalCount);
       },
       (error) => {
         console.log("error");
@@ -248,7 +234,7 @@ const Inventorydetails = () => {
     );
   };
   console.log({ newMyProducts });
-  
+
   // All products
   useEffect(() => {
     const data = {
@@ -264,13 +250,20 @@ const Inventorydetails = () => {
       (resp) => {
         console.log("getallproducts", resp);
         setgetSalonProducts(resp.products);
-        setTotalProducts(resp?.total)
+        setTotalProducts(resp?.total);
       },
       (error) => {
         console.log("error", error);
       }
     );
-  }, [isModalOpen, brandName, searchProdut, typeName,currentPage1,itemsPerPage1]);
+  }, [
+    isModalOpen,
+    brandName,
+    searchProdut,
+    typeName,
+    currentPage1,
+    itemsPerPage1,
+  ]);
 
   useEffect(() => {
     myproduct();
@@ -283,9 +276,9 @@ const Inventorydetails = () => {
     isChanged,
     isDelete,
     currentPage,
-    itemsPerPage
+    itemsPerPage,
   ]);
-  
+
   const onchangeProduct = (e) => {
     setsearchProduct(e.target.value);
   };
@@ -294,8 +287,6 @@ const Inventorydetails = () => {
     setAllProductId(id);
     setShowInventryModel(true);
   };
-
- 
 
   const getSalonProductsPress = (item) => {
     setSelectedItem(item);
@@ -310,29 +301,22 @@ const Inventorydetails = () => {
     setAllproducts("myProducts");
     // setNewMyProducts("myProducts");
   };
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = getSalonProducts.slice(
-    indexOfFirstPost,
-    indexOfLastPost
-  );
-
   
 
-  const result = productOrderId.map((id) => {
-    const matchingObject = salonAllProductsDetails.find((obj) => obj._id === id);
-    console.log("matching Object", matchingObject);
-    return matchingObject
-      ? {
-          name: matchingObject.name,
-          size: matchingObject.size,
-          itemId: matchingObject.itemId,
-          brand: matchingObject.brand,
-          type: matchingObject.type,
-        }
-      : null;
-  });
-  console.log("resultss------------", result);
+  // const result = productOrderId.map((id) => {
+  //   const matchingObject = getSalonProducts?.find((obj) => obj._id === id);
+  //   console.log("matching Object", matchingObject, productOrderId);
+  //   return matchingObject
+  //     ? {
+  //         name: matchingObject.name,
+  //         size: matchingObject.size,
+  //         itemId: matchingObject.itemId,
+  //         brand: matchingObject.brand,
+  //         type: matchingObject.type,
+  //       }
+  //     : null;
+  // });
+  // console.log("resultss------------", result);
 
   const handleOpen = (id) => {
     setMyProductId(id);
@@ -340,21 +324,26 @@ const Inventorydetails = () => {
   };
 
   const handleExport = () => {
-    const transformedData = newMyProducts.map(item => item.products);
+    const transformedData = newMyProducts.map((item) => item.products);
     if (transformedData.length === 0) {
       return;
     }
     const headers = Object.keys(transformedData[0]);
     // Create a worksheet from the data
-    const worksheetData = [headers, ...transformedData.map(product => headers.map(header => product[header]))];
+    const worksheetData = [
+      headers,
+      ...transformedData.map((product) =>
+        headers.map((header) => product[header])
+      ),
+    ];
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
     // Create a workbook and append the worksheet
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
 
     // Export the workbook to Excel
-    XLSX.writeFile(workbook, 'products.xlsx');
+    XLSX.writeFile(workbook, "products.xlsx");
   };
   return (
     <Layout>
@@ -378,7 +367,7 @@ const Inventorydetails = () => {
               onClick={shopKartClick}
             />
             <span className="absolute -right-4 bottom-4 text-green-600 font-bold">
-              {count}
+              {cart?.length}
             </span>
           </li>
         </ul>
@@ -452,13 +441,15 @@ const Inventorydetails = () => {
               </div>
               <MyProductTable
                 data={newMyProducts}
-              
                 getSalonProductsPress={getSalonProductsPress}
                 isChanged={isDelete}
                 setIsChanged={setIsDeleted}
                 handleOpen={handleOpen}
               />
-                        <GridRows itemsPerPage={itemsPerPage} handleRowschange={handleRowschange}/>
+              <GridRows
+                itemsPerPage={itemsPerPage}
+                handleRowschange={handleRowschange}
+              />
 
               <Pagination
                 totalItems={totalMyProducts}
@@ -546,8 +537,11 @@ const Inventorydetails = () => {
               getSalonProductsPress={getSalonProductsPress}
               handleInventryOpen={handleInventryOpen}
             />
-          <GridRows itemsPerPage={itemsPerPage1} handleRowschange={handleRows1change}/>
-            
+            <GridRows
+              itemsPerPage={itemsPerPage1}
+              handleRowschange={handleRows1change}
+            />
+
             <Pagination
               totalItems={totalProducts}
               itemsPerPage={itemsPerPage1}
@@ -567,7 +561,7 @@ const Inventorydetails = () => {
           isVisible={showOrderPopup}
           onClose={() => setShowOrderPopup(false)}
           id={productOrderId}
-          data={result}
+          data={cart}
         />
         <MyProductPopup
           data={newMyProducts}
