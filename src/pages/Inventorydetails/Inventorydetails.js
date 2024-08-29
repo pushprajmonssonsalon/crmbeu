@@ -235,8 +235,7 @@ const Inventorydetails = () => {
   };
   console.log({ newMyProducts });
 
-  // All products
-  useEffect(() => {
+  const getAllProducts=()=>{
     const data = {
       page: currentPage,
       limit: postsPerPage,
@@ -256,6 +255,25 @@ const Inventorydetails = () => {
         console.log("error", error);
       }
     );
+  }
+  // All products
+  useEffect(() => {
+    // Debounce function for API call
+    if(allProducts==="allProducts"){
+
+         let timeoutId;
+      const debouncedFetchData = () => {
+        timeoutId = setTimeout(() => {
+          getAllProducts(); // Function to fetch data from API
+        }, 500); // 500ms debounce delay
+      };
+
+      // Call debouncedFetchData whenever formData or currentPage changes
+      debouncedFetchData();
+
+      // Cleanup function to clear timeout on component unmount
+      return () => clearTimeout(timeoutId);
+    }
   }, [
     isModalOpen,
     brandName,
@@ -266,7 +284,24 @@ const Inventorydetails = () => {
   ]);
 
   useEffect(() => {
-    myproduct();
+    // Debounce function for API call
+    if(allProducts==="myProducts"){
+
+    
+    
+         let timeoutId;
+      const debouncedFetchData = () => {
+        timeoutId = setTimeout(() => {
+          myproduct();// Function to fetch data from API
+        }, 500); // 500ms debounce delay
+      };
+
+      // Call debouncedFetchData whenever formData or currentPage changes
+      debouncedFetchData();
+
+      // Cleanup function to clear timeout on component unmount
+      return () => clearTimeout(timeoutId);
+    }
   }, [
     isModalOpen,
     allProducts,
@@ -278,6 +313,10 @@ const Inventorydetails = () => {
     currentPage,
     itemsPerPage,
   ]);
+
+  
+
+  
 
   const onchangeProduct = (e) => {
     setsearchProduct(e.target.value);
@@ -462,12 +501,7 @@ const Inventorydetails = () => {
         ) : (
           <div>
             <div
-              style={{
-                justifyContent: "space-between",
-                display: "flex",
-                alignItems: "center",
-                marginLeft: "20px",
-              }}
+            className="flex justify-between items-center gap-6 mt-9 flex-wrap"
             >
               <input
                 value={searchProdut}

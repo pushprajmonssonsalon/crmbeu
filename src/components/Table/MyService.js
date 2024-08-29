@@ -1,4 +1,3 @@
-import React from 'react'
 import { BiSolidAddToQueue } from 'react-icons/bi'
 
 const MyServiceTable = ({data,startIndex,endIndex,handleEditService}) => {
@@ -14,12 +13,14 @@ const MyServiceTable = ({data,startIndex,endIndex,handleEditService}) => {
                         <th>GENDER</th>
                         <th>PRICE</th>
                         <th>MRP</th>
+                        <th>APP PRICE</th>
+                        <th>APP MRP</th>
                         <th>ACTION</th>
                     </tr>
                   </thead>
                   <tbody>
                   {
-                    data.slice(startIndex, endIndex).map((item, index) =>{
+                    data.map((item, index) =>{
                       console.log("itemservice",item)
                       return(
                         <tr key={index}>
@@ -29,6 +30,8 @@ const MyServiceTable = ({data,startIndex,endIndex,handleEditService}) => {
                         <td>{item.services.gender}</td>
                         <td>{item.services.price}</td>
                         <td>{item.services.mrp}</td>
+                        <td>{item.services.appPrice||0}</td>
+                        <td>{item.services.appMrp||0}</td>
                         <td>
                         {/* <button onClick={()=>handleEditService(item.serviceId)}  className='bg-[#5865F2] py-2 px-4 rounded-lg text-white flex justify-center items-center'>
                             <h3 className='font-semibold text-lg poppins'>Edit</h3>

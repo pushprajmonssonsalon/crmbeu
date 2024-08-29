@@ -1,11 +1,11 @@
-import React from 'react'
 import { BiSolidAddToQueue } from 'react-icons/bi'
 
 const ServiceTable = ({data,startIndex,endIndex,addclick}) => {
   console.log("service-----data",data)
   return (
     <>
-        <table className="styled-table" style={{ height: "40px" }}>
+
+        <table  className="styled-table" style={{ height: "40px" ,width:"97%",overflowX:"auto",margin:"0 auto" }}>
                   <thead>
                     <tr>
                         <th>NAME</th>
@@ -16,7 +16,7 @@ const ServiceTable = ({data,startIndex,endIndex,addclick}) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.slice(startIndex, endIndex).map((item, index) => (
+                    {data.map((item, index) => (
                       <tr key={index}>
                       <td>{item.name}</td>
                   <td>{item.category}</td>

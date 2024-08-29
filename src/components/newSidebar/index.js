@@ -85,12 +85,12 @@ const VerticalSidebar = () => {
         <div className="py-3 flex justify-end">
           <HiMenuAlt3
             size={30}
-            className={`text-gray-500 cursor-pointer fixed top-32`}
+            className={`text-gray-500 cursor-pointer fixed z-[10] top-40  xl:top-32`}
             onClick={handleOpen}
           />
         </div>
         <div
-          className={`mt-4 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar`}
+          className={`py-16 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar`}
         >
           {menus?.map((menu, i) => (
             <React.Fragment key={i}>

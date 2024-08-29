@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import "./report.css";
 import DatePicker from "react-datepicker";
@@ -76,6 +76,21 @@ const Report = () => {
     const report = reportArray.find(item => item._id === id);
     return report ? report.total : 0;
   }
+  const serviceDistributionTotal =useMemo(()=>{
+   if(serviceDistribution){
+    const total =serviceDistribution.reduce((acc,curr)=>acc+curr?.totalRevenue,0)
+    return total.toFixed(2||0);
+   }
+   return 0;
+  },[serviceDistribution])
+
+  const productDistributionTotal =useMemo(()=>{
+   if(productDistribution){
+    const total =productDistribution.reduce((acc,curr)=>acc+curr?.totalRevenue,0)
+    return total.toFixed(2||0);
+   }
+   return 0;
+  },[productDistribution])
   
   const submitClick = () => {
     const data = {
@@ -226,6 +241,7 @@ const Report = () => {
         </div>
 
         <button
+        className="flex items-center justify-center"
           style={{
             height: "35px",
             borderRadius: "20px solid grey",
@@ -236,11 +252,9 @@ const Report = () => {
           }}
           onClick={submitClick}
         >
-          <label
-            style={{ color: "white", fontSize: "14px", fontWeight: "500" }}
-          >
+        
             Submit
-          </label>
+         
         </button>
       </div>
 
@@ -279,12 +293,12 @@ const Report = () => {
             );
           })}
           <tr>
-            <td className="text-bold text-black">Membership Credit Used</td>
-            <td className="text-bold text-black">{credits}</td>
+            <td className="font-bold text-black">Membership Credit Used</td>
+            <td className="font-bold text-black">{credits}</td>
           </tr>
           <tr>
             <td className="text-bold text-black">Total</td>
-            <td className="text-bold text-black">{totalPayment}</td>
+            <td className="font-bold text-black">{totalPayment}</td>
           </tr>
         </tbody>
 
@@ -399,6 +413,10 @@ const Report = () => {
               </>
             );
           })}
+          <tr>
+                  <td className="text-black font-bold">Total</td>
+                  <td className="text-black font-bold">{serviceDistributionTotal}</td>
+                </tr>
         </tbody>
       </table>
 
@@ -432,8 +450,13 @@ const Report = () => {
                   <td>{item?.totalRevenue}</td>
                 </tr>
               </>
+            
             );
           })}
+          <tr>
+          <td className="text-black font-bold">Total</td>
+          <td className="text-black font-bold">{productDistributionTotal}</td>
+          </tr>
         </tbody>
       </table>
       <div
