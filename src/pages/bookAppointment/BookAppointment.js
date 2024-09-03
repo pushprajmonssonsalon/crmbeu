@@ -22,55 +22,51 @@ import { useNavigate } from "react-router";
 import CustomAlert from "../../components/customAlert";
 import { toast } from "react-hot-toast";
 import { IoMdPersonAdd } from "react-icons/io";
-import { maleData } from "../../Dummyjson/maleservice";
-
-
+import NormalRadio from "../../components/customInput/NormalRadio";
+import NormalInput from "../../components/customInput/NormalInput";
+import NormalSelect from "../../components/customInput/NormalSelect";
+const formatDate = (date) => {
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // January is 0!
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
 const BookAppointment = () => {
   const [subTotalService, setSubTotalService] = useState(0);
   const [membershipCoin, setMembershipCoin] = useState(0);
+  const [customerDetails, setCustomerDetails] = useState({
+    name: "",
+    phoneNumber: "",
+    email: "",
+    gender: "F",
+  });
+
   const [isMembershipUsed, setIsMembershipUsed] = useState(true);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [visible, setVisible] = useState(false);
-  const [name, setName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [isMobileValid, setIsMobileValid] = useState(false);
-  const [email, setEmail] = useState("");
-  const [dob, setDob] = useState("");
-  // const [gender, setGender] = useState("male");
-  const [selectedState, setSelectedState] = useState("");
-  const [address, setAddress] = useState("");
-  const [selectedServices, setSelectedServices] = useState([]);
-  const [sentPhoneNo, setSendPhoneNo] = useState("");
   const [userData, setUserData] = useState([]);
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(formatDate(new Date()));
   const [showAddButton, setShowAddButton] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [selectedoption, setSelectedoption] = useState(null);
-  const [openOne, setOpenOne] = useState(false);
-  const [selectedoptionOne, setSelectedoptionOne] = useState(null);
+
   const [service, setService] = useState([]);
   const [subservice, setSubService] = useState([]);
   const [miniservice, setMiniService] = useState([]);
-  const [slectedItem, setSelectedItem] = useState("");
   const [staffData, setStaffData] = useState([]);
-  const [productStaff, setProductStaff] = useState("");
+  const [productStaff, setProductStaff] = useState({
+    staffId: "",
+    satffName: "",
+  });
   const [time, setTime] = useState("");
-  const [gender, setGender] = useState("F");
-  const [memberShip, setMemberShip] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [membershipitem, setMemberShipItem] = useState(null);
   const [userId, setUserId] = useState("");
   const [memberShipId, setMemberShipId] = useState("");
-  console.log("mebershipId", memberShipId);
-  const [memberId, setMemberShipid] = useState("");
   const [memberShipStatus, setMemberShipStatus] = useState(false);
   // product table state
-  const [showProductTable, setShowProductTable] = useState("");
   const activemember = membershipitem?.activeMembership;
-  const serviceDataReducerLength = useSelector(
-    (store) => store.serviceAddReducer.serviceData.length
-  );
+
   const [applyDisountPer, setApplyDiscountPer] = useState(0);
   const [productQnt, setProductQnt] = useState(1);
   const [searchProduct, setsearchProduct] = useState("");
@@ -79,28 +75,29 @@ const BookAppointment = () => {
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
   const [services, setServices] = useState(x);
   const navigate = useNavigate();
-  const maleDatas = maleData;
-  console.log({ maleDatas });
-  console.log({ showSearchProduct });
+
   useEffect(() => {
     setServices(x);
   }, [x]);
-  const handleGenderChange = (selectedGender) => {
-    setGender(selectedGender);
-    setServiceSelection({
-      category: "",
-    });
-    setSubService(null);
-    setMiniService(null);
-    setStaffData(null);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCustomerDetails((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (name === "gender") {
+      setServiceSelection({
+        category: "",
+      });
+      setSubService(null);
+      setMiniService(null);
+    }
   };
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
-    console.log("selectedMembership", selectedMembership);
     setMemberShipId(e.target.value);
   };
-
-  console.log("date",date)
 
   useEffect(() => {
     const currentDate = new Date().toISOString().split("T")[0];
@@ -108,12 +105,11 @@ const BookAppointment = () => {
   }, []);
   useEffect(() => {
     const currentTime = moment()._d.toString();
-    
+
     const timeString = currentTime.split(" ")[4];
     setTime(timeString);
   }, []);
 
-  console.log("setTime",time)
   const datePart = new Date(date);
   // Date object for the date part
 
@@ -130,28 +126,16 @@ const BookAppointment = () => {
 
   const handleTimeChange = (selectedTime) => {
     const timeString = selectedTime._d.toString().split(" ")[4];
-    setTime(timeString)
-
-    // if (selectedTime && selectedTime.format) {
-    //   // Handle the time change
-    //   console.log("Selected time:", selectedTime.format("hh:mm A"));
-    //   setTime(selectedTime);
-    //   // Add your logic here
-    // } else {
-    //   // Handle the case when selectedTime is null
-    //   console.error("Selected time is null");
-    // }
+    setTime(timeString);
   };
   const handleAmPmChange = (ampm) => {
-    console.log('AM/PM changed:', ampm);
+    console.log("AM/PM changed:", ampm);
   };
-  console.log("time",time );
+  console.log("time", time);
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
   );
-  console.log("productDatacoming", productDataReducer);
 
-  console.log({ x });
   const subtotalPrice = services.reduce((accumulator, currentItem) => {
     return accumulator + Number(currentItem.price);
   }, 0);
@@ -180,16 +164,14 @@ const BookAppointment = () => {
     staffId: "",
   });
 
-  console.log("serviceSelection", serviceSelection.subCategory);
-
-  const isServiceSelectionValid = () => {
-    for (const key in serviceSelection) {
-      if (serviceSelection[key] === "") {
-        return false; // If any field is empty, return false
-      }
-    }
-    return true; // All fields are filled, return true
-  };
+  // const isServiceSelectionValid = () => {
+  //   for (const key in serviceSelection) {
+  //     if (serviceSelection[key] === "") {
+  //       return false; // If any field is empty, return false
+  //     }
+  //   }
+  //   return true; // All fields are filled, return true
+  // };
 
   // const data = {
   //   gender: gender,
@@ -207,11 +189,11 @@ const BookAppointment = () => {
         console.log("error", error);
       }
     );
-  }, [gender]);
+  }, [customerDetails?.gender]);
   // api call for getting subcategory
   const categorydata = {
     categoryName: serviceSelection.category,
-    gender: gender,
+    gender: customerDetails.gender,
   };
   useEffect(() => {
     postApiData(
@@ -227,7 +209,7 @@ const BookAppointment = () => {
   }, [serviceSelection.category]);
   const minicatgdata = {
     category: serviceSelection.category,
-    gender: gender,
+    gender: customerDetails.gender,
     subCategory: serviceSelection.subCategory,
   };
   useEffect(() => {
@@ -257,70 +239,57 @@ const BookAppointment = () => {
 
   const dispatch = useDispatch();
   const handleServiceChange = (e) => {
-    console.log("selected value", e.target.value);
-    setServiceSelection({
-      ...serviceSelection,
-      category: e.target.value,
-      subCategory: "",
-    });
-  };
-  const handleSubCategoryChange = (e) => {
-    console.log("selected value", e.target.value);
-    setServiceSelection({
-      ...serviceSelection,
-      subCategory: e.target.value,
-      miniSubcategory: "",
-    });
-  };
+    const { name, value } = e.target;
+    if (name === "miniSubcategory") {
+      const splited = value.split("---");
+      const price = splited[0];
+      const val = splited[1];
+      setServiceSelection({
+        ...serviceSelection,
+        miniSubcategory: value,
+        price: +price,
+        miniSub: val,
+      });
+    } else if (name === "staff") {
+      const splited = value.split("-");
+      const Name = splited[1];
+      const Id = splited[0];
 
-  const handleminiChange = (event) => {
-    // console.log("minichangedata", e.target.value);
-    const selectedOption = event.target.options[event.target.selectedIndex];
-    const selectedPrice = selectedOption.getAttribute("data-price");
-    console.log("selectedPrice", +selectedPrice);
-    // Now you have the selected price, you can use it as needed
-    setServiceSelection({
-      ...serviceSelection,
-      miniSubcategory: event.target.value,
-      price: +selectedPrice,
-    });
-  };
-  const handlestaffChange = (e) => {
-    let splited = e.target.value.split("-");
-    let Name = splited[1];
-    let Id = splited[0];
-    console.log("staffffffff------", Name, Id);
-    console.log("staffselect", e.target.value);
-    setServiceSelection({
-      ...serviceSelection,
-      staffId: Id,
-      satffName: Name,
-    });
-  };
-  console.log("serveicekaname", serviceSelection.satffName);
-  const handldeAddButton = () => {
-    if (isServiceSelectionValid()) {
-      dispatch(serviceAdded(serviceSelection));
-      // alert("All service added")
-      toast.success("All Service Added!!");
+      setServiceSelection({
+        ...serviceSelection,
+        staffId: Id,
+        satffName: Name,
+      });
     } else {
-      // alert("all feilds should be filled");
-      toast.error("All fields should be filled!");
+      setServiceSelection((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
-  console.log("seerrvice selection", serviceSelection);
+
+  const handldeAddButton = () => {
+    const { miniSub, miniSubcategory, ...rest } = serviceSelection;
+
+    const selected = {
+      ...rest,
+      miniSubcategory: miniSub,
+    };
+   
+      dispatch(serviceAdded(selected));
+      // alert("All service added")
+      toast.success("All Service Added!!");
+   
+  };
   const handldeBookAppointment = () => {
     console.log("book Appointment");
     const data = {
       services: services,
-      customer: {
-        name: name,
-        phoneNumber: phoneNumber,
-      },
+      customer: customerDetails,
       subTotal: subtotalPrice,
       // total: subtotalPrice,
       total: totalProductServicePayable,
-      appointmentDate: date +"T"+ time+".000Z",
+      appointmentDate: date + "T" + time + ".000Z",
       membershipUsed: memberShipStatus,
       // membershipCreditUsed: +memberShip,
       membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
@@ -354,8 +323,12 @@ const BookAppointment = () => {
   const nameOnclick = (item) => {
     // e.preventDefault();
     setMemberShipItem(item);
-    setName(item.name);
-    setPhoneNumber(item.phoneNumber);
+    setCustomerDetails((prev) => ({
+      ...prev,
+      name: item.name,
+      phoneNumber: item.phoneNumber,
+    }));
+
     setUserId(item._id);
     setVisible(false);
   };
@@ -366,24 +339,7 @@ const BookAppointment = () => {
     setSelectedProduct(item);
     setsearchProduct("");
   };
-  console.log({ selectedProduct });
 
-  const handleSelectChange = (event) => {
-    const selectedValue = event.target.value;
-    // Do something with the selected value, for example, store it in state
-    console.log("selectedValue", event.target.value);
-    setSelectedItem(selectedValue);
-  };
-
-  const handleCheckboxChange = (service) => {
-    setSelectedServices((prevSelectedServices) => {
-      if (prevSelectedServices.some((s) => s.name === service.name)) {
-        return prevSelectedServices.filter((s) => s.name !== service.name);
-      } else {
-        return [...prevSelectedServices, service];
-      }
-    });
-  };
   const deleteService = (item) => {
     dispatch(deletItems(item));
   };
@@ -391,19 +347,17 @@ const BookAppointment = () => {
     dispatch(deleteProducts(id));
   };
   const handleSubmit = () => {
-    const apiData = {
-      name,
-      phoneNumber,
-      email,
-      dob,
-      gender,
-      selectedState,
-      address,
-    };
+    const isAnyFieldEmpty = Object.values(customerDetails).some(
+      (elm) => elm === "" || !elm
+    );
+    if (isAnyFieldEmpty) {
+      toast.error("fill all the fields");
+      return;
+    }
 
     postApiData(
       "parlor/registerUserForCrm",
-      apiData,
+      customerDetails,
       (resp) => {
         console.log("respns", resp);
       },
@@ -501,7 +455,10 @@ const BookAppointment = () => {
   console.log("Sub Total Serive", subTotalService);
   const handleMobileChange = (event) => {
     const enteredMobileNumber = event.target.value;
-    setPhoneNumber(enteredMobileNumber);
+    setCustomerDetails((prev) => ({
+      ...prev,
+      phoneNumber: enteredMobileNumber,
+    }));
     setVisible(true);
     // Check if the entered mobile number has 10 digits
     setIsMobileValid(enteredMobileNumber.length === 10);
@@ -526,34 +483,37 @@ const BookAppointment = () => {
       name: e.target.value,
     });
   };
-  const addproductPress = (item, productQnt, productStaffid,productStaffName) => {
-    console.log("staff",productStaffName,productStaffid,serviceSelection)
-    if(productQnt==="0"||!productQnt){
+  const addproductPress = (
+    item,
+    productQnt,
+    productStaffid,
+    productStaffName
+  ) => {
+    console.log("staff", productStaffName, productStaffid, serviceSelection);
+    if (productQnt === "0" || !productQnt) {
       toast.error("Please Enter Quantiy");
-     
 
       return;
-
     }
-    if(!productStaffid || !productStaffName){
+    if (!productStaffid || !productStaffName) {
       toast.error("Please Select Staff");
-     
 
       return;
-
     }
-    
+
     // productQnt,productStaffid
     const itemWithAdditionalInfo = {
       ...item, // Copying existing properties of item
       quantity: +productQnt, // Adding quantity key
       staffId: productStaffid,
-      staffName:productStaffName// Adding staffId key
+      staffName: productStaffName, // Adding staffId key
     };
-    
-    
-    
-    console.log("product data coming", itemWithAdditionalInfo,productDataReducer);
+
+    console.log(
+      "product data coming",
+      itemWithAdditionalInfo,
+      productDataReducer
+    );
 
     dispatch(productAdded(itemWithAdditionalInfo));
     toast.success("product added succesfully");
@@ -562,12 +522,6 @@ const BookAppointment = () => {
   console.log({ staffData });
 
   // Function to format the date as "dd-mm-yyyy"
-  const formatDate = (date) => {
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // January is 0!
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
 
   const handleAlertClose = () => {
     setAlertVisible(false);
@@ -580,118 +534,130 @@ const BookAppointment = () => {
     setServices(updatedServices);
     dispatch(newUpdateService(updatedServices));
   };
-  // const handleChangePrice = (index) => {
-  //   dispatch(serviceAdded(services));
-  // };
+  const handleProductStaff = (e) => {
+    const { value } = e.target;
+    const splited = value.split("-");
+    const Name = splited[1];
+    const Id = splited[0];
 
+    setProductStaff({
+      ...serviceSelection,
+      staffId: Id,
+      satffName: Name,
+    });
+  };
+  const genderFields = [
+    {
+      name: "Male",
+      value: "M",
+    },
+    {
+      name: "Female",
+      value: "F",
+    },
+  ];
+  const servicesFields = [
+    {
+      name: "category",
+    },
+    {
+      name: "subCategory",
+    },
+    {
+      name: "miniSubcategory",
+    },
+    {
+      name: "staff",
+    },
+  ];
+  const addCustomerFields = [
+    {
+      name: "name",
+      label: "First Name",
+      placeholder: "Enter Name",
+    },
+    {
+      name: "phoneNumber",
+      label: "Mobile Number",
+      placeholder: "Enter Mobile Number",
+    },
+    {
+      name: "email",
+      label: "Email Address",
+      placeholder: "Enter Email Address",
+    },
+  ];
+
+  const servicesOptions = {
+    category: service,
+    subCategory: subservice,
+    miniSubcategory: miniservice?.services?.map((elm) => ({
+      name: elm.name,
+      value: `${elm.price}---${elm.name}`,
+    })),
+    staff: staffData?.map((elm) => ({
+      name: elm.name,
+      value: `${elm._id}-${elm.name}`,
+    })),
+  };
   return (
     <Layout>
-      <div className="md:mt-32 mt-20 w-[90%] mx-auto ">
-        <div className="flex justify-center items-center gap-5">
-          <h1 className="text-green-600 font-semibold text-lg">
+      <div className="mt-52 md:mt-40  w-[90%] mx-auto ">
+        <div className="flex flex-wrap   justify-center items-center gap-5">
+          <h1 className="text-green-600  font-semibold text-lg">
             Select Gender :{" "}
           </h1>
-          <input
-            type="radio"
-            name="gender"
-            value="Male"
-            checked={gender === "M"}
-            onChange={() => handleGenderChange("M")}
-            className="mt-3"
-          />
-          <h1 className="text-black font-semibold text-lg">MALE</h1>
-          <input
-            type="radio"
-            name="gender"
-            value="Female"
-            checked={gender === "F"}
-            onChange={() => handleGenderChange("F")}
-            className="mt-3"
-          />
-          <h1 className="text-black font-semibold text-lg">FEMALE </h1>
+          <div className="flex items-center justify-center">
+            {genderFields.map((elm, index) => {
+              return (
+                <NormalRadio
+                  key={index}
+                  onChange={handleChange}
+                  checked={customerDetails.gender === elm.value}
+                  name="gender"
+                  label={elm.name}
+                  value={elm.value}
+                />
+              );
+            })}
+          </div>
         </div>
-
-        {/* <div className=""
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-
-        >
-        <h1 className="text-green-600 text-lg font-semibold">SELECT GENDER:</h1>
-          <label style={{ width: "70px" }}>
-            <input
-              type="radio"
-              name="gender"
-              value="Male"
-              checked={gender === "M"}
-              onChange={() => handleGenderChange("M")}
-            />
-            <span
-              style={{
-                marginLeft: "8px",
-                fontSize: "20px",
-                fontWeight: "500",
-                color: "black",
-              }}
-            >
-              Male
-            </span>
-          </label>
-
-          <label style={{ marginLeft: "20px" }}>
-            <input
-              type="radio"
-              name="gender"
-              value="Female"
-              checked={gender === "F"}
-              onChange={() => handleGenderChange("F")}
-            />
-            <span
-              style={{
-                marginLeft: "8px",
-                fontSize: "20px",
-                fontWeight: "500",
-                color: "black",
-              }}
-            >
-              Female
-            </span>
-          </label>
-
-          {/* <div>
-        Selected Gender: {gender && <strong>{gender}</strong>}
-      </div> */}
-        {/* </div> */}
 
         <div className="">
           <div className="flex mt-10 justify-between items-center flex-wrap">
             {/* CUSTOMER */}
             <div className="flex flex-col  p-4 rounded-lg bg-[#fffffe] mr-2 shadow-xl w-full">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between flex-wrap items-center">
                 <div className="relative ">
-                  <h1 className="invoice-heading">Customer</h1>
-                  <input
-                    type="text"
-                    className="w-[250px] outline-none"
-                    placeholder="Enter your Number/Name"
-                    value={phoneNumber}
-                    onChange={handleMobileChange}
-                    style={{
-                      border: "1px solid grey",
-                      borderRadius: "11px",
-                    }}
-                  />
-                  {visible && phoneNumber?.length > 0 && (
+                  <div className="flex flex-col gap-4">
+                    <NormalInput
+                      placeholder="Enter your Number"
+                      value={customerDetails.phoneNumber}
+                      label="Customer"
+                      name="phoneNumber"
+                      onChange={handleMobileChange}
+                      lableStyles={{
+                        color: "#000000",
+                        fontSize: "20px",
+                      }}
+                      inputStyles={{
+                        width: "250px",
+                        border: "1px solid grey",
+                        borderRadius: "11px",
+                      }}
+                    />
+                  </div>
+
+                  {visible && customerDetails.phoneNumber?.length > 0 && (
                     <div
                       style={{}}
                       className="absolute top-[100px] h-[104px] w-[283px] overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-1"
                     >
                       {userData.length > 0 &&
-                        userData?.map((item) => {
+                        userData?.map((item, index) => {
                           return (
                             <div
+                              key={index}
                               style={{ display: "flex" }}
                               onClick={() => nameOnclick(item)}
                               className="flex items-center px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
@@ -707,12 +673,6 @@ const BookAppointment = () => {
                   )}
                 </div>
 
-                {/* {isMobileValid && (
-              <button className="add-customer-btn" onClick={openModal}>
-                Add Customer
-              </button>
-            )} */}
-
                 <button
                   className={`mx-4 ${
                     isMobileValid ? "add-customer-btn" : "disabled-btn"
@@ -723,7 +683,6 @@ const BookAppointment = () => {
                   <IoMdPersonAdd />
                 </button>
 
-                {/* <button className='add-customer-btn' onClick={openModal}>Add Customer</button> */}
                 <Modal
                   isOpen={isModalOpen}
                   onRequestClose={closeModal}
@@ -744,64 +703,54 @@ const BookAppointment = () => {
                     },
                   }}
                 >
-                  <div className="formgroup-section">
-                    <h1 className="form-heading">Add Customer Appointment</h1>
-                    <div className="first-row">
-                      <div className="input-container">
-                        <div>First Name</div>
-                        <input
-                          type="text"
-                          placeholder="Enter name"
-                          className="input-field"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                        />
-                      </div>
-
-                      <div className="input-container">
-                        <div>Mobile Number</div>
-                        <input
-                          type="text"
-                          placeholder="Enter mobile number"
-                          className="input-field"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                        />
-                      </div>
+                  <div className="my-3">
+                    <h1 className="font-bold text-black text-xl">
+                      Add Customer Appointment
+                    </h1>
+                    <div className="mt-6">
+                      {addCustomerFields.map((input, index) => {
+                        const { name, placeholder, label } = input;
+                        const value = customerDetails[name];
+                        return (
+                          <div key={index} className="flex  flex-col gap-2">
+                            <NormalInput
+                              placeholder={placeholder}
+                              label={label}
+                              name={name}
+                              value={value}
+                              onChange={handleChange}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
-
-                    <div className="first-row">
-                      <div
-                        className="input-container"
-                        style={{ marginLeft: "-31px" }}
-                      >
-                        <div>Email Address</div>
-                        <input
-                          type="text"
-                          placeholder="Enter email address"
-                          className="input-field"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="first-row"></div>
                   </div>
 
                   {/* </div> */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      gap: "20px",
-                    }}
-                  >
-                    <button className="btn-crm" onClick={handleSubmit}>
-                      Add
+                  <div className="my-6 flex gap-6">
+                    <button
+                      style={{
+                        background: "green",
+                        height: "40px",
+                        borderRadius: "3px",
+                        width: "150px",
+                      }}
+                      className="flex hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
+                      onClick={handleSubmit}
+                    >
+                      <span className="font-medium text-white">Add</span>
                     </button>
-                    <button onClick={closeModal} className="btn-crm">
-                      Cancel
+                    <button
+                      style={{
+                        background: "red",
+                        height: "40px",
+                        borderRadius: "3px",
+                        width: "150px",
+                      }}
+                      onClick={closeModal}
+                      className="flex hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
+                    >
+                      <span className="font-medium text-white">Cancel</span>
                     </button>
                   </div>
                 </Modal>
@@ -813,24 +762,29 @@ const BookAppointment = () => {
                     <div>Suggestion 3</div>
                   </div>
                 )}
-                <div>
-                  <h1 className="invoice-heading">Date</h1>
-                  <input
-                    type="date"
-                    value={date}
-                    defaultValue={() => formatDate(new Date())}
-                    className="invoice-input"
-                    onChange={(e) => setDate(e.target.value)}
-                    style={{
-                      height: "40px",
-                      border: "1px solid grey",
-                      width: "270px",
-                      borderRadius: "11px",
-                      paddingRight: "30px",
-                      outline: "none",
-                      cursor: "pointer", // Add space for the eye icon
-                    }}
-                  />
+                <div className="">
+                  <div className="flex flex-col gap-3">
+                    <NormalInput
+                      type="date"
+                      name="date"
+                      label="Date"
+                      lableStyles={{
+                        color: "#000000",
+                        fontSize: "20px",
+                      }}
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      inputStyles={{
+                        height: "40px",
+                        border: "1px solid grey",
+                        width: "270px",
+                        borderRadius: "11px",
+                        paddingRight: "30px",
+                        outline: "none",
+                        cursor: "pointer", // Add space for the eye icon
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="w-[150px] ml-4">
                   <p className="text-xl font-bold text-black">Time Picker </p>
@@ -856,87 +810,21 @@ const BookAppointment = () => {
                 {" "}
                 SERVICES{" "}
               </h1>
-              <div
-                style={{
-                  border: "",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "10px",
-                  marginTop: "20px",
-                }}
-              >
-                <select
-                  className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-                  onChange={handleServiceChange}
-                  value={serviceSelection.category} // Use 'value' for controlled components
-                >
-                  <option value={service}>Select Category</option>
-                  {service?.map((item, index) => (
-                    <option
-                      key={item.id}
-                      value={item.value}
-                      style={{ width: "700px" }}
-                    >
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  className="px-2 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none mx-2"
-                  onChange={handleSubCategoryChange}
-                  value={serviceSelection.subCategory} // Use 'value' for controlled components
-                >
-                  <option value={subservice}>Select SubCategory</option>
-                  {subservice?.map((item) => (
-                    <option
-                      key={item.id}
-                      value={item.value}
-                      style={{ width: "300px" }}
-                    >
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-                  onChange={handleminiChange}
-                  value={serviceSelection.miniSubcategory}
-                >
-                  <option value={miniservice}>Select MiniCategory</option>
-                  {miniservice?.services?.map((item) => (
-                    <option
-                      key={item.id}
-                      value={item.value}
-                      style={{ width: "300px" }}
-                      data-price={item.price}
-                    >
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-                  onChange={handlestaffChange}
-                  // value={serviceSelection.satffName}
-                  value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
-                >
-                  <option  className="bg-white">
-                    Select Staff
-                  </option>
-                  {staffData?.map((item) => (
-                    <option
-                      key={item._id}
-                      value={`${item._id}-${item.name}`}
-                      //  value={`${item._id}`}
-                      className="border-none shadow-lg rounded-lg bg-white "
-                    >
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="flex items-center justify-between flex-wrap gap-6 mt-9 p-3">
+                {servicesFields.map((item, elm) => {
+                  const { name } = item;
+                  const value = serviceSelection[name];
+                  const options = servicesOptions[name];
+                  return (
+                    <NormalSelect
+                      inputStyles={{ background: "#cbd5e1" }}
+                      name={name}
+                      value={value}
+                      options={options}
+                      onChange={handleServiceChange}
+                    />
+                  );
+                })}
 
                 <button
                   style={{
@@ -989,7 +877,7 @@ const BookAppointment = () => {
                             <input
                               type="number"
                               defaultValue={item?.price}
-                              className=""
+                              className="p-2.5"
                               onChange={(e) =>
                                 handlePriceChange(index, e.target.value)
                               }
@@ -1053,13 +941,14 @@ const BookAppointment = () => {
           <div className="search-container">
             <div className="flex flex-row relative mb-10 ">
               {/* <h1 className="text-lg font-semibold">Search Product</h1> */}
-              <div className="flex relative w-[40%] mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
-                <input
+              <div className="flex relative w-[70%] xl:w-[40%] mx-auto  bg-white h-[50px]  rounded-lg">
+                <NormalInput
                   value={searchProduct}
+                  name="searchProduct"
                   placeholder="search product by name "
                   onChange={searchProductOnchange}
-                  className="border-none outline-none w-full text-lg"
                 />
+
                 <FaSearch className="absolute right-6 text-xl ml-3 mt-3" />
                 {searchProduct?.length > 0 && (
                   <div
@@ -1121,23 +1010,18 @@ const BookAppointment = () => {
                             <select
                               style={{
                                 // border: "1px solid green",
-                                height: "30px",
+
                                 borderRadius: "8px",
                               }}
-                              onChange={handlestaffChange}
-                              value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
+                              onChange={handleProductStaff}
+                              value={`${productStaff.staffId}-${productStaff.satffName}`}
                             >
-                              <option value="">
-                                Select Staff
-                              </option>
+                              <option value="">Select Staff</option>
                               {staffData?.map((item) => (
                                 <option
                                   key={item._id}
                                   value={`${item._id}-${item.name}`}
                                   style={{ width: "300px" }}
-                                  onChange={(e) =>
-                                    setProductStaff(e.target.value)
-                                  }
                                 >
                                   {item.name}
                                 </option>
@@ -1147,7 +1031,12 @@ const BookAppointment = () => {
 
                           <td>
                             <button
+                              className="flex items-center justify-center"
                               style={{
+                                font: "white",
+                                fontWeight: "500",
+                                font: "14px",
+
                                 height: "40px",
                                 borderRadius: "20px solid grey",
                                 width: "150px",
@@ -1157,20 +1046,12 @@ const BookAppointment = () => {
                                 addproductPress(
                                   item,
                                   productQnt,
-                                  serviceSelection.staffId,
-                                  serviceSelection.satffName
+                                  productStaff.staffId,
+                                  productStaff.satffName
                                 )
                               }
                             >
-                              <label
-                                style={{
-                                  color: "white",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Add Product
-                              </label>
+                              <span className="">Add Product</span>
                             </button>
                           </td>
                         </tr>
@@ -1189,24 +1070,45 @@ const BookAppointment = () => {
             BOOK APPOINTMENT
           </h1>
 
-          <div className="flex justify-start gap-3 items-center">
-            <h1 className="text-lg font-semibold">Apply Discount</h1>
-            <input
-              type="number"
-              className="outline-none"
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
-            />
+          <div className="flex flex-wrap justify-start gap-3 items-center">
+            <div className="flex items-center">
+              <NormalInput
+                type="number"
+                value={discount}
+                lableStyles={{
+                  display:"flex",
+                  width:"150px",
+                  color:"#535b61",
+                  fontWeight: "medium",
+                  fontSize: "1.15rem",
+                }}
+                inputStyles={{
+                  width:"200px"
+                }}
+               
+                label="Apply Discount"
+                onChange={(e) => setDiscount(e.target.value)}
+              />
+            </div>
             <button onClick={applyDiscount} className="bg-black">
               Apply Discount
             </button>
           </div>
 
-          <div className="flex mt-6 justify-start items-center mb-3">
+          <div className="flex gap-3 flex-wrap mt-6 justify-start items-center mb-3">
             {/* MEMBERSHIP STATUS */}
-            <div className="flex items-center justify-center">
-              <h1 className="text-lg font-semibold">Membership</h1>
-              <select
+            <div className="flex  items-center justify-center">
+              <h1 className="text-[1.15rem] w-[150px] font-semibold">Membership</h1>
+              <NormalSelect
+              inputStyles={{
+              width:"300px"
+              }}
+               name="membership"
+                onChange={membershipPress}
+                options={activemember?.map(item=>({name:`${item.name}-${item.creditsLeft}`,value:item._id}))}
+                disabled={memberShipStatus ? true : false}
+              />
+              {/* <select
                 className="mx-3 w-80 h-10 outline-none border-2 border-gray-500 rounded-lg"
                 onChange={membershipPress}
                 disabled={memberShipStatus ? true : false}
@@ -1224,15 +1126,9 @@ const BookAppointment = () => {
                     </option>
                   );
                 })}
-              </select>
+              </select> */}
             </div>
-            {/* MEMBERSHIP COIN */}
-            {/* <div className="flex"> */}
-            {/* <div className="flex justify-center items-center">
-          <h1 className="text-lg font-semibold">Membership Coin</h1>
-          <input type="number" placeholder="Enter membership coin" value={memberShip} className="outline-none mx-3 border-2 border-gray-500 rounded-lg " onChange={(e) => setMemberShip(e.target.value)} disabled={memberShipStatus == true}/>
-          </div> */}
-
+           
             {/* Membership Button */}
             {memberShipStatus ? (
               <button
@@ -1262,7 +1158,7 @@ const BookAppointment = () => {
             {/* <button onClick={applyMemberShip} className="bg-black">{memberShipStatus ? "Remove MemberShip" : "Apply MemberShip" }</button> */}
             {/* </div> */}
           </div>
-
+            
           <button
             className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black"
             onClick={handldeBookAppointment}
@@ -1270,13 +1166,13 @@ const BookAppointment = () => {
             Book Appointment
           </button>
         </div>
-        {phoneNumber && (
+        {customerDetails?.phoneNumber && (
           <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl mb-10 flex  items-center">
             <div className="w-1/2 ">
               <p className=" text-lg font-bold text-black">
                 NAME:{" "}
                 <span className="text-md font-medium ml-1 text-green-800">
-                  {name}
+                  {customerDetails.name}
                 </span>
               </p>
               <p className=" text-lg font-bold text-black">

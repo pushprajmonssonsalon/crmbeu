@@ -3,7 +3,7 @@ import { GiCancel } from 'react-icons/gi'
 import { postApiData } from '../../utils/services'
 import toast from 'react-hot-toast'
 
-const MyProductTable = ({data,getSalonProductsPress,handleOpen,setIsChanged,isChanged}) => {
+const MyProductTable = ({data,handleOpen,setIsChanged,isChanged}) => {
   console.log("handle open data",data)
   const handleDelete=(id)=>{
     const data = {
@@ -36,7 +36,7 @@ const MyProductTable = ({data,getSalonProductsPress,handleOpen,setIsChanged,isCh
                   </thead>
                   <tbody>
                     {data.map((item, index) => (
-                      <tr key={index}  onClick={() => getSalonProductsPress(item)}>
+                      <tr key={index} >
                       <td>{item.products.name}</td>
                         <td>{item.products.stockQuantity}</td>
                         <td>{item.products.totalSize} {" "} {item.products.unit}</td>

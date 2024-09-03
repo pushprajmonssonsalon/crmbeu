@@ -103,7 +103,7 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
               <MdOutlineClose />
             </button>
           </div>
-          <div className="grid w-full items-center">
+          <div className="grid mb-3 w-full items-center">
             {serviceDetails && inputs?.map((key, index) => {
               const id = key?.name;
               const label = key?.label;
@@ -117,6 +117,9 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
                   type={typeof value === "number" ? "number" : "text"}
                   onChange={handleChange}
                   value={value}
+                  inputStyles={{
+                    background:"#d1d5db"
+                  }}
                   placeholder={placeholder}
                   disabled={disabledInputs.includes(id)}
                 />

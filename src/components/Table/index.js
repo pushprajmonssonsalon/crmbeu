@@ -2,7 +2,7 @@ import { BiSolidAddToQueue } from 'react-icons/bi';
 import { MdOutlineAddShoppingCart } from "react-icons/md";
 
 
-const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProductsPress,handleInventryOpen}) => {
+const Table = ({header,data,orderClick,handleInventryOpen}) => {
 
 
   return (
@@ -22,7 +22,7 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
               </thead>
               <tbody>
                 {data.map((item, index) => (
-                  <tr key={index}  onClick={() => getSalonProductsPress(item)}>
+                  <tr key={index}  >
                     <td>{item.name}</td>
                     <td>{item.mrp}</td>
                     <td>{item.price}</td>
@@ -40,7 +40,6 @@ const Table = ({header,data,startIndex,endIndex,addClick,orderClick,getSalonProd
                           alignItems: "center",
                           cursor:"pointer"
                         }}
-                         onClick={() => addClick(item)}
                       >
                         <p
                           style={{

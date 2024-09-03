@@ -8,39 +8,41 @@ import ServiceTable from "../../components/Table/ServiceTable";
 import Pagination from "../../components/pagination";
 import MyServiceTable from "../../components/Table/MyService";
 import GridRows from "../../components/pagination/gridRows";
+import NormalInput from "../../components/customInput/NormalInput";
+import NormalSelect from "../../components/customInput/NormalSelect";
 
 export default function CustomerServices() {
   const [customerServiceData, setCustomerServiceData] = useState([]);
   const [total, setTotal] = useState(0);
   const [addproductModal, setAddProductModal] = useState(false);
-  const [serviceItem, setServiceItem] = useState([]);
-  const [price, setPrice] = useState(null);
-  const [mrp, setMrp] = useState(null);
-  const [service, setService] = useState("allservices");
+  const [serviceItem, setServiceItem] = useState({
+    mrp: 0,
+    price: 0,
+    appMrp: 0,
+    appPrice: 0,
+    category: "",
+    subCategory: "",
+  });
+
   const [myServiceData, setMyserviceData] = useState([]);
   const [tab, setTab] = useState(1);
   // show popup
   const [showPopup, setShowPopup] = useState(false);
-  const [editId, setEditID] = useState("");
   // selected
-  const [serviceName, setServiceName] = useState("");
-  const [gender, setGender] = useState(null);
-  const [categoryName, setCategoryName] = useState(null);
+  const [allServiceFilters, setAllServiceFilters] = useState({
+    category: "",
+    gender: "",
+    name: "",
+  });
+  const [myServiceFilters, setMyServiceFilters] = useState({
+    category: "",
+    gender: "",
+    name: "",
+  });
 
   // my selected service
   const [selectedMyService, setSelectedMyService] = useState({});
-  const [total1,setTotal1]=useState(0)
-  const [myServiceName, setMyServiceName] = useState("");
-  const [myGender, setMyGender] = useState(null);
-  const [myCategoryName, setMyCategoryName] = useState(null);
-  const GenderData = [
-    {
-      name: "Female",
-    },
-    {
-      name: "Male",
-    },
-  ];
+  const [total1, setTotal1] = useState(0);
 
   const CategoryData = [
     {
@@ -70,7 +72,51 @@ export default function CustomerServices() {
 
   const [currentPage1, setCurrentPage1] = useState(1);
   const [itemsPerPage1, setItemsPerPage1] = useState(10);
-  
+
+  const allServicesItemFields = [
+    {
+      name: "name",
+      placeholder: "Search By Service Name",
+    },
+    {
+      name: "category",
+    },
+    {
+      name: "gender",
+    },
+  ];
+  const serviceItemFields = [
+    {
+      name: "category",
+      placeholder: "Category",
+      label: "Category",
+    },
+    {
+      name: "subCategory",
+      placeholder: "Sub Category",
+      label: "Sub Category",
+    },
+    {
+      name: "mrp",
+      placeholder: "Mrp",
+      label: "Mrp",
+    },
+    {
+      name: "price",
+      placeholder: "Price",
+      label: "Price",
+    },
+    {
+      name: "appMrp",
+      placeholder: "App Mrp",
+      label: "App Mrp",
+    },
+    {
+      name: "appPrice",
+      placeholder: "App Price",
+      label: "App Price",
+    },
+  ];
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -92,15 +138,24 @@ export default function CustomerServices() {
   const closeModal = () => {
     setAddProductModal(false);
   };
+  const handleFiltersChange = (e) => {
+    const { name, value } = e.target;
+    if (tab == 1) {
+      setAllServiceFilters((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    } else {
+      setMyServiceFilters((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
   const getAllServices = () => {
-    const data = {
-      name: serviceName,
-      category: categoryName,
-      gender: gender === "Female" ? "F" : gender === "Male" ? "M" : "",
-    };
     postApiData(
       `salonService/getAllServices/?limit=${itemsPerPage}&page=${currentPage}`,
-      data,
+      allServiceFilters,
       (resp) => {
         console.log(resp);
         setCustomerServiceData(resp.services);
@@ -114,7 +169,7 @@ export default function CustomerServices() {
 
   useEffect(() => {
     // Debounce function for API call
-    if (service === "allservices") {
+    if (tab == 1) {
       let timeoutId;
       const debouncedFetchData = () => {
         timeoutId = setTimeout(() => {
@@ -128,51 +183,43 @@ export default function CustomerServices() {
       // Cleanup function to clear timeout on component unmount
       return () => clearTimeout(timeoutId);
     }
-  }, [
-    service,
-    serviceName,
-    categoryName,
-    gender,
-    tab,
-    itemsPerPage,
-    currentPage,
-  ]);
+  }, [tab, allServiceFilters, tab, itemsPerPage, currentPage]);
   const clearService = () => {
-    setServiceName("");
-    setGender("");
-    setCategoryName("");
+    if (tab == 1) {
+      setAllServiceFilters({
+        name: "",
+        category: "",
+        gender: "",
+      });
+    } else {
+      setMyServiceFilters({
+        name: "",
+        category: "",
+        gender: "",
+      });
+    }
   };
 
-  const clearMyService = () => {
-    setMyServiceName("");
-    setMyGender("");
-    setMyCategoryName("");
-  };
+  
 
-  const getSalonServices=()=>{
-    const data = {
-      name: myServiceName,
-      category: myCategoryName,
-      gender: myGender === "Female" ? "F" : myGender === "Male" ? "M" : "",
-    };
+  const getSalonServices = () => {
     postApiData(
       `salonService/getSalonServices/?limit=${itemsPerPage1}&page=${currentPage1}`,
-      data,
+      myServiceFilters,
       (resp) => {
         console.log("myservice----------respone", resp);
         setMyserviceData(resp.services);
-        setTotal1(resp.totalCount)
+        setTotal1(resp.totalCount);
       },
       (error) => {
         console.log("errro", error);
       }
     );
-  }
+  };
   useEffect(() => {
     // Debounce function for API call
-    if (service !== "allservices") {
-   
-         let timeoutId;
+    if (tab == 2) {
+      let timeoutId;
       const debouncedFetchData = () => {
         timeoutId = setTimeout(() => {
           getSalonServices(); // Function to fetch data from API
@@ -185,56 +232,33 @@ export default function CustomerServices() {
       // Cleanup function to clear timeout on component unmount
       return () => clearTimeout(timeoutId);
     }
-  }, [service, myServiceName, myCategoryName, myGender,itemsPerPage1,currentPage1]);
-
+  }, [tab, myServiceFilters, itemsPerPage1, currentPage1]);
 
   const addclick = (item) => {
     setAddProductModal(true);
-    setServiceItem(item);
+    setServiceItem({ ...item, appMrp: item.mrp, appPrice: item.price });
   };
-  const mrpOnChange = (e) => {
-    setMrp(e.target.value);
-  };
-  const onchnagPrice = (e) => {
-    setPrice(e.target.value);
-  };
+
   const onclickService = () => {
     const data = {
       id: serviceItem?._id,
-      price: +price,
-      mrp: +mrp,
+      ...serviceItem,
     };
     postApiData(
       "salonService/addServicesToSalon",
       data,
       (resp) => {
         // if (resp) {
-        console.log("add service response", resp);
         toast.success("Service Added Sucessfully");
         setAddProductModal(false);
-        // }
-        //  else {
-        //   console.log("add service response",resp)
-        //   alert("service already Added");
-        //   // toast.error("Service already Added")
-        // }
       },
       (error) => {
         console.log("my service ki error", error);
         toast.error("Service already Added");
-        // alert("service already Added");
       }
     );
   };
 
-  const allservice = () => {
-    setService("allservices");
-    handleTab(1);
-  };
-  const myService = () => {
-    setService("myservices");
-    handleTab(2);
-  };
   const handleTab = (tabNumber) => {
     setTab(tabNumber);
   };
@@ -246,7 +270,6 @@ export default function CustomerServices() {
     if (item) {
       setSelectedMyService(item.services);
       setShowPopup(true);
-      setEditID(id);
     }
   };
   const handleUpdate = (updatedItem) => {
@@ -268,8 +291,27 @@ export default function CustomerServices() {
     const { value } = e.target;
     setItemsPerPage1(+value);
   };
-
-  // console.log({serviceData})
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
+    setServiceItem((prev) => ({
+      ...prev,
+      [name]: type === "number" ? +value : value,
+    }));
+  };
+  const categoryOptions = CategoryData.map((elm) => ({
+    name: elm.name,
+    value: elm.name,
+  }));
+  const genderOptions = [
+    {
+      name: "Female",
+      value: "F",
+    },
+    {
+      name: "Male",
+      value: "M",
+    },
+  ];
 
   return (
     <Layout>
@@ -278,7 +320,7 @@ export default function CustomerServices() {
           <li className="mx-6 font-medium inter text-lg text-slate-100 cursor-pointer">
             <button
               className="  py-2 px-4 rounded-lg text-white flex justify-center items-center bg-black "
-              onClick={allservice}
+              onClick={() => handleTab(1)}
             >
               <h3
                 className="font-semibold text-lg poppins "
@@ -291,7 +333,7 @@ export default function CustomerServices() {
           <li className="mx-6 font-medium inter text-lg text-slate-100 cursor-pointer">
             <button
               className="py-2 px-4 rounded-lg text-white flex justify-center items-center bg-black "
-              onClick={myService}
+              onClick={() => handleTab(2)}
             >
               <h3
                 className="font-semibold text-lg poppins "
@@ -301,172 +343,68 @@ export default function CustomerServices() {
               </h3>
             </button>
           </li>
-          {/* <li className="nav-item" onClick={allservice}>
-          All Services
-        </li>
-        <li className="nav-item" onClick={myService}>
-          My Services
-        </li> */}
         </ul>
+        <div className="flex my-6 gap-6 flex-wrap justify-between items-center mt-6">
+          {allServicesItemFields.map((item, index) => {
+            const { name, label, placeholder } = item;
+            const value =
+              tab == 1 ? allServiceFilters[name] : myServiceFilters[name];
+
+            const isTypeSelect = placeholder ? true : false;
+            return isTypeSelect ? (
+              <NormalInput
+                key={index}
+                name={name}
+                label={label}
+                value={value}
+                placeholder={placeholder}
+                onChange={handleFiltersChange}
+              />
+            ) : (
+              <NormalSelect
+                key={index}
+                value={value}
+                onChange={handleFiltersChange}
+                options={name === "category" ? categoryOptions : genderOptions}
+                name={name}
+              />
+            );
+          })}
+
+          <button
+            className="px-3 py-2 mt-5px bg-black roounded-lg text-white font-semibold"
+            onClick={clearService}
+          >
+            Clear
+          </button>
+        </div>
         {/* <div className="h-[700px] overflow-y-auto mt-3">
       <div className="table-container"> */}
-        {service == "allservices" ? (
-          <>
-            <div className="flex  gap-6 flex-wrap justify-between items-center mt-6">
-              <input
-                value={serviceName}
-                placeholder="Search by service Name"
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px", // Add space for the eye icon
-                  marginTop: "14px",
-                  outline: "none",
-                }}
-                onChange={(e) => setServiceName(e.target.value)}
-              />
-              <select
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px",
-                }}
-                onChange={(e) => setCategoryName(e.target.value)}
-                value={categoryName}
-              >
-                <option value="" selected>
-                  Search By Category
-                </option>
-                {CategoryData.map((item, index) => {
-                  return <option>{item?.name}</option>;
-                })}
-              </select>
-              <select
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px", // Add space for the eye icon
-                }}
-                onChange={(e) => setGender(e.target.value)}
-                value={gender}
-              >
-                <option value={""} selected>
-                  SELECT GENDER
-                </option>
-                {GenderData.map((item, index) => {
-                  return <option>{item?.name}</option>;
-                })}
-              </select>
-              <button
-                className="px-3 py-2 bg-black roounded-lg text-white font-semibold"
-                onClick={clearService}
-              >
-                clear
-              </button>
-            </div>
-            <ServiceTable
-              data={customerServiceData}
-              startIndex={startIndex}
-              endIndex={endIndex}
-              addclick={addclick}
-            />
-            <div className="my-3">
-            <GridRows
-              itemsPerPage={itemsPerPage}
-              handleRowschange={handleRowschange}
-            />
-             </div>
-            <Pagination
-              totalItems={total}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
-           
-          </>
+        {tab == 1 ? (
+          <ServiceTable
+            data={customerServiceData}
+            startIndex={startIndex}
+            endIndex={endIndex}
+            addclick={addclick}
+          />
         ) : (
-          <>
-            <div className="flex gap-6 flex-wrap justify-between items-center mt-6">
-              <input
-                value={myServiceName}
-                placeholder="Search by service Name"
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px", // Add space for the eye icon
-                  marginTop: "14px",
-                  outline: "none",
-                }}
-                onChange={(e) => setMyServiceName(e.target.value)}
-              />
-              <select
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px",
-                }}
-                onChange={(e) => setMyCategoryName(e.target.value)}
-                value={myCategoryName}
-              >
-                <option value="" selected>
-                  Search By Category
-                </option>
-                {CategoryData.map((item, index) => {
-                  return <option>{item?.name}</option>;
-                })}
-              </select>
-              <select
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px", // Add space for the eye icon
-                }}
-                onChange={(e) => setMyGender(e.target.value)}
-                value={myGender}
-              >
-                <option value={""} selected>
-                  SELECT GENDER
-                </option>
-                {GenderData.map((item, index) => {
-                  return <option>{item?.name}</option>;
-                })}
-              </select>
-              <button
-                className="px-3 py-2 bg-black roounded-lg text-white font-semibold"
-                onClick={clearMyService}
-              >
-                clear
-              </button>
-            </div>
-            <MyServiceTable
-              data={myServiceData}
-             
-              handleEditService={handleEditService}
-            />
-              <GridRows
-              itemsPerPage={itemsPerPage1}
-              handleRowschange={handleRows1change}
-            />
-            <Pagination
-              totalItems={total1}
-              itemsPerPage={itemsPerPage1}
-              currentPage={currentPage1}
-              onPageChange={handlePageChange1}
-            />
-          </>
+          <MyServiceTable
+            data={myServiceData}
+            handleEditService={handleEditService}
+          />
         )}
+        <div className="my-3">
+          <GridRows
+            itemsPerPage={tab == 1 ? itemsPerPage : itemsPerPage1}
+            handleRowschange={tab == 1 ? handleRowschange : handleRows1change}
+          />
+        </div>
+        <Pagination
+          totalItems={tab == 1 ? total : total1}
+          itemsPerPage={tab == 1 ? itemsPerPage : itemsPerPage1}
+          currentPage={tab == 1 ? currentPage : currentPage1}
+          onPageChange={tab == 1 ? handlePageChange : handlePageChange1}
+        />
         {/* </div>
       </div> */}
         {/* <Pagination
@@ -477,53 +415,44 @@ export default function CustomerServices() {
       /> */}
         {addproductModal && (
           <Modal
+            ariaHideApp={false}
             isOpen={addproductModal}
             //   onAfterOpen={afterOpenModal}
             onRequestClose={closeModal}
             style={customStyles}
             contentLabel="Example Modal"
           >
-            <div className="flex flex-col items-center justify-start">
+            <div className="flex gap-3 flex-col items-center justify-start">
               {/* Category Name */}
-              <div className="flex justify-between items-center ">
-                <label className="text-lg font-semibold ">Category :</label>
-                <input
-                  value={serviceItem?.category}
-                  placeholder="Category"
-                  className="w-[280px] self-center"
-                />
-              </div>
-              {/* Sub Category */}
-              <div className="flex justify-between items-center ">
-                <label className="text-lg font-semibold ">Sub Category :</label>
-                <input
-                  value={serviceItem?.subCategory}
-                  placeholder="Sub Category"
-                  className="w-[280px] self-center"
-                />
-              </div>
-              {/* MRP */}
-              <div className="flex justify-between items-center ">
-                <label className="text-lg font-semibold ">MRP :</label>
-                <input
-                  type="number"
-                  value={mrp}
-                  placeholder="MRP(should be greater than price):"
-                  className="w-[280px] self-center"
-                  onChange={mrpOnChange}
-                />
-              </div>
-              {/* Price  */}
-              <div className="flex justify-between items-center ">
-                <label className="text-lg font-semibold ">Price :</label>
-                <input
-                  type="number"
-                  value={price}
-                  placeholder="Price"
-                  className="w-[280px] self-center"
-                  onChange={onchnagPrice}
-                />
-              </div>
+              {serviceItemFields.map((input, index) => {
+                const { name, placeholder, label } = input;
+                const value = serviceItem[name];
+                const type =
+                  typeof serviceItem[name] === "number" ? "number" : "text";
+                return (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center "
+                  >
+                    <NormalInput
+                      name={name}
+                      type={type}
+                      value={value}
+                      placeholder={placeholder}
+                      label={label}
+                      onChange={handleChange}
+                      labelStyles={{ fontWeight: "bold" }}
+                      inputStyles={{
+                        width: "280px",
+                        background: "white",
+                        padding: "8px",
+                        alignSelf: "center",
+                        borderRadius: "4px",
+                      }}
+                    />
+                  </div>
+                );
+              })}
 
               <button onClick={onclickService} className="px-4 py-3 ">
                 Update

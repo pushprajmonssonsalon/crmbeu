@@ -25,6 +25,8 @@ import WeeklyReport from "./pages/weeklyReport";
 import SalonDeatils from "./pages/salonDetails";
 import Royalities from "./pages/royalities";
 import { useEffect } from "react";
+import Notification from "./pages/notification/notification";
+import SingleNotification from "./pages/notification/singleNotification";
 
 function App() {
   useEffect(() => {
@@ -121,6 +123,14 @@ function App() {
         <Route
           path="/royalities"
           element={<PrivateRoute Component={Royalities} />}
+        />
+        <Route
+          path="/notifications"
+          element={<PrivateRoute Component={Notification} />}
+        />
+        <Route
+          path="/notifications/:id"
+          element={<PrivateRoute Component={SingleNotification} />}
         />
       </Routes>
     </BrowserRouter>

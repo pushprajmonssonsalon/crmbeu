@@ -1,5 +1,4 @@
 import React from "react";
-import { HiMenuAlt3 } from "react-icons/hi";
 import { MdEditSquare, MdRememberMe } from "react-icons/md";
 import { RiAccountPinBoxFill } from "react-icons/ri";
 import { MdCardMembership } from "react-icons/md";
@@ -81,14 +80,12 @@ const VerticalSidebar = () => {
   } 
   return (
     <section className={`bg-[#191919]  flex gap-6 min-h-screen  `}>
-      <div className={`${open ? "w-64" : "w-16"}  duration-500  px-4 `}>
-        <div className="py-3 flex justify-end">
-          <HiMenuAlt3
-            size={30}
-            className={`text-gray-500 cursor-pointer fixed z-[10] top-40  xl:top-32`}
-            onClick={handleOpen}
-          />
-        </div>
+      <div onMouseEnter={handleOpen}  onMouseLeave={()=>{
+        if(open){
+          handleOpen()
+        }
+      }} className={`${open ? "w-64" : "w-16"}  duration-500  px-4 `}>
+      
         <div
           className={`py-16 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar`}
         >

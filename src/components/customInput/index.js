@@ -18,14 +18,15 @@ export default function CustomSearchInputFeild({
   };
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+    className="flex items-center flex-wrap justify-center"
+     
     >
+      
       <div
+   
+
         style={{
+
           flexDirection: "column",
           display: "flex",
         }}
@@ -59,7 +60,7 @@ export default function CustomSearchInputFeild({
       </div>
 
       <button
-        className="px-3 py-2 rounded-lg bg-black text-white font-bold mt-6 ml-4"
+        className="px-3 py-2 grow md:grow-0 rounded-lg bg-black text-white font-bold mt-6 ml-4"
         onClick={handleClick}
       >
         Search

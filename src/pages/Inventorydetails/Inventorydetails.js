@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import "./inventorydetails.css";
-import productList from "./productlist";
 import { postApiData } from "../../utils/services";
 import Pagination from "../../components/pagination";
 import Layout from "../../components/Layout";
@@ -13,6 +12,8 @@ import MyProductPopup from "../../components/popup/MyProductPopup";
 import InventoryModel from "../../components/inventoryProductAdd/InventoryModel";
 import * as XLSX from "xlsx";
 import GridRows from "../../components/pagination/gridRows";
+import NormalInput from "../../components/customInput/NormalInput";
+import NormalSelect from "../../components/customInput/NormalSelect";
 const allProductHeading = {
   name: "NAME",
   mrp: "MRP",
@@ -52,30 +53,29 @@ const DropdownRow = ({ label, options, value, onChange }) => {
 
 const Inventorydetails = () => {
   const [count, setCount] = useState(0);
+  const [tab, setTab] = useState(2);
+  const [allProductFilters, setAllProductFilters] = useState({
+    name: "",
+    brand: "",
+    type: "",
+  });
+  const [myProductFilters, setMyProductFilters] = useState({
+    name: "",
+    brand: "",
+    type: "",
+  });
   const [newMyProducts, setNewMyProducts] = useState([]);
   const [totalMyProducts, setTotalMyProducts] = useState(0);
   const [cart, setCart] = useState([]);
 
   const [getSalonProducts, setgetSalonProducts] = useState([]);
   const [totalProducts, setTotalProducts] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [addproductModal, setAddProductModal] = useState(false);
-  const [searchProdut, setsearchProduct] = useState(null);
-  const [productDetailsModal, setProductDetailModal] = useState([]);
-  const [postsPerPage, setPostsPerPage] = useState(10);
-  const [open, setOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedSubcategory, setSelectedSubcategory] = useState("");
 
-  const [allProducts, setAllproducts] = useState("allProducts");
   const [isModalOpen, setModalOpen] = useState(false);
-  const [productdetails, setProductdetails] = useState([]);
-  const [brandName, setBrandName] = useState(null);
-  const [typeName, setTypeName] = useState(null);
+
   // const [purchaseModel,setPurchaseModel] = useState(false)
   const [showOrderPopup, setShowOrderPopup] = useState(false);
   const [showInventryModel, setShowInventryModel] = useState(false);
-  const [productOrderId, setProductOrderId] = useState([]);
   const [showMyProductPopup, setShowMyProductPopup] = useState(false);
   const [myProductId, setMyProductId] = useState("");
   const [allProductId, setAllProductId] = useState("");
@@ -83,9 +83,18 @@ const Inventorydetails = () => {
   const [isDelete, setIsDeleted] = useState(false);
   // my products states
 
-  const [productName2, setProductName2] = useState("");
-  const [brand2, setBrand2] = useState(null);
-  const [type2, setType2] = useState(null);
+  const inputFields = [
+    {
+      name: "name",
+      placeholder: "Search by Product Name",
+    },
+    {
+      name: "brand",
+    },
+    {
+      name: "type",
+    },
+  ];
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,16 +119,20 @@ const Inventorydetails = () => {
     const { value } = e.target;
     setItemsPerPage1(+value);
   };
-  const showopen = () => {
-    setOpen(!open);
-  };
 
-  const openModal = () => {
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (tab === 2) {
+      setAllProductFilters((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    } else {
+      setMyProductFilters((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const brandData = [
@@ -151,35 +164,7 @@ const Inventorydetails = () => {
   const TypeData = [{ productType: "Retail" }, { productType: "Professional" }];
   // Add a state to store the product list
 
-  const fetchProductList = async (category, subcategory) => {
-    try {
-      const filteredProducts = productList.filter(
-        (product) =>
-          product.category === category && product.subcategory === subcategory
-      );
-
-      setProductdetails(filteredProducts);
-    } catch (error) {
-      console.error("Error fetching product list:", error);
-    }
-  };
-
-  const handleCategoryChange = (selectedCategory) => {
-    setSelectedCategory(selectedCategory);
-
-    fetchProductList(selectedCategory, selectedSubcategory);
-  };
-
-  const handleSubcategoryChange = (selectedSubcategory) => {
-    setSelectedSubcategory(selectedSubcategory);
-
-    fetchProductList(selectedCategory, selectedSubcategory);
-  };
-
-  const addclick = (item) => {
-    setAddProductModal(true);
-    setProductDetailModal(item);
-  };
+  const addclick = (item) => {};
 
   const orderClick = (item) => {
     const product = cart?.find((elm) => item._id === elm._id);
@@ -198,50 +183,61 @@ const Inventorydetails = () => {
 
   // clear button
 
-  const handleClear = () => {
-    setsearchProduct("");
-    setBrandName("");
-    setTypeName("");
-  };
-
   // my product clear button
 
   const clearClick = () => {
-    setProductName2("");
-    setBrand2("");
-    setType2("");
+    if (tab === 2) {
+      setAllProductFilters({
+        brand: "",
+        type: "",
+        name: "",
+      });
+    } else {
+      setMyProductFilters({
+        brand: "",
+        type: "",
+        name: "",
+      });
+    }
   };
 
   // my Products
   const myproduct = () => {
     const data = {
-      name: productName2,
-      brand: brand2,
-      type: type2,
+      page: currentPage1,
+      limit: itemsPerPage1,
+      ...myProductFilters,
     };
     postApiData(
       `inventory/getSalonProducts/?limit=${itemsPerPage}&page=${currentPage}`,
       data,
       (resp) => {
         console.log("getMyProduct----------------------------------", resp);
-        // setMyProductList(resp.products);
-        setNewMyProducts(resp.products);
-        setTotalMyProducts(resp.totalCount);
+        if (resp.products.length > 0) {
+          // setMyProductList(resp.products);
+          setNewMyProducts(resp.products);
+          setTotalMyProducts(resp.totalCount);
+        }
+        else{
+          setNewMyProducts([]);
+          setTotalMyProducts(0);
+        }
       },
       (error) => {
+        setNewMyProducts([]);
+        setTotalMyProducts(0);
+
         console.log("error");
       }
     );
   };
   console.log({ newMyProducts });
 
-  const getAllProducts=()=>{
+  const getAllProducts = () => {
     const data = {
       page: currentPage,
-      limit: postsPerPage,
-      name: searchProdut,
-      brand: brandName,
-      type: typeName,
+      limit: itemsPerPage1,
+      ...allProductFilters,
     };
     postApiData(
       `inventory/getAllProducts/?limit=${itemsPerPage1}&page=${currentPage1}`,
@@ -255,13 +251,12 @@ const Inventorydetails = () => {
         console.log("error", error);
       }
     );
-  }
+  };
   // All products
   useEffect(() => {
     // Debounce function for API call
-    if(allProducts==="allProducts"){
-
-         let timeoutId;
+    if (tab === 2) {
+      let timeoutId;
       const debouncedFetchData = () => {
         timeoutId = setTimeout(() => {
           getAllProducts(); // Function to fetch data from API
@@ -274,25 +269,15 @@ const Inventorydetails = () => {
       // Cleanup function to clear timeout on component unmount
       return () => clearTimeout(timeoutId);
     }
-  }, [
-    isModalOpen,
-    brandName,
-    searchProdut,
-    typeName,
-    currentPage1,
-    itemsPerPage1,
-  ]);
+  }, [isModalOpen, allProductFilters, currentPage1, itemsPerPage1]);
 
   useEffect(() => {
     // Debounce function for API call
-    if(allProducts==="myProducts"){
-
-    
-    
-         let timeoutId;
+    if (tab === 1) {
+      let timeoutId;
       const debouncedFetchData = () => {
         timeoutId = setTimeout(() => {
-          myproduct();// Function to fetch data from API
+          myproduct(); // Function to fetch data from API
         }, 500); // 500ms debounce delay
       };
 
@@ -304,58 +289,22 @@ const Inventorydetails = () => {
     }
   }, [
     isModalOpen,
-    allProducts,
-    productName2,
-    brand2,
-    type2,
+    tab,
+    myProductFilters,
+
     isChanged,
     isDelete,
     currentPage,
     itemsPerPage,
   ]);
 
-  
-
-  
-
-  const onchangeProduct = (e) => {
-    setsearchProduct(e.target.value);
-  };
-
   const handleInventryOpen = (id) => {
     setAllProductId(id);
     setShowInventryModel(true);
   };
-
-  const getSalonProductsPress = (item) => {
-    setSelectedItem(item);
+  const handleTab = (num) => {
+    setTab(num);
   };
-  const editPress = () => {
-    setModalOpen(true);
-  };
-  const allProduct = () => {
-    setAllproducts("allProducts");
-  };
-  const myProducts = () => {
-    setAllproducts("myProducts");
-    // setNewMyProducts("myProducts");
-  };
-  
-
-  // const result = productOrderId.map((id) => {
-  //   const matchingObject = getSalonProducts?.find((obj) => obj._id === id);
-  //   console.log("matching Object", matchingObject, productOrderId);
-  //   return matchingObject
-  //     ? {
-  //         name: matchingObject.name,
-  //         size: matchingObject.size,
-  //         itemId: matchingObject.itemId,
-  //         brand: matchingObject.brand,
-  //         type: matchingObject.type,
-  //       }
-  //     : null;
-  // });
-  // console.log("resultss------------", result);
 
   const handleOpen = (id) => {
     setMyProductId(id);
@@ -384,19 +333,27 @@ const Inventorydetails = () => {
     // Export the workbook to Excel
     XLSX.writeFile(workbook, "products.xlsx");
   };
+  const brandOptions = brandData.map((elm) => ({
+    name: elm.brandName,
+    value: elm.brandName,
+  }));
+  const typeOptions = TypeData.map((elm) => ({
+    name: elm.productType,
+    value: elm.productType,
+  }));
   return (
     <Layout>
-      <nav className="navbar w-[80%] mx-auto ">
+      <nav className="navbar mt-52 md:mt-38 w-[80%] mx-auto ">
         <ul className="nav-list mt-40 ">
           <li
             className=" hover:scale-110 px-6 bg-[#191919] text-white font-semibold py-4 rounded-lg cursor-pointer"
-            onClick={allProduct}
+            onClick={() => handleTab(2)}
           >
             All PRODUCTS
           </li>
           <li
             className="hover:scale-110 px-6 bg-[#191919] text-white font-semibold py-4 rounded-lg cursor-pointer"
-            onClick={myProducts}
+            onClick={() => handleTab(1)}
           >
             My Products
           </li>
@@ -410,195 +367,94 @@ const Inventorydetails = () => {
             </span>
           </li>
         </ul>
+        <div className="flex flex-wrap gap-3 justify-between items-center mt-6">
+          {inputFields.map((item, index) => {
+            const { name, label, placeholder } = item;
+            const value =
+              tab == 1 ? myProductFilters[name] : allProductFilters[name];
 
-        {allProducts == "myProducts" ? (
+            const isTypeSelect = placeholder ? true : false;
+            return isTypeSelect ? (
+              <NormalInput
+                key={index}
+                name={name}
+                label={label}
+                value={value}
+                placeholder={placeholder}
+                onChange={handleChange}
+              />
+            ) : (
+              <NormalSelect
+                key={index}
+                value={value}
+                onChange={handleChange}
+                options={name === "brand" ? brandOptions : typeOptions}
+                name={name}
+              />
+            );
+          })}
+          <button
+            className="px-3 py-2 bg-black roounded-lg text-white font-semibold"
+            onClick={clearClick}
+          >
+            clear
+          </button>
+          {tab === 1 && (
+            <button
+              className="px-3 py-2 bg-green-700 hover:bg-green-600 transition-all duration-150 ease-in-out roounded-lg text-white font-semibold"
+              onClick={handleExport}
+            >
+              export to excel
+            </button>
+          )}
+        </div>
+        {tab === 1 ? (
           <div className="flex ">
             <div className="inventory-container-main">
-              <div className="flex flex-wrap gap-3 justify-between items-center mt-6">
-                <input
-                  value={productName2}
-                  placeholder="Search by Product Name"
-                  style={{
-                    height: "40px",
-                    border: "1px solid grey",
-                    width: "270px",
-                    borderRadius: "11px",
-                    paddingRight: "30px", // Add space for the eye icon
-                    marginTop: "14px",
-                    outline: "none",
-                  }}
-                  onChange={(e) => setProductName2(e.target.value)}
-                />
-                <select
-                  style={{
-                    height: "40px",
-                    border: "1px solid grey",
-                    width: "270px",
-                    borderRadius: "11px",
-                    paddingRight: "30px",
-                  }}
-                  onChange={(e) => setBrand2(e.target.value)}
-                  value={brand2}
-                >
-                  <option value="" selected>
-                    Search By Brand
-                  </option>
-                  {brandData.map((item, index) => {
-                    return <option>{item?.brandName}</option>;
-                  })}
-                </select>
-                <select
-                  style={{
-                    height: "40px",
-                    border: "1px solid grey",
-                    width: "270px",
-                    borderRadius: "11px",
-                    paddingRight: "30px", // Add space for the eye icon
-                  }}
-                  onChange={(e) => setType2(e.target.value)}
-                  value={type2}
-                >
-                  <option value={""} selected>
-                    Type
-                  </option>
-                  {TypeData.map((item, index) => {
-                    return <option>{item?.productType}</option>;
-                  })}
-                </select>
-                <button
-                  className="px-3 py-2 bg-black roounded-lg text-white font-semibold"
-                  onClick={clearClick}
-                >
-                  clear
-                </button>
-                <button
-                  className="px-3 py-2 bg-green-700 hover:bg-green-600 transition-all duration-150 ease-in-out roounded-lg text-white font-semibold"
-                  onClick={handleExport}
-                >
-                  export to excel
-                </button>
-              </div>
               <MyProductTable
                 data={newMyProducts}
-                getSalonProductsPress={getSalonProductsPress}
                 isChanged={isDelete}
                 setIsChanged={setIsDeleted}
                 handleOpen={handleOpen}
-              />
-              <GridRows
-                itemsPerPage={itemsPerPage}
-                handleRowschange={handleRowschange}
-              />
-
-              <Pagination
-                totalItems={totalMyProducts}
-                itemsPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
               />
             </div>
           </div>
         ) : (
           <div>
-            <div
-            className="flex justify-between items-center gap-6 mt-9 flex-wrap"
-            >
-              <input
-                value={searchProdut}
-                placeholder="Search by Product Name"
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px", // Add space for the eye icon
-                  marginTop: "14px",
-                  outline: "none",
-                }}
-                onChange={onchangeProduct}
-              />
-              <select
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px",
-                }}
-                onChange={(e) => setBrandName(e.target.value)}
-                value={brandName}
-              >
-                <option value="" selected>
-                  Search By Brand
-                </option>
-                {brandData.map((item, index) => {
-                  return <option>{item?.brandName}</option>;
-                })}
-              </select>
-              <select
-                style={{
-                  height: "40px",
-                  border: "1px solid grey",
-                  width: "270px",
-                  borderRadius: "11px",
-                  paddingRight: "30px", // Add space for the eye icon
-                }}
-                onChange={(e) => setTypeName(e.target.value)}
-                value={typeName}
-              >
-                <option value={""} selected>
-                  Type
-                </option>
-                {TypeData.map((item, index) => {
-                  return <option>{item?.productType}</option>;
-                })}
-              </select>
-
-              <button
-                className="bg-black px-3 py-2 rounded-lg text-white font-bold"
-                onClick={handleClear}
-              >
-                CLEAR
-              </button>
-            </div>
             <Table
               header={allProductHeading}
               data={getSalonProducts}
-              startIndex={startIndex1}
-              endIndex={endIndex1}
+              
               addClick={addclick}
               orderClick={orderClick}
-              getSalonProductsPress={getSalonProductsPress}
               handleInventryOpen={handleInventryOpen}
-            />
-            <GridRows
-              itemsPerPage={itemsPerPage1}
-              handleRowschange={handleRows1change}
-            />
-
-            <Pagination
-              totalItems={totalProducts}
-              itemsPerPage={itemsPerPage1}
-              currentPage={currentPage1}
-              onPageChange={handlePageChange1}
             />
           </div>
         )}
+        <GridRows
+          itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
+          handleRowschange={tab === 1 ? handleRowschange : handleRows1change}
+        />
+
+        <Pagination
+          totalItems={tab === 1 ? totalMyProducts : totalProducts}
+          itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
+          currentPage={tab === 1 ? currentPage : currentPage1}
+          onPageChange={tab === 1 ? handlePageChange : handlePageChange1}
+        />
         <InventoryModel
-          data={getSalonProducts}
+          data={getSalonProducts.find((item) => item._id === allProductId)}
           isVisible={showInventryModel}
           onClose={() => setShowInventryModel(false)}
-          id={allProductId}
         />
 
         <OrderPopup
           isVisible={showOrderPopup}
           onClose={() => setShowOrderPopup(false)}
-          id={productOrderId}
           data={cart}
         />
         <MyProductPopup
-          data={newMyProducts}
+          data={newMyProducts?.find((elm)=>elm.products._id===myProductId)?.products}
           isVisible={showMyProductPopup}
           onClose={() => setShowMyProductPopup(false)}
           id={myProductId}

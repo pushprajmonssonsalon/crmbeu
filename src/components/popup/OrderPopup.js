@@ -3,7 +3,7 @@ import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from "../../utils/services";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
-const OrderPopup = ({ isVisible, onClose, id, data }) => {
+const OrderPopup = ({ isVisible, onClose,  data }) => {
   const navigate = useNavigate();
   const [quantities, setQuantities] = useState([]);
 
@@ -12,7 +12,6 @@ const OrderPopup = ({ isVisible, onClose, id, data }) => {
   }, [data]);
 
   const [bool, setBool] = useState(false);
-  console.log("product", id);
   const handleQuantityChange = (index, value) => {
     const newQuantities = [...quantities];
     newQuantities[index] = value;

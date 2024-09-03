@@ -1,132 +1,202 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
-import { getApiCall, postApiData } from '../../utils/services';
+import { postApiData } from "../../utils/services";
 import { MdDelete } from "react-icons/md";
-import toast from 'react-hot-toast';
-const ProductQuantityPopup= ({isVisible,onClose,id,alreadyAddedProduct}) => {
-  
-    const [searchProduct,setSearchProduct] = useState("")
-    const [selectedProducts, setSelectedProducts] = useState([])
-    console.log("selectedProducts",selectedProducts)
-    useEffect(()=>{
-      setSelectedProducts(alreadyAddedProduct)
-    },[isVisible])
-    const [editingProductIndex, setEditingProductIndex] = useState(null);
-    const [products,setProducts] = useState([])
-    console.log("appointment id",id)
-    console.log("productUsed",alreadyAddedProduct)
-    useEffect(()=>{
-        const data={
-            name: searchProduct,
-            type: 'Professional'
-        }
-        postApiData('inventory/getSalonProducts',data,
-        (resp)=>{
-            console.log("result success",resp);
-            setProducts(resp)
-        },
-        (error)=>{
-            console.log("result error",error)
-        }
-    )
-    },[searchProduct])
+import toast from "react-hot-toast";
+import NormalInput from "../customInput/NormalInput";
+import useDebouncer from "../../utils/hooks/useDebouncer";
+const ProductQuantityPopup = ({
+  isVisible,
+  onClose,
+  id,
+  alreadyAddedProduct,
+}) => {
+  const [searchProduct, setSearchProduct] = useState("");
+  const [selectedProducts, setSelectedProducts] = useState([]);
 
-    const handleProductClick = (product) => {
-        if (!selectedProducts.includes(product)) {
-          setSelectedProducts([...selectedProducts, product]);
-          setSearchProduct("")
-        }
-      };
-      const removeSelectedProduct = (product) => {
-        setSelectedProducts(selectedProducts.filter((p) => p !== product));
-      };
-      const handleQuantityChange = (productIndex, sizeUsed) => {
-        setSelectedProducts((prevSelectedProducts) =>
-          prevSelectedProducts.map((p, index) =>
-            index === productIndex ? { ...p, sizeUsed: parseInt(sizeUsed) || ''} : p
-          )
-        );
-      };
-    if(!isVisible) return null;
+  useEffect(() => {
+    setSelectedProducts(alreadyAddedProduct);
+  }, [isVisible, alreadyAddedProduct]);
+  console.log(alreadyAddedProduct,"already")
 
-    console.log("selectedProducts",selectedProducts)
+  const [editingProductIndex, setEditingProductIndex] = useState(null);
+  const [products, setProducts] = useState([]);
+  const { debouncedFunction } = useDebouncer();
 
-    const handleSubmit=()=>{
-        const data = {
-            appointmentId:id,
-            productUsed: selectedProducts
-        }
-        postApiData("appointment/usedProductInAppointment",data,
-        (resp)=>{
-            toast.success("Product Quanity Updated Successfully!")
-            setSelectedProducts([])
-            onClose()
-        },
-        (error)=>{
-            toast.error("Something went wrong! Please try again")
+  const fetchProducts = () => {
+    const data = {
+      name: searchProduct,
+      type: "Professional",
+    };
 
-        }
-    )
+    postApiData(
+      "inventory/getSalonProducts",
+      data,
+      (resp) => {
+        console.log("result success", resp);
+        setProducts(resp?.products);
+      },
+      (error) => {
+        console.log("result error", error);
+      }
+    );
+  };
+
+  useEffect(() => {
+    debouncedFunction(fetchProducts, 500);
+  }, [searchProduct]);
+
+  const handleProductClick = (product) => {
+    const isAlreadyPresent = selectedProducts.find(
+      (elm) => elm._id === product?._id
+    );
+    if (!isAlreadyPresent) {
+      setSelectedProducts([...selectedProducts, product]);
+      setSearchProduct("");
     }
 
+  };
+  
+  const removeSelectedProduct = (product) => {
+    setSelectedProducts(selectedProducts.filter((p) => p !== product));
+  };
+  const handleQuantityChange = (productIndex, sizeUsed) => {
+    setSelectedProducts((prevSelectedProducts) =>
+      prevSelectedProducts.map((p, index) =>
+        index === productIndex
+          ? { ...p, sizeUsed: parseInt(sizeUsed) || "" }
+          : p
+      )
+    );
+  };
+  if (!isVisible) return null;
+
+  console.log("selectedProducts", selectedProducts);
+
+  const handleSubmit = () => {
+    const data = {
+      appointmentId: id,
+      productUsed: selectedProducts.map((elm)=>{
+      
+        const {itemId,name,unit,sizeUsed}=elm
+        return {
+          itemId,
+          sizeUsed,
+          name,
+         
+          unit
+        }
+        
+      }),
+    };
+    postApiData(
+      "appointment/usedProductInAppointment",
+      data,
+      (resp) => {
+        toast.success("Product Quanity Updated Successfully!");
+        setSelectedProducts([]);
+        onClose();
+      },
+      (error) => {
+        toast.error("Something went wrong! Please try again");
+      }
+    );
+  };
+
+  console.log(selectedProducts, "product");
+
   return (
-    <div className='fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center'>
-        <div className='absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto'>
+    <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
+      <div className="absolute z-40 mx-3 w-[70%] lg:w-1/3 my-10 h-[70%] overflow-y-auto">
+        <div className="bg-white p-4 rounded-xl ">
+          <div className="flex justify-between mb-3 font-bold items-center">
+            <h1 className={`text-blue-500 text-lg font-bold  `}>
+              Edit your response
+            </h1>
+            <span
+              className="text-3xl flex items-center justify-center cursor-pointer text-rose-600  hover:scale-105 hover:font-extrabold transition-all ease-in duration-100 font-bold  bg-transparent"
+              onClick={() => {
+                setSelectedProducts([]);
+                onClose();
+              }}
+            >
+              <MdOutlineClose />
+            </span>
+          </div>
 
-            <div className='bg-white p-4 rounded-xl '>
-                <div className='flex justify-between font-bold items-center'>
-                <h1 className={`text-blue-500 text-lg font-bold mb-4 `}>Edit your response</h1>
-                <button className='text-3xl font-bold mt-4 text-red-600 hover:text-red-900 bg-transparent' onClick={()=>{
-                  setSelectedProducts([])
-                  onClose()
-                }}><MdOutlineClose /></button>
+          <div className="flex items-center  w-full gap-x-3 relative">
+            <NormalInput
+              name="search"
+              inputStyles={{ width: "100%" }}
+              value={searchProduct}
+              onChange={(e) => setSearchProduct(e.target.value)}
+              placeholder="Enter Professional Products"
+            />
 
-                </div>
+            {searchProduct?.length > 0 && (
+              <div className="absolute top-[50px] p-3  max-h-[300px] w-full overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-1">
+                {products?.length > 0 &&
+                  products?.map((item) => {
+                    return (
+                      <div
+                        style={{ display: "flex" }}
+                        onClick={() => handleProductClick(item.products)}
+                        className="flex   bg-gray-100 border-b-1 mb-1 last:mb-0 items-center px-4 py-2 transition-all duration-300 ease-in-out transform hover:bg-gray-200 cursor-pointer"
+                      >
+                        <p className="mr-2 font-semibold">
+                          {item.products.name}
+                        </p>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
 
-                <div className='flex items-center justify-center w-full gap-x-3 relative'>
-                    <input type='text' value={searchProduct} onChange={(e)=>setSearchProduct(e.target.value)} className='w-full' placeholder='Enter Professional Products'/>
-                    {searchProduct?.length > 0 && (
-                    <div
-                      className="absolute top-[60px] h-[104px] w-full overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-1"
-                    >
-                      {products.length > 0 &&
-                        products?.map((item) => {
-                          return (
-                            <div
-                              style={{ display: "flex" }}
-                              onClick={() => handleProductClick(item.products)}
-                              className="flex items-center px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
-                            >
-                              <p className="mr-2 font-semibold">{item.products.name}</p>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  )}
-                </div>
-
-                {selectedProducts.length > 0 && (
-        <div className="flex flex-col items-start px-4 py-2 my-5 ">
-          {selectedProducts.map((product,index) => (
-            <div key={product.id} className="flex items-center justify-between my-2 w-full border-2 border-[#ccc] px-3 py-1">
-              <p className="mr-2 font-semibold text-lg">{product.name}</p>
-              {/* <button onClick={() => removeSelectedProduct(product)}>Remove</button> */}
-              <input
-                // type="number"
-                min="1"
-                value={product.sizeUsed}
-                onChange={(e) => handleQuantityChange(index, e.target.value)}
-                onFocus={() => setEditingProductIndex(index)}
-                onBlur={() => setEditingProductIndex(null)}
-                className="w-16 px-2 py-1 border border-gray-300 rounded-md"
-              />
-              <MdDelete onClick={() => removeSelectedProduct(product)} className='text-lg text-red-700 cursor-pointer'/>
+          {selectedProducts.length > 0 && (
+            <div className="flex flex-col items-start  my-5 ">
+              {selectedProducts.map((product, index) => {
+                
+               return( <div
+                  key={product?.id}
+                  className="flex gap-3 flex-wrap items-center justify-between my-2 w-full bg-gray-100 p-3"
+                >
+                  <p className="mr-2 font-medium text-sm">{product?.name}</p>
+                  {/* <button onClick={() => removeSelectedProduct(product)}>Remove</button> */}
+                  <div className="flex gap-3 items-center justify-center">
+                    <input
+                      // type="number"
+                      min="1"
+                      placeholder="Quantity"
+                      value={product?.sizeUsed}
+                      onChange={(e) =>
+                        handleQuantityChange(index, e.target.value)
+                      }
+                      onFocus={() => setEditingProductIndex(index)}
+                      onBlur={() => setEditingProductIndex(null)}
+                      className="max-w-xs grow px-2 py-1 border border-gray-300 rounded-md"
+                    />
+                    <div className="w-[40px]">{product?.unit}</div>
+                    <MdDelete
+                      onClick={() => removeSelectedProduct(product)}
+                      className="text-lg w-[40px] text-red-700 cursor-pointer"
+                    />
+                  </div>
+                </div>)
+              })}
             </div>
-          ))}
-        </div>
-      )}
-                {/* {popupService?.map((item,index)=>( */}
-                     {/* <div className="grid w-full items-center">
+          )}
+          {selectedProducts.length > 0 && (
+            <button
+              className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          )}
+
+          {/* {popupService?.map((item,index)=>( */}
+          {/* <div className="grid w-full items-center">
                      <label htmlFor="name"><span className='font-bold text-md'>Name :</span></label>
                      <input type="text" placeholder='name' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold'  disabled/>
                      <label htmlFor="name"><span className='font-bold text-md'>Category :</span></label>
@@ -138,19 +208,11 @@ const ProductQuantityPopup= ({isVisible,onClose,id,alreadyAddedProduct}) => {
                      <label htmlFor="number"><span className='font-bold text-md'>Price :</span></label>
                      <input placeholder='Price' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' />
                  </div> */}
-                {/* ))} */}
-                <button className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `} onClick={handleSubmit}>Submit</button>
-                
-                
-
-            </div>
-
-            
-
+          {/* ))} */}
         </div>
-
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default ProductQuantityPopup
+export default ProductQuantityPopup;
