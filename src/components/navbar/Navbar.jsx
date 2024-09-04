@@ -70,9 +70,9 @@ const Navbar = () => {
             {parlorDetails?.address}
           </li>
           <li onClick={()=>navigate("/notifications")}  className="mx-6 relative h-fit text-slate-100 cursor-pointer ">
-            <IoIosNotifications className="relative" size={30} />
+            <IoIosNotifications className="relative" size={40} />
             <div className="top-0 absolute -right-[1px]">
-    <p className="flex h-3 w-3 p-2 items-center justify-center rounded-full bg-red-500  text-[9px] text-white">{unReadMsg>9? "9+":unReadMsg}</p>
+    <p className="flex h-6 w-6 p-2 items-center justify-center rounded-full bg-red-500  text-sm text-white">{unReadMsg>9? "9+":unReadMsg}</p>
   </div>
           </li>
           <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer">

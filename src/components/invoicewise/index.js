@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Layout from "../Layout";
-import { postApiData } from "../../utils/services";
+import { formatDateToFull, postApiData } from "../../utils/services";
 import CustomInputFeild from "../../components/customInput";
 import { useDownloadExcel } from "react-export-table-to-excel";
 import { FaFilePdf } from "react-icons/fa6";
@@ -77,15 +77,15 @@ const InvoiceWise = () => {
     { name: "Invoice", id: "invoiceUrl" },
   ];
 
-  function FormatDate(date) {
-    const dates = new Date(date);
+  // function FormatDate(date) {
+  //   const dates = new Date(date);
 
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const formatter = new Intl.DateTimeFormat("en-US", options);
-    const formattedDate = formatter.format(dates);
+  //   const options = { year: "numeric", month: "long", day: "numeric" };
+  //   const formatter = new Intl.DateTimeFormat("en-US", options);
+  //   const formattedDate = formatter.format(dates);
 
-    return formattedDate;
-  }
+  //   return formattedDate;
+  // }
   const { onDownload } = useDownloadExcel({
     currentTableRef: tableRef.current,
     filename: "invoisewise",
@@ -168,7 +168,7 @@ const InvoiceWise = () => {
                   (method) => method.name === heading.id
                 )?.amount || 0
               ) : heading.id==="createdAt"?
-              FormatDate(row[heading.id])
+              formatDateToFull(row[heading.id],false)
               :(
                 row[heading.id]
               )}

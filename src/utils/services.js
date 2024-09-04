@@ -69,7 +69,7 @@ const getApiCall = (endpoint, success, failur) => {
       failur("error", error);
     });
 };
-function formatDateToFull(dateString) {
+function formatDateToFull(dateString,full=true) {
   if (dateString) {
     const [datePart, timePart] = dateString.split("T");
     const [year, month, day] = datePart.split("-");
@@ -81,7 +81,11 @@ function formatDateToFull(dateString) {
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ];
     const monthShort = monthNames[parseInt(month, 10) - 1];
-
+    
+    if(!full){
+      const formattedDate = `${parseInt(day, 10)} ${monthShort} ${year} `;
+       return formattedDate
+    }
     // Format the time as "08:34 AM/PM"
     let hourInt = parseInt(hour, 10);
     const period = hourInt >= 12 ? "PM" : "AM";

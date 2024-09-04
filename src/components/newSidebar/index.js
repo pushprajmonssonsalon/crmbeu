@@ -32,6 +32,7 @@ const VerticalSidebar = () => {
       submenus: [
         { name: "Report", link: "/reports" },
         { name: "Invoice wise collection", link: "/invoicewise" },
+        { name: "Category wise collection", link: "/categorywise" },
         { name: "Revenue", link: "/revenue" },
         { name: "Weekly Report", link: "/weeklyreport" },
       ],

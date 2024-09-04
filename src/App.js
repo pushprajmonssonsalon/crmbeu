@@ -27,6 +27,7 @@ import Royalities from "./pages/royalities";
 import { useEffect } from "react";
 import Notification from "./pages/notification/notification";
 import SingleNotification from "./pages/notification/singleNotification";
+import Categorywise from "./components/categorywise/Categorywise";
 
 function App() {
   useEffect(() => {
@@ -77,6 +78,10 @@ function App() {
         <Route
           path="/invoicewise"
           element={<PrivateRoute Component={InvoiceWise} />}
+        />
+        <Route
+          path="/categorywise"
+          element={<PrivateRoute Component={Categorywise} />}
         />
         <Route
           path="/complitedAppointment"

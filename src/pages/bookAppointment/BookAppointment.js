@@ -347,14 +347,7 @@ const BookAppointment = () => {
     dispatch(deleteProducts(id));
   };
   const handleSubmit = () => {
-    const isAnyFieldEmpty = Object.values(customerDetails).some(
-      (elm) => elm === "" || !elm
-    );
-    if (isAnyFieldEmpty) {
-      toast.error("fill all the fields");
-      return;
-    }
-
+   
     postApiData(
       "parlor/registerUserForCrm",
       customerDetails,
