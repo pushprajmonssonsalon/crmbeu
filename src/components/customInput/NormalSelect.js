@@ -1,7 +1,14 @@
-const NormalSelect = ({name,value,options=[],onChange,inputStyles={},disabled=false}) => {
+const NormalSelect = ({name,value,options=[],onChange,inputStyles={},disabled=false,lableStyles={},label=""}) => {
   return (
 
    <>
+    {label !== "" && (
+        <label className="w-fit" htmlFor={name}>
+          <span style={{ ...lableStyles }} className="font-bold text-md">
+            {label}
+          </span>
+        </label>
+      )}
  
   <select
     id={name}

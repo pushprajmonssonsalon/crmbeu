@@ -82,16 +82,12 @@ const Notification = () => {
                   <div>
                     <select
                       value={itemsPerPage}
-                      className="border-none outline-none text-black bg-transparent w-[60px]"
+                      className="border-none outline-none text-black bg-transparent w-[66px]"
                       onChange={(e) => setItemsPerPage(e.target.value)}
                     >
                       {itemsOptions?.map((item, id) => {
                         const { name, value } = item;
-                        return (
-                          <option  value={value}>
-                            {name}
-                          </option>
-                        );
+                        return <option value={value}>{name}</option>;
                       })}
                     </select>
                   </div>
@@ -150,6 +146,7 @@ const Notification = () => {
               );
             })}
         </div>
+        <div className="bg-gray-300 p-4 w-full rounder-b-lg "></div>
       </div>
     </Layout>
   );

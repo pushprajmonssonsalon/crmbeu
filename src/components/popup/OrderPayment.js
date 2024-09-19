@@ -1,93 +1,146 @@
-import React, { useEffect, useState } from 'react'
-import { MdOutlineClose } from 'react-icons/md';
-import { getApiCall } from '../../utils/services';
+import { useState } from "react";
+import { MdOutlineClose } from "react-icons/md";
 
-const OrderPaymentPopup = ({isVisible,onClose,membership,onUpdatePayment,onPayed}) => {
-    
-    const [cash, setCash] = useState(0);
-  const [card, setCard] = useState(0);
-  const [upi, setUpi] = useState(0);
-  const totalCardUpiCash=parseInt(cash) + parseInt(card) + parseInt(upi);
-  const payTotal = membership
-//   const payTotal=payableAmount-membershipPoints
-  console.log("payTotal",totalCardUpiCash)
+const OrderPaymentPopup = ({
+  isVisible,
+  onClose,
+  membership,
+  onUpdatePayment,
+}) => {
+  const [paymentMethod, setPaymentMethod] = useState([
+    {
+      name: "Cash",
+      amount: 0,
+    },
+    {
+      name: "Upi",
+      amount: 0,
+    },
+    {
+      name: "Card",
+      amount: 0,
+    },
+    {
+      name: "Online",
+      amount: 0,
+    },
+  ]);
 
-  if(!isVisible) return null;
-  
+  const payTotal = membership;
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPaymentMethod((prev) => {
+      // Calculate the current sum of all payment methods except the one being updated
+      const currentTotal = prev.reduce((acc, elm) => {
+        if (elm.name !== name) {
+          return acc + elm.amount;
+        }
+        return acc;
+      }, 0);
+
+      console.log(currentTotal, membership, "total");
+
+      // Calculate the maximum allowable value for the current payment method
+      const maxAllowableValue = payTotal - currentTotal;
+
+      return prev.map((elm) => {
+        if (elm.name === name) {
+          return {
+            ...elm,
+            amount: Math.min(value, maxAllowableValue), // Ensure the amount doesn't exceed the max allowable value
+          };
+        } else {
+          return elm;
+        }
+      });
+    });
+  };
+
+  //   const payTotal=payableAmount-membershipPoints
+
+  if (!isVisible) return null;
+
   const hnadleUpdate = () => {
     // onUpdatePayment(cash, card);
-    console.log("update payment",totalCardUpiCash,payTotal);
+    const totalCardUpiCash = paymentMethod.reduce((acc, elm) => {
+      return acc + elm.amount;
+    }, 0);
 
-    
-  if(totalCardUpiCash===payTotal){
-    onUpdatePayment(cash, card, upi);
-    onClose();
-    onPayed()
-  }
- // Close the modal after updating
+    if (totalCardUpiCash === payTotal) {
+      onUpdatePayment(paymentMethod);
+      onClose();
+    }
+    // Close the modal after updating
   };
-  
 
-    // const closeModal = () => {
-    //     setModal(false);
-    //   };
-      
-      
-    //   const hnadleUpdate = () => {
-    //     // onUpdatePayment(cash, card);
-    //     console.log("update payment",totalCardUpiCash,payTotal);
-    
-        
-    //   if(totalCardUpiCash===payTotal){
-    //     onUpdatePayment(cash, card, upi);
-    //     onClose();
-    //   }
-    //  // Close the modal after updating
-    //   };
-    //   console.log("membershipPoints",membershipPoints)
+  // const closeModal = () => {
+  //     setModal(false);
+  //   };
+
+  //   const hnadleUpdate = () => {
+  //     // onUpdatePayment(cash, card);
+  //     console.log("update payment",totalCardUpiCash,payTotal);
+
+  //   if(totalCardUpiCash===payTotal){
+  //     onUpdatePayment(cash, card, upi);
+  //     onClose();
+  //   }
+  //  // Close the modal after updating
+  //   };
+  //   console.log("membershipPoints",membershipPoints)
   return (
-    <div className='fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center'>
-        <div className='absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto'>
+    <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
+      <div className="absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto">
+        <div className="bg-white p-4 rounded-xl ">
+          <div className="flex justify-around font-bold items-center">
+            <h1 className={`text-blue-500 text-lg font-bold `}>
+              PAY : {membership}
+            </h1>
+            <button
+              className="text-3xl font-bold  text-red-600 hover:text-red-900 bg-transparent "
+              onClick={() => onClose()}
+            >
+              <MdOutlineClose />
+            </button>
+          </div>
 
-            <div className='bg-white p-4 rounded-xl '>
-                <div className='flex justify-around font-bold items-center'>
-                <h1 className={`text-blue-500 text-lg font-bold `}>PAY : {membership}</h1>
-                <button className='text-3xl font-bold  text-red-600 hover:text-red-900 bg-transparent ' onClick={()=>onClose()}><MdOutlineClose /></button>
-                </div>
-
-                <table className="styled-table">
-  <thead>
-    <tr>
-      <th >Payment Method</th>
-      <th >Distribution</th>
-    </tr>
-  </thead>
-  <tbody>
-  <tr>
-                  <td className="font-bold text-lg">Card</td>
-                  <td><input type="number" className="w-[250px] outline-none "
-                  value={card}
-                  onChange={(e)=>setCard(e.target.value)}/></td>
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th>Payment Method</th>
+                <th>Distribution</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paymentMethod?.map((item, index) => (
+                <tr key={index}>
+                  <td className="font-bold capitalize text-lg">{item?.name}</td>
+                  <td>
+                    <input
+                      name={item.name}
+                      type="number"
+                      min={0}
+                      max={payTotal}
+                      className="w-[250px] outline-none "
+                      value={item?.amount}
+                      onChange={handleChange}
+                    />
+                  </td>
                 </tr>
-                <tr>
-                  <td className="font-bold text-lg">Cash</td>
-                  <td><input type="number" className="w-[250px] outline-none "
-                   value={cash}
-                   onChange={(e)=>setCash(e.target.value)}/></td>
-                </tr>
-                <tr>
-                  <td className="font-bold text-lg">Upi</td>
-                  <td><input type="number" className="w-[250px] outline-none "
-                  value={upi}
-                  onChange={(e)=>setUpi(e.target.value)}/></td>
-                </tr>
-  </tbody>
-</table>
-                <button className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `} onClick={hnadleUpdate}>Update</button>
+              ))}
+            </tbody>
+          </table>
+          <button
+            className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
+            onClick={hnadleUpdate}
+          >
+            Update
+          </button>
         </div>
-            </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default OrderPaymentPopup
+export default OrderPaymentPopup;

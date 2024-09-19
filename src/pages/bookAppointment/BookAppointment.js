@@ -1,6 +1,5 @@
 import { useState } from "react";
 import "./BookAppointment.css";
-import Modal from "react-modal";
 import { getApiCall, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +24,7 @@ import { IoMdPersonAdd } from "react-icons/io";
 import NormalRadio from "../../components/customInput/NormalRadio";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
+import AddCustomerModal from "../../components/modals/AddCustomerModal";
 const formatDate = (date) => {
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // January is 0!
@@ -275,11 +275,13 @@ const BookAppointment = () => {
       ...rest,
       miniSubcategory: miniSub,
     };
-   
-      dispatch(serviceAdded(selected));
-      // alert("All service added")
-      toast.success("All Service Added!!");
-   
+    const isEveryEmpty = Object.values(rest).every((elm) => elm === "" || !elm);
+    if (isEveryEmpty) {
+      return;
+    }
+    dispatch(serviceAdded(selected));
+    // alert("All service added")
+    toast.success("All Service Added!!");
   };
   const handldeBookAppointment = () => {
     console.log("book Appointment");
@@ -347,7 +349,6 @@ const BookAppointment = () => {
     dispatch(deleteProducts(id));
   };
   const handleSubmit = () => {
-   
     postApiData(
       "parlor/registerUserForCrm",
       customerDetails,
@@ -568,15 +569,20 @@ const BookAppointment = () => {
       name: "name",
       label: "First Name",
       placeholder: "Enter Name",
+      value:customerDetails.name
     },
     {
       name: "phoneNumber",
       label: "Mobile Number",
       placeholder: "Enter Mobile Number",
+      value:customerDetails.phoneNumber
+
     },
     {
       name: "email",
       label: "Email Address",
+      value:customerDetails.email,
+
       placeholder: "Enter Email Address",
     },
   ];
@@ -593,6 +599,29 @@ const BookAppointment = () => {
       value: `${elm._id}-${elm.name}`,
     })),
   };
+  const customerDetailsArray = [
+    { label: "NAME", value: customerDetails.name },
+    {
+      label: "MEMBERSHIP",
+      value:
+        membershipitem?.activeMembership?.length > 0 ? "Active" : "Inactive",
+    },
+    { label: "TOTAL VISITS", value: 0 },
+    { label: "CARD ON FILE", value: 0 },
+    { label: "LAST VISIT", value: 0 },
+    { label: "POINTS", value: 0 },
+  ];
+
+  const paymentDetailsArray = [
+    { label: "SUBTOTAL", value: subtotalPrice },
+    { label: "DISCOUNT", value: countdiscount },
+    { label: "TOTAL AMOUNT", value: payableAmount },
+    { label: "PRODUCT PRICE", value: productTotalPrice },
+    { label: "PAYABLE AMOUNT", value: totalProductServicePayable },
+  ];
+
+  const tableFields = [customerDetailsArray, paymentDetailsArray];
+
   return (
     <Layout>
       <div className="mt-52 md:mt-40  w-[90%] mx-auto ">
@@ -676,77 +705,16 @@ const BookAppointment = () => {
                   <IoMdPersonAdd />
                 </button>
 
-                <Modal
-                  isOpen={isModalOpen}
-                  onRequestClose={closeModal}
-                  style={{
-                    content: {
-                      width: "50%",
-                      height: "70%",
-                      margin: "auto",
-                      marginTop: "70px",
-                      border: "1px solid #ccc",
-                      borderRadius: "8px",
-                      boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-                      backgroundColor: "#fff",
-                      padding: "20px",
-                    },
-                    overlay: {
-                      backgroundColor: "rgba(0, 0, 0, 0.3)", // Set the overlay background color
-                    },
-                  }}
-                >
-                  <div className="my-3">
-                    <h1 className="font-bold text-black text-xl">
-                      Add Customer Appointment
-                    </h1>
-                    <div className="mt-6">
-                      {addCustomerFields.map((input, index) => {
-                        const { name, placeholder, label } = input;
-                        const value = customerDetails[name];
-                        return (
-                          <div key={index} className="flex  flex-col gap-2">
-                            <NormalInput
-                              placeholder={placeholder}
-                              label={label}
-                              name={name}
-                              value={value}
-                              onChange={handleChange}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+           <AddCustomerModal
+            isModalOpen={isModalOpen}
+            closeModal={closeModal}
+            addCustomerFields={addCustomerFields}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            heading={"Add Customer Appointment"}
+           />
 
-                  {/* </div> */}
-                  <div className="my-6 flex gap-6">
-                    <button
-                      style={{
-                        background: "green",
-                        height: "40px",
-                        borderRadius: "3px",
-                        width: "150px",
-                      }}
-                      className="flex hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
-                      onClick={handleSubmit}
-                    >
-                      <span className="font-medium text-white">Add</span>
-                    </button>
-                    <button
-                      style={{
-                        background: "red",
-                        height: "40px",
-                        borderRadius: "3px",
-                        width: "150px",
-                      }}
-                      onClick={closeModal}
-                      className="flex hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
-                    >
-                      <span className="font-medium text-white">Cancel</span>
-                    </button>
-                  </div>
-                </Modal>
+             
 
                 {!showAddButton && (
                   <div className="suggestions">
@@ -938,23 +906,23 @@ const BookAppointment = () => {
                 <NormalInput
                   value={searchProduct}
                   name="searchProduct"
+                  inputStyles={{ paddingRight: "60px" }}
                   placeholder="search product by name "
                   onChange={searchProductOnchange}
                 />
 
-                <FaSearch className="absolute right-6 text-xl ml-3 mt-3" />
+                <FaSearch className="absolute right-6 text-xl ml-3 mt-[15px]" />
                 {searchProduct?.length > 0 && (
                   <div
                     style={{}}
-                    className="absolute top-16 ml-8 h-[104px] w-[283px] overflow-auto bg-slate-300 shadow-lg "
+                    className="absolute top-16 w-full p-2 max-h-[200px]  overflow-y-auto bg-white shadow-lg "
                   >
                     {showSearchProduct?.map((item) => {
                       console.log({ "product id": item });
                       return (
                         <div
-                          style={{ display: "flex" }}
                           onClick={() => productNameOnclick(item.itemId)}
-                          className="flex items-center px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
+                          className="flex bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
                         >
                           <p className="mr-2 font-semibold">{item.name}</p>
                         </div>
@@ -1069,16 +1037,15 @@ const BookAppointment = () => {
                 type="number"
                 value={discount}
                 lableStyles={{
-                  display:"flex",
-                  width:"150px",
-                  color:"#535b61",
+                  display: "flex",
+                  width: "150px",
+                  color: "#535b61",
                   fontWeight: "medium",
                   fontSize: "1.15rem",
                 }}
                 inputStyles={{
-                  width:"200px"
+                  width: "200px",
                 }}
-               
                 label="Apply Discount"
                 onChange={(e) => setDiscount(e.target.value)}
               />
@@ -1091,14 +1058,19 @@ const BookAppointment = () => {
           <div className="flex gap-3 flex-wrap mt-6 justify-start items-center mb-3">
             {/* MEMBERSHIP STATUS */}
             <div className="flex  items-center justify-center">
-              <h1 className="text-[1.15rem] w-[150px] font-semibold">Membership</h1>
+              <h1 className="text-[1.15rem] w-[150px] font-semibold">
+                Membership
+              </h1>
               <NormalSelect
-              inputStyles={{
-              width:"300px"
-              }}
-               name="membership"
+                inputStyles={{
+                  width: "300px",
+                }}
+                name="membership"
                 onChange={membershipPress}
-                options={activemember?.map(item=>({name:`${item.name}-${item.creditsLeft}`,value:item._id}))}
+                options={activemember?.map((item) => ({
+                  name: `${item.name}-${item.creditsLeft}`,
+                  value: item._id,
+                }))}
                 disabled={memberShipStatus ? true : false}
               />
               {/* <select
@@ -1121,7 +1093,7 @@ const BookAppointment = () => {
                 })}
               </select> */}
             </div>
-           
+
             {/* Membership Button */}
             {memberShipStatus ? (
               <button
@@ -1151,7 +1123,7 @@ const BookAppointment = () => {
             {/* <button onClick={applyMemberShip} className="bg-black">{memberShipStatus ? "Remove MemberShip" : "Apply MemberShip" }</button> */}
             {/* </div> */}
           </div>
-            
+
           <button
             className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black"
             onClick={handldeBookAppointment}
@@ -1160,81 +1132,30 @@ const BookAppointment = () => {
           </button>
         </div>
         {customerDetails?.phoneNumber && (
-          <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl mb-10 flex  items-center">
-            <div className="w-1/2 ">
-              <p className=" text-lg font-bold text-black">
-                NAME:{" "}
-                <span className="text-md font-medium ml-1 text-green-800">
-                  {customerDetails.name}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                MEMBERSHIP:{" "}
-                <span className="text-md font-medium ml-1 text-green-800">
-                  {membershipitem?.activeMembership?.length > 0
-                    ? "Active"
-                    : "Inactive "}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                TOTAL VISITS:
-                <span className="text-md font-medium ml-1 text-green-800">
-                  0
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                CARD ON FILE:
-                <span className="text-md font-medium ml-1 text-green-800">
-                  0
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                LAST VISIT:
-                <span className="text-md font-medium ml-1 text-green-800">
-                  0
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                POINTS:
-                <span className="text-md font-medium ml-1 text-green-800">
-                  0
-                </span>
-              </p>
+          <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl mb-10 flex justify-between  items-center">
+          {tableFields.map((elm,idx)=>{
+            return (
+              <div key={idx} className="w-[40%] mb-auto ">
+              <table className="table-auto  w-full">
+                <thead></thead>
+                <tbody>
+                  {elm?.map((item, index) => (
+                    <tr key={index}>
+                      <td className="font-bold text-black  text-lg border-none px-4 py-2">
+                        {item.label}
+                      </td>
+                      <td className=" font-bold   text-lg border-none px-4 py-2 text-green-800">
+                        {item.value}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="w-1/2">
-              <p className=" text-lg font-bold text-black ">
-                {"SUBTOTAL:"}{" "}
-                <span className="text-md font-medium ml-1 text-green-800">
-                  {subtotalPrice}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                {"DISCOUNT"}{" "}
-                <span className="text-md font-medium ml-1 text-green-800">
-                  {countdiscount}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                {"TOTAL AMOUNT :"}
-                <span className="text-md font-medium ml-1 text-green-800">
-                  {payableAmount}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                {"PRODUCT PRICE:"}
-                <span className="text-md font-medium ml-1 text-green-800">
-                  {productTotalPrice}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                {"PAYABLE AMOUNT :"}
+            )
+          }) }
 
-                <span className="text-md font-medium ml-1 text-green-800">
-                  {" "}
-                  {totalProductServicePayable}
-                </span>
-              </p>
-            </div>
+        
           </div>
         )}
       </div>

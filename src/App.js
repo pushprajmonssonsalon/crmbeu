@@ -92,6 +92,10 @@ function App() {
           element={<PrivateRoute Component={Membership} />}
         />
         <Route
+          path="/subscription"
+          element={<PrivateRoute Component={Membership} />}
+        />
+        <Route
           path="/invoicegenerator"
           element={<PrivateRoute Component={AppointmentBills} />}
         />

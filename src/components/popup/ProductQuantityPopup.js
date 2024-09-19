@@ -154,7 +154,7 @@ const ProductQuantityPopup = ({
           </div>
 
           {selectedProducts.length > 0 && (
-            <div className="flex flex-col items-start  my-5 ">
+            <div className="flex max-h-[200px] overflow-y-auto flex-col items-start  my-5 ">
               {selectedProducts.map((product, index) => {
                 
                return( <div

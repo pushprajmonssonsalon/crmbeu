@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -35,7 +34,7 @@ export default function CustomizedTables({headings,data,handlePrint}) {
 
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+      <Table sx={{ minWidth: 700,maxWidth:"100%" ,overflowY:"auto"}} aria-label="customized table">
         <TableHead>
                 <TableRow >
         {

@@ -11,6 +11,7 @@ import StickyHeadTable from "../../components/MaterialTable/stickytable";
 import StickyAppHeadTable from "../../components/MaterialTable/stickyAppTable";
 import ProductQuantityPopup from "../../components/popup/ProductQuantityPopup";
 import ViewPopup from "../../components/popup/ViewPopup";
+import exportToExcel from "../../utils/exportToExcel";
 
 const ViewAppointment = () => {
   const [params] = useSearchParams();
@@ -371,12 +372,29 @@ const ViewAppointment = () => {
     );
     setShowPopup(false);
   };
-  console.log("appt Id ", apptId);
+  const handleExport = () => {
+    const data = viewAppointmentDetails.map((elm) => ({
+      PhoneNumber: elm?.customer?.phoneNumber,
+      Name: elm?.customer?.name,
+    }));
+
+    exportToExcel(data, "Appointments", "appointment.xlsx");
+  };
   return (
     <Layout>
       <div className="w-[90%] mx-auto mt-28 overflow-x-auto my-10">
+        <div className="flex justify-end mt-12">
+          <button
+            className={`
+               bg-black
+             px-4 py-2 rounded text-white font-bold`}
+            onClick={handleExport}
+          >
+            Export
+          </button>
+        </div>
         <div className="">
-          <div className=" flex justify-center items-center">
+          <div className=" flex mb-12 justify-center items-center">
             <CustomInputFeild
               startDate={startDate}
               setStartDate={setStartDate}
@@ -506,24 +524,23 @@ const ViewAppointment = () => {
   );
 };
 
-const paymentMethods = 
-  [
-    {
-      name: "Cash",
-      amount: 0,
-    },
-    {
-      name: "Upi",
-      amount: 0,
-    },
-    {
-      name: "Card",
-      amount: 0,
-    },
-    {
-      name: "Online",
-      amount: 0,
-    },
-  ]
+const paymentMethods = [
+  {
+    name: "Cash",
+    amount: 0,
+  },
+  {
+    name: "Upi",
+    amount: 0,
+  },
+  {
+    name: "Card",
+    amount: 0,
+  },
+  {
+    name: "Online",
+    amount: 0,
+  },
+];
 
 export default ViewAppointment;
