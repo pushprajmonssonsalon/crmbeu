@@ -42,11 +42,11 @@ const SingleNotification = () => {
           <div className="  w-full h-full py-9 mx-auto ">
             <div className="bg-gray-100 py-12 h-full w-full">
               <div className="flex items-center justify-center ">
-                <div className="flex flex-col w-full max-w-md leading-1.5 p-4 border-gray-200 bg-white rounded-e-xl rounded-es-xl dark:bg-gray-700">
-                  <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">
+                <div className="flex flex-col w-full max-w-md leading-1.5 p-4 border-gray-200 bg-white rounded-e-xl rounded-es-xl ">
+                  <p className="text-sm font-normal py-2.5 text-gray-900 ">
                     {notification?.message}
                   </p>
-                  <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                  <span className="text-sm font-normal text-gray-500 ">
                     Recieved
                   </span>
                 </div>
