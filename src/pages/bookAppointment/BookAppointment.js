@@ -585,6 +585,13 @@ const BookAppointment = () => {
 
       placeholder: "Enter Email Address",
     },
+    {
+      name: "gender",
+      label: "Gender",
+      value:customerDetails.gender,
+      options:genderFields
+
+    },
   ];
 
   const servicesOptions = {
@@ -594,7 +601,7 @@ const BookAppointment = () => {
       name: elm.name,
       value: `${elm.price}---${elm.name}`,
     })),
-    staff: staffData?.map((elm) => ({
+    staff: staffData?.filter(staff=>staff?.isActive)?.map((elm) => ({
       name: elm.name,
       value: `${elm._id}-${elm.name}`,
     })),

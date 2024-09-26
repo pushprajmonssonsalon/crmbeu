@@ -1,4 +1,3 @@
-import * as React from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -28,6 +27,7 @@ export default function BasicTable({ headings, rows }) {
                 {row.name}
               </TableCell>
               <TableCell align="right">{row.url}</TableCell>
+              <TableCell align="left">{row.date}</TableCell>
             </TableRow>
           ))}
         </TableBody>

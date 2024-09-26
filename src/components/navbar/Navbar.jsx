@@ -7,9 +7,11 @@ import { useNavigate } from "react-router";
 import salonLogo from "../../images/smartsalonlogowhiteborder.png";
 import { toast } from "react-hot-toast";
 import { IoIosNotifications } from "react-icons/io";
+import ChangePassword from "../modals/ChangePassword";
 const Navbar = () => {
   const [admin, setAdmin] = useState(false);
-  const [unReadMsg,setUnReadMsg]=useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [unReadMsg, setUnReadMsg] = useState(false);
   const [parlorDetails, setParlorDetails] = useState({});
   const navigate = useNavigate();
   const adminPress = () => {
@@ -31,7 +33,7 @@ const Navbar = () => {
       "/notification/totalUnreadNotification",
       (resp) => {
         console.log("noti", resp);
-      setUnReadMsg(resp)
+        setUnReadMsg(resp);
       },
       (error) => {
         console.log("error", error);
@@ -45,72 +47,91 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex flex-row justify-between items-center nav px-6 flex-wrap bg-[#191919] fixed  top-0 z-10 w-full ">
-      <div className="flex flex-row items-center justify-center">
-        <img
-          src={salonLogo}
-          alt=""
-          className="w-[152px] h-[80px] my-2 text-white"
-        />
-      </div>
-      <div>
-        <ul className="flex flex-row justify-between items-center">
-          <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
-            {parlorDetails?.phoneNumber}
-          </li>
-        </ul>
-      </div>
-
-      <div>
-        <ul className="flex flex-row justify-between items-center">
-          <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
-            {parlorDetails?.name}
-          </li>
-          <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
-            {parlorDetails?.address}
-          </li>
-          <li onClick={()=>navigate("/notifications")}  className="mx-6 relative h-fit text-slate-100 cursor-pointer ">
-            <IoIosNotifications className="relative" size={40} />
-            <div className="top-0 absolute -right-[1px]">
-    <p className="flex h-6 w-6 p-2 items-center justify-center rounded-full bg-red-500  text-sm text-white">{unReadMsg>9? "9+":unReadMsg||0}</p>
-  </div>
-          </li>
-          <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer">
-            <button className=" bg-[#5865F2] py-2 px-4 rounded-lg text-white flex justify-center items-center">
-              <h3
-                className="font-semibold text-sm md:text-lg poppins"
-                onClick={adminPress}
-              >
-                Admin
-              </h3>
-            </button>
-          </li>
-        </ul>
-      </div>
-      {admin && (
-        <div
-          style={{
-            display: "flex",
-            paddingRight: "10px",
-            position: "absolute",
-            flexDirection: "row-reverse",
-            right: "0px",
-            top: "80px",
-          }}
-        >
-          <div className="signOut cursor-pointer">
-            <span className="manageProfile">Manage Profile</span>
-            <span
-              className="manageProfile cursor-pointer"
-              style={{ marginTop: "10px" }}
-              onClick={signoutPress}
-            >
-              Sign Out
-            </span>
-          </div>
+    <>
+      <nav className="flex flex-row justify-between items-center nav px-6 flex-wrap bg-[#191919] fixed  top-0 z-10 w-full ">
+        <div className="flex flex-row items-center justify-center">
+          <img
+            src={salonLogo}
+            alt=""
+            className="w-[152px] h-[80px] my-2 text-white"
+          />
         </div>
-      )}
-    </nav>
+        <div>
+          <ul className="flex flex-row justify-between items-center">
+            <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
+              {parlorDetails?.phoneNumber}
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <ul className="flex flex-row justify-between items-center">
+            <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
+              {parlorDetails?.name}
+            </li>
+            <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
+              {parlorDetails?.address}
+            </li>
+            <li
+              onClick={() => navigate("/notifications")}
+              className="mx-6 relative h-fit text-slate-100 cursor-pointer "
+            >
+              <IoIosNotifications className="relative" size={40} />
+            {unReadMsg>0&&  <div className="top-0 absolute -right-[1px]">
+                <p className="flex h-6 w-6 p-2 items-center justify-center rounded-full bg-red-500  text-sm text-white">
+                  {unReadMsg > 9 ? "9+" : unReadMsg || 0}
+                </p>
+              </div>}
+            </li>
+            <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer">
+              <button className=" bg-[#5865F2] py-2 px-4 rounded-lg text-white flex justify-center items-center">
+                <h3
+                  className="font-semibold text-sm md:text-lg poppins"
+                  onClick={adminPress}
+                >
+                  Admin
+                </h3>
+              </button>
+            </li>
+          </ul>
+        </div>
+        {admin && (
+          <div
+            style={{
+              display: "flex",
+              paddingRight: "10px",
+              position: "absolute",
+              flexDirection: "row-reverse",
+              right: "0px",
+              top: "80px",
+            }}
+          >
+            <div className="signOut cursor-pointer p-3 text-center">
+              <span className="cursor-pointer manageProfile hover:bg-gray-200 rounded-lg px-2 py-1 w-full font-medium ">
+                Manage Profile
+              </span>
+              <span
+                onClick={() => setShowModal(true)}
+                className="cursor-pointer manageProfile hover:bg-gray-200 rounded-lg px-2 py-1 w-full font-medium "
+              >
+                Change Password
+              </span>
+              <span
+                className=" cursor-pointer manageProfile hover:bg-gray-200 rounded-lg px-2 py-1 w-full font-medium"
+                onClick={signoutPress}
+              >
+                Sign Out
+              </span>
+            </div>
+          </div>
+        )}
+      </nav>
+      <ChangePassword
+        show={showModal}
+        setShow={setShowModal}
+        onSubmit={() => setShowModal(false)}
+      />
+    </>
   );
 };
 

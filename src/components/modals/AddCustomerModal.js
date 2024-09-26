@@ -1,7 +1,7 @@
 import NormalInput from "../customInput/NormalInput";
 import Modal from "react-modal";
 import NormalSelect from "../customInput/NormalSelect";
-
+import "./AddCustomerModal.css"
 const AddCustomerModal = ({
   isModalOpen,
   closeModal,
@@ -16,7 +16,7 @@ const AddCustomerModal = ({
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
-        className="w-[70%] lg:w-[50%] mt-56 mx-auto"
+        className="w-[70%] lg:w-[50%] relative top-[10%] bottom-[10%]  z-30  mx-auto"
         style={{
           content: {
           

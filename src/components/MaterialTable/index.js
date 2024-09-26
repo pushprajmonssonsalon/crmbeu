@@ -7,6 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { IoPrintSharp } from 'react-icons/io5';
+import { formatDateToFull } from '../../utils/services';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -62,6 +63,8 @@ export default function CustomizedTables({headings,data,handlePrint}) {
               <StyledTableCell >{row?.name}</StyledTableCell>
               <StyledTableCell >{row?.price}</StyledTableCell>
               <StyledTableCell >{row?.credits}</StyledTableCell>
+              <StyledTableCell >{formatDateToFull(row?.createdAt,false)}</StyledTableCell>
+              <StyledTableCell >{formatDateToFull(row?.expiryDate,false)||row?.expiry}</StyledTableCell>
               <StyledTableCell align="right">
               <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(row)}/>
               </StyledTableCell>

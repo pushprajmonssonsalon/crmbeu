@@ -167,6 +167,8 @@ export default function Membership() {
     "MEMBERSHIP NAME",
     "PRICE",
     "CREDITS",
+    "VALID FROM",
+    "EXPIRY",
     "ACTION",
   ];
   const fields = {

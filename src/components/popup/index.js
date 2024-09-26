@@ -62,8 +62,8 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
       uniqueCode:uniqueCode,
       price: price == 0 ? editItem.price : price,
       mrp: mrp == 0 ? editItem.mrp : mrp,
-      appPrice: appMrp == 0 ? editItem.appMrp : appMrp,
-      appMrp: appPrice == 0 ? editItem.appPrice : appPrice,
+      appPrice: appPrice == 0 ? editItem.appPrice : appPrice,
+      appMrp: appMrp == 0 ? editItem.appMrp : appMrp,
       
     };
     postApiData(

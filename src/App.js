@@ -28,6 +28,7 @@ import { useEffect } from "react";
 import Notification from "./pages/notification/notification";
 import SingleNotification from "./pages/notification/singleNotification";
 import Categorywise from "./components/categorywise/Categorywise";
+import Subscription from "./pages/subscription/Subscription";
 
 function App() {
   useEffect(() => {
@@ -93,7 +94,7 @@ function App() {
         />
         <Route
           path="/subscription"
-          element={<PrivateRoute Component={Membership} />}
+          element={<PrivateRoute Component={Subscription} />}
         />
         <Route
           path="/invoicegenerator"
