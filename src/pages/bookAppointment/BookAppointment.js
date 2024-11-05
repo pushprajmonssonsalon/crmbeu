@@ -164,14 +164,14 @@ const BookAppointment = () => {
     staffId: "",
   });
 
-  // const isServiceSelectionValid = () => {
-  //   for (const key in serviceSelection) {
-  //     if (serviceSelection[key] === "") {
-  //       return false; // If any field is empty, return false
-  //     }
-  //   }
-  //   return true; // All fields are filled, return true
-  // };
+  const isServiceSelectionValid = () => {
+    for (const key in serviceSelection) {
+      if (serviceSelection[key] === "") {
+        return false; // If any field is empty, return false
+      }
+    }
+    return true; // All fields are filled, return true
+  };
 
   // const data = {
   //   gender: gender,
@@ -229,7 +229,7 @@ const BookAppointment = () => {
     getApiCall(
       "owner/getStaff",
       (res) => {
-        setStaffData(res);
+        setStaffData(res.filter(elm=>elm.isActive));
       },
       (error) => {
         console.log("error", error);
@@ -275,16 +275,15 @@ const BookAppointment = () => {
       ...rest,
       miniSubcategory: miniSub,
     };
-    const isEveryEmpty = Object.values(rest).every((elm) => elm === "" || !elm);
+    const isEveryEmpty = Object.values(selected).some((elm) =>  !elm);
     if (isEveryEmpty) {
-      return;
+      return toast.error("Please Select All Fields")
     }
     dispatch(serviceAdded(selected));
     // alert("All service added")
     toast.success("All Service Added!!");
   };
   const handldeBookAppointment = () => {
-    console.log("book Appointment");
     const data = {
       services: services,
       customer: customerDetails,
@@ -308,7 +307,6 @@ const BookAppointment = () => {
         if (resp) {
           // alert("Appointment Booked Sucessfully");
           toast.success("Appointment Booked Sucessfully");
-          console.log("appointment", resp);
           dispatch(removeAppointmentProductsData());
           navigate("/viewAppointment");
         }
@@ -324,6 +322,7 @@ const BookAppointment = () => {
   // ...`
   const nameOnclick = (item) => {
     // e.preventDefault();
+    console.log(item,"nameonClick")
     setMemberShipItem(item);
     setCustomerDetails((prev) => ({
       ...prev,
@@ -398,15 +397,11 @@ const BookAppointment = () => {
 
   const applyMemberShip = () => {
     console.log("before", subTotalService);
-    // setIsMembershipUsed(!isMembershipUsed)
-    // post api = {"creditsUsed":650, "userId":"659ba793f289e0151305cba0", "memId":"65b0e6dc44201e04eae2ae7b"}
-    // setMemberShipStatus(!memberShipStatus)
+   
     const data = {
-      // creditsUsed:+memberShip,
       creditsUsed: memberShipStatus
         ? subTotalService
         : subtotalPrice - countdiscount,
-      // creditsUsed: payableAmount,
       userId: userId,
       memId: memberShipId,
       isMembershipUsed: !memberShipStatus,
@@ -446,7 +441,6 @@ const BookAppointment = () => {
       }
     );
   };
-  console.log("Sub Total Serive", subTotalService);
   const handleMobileChange = (event) => {
     const enteredMobileNumber = event.target.value;
     setCustomerDetails((prev) => ({
@@ -601,7 +595,7 @@ const BookAppointment = () => {
       name: elm.name,
       value: `${elm.price}---${elm.name}`,
     })),
-    staff: staffData?.filter(staff=>staff?.isActive)?.map((elm) => ({
+    staff: staffData?.map((elm) => ({
       name: elm.name,
       value: `${elm._id}-${elm.name}`,
     })),
@@ -1063,7 +1057,6 @@ const BookAppointment = () => {
           </div>
 
           <div className="flex gap-3 flex-wrap mt-6 justify-start items-center mb-3">
-            {/* MEMBERSHIP STATUS */}
             <div className="flex  items-center justify-center">
               <h1 className="text-[1.15rem] w-[150px] font-semibold">
                 Membership
@@ -1080,28 +1073,9 @@ const BookAppointment = () => {
                 }))}
                 disabled={memberShipStatus ? true : false}
               />
-              {/* <select
-                className="mx-3 w-80 h-10 outline-none border-2 border-gray-500 rounded-lg"
-                onChange={membershipPress}
-                disabled={memberShipStatus ? true : false}
-              >
-                <option value="" disabled selected>
-                  Membership
-                </option>
-                {activemember?.map((item) => {
-                  return (
-                    <option value={item._id}>
-                      {" "}
-                      {item?.name}
-                      {" -"}
-                      {item.creditsLeft}
-                    </option>
-                  );
-                })}
-              </select> */}
+           
             </div>
 
-            {/* Membership Button */}
             {memberShipStatus ? (
               <button
                 onClick={applyMemberShip}
@@ -1127,8 +1101,7 @@ const BookAppointment = () => {
               </h3>
             </div>
 
-            {/* <button onClick={applyMemberShip} className="bg-black">{memberShipStatus ? "Remove MemberShip" : "Apply MemberShip" }</button> */}
-            {/* </div> */}
+        
           </div>
 
           <button

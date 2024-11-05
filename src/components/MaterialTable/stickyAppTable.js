@@ -13,13 +13,15 @@ import { Link } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 import { useState } from "react";
 import { useEffect } from "react";
+import { MdOutlineGridView } from "react-icons/md";
+import ViewServicesModal from "../modals/ViewServicesModal";
 const headings = [
   "Name",
   "Mobile No.",
   "Appointments Date/Time",
-  "Services",
-  "Products",
-  "Employee",
+  "Services/Product",
+  // "Products",
+  // "Employee",
   "Amount",
   "Membership Credit Used",
   "Status",
@@ -116,7 +118,8 @@ export default function StickyAppHeadTable({
   cancelPress,
   submitPress,
 }) {
-
+  const [selectedRow,setSelectedRow]=useState({})
+  const [showServiceModal,setShowServiceModal]=useState(false)
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -170,26 +173,11 @@ export default function StickyAppHeadTable({
     console.log(`Date: ${formattedDate}, Time: ${formattedTime}`);
     return `${formattedDate} ${formattedTime}`;
   }
-  // const selectClick = ({ _id, status }) => {
-  //   // console.log("amountpayable", isCaptured, isPaid);
+  const handleSelect =(item)=>{
+    setSelectedRow(item)
+    setShowServiceModal(true)
 
-  //   setModal(true);
-
-  //   if (status === 1) {
-  //     setShowPopup(true);
-  //     setActiveAppointment(data.find((item) => item._id === _id));
-  //   }
-  // };
-  // const updatePaymentMethod = () => {
-  //   setData((prev) =>
-  //     prev.map((item) => {
-  //       if (item._id === activeAppointment._id) {
-  //         return activeAppointment;
-  //       }
-  //       return item;
-  //     })
-  //   );
-  // };
+  }
   useEffect(() => {
     console.log("data", data);
   }, [data]);
@@ -201,7 +189,7 @@ export default function StickyAppHeadTable({
             <TableHead>
               <TableRow>
                 {headings.map((column) => (
-                  <TableCell>{column}</TableCell>
+                  <TableCell className={`${column==="Membership Credit Used"?"w-[100px]":""}`}>{column}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -218,6 +206,10 @@ export default function StickyAppHeadTable({
                         {formatDateTime(item.appointmentDate)}
                       </TableCell>
                       <TableCell>
+                      <button onClick={()=>handleSelect(item)} className="text-center ">
+                        <MdOutlineGridView size={25} />
+                      </button>                      </TableCell>
+                      {/* <TableCell>
                         {item?.services.slice(0, 3).map((itemdata, index) => (
                           <React.Fragment key={index}>
                             <h1>{itemdata.name}</h1>
@@ -237,7 +229,7 @@ export default function StickyAppHeadTable({
                             <h1>{itemdata.satffName}</h1>
                           </React.Fragment>
                         ))}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>{item.total}</TableCell>
                       <TableCell>
                         {item.membershipUsed ? item.membershipCreditUsed : 0}
@@ -272,6 +264,7 @@ export default function StickyAppHeadTable({
                                 PREPAID
                               </button>
                             ) : (
+                              
                               <button
                                 className={`text-xl font-semibold text-white bg-blue-600 px-6 py-1 rounded-lg hover:bg-blue-800 hover:scale-105 ${
                                   item.status === 3 || item.status === 2
@@ -331,16 +324,8 @@ export default function StickyAppHeadTable({
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      {/* <ViewPopup
-        isVisible={showPopup}
-        onClose={() => setShowPopup(false)}
-        modal={modal}
-        isPaid={activeAppointment?.isPaid && activeAppointment?.isCaptured}
-        setModal={setModal}
-        onUpdate={updatePaymentMethod}
-        setActiveAppointment={setActiveAppointment}
-        activeAppointment={activeAppointment}
-      /> */}
+      <ViewServicesModal show={showServiceModal} setShow={setShowServiceModal} data={selectedRow} />
+
     </>
   );
 }

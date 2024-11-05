@@ -89,12 +89,12 @@ const VerticalSidebar = () => {
       }} className={`${open ? "w-64" : "w-16"}  duration-500  px-4 `}>
       
         <div
-          className={`py-16 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar`}
+          className={`py-16 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar ${open?"pointer-events-auto":"pointer-events-none"}`}
         >
           {menus?.map((menu, i) => (
             <React.Fragment key={i}>
               {menu.name === "Reports" ? (
-                <div className="">
+                <div className="pointer-events-none">
                   <div
                     className="cursor-pointer group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2 text-gray-300 rounded-md"
                     onClick={() => {
@@ -105,7 +105,7 @@ const VerticalSidebar = () => {
                     }}
                   >
                     <div
-                      className={`${
+                      className={`pointer-events-auto ${
                        isReportLinkActive() && openAccordion
                           ? "text-white opacity-100"
                           : "text-gray-300"
@@ -118,7 +118,7 @@ const VerticalSidebar = () => {
                        isReportLinkActive() && openAccordion
                           ? "text-white opacity-100"
                           : "text-gray-300"
-                      } ${!open && "opacity-0  overflow-hidden"}`}
+                      } ${!open ? "opacity-0  overflow-hidden pointer-events-none" :"pointer-events-auto"}`}
                       style={{
                         transitionDelay: `${1}00ms`,
                       }}
@@ -131,7 +131,7 @@ const VerticalSidebar = () => {
                           ? "text-white opacity-100"
                           : "text-gray-300"
                       } ${
-                        !open ? "hidden" : ""
+                        !open ? "hidden pointer-events-none" : "pointer-events-auto"
                       }`}
                       onClick={toggleAccordion}
                     >
@@ -144,10 +144,10 @@ const VerticalSidebar = () => {
                         <Link
                           key={j}
                           to={`${submenu.link}`}
-                          className={`group no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2  rounded-md  ${
+                          className={`group pointer-events-auto no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2  rounded-md  ${
                    ( submenu.link === pathname && open)
-                          ? "text-white opacity-100"
-                          : "text-gray-300"
+                          ? "text-white opacity-100 "
+                          : "text-gray-300 "
                       }`}
                         >
                           <div>{submenu.name}</div>
@@ -164,7 +164,7 @@ const VerticalSidebar = () => {
                   } group  no-underline flex items-center -ml-1 text-xs gap-3.5 font-bold p-2  text-gray-300 "hover:bg-gray-300"  rounded-md`}
                 >
                   <div
-                    className={`${
+                    className={` ${
                       menu.link === pathname 
                         ? "text-white opacity-100"
                         : "text-gray-300"
@@ -174,7 +174,7 @@ const VerticalSidebar = () => {
                   </div>
                   <h2
                     className={`whitespace-pre   text-sm  ${
-                      !open && "opacity-0  overflow-hidden"
+                      !open ?"opacity-0  overflow-hidden pointer-events-none":"pointer-events-auto"
                     } ${
                       menu.link === pathname && open
                         ? "text-white opacity-100"

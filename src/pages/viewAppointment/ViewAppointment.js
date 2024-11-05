@@ -341,26 +341,7 @@ const ViewAppointment = () => {
     );
   };
 
-  console.log({ viewAppointmentDetails });
-  // function FormatDate(date) {
-  //   const dates = new Date(date);
 
-  //   const options = { year: "numeric", month: "long", day: "numeric" };
-  //   const formatter = new Intl.DateTimeFormat("en-US", options);
-  //   const formattedDate = formatter.format(dates);
-
-  //   return formattedDate;
-  // }
-  // function formatDateTime(timestamp) {
-  //   const dateOptions = { day: "numeric", month: "long", year: "numeric" };
-  //   const timeOptions = { hour: "numeric", minute: "2-digit", hour12: true };
-
-  //   const date = new Date(timestamp);
-  //   const formattedDate = date.toLocaleDateString("en-IN", dateOptions);
-  //   const formattedTime = date.toLocaleTimeString("en-IN", timeOptions);
-
-  //   return `${formattedDate}  ${formattedTime}`;
-  // }
   const updatePaymentMethod = () => {
     setViewAppointmentDetails((prev) =>
       prev.map((item) => {

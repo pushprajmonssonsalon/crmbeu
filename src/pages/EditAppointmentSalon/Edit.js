@@ -8,21 +8,13 @@ import { toast } from "react-hot-toast";
 
 const Edit = () => {
   const { id } = useParams();
-  console.log("parmasid", id);
   const navigate = useNavigate();
   //Staff data fiktering
   const [staffData, setStaffData] = useState([]);
-  // states
-  const [appointmentDetails, setAppointmentDetails] = useState([]);
-  //appointment service and services state
-  const [appointmentServices, setAppointmentServices] = useState([]);
-  // appointment product and products state
+ 
   const [appointementProducts, setAppointmentProducts] = useState([]);
-  // after adding services state
   const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
-  const [userData, setUserData] = useState([]);
-  //   const [addedProductAppointmentDetails,setAddedProductAppointmentDetails] = useState([])
-  // service selection obj
+  
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
     subCategory: "",
@@ -49,7 +41,6 @@ const Edit = () => {
   
   });
   const [discount, setDiscount] = useState(0);
-  const [totalSubServices, setTotalSubServices] = useState(0);
   // membership details
   const [membershipDetails, setMembershipDetails] = useState([]);
   const [memberShipStatus, setMemberShipStatus] = useState(false);
@@ -59,31 +50,9 @@ const Edit = () => {
   const [creditUsed, setCreditUsed] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [subServiceTotal, setSubServiceTotal] = useState(0);
-  const [staffNames, setStaffNames] = useState(
-    Array(addedAppointmentDetails.length).fill("")
-  );
+  
 
-  const handleStaffNameChange = (index, newName) => {
-    setStaffNames((prevStaffNames) => {
-      const newStaffNames = [...prevStaffNames];
-      newStaffNames[index] = newName;
-
-      const newAddedAppointmentDetails = addedAppointmentDetails.map(
-        (appointment, i) => {
-          if (i === index) {
-            return {
-              ...appointment,
-              staffName: newName,
-            };
-          }
-          return appointment;
-        }
-      );
-
-      setAddedAppointmentDetails(newAddedAppointmentDetails);
-      return newStaffNames;
-    });
-  };
+ 
 
   // api call for getting service category
   useEffect(() => {
@@ -145,7 +114,6 @@ const Edit = () => {
       (resp) => {
         console.log("new edit ki single data :", resp.discountPercentage);
         setDiscount(resp?.discountPercentage || 0);
-        setAppointmentDetails(resp);
         setAddedAppointmentDetails(
           resp.services.map((item) => ({ ...item, staffId: item?.staffId|| "", satffName: item?.satffName|| "" }))
         );
@@ -155,7 +123,6 @@ const Edit = () => {
         setFilterMembershipId(resp.membershipId);
         // setUserId(resp.customer._id);
         setMemberShipId(resp.membershipId);
-        setTotalSubServices(resp.membershipCreditUsed);
         setSubServiceTotal(resp.membershipCreditUsed);
         setPhoneNumber(resp.customer.phoneNumber);
 
@@ -167,15 +134,13 @@ const Edit = () => {
     );
   }, []);
 
-  console.log({ appointmentDetails });
-  console.log({ appointementProducts });
-  console.log({ appointmentServices });
+  
   // staff get api
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
       (res) => {
-        setStaffData(res);
+        setStaffData(res?.filter(elm=>elm?.isActive));
       },
       (error) => {
         console.log("error", error);
@@ -204,11 +169,12 @@ const Edit = () => {
 
   // handle buttons for add service
   const serviceAddpress = () => {
-    console.log("click handle addon");
+    const isAnyEmpty = Object.values(serviceSelection).some(elm=>!elm)
+    if(isAnyEmpty){
+     return toast.error("Please Select All Fields")
+    }
     setAddedAppointmentDetails([...addedAppointmentDetails, serviceSelection]);
-    //  let myServicesPrice = getTotalServicePrice(addedAppointmentDetails, discount)
-    //  setTotalSubServices(myServicesPrice)
-    //  setSubServiceTotal(totalService)
+   
   };
   console.log("adding or added services", addedAppointmentDetails);
   const handleServiceChange = (e) => {
@@ -268,8 +234,7 @@ const Edit = () => {
     }
   };
 
-  console.log();
-  console.log("added services ", addedAppointmentDetails);
+
 
   // search product api
   // on search product click
@@ -294,7 +259,6 @@ const Edit = () => {
     setSelectedProduct(item);
     setsearchProduct("");
   };
-  console.log({ selectedProduct });
   const onChangeProdutName = (e) => {
     setProductData({
       ...productData,
@@ -420,7 +384,6 @@ const Edit = () => {
             setMembershipCoin(resp?.creditsLeft);
             setMemberShipStatus(false);
             setCreditUsed(resp.creditsUsed - resp.remainingAmount);
-            setTotalSubServices(resp.creditsUsed);
             toast.error("MemberShip Removed sucessfully");
           } else {
             toast.success("MemberShip Applied sucessfully");
@@ -440,58 +403,35 @@ const Edit = () => {
   const arr = membershipDetails?.filter(
     (item) => item?._id === filterMembershipId
   );
-  console.log({ arr });
+  
 
   const subTotalServices = addedAppointmentDetails.reduce(
     (acc, item) => acc + +item?.price,
     0
   );
 
-  console.log("subtotalsumservice", discount);
 
   const subProductTotal = appointementProducts
     ?.map((item) => item.price * item.quantity)
     ?.reduce((acc, val) => acc + val, 0);
-  console.log("subproduct ka total", subProductTotal);
 
   const serviceDiscount = subTotalServices * (discount / 100);
-  console.log("service ka discount", serviceDiscount);
 
   const totalService = subTotalServices - serviceDiscount;
-  console.log("total ka service", totalService);
 
   const totalAmount = totalService + subProductTotal;
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
-    console.log("selectedMembership", selectedMembership);
     setMemberShipId(e.target.value);
-    setTotalSubServices(subTotalServices);
   };
 
-  // useEffect(() => {
-  //   const data = {
-  //     phoneNumber: phoneNumber,
-  //   };
-  //   postApiData(
-  //     "user/searchUser",
-  //     data,
-  //     (resp) => {
-  //       console.log("respons", resp);
-  //       setMembershipDetails(resp[0].activeMembership);
-  //     },
-  //     (error) => {
-  //       console.log("error", error);
-  //     }
-  //   );
-  // }, [memberShipStatus]);
+  
   const handlePriceChange = (index, newPrice) => {
     const updatedAppointments = [...addedAppointmentDetails];
     updatedAppointments[index].price =+ newPrice;
     setAddedAppointmentDetails(updatedAppointments);
   };
-  useEffect(()=>{
-console.log(appointementProducts,"appointmenproducts")
-  },[appointementProducts])
+  
 
   return (
     <Layout>
@@ -576,14 +516,7 @@ console.log(appointementProducts,"appointmenproducts")
                           <td>{item?.category}</td>
                           <td>{item?.subCategory}</td>
                           <td>
-                            {/* {staffData
-                              ?.filter((staff) => staff._id === item.staffId)
-                              ?.map((data) => (
-                                <span>{data.name}</span>
-                              ))} */}
-                            {/* {!staffData.some(
-                              (staff) => staff._id === item.staffId
-                            ) &&  */}
+                           
 
                             <select
                               className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
@@ -788,9 +721,9 @@ console.log(appointementProducts,"appointmenproducts")
           </h1>
           {/* Search Table */}
           <div className="search-container h-auto  ">
-            <div className="flex flex-row relative mb-10 ">
+            <div className="flex w-fit mx-auto flex-row relative mb-10 ">
               {/* <h1 className="text-lg font-semibold">Search Product</h1> */}
-              <div className="flex relative w-[40%] mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
+              <div className="flex w-full min-w-[350px] md:min-w-[450px] relative mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
                 <input
                   value={searchProduct}
                   placeholder="search product By Name "
@@ -802,7 +735,7 @@ console.log(appointementProducts,"appointmenproducts")
               {searchProduct?.length > 0 && (
                 <div
                   style={{}}
-                  className="absolute left-80 shadow-xl bg-white top-16 ml-12 h-[104px] w-[450px] overflow-auto"
+                  className="absolute  shadow-xl bg-white top-16 h-[104px] w-[450px] overflow-auto"
                 >
                   {showSearchProduct?.map((item) => {
                     console.log({ "product id": item });
@@ -856,11 +789,7 @@ console.log(appointementProducts,"appointmenproducts")
                           <td>
                             {" "}
                             <select
-                              style={{
-                                // border: "1px solid green",
-                                height: "30px",
-                                borderRadius: "8px",
-                              }}
+                            
                               onChange={(e) =>
                                     setProductStaff({
                                       staffId: e.target.value.split("-")[0],

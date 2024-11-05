@@ -48,7 +48,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="flex flex-row justify-between items-center nav px-6 flex-wrap bg-[#191919] fixed  top-0 z-10 w-full ">
+      <nav className="flex  flex-row  justify-between items-center nav px-6  bg-[#191919] fixed  top-0 z-10 w-full ">
         <div className="flex flex-row items-center justify-center">
           <img
             src={salonLogo}
@@ -58,7 +58,7 @@ const Navbar = () => {
         </div>
         <div>
           <ul className="flex flex-row justify-between items-center">
-            <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
+            <li className="mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
               {parlorDetails?.phoneNumber}
             </li>
           </ul>
@@ -66,10 +66,10 @@ const Navbar = () => {
 
         <div>
           <ul className="flex flex-row justify-between items-center">
-            <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
+            <li className="mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
               {parlorDetails?.name}
             </li>
-            <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
+            <li className="mx-6 max-w-[180px] lg:max-w-[350px] overflow-hidden text-ellipsis whitespace-nowrap font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
               {parlorDetails?.address}
             </li>
             <li
@@ -83,10 +83,10 @@ const Navbar = () => {
                 </p>
               </div>}
             </li>
-            <li className="mx-6 font-medium inter text-sm md:text-lg text-slate-100 cursor-pointer">
+            <li className="mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer">
               <button className=" bg-[#5865F2] py-2 px-4 rounded-lg text-white flex justify-center items-center">
                 <h3
-                  className="font-semibold text-sm md:text-lg poppins"
+                  className="font-semibold text-xs xl:text-lg poppins"
                   onClick={adminPress}
                 >
                   Admin

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Layout from "../../components/Layout";
 import MonthPicker from "../../components/Pickers/MonthPicker";
 import YearPicker from "../../components/Pickers/YearPicker";
@@ -108,16 +108,18 @@ const Royalities = () => {
   function createData(name, url, date) {
     return { name, url, date };
   }
-  const rows = invoices?.map((item) =>
-    createData(
-      item.fileName,
-      <FaFileUpload
-        className="text-xl font-bold text-right cursor-pointer"
-        onClick={() => handlePdfUrl(item.invoiceUrl)}
-      />,
-      formatDateToFull(item.createdAt, false)
-    )
-  );
+  const rows = useMemo(() => {
+    return invoices?.map((item) =>
+      createData(
+        item.fileName,
+        <FaFileUpload
+          className="text-xl font-bold text-right cursor-pointer"
+          onClick={() => handlePdfUrl(item.invoiceUrl)}
+        />,
+        formatDateToFull(item.createdAt, false)
+      )
+    );
+  }, [invoices]);
   console.log("single parlour", invoices);
   return (
     <Layout>
@@ -126,11 +128,8 @@ const Royalities = () => {
           <MonthPicker months={months} month={month} setMonth={setMonth} />
           <YearPicker years={years} year={year} setYear={setYear} />
         </div>
-        <div className="pb-32"
-        >
-
-       
-        <BasicTable headings={headings} rows={rows} />
+        <div className="pb-32">
+          <BasicTable headings={headings} rows={rows} />
         </div>
       </div>
     </Layout>
