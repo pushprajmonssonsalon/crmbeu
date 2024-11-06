@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,6 +6,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { MdPrint } from 'react-icons/md';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router';
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -39,8 +41,17 @@ function FormatDate(date) {
   
     return formattedDate;
   }
-export default function CustomizedCustomerTables({headings,data}) {
 
+export default function CustomizedCustomerTables({headings,data}) {
+  const navigate =useNavigate();
+  const handlePrint = (item) => {
+    if (item.status === 2 || item.status === 1) {
+      toast.error("Appointment is not completed!");
+    } else {
+      navigate("/invoicegenerator", { state: item });
+    }
+    //  window.open(item.invoiceUrl,'_blank');
+  };
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table" style={{fontSize:"18px"}}>
@@ -77,6 +88,9 @@ export default function CustomizedCustomerTables({headings,data}) {
             }</StyledTableCell>
               <StyledTableCell>{item.total}</StyledTableCell>
               <StyledTableCell style={{ color: item.status === 1 ? 'blue' : item.status === 2 ? 'red' : 'green',fontWeight:700,fontSize:"18px" }}>{item.status ==1 ? "pending" : item.status == 2? "cancelled" : "completed"}</StyledTableCell>
+              <StyledTableCell >{item?.membershipCreditUsed}</StyledTableCell>
+              <StyledTableCell ><button onClick={()=>handlePrint(item)}><MdPrint />
+</button></StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>

@@ -29,6 +29,7 @@ import Notification from "./pages/notification/notification";
 import SingleNotification from "./pages/notification/singleNotification";
 import Categorywise from "./components/categorywise/Categorywise";
 import Subscription from "./pages/subscription/Subscription";
+import activeMembers from "./pages/activeMembers/ActiveMembers";
 
 function App() {
   useEffect(() => {
@@ -91,6 +92,10 @@ function App() {
         <Route
           path="/membership"
           element={<PrivateRoute Component={Membership} />}
+        />
+        <Route
+          path="/activeMembers"
+          element={<PrivateRoute Component={activeMembers} />}
         />
         <Route
           path="/subscription"

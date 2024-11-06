@@ -40,6 +40,7 @@ const VerticalSidebar = () => {
     { name: "Employee", link: `/employee`, icon: RiAccountPinBoxFill, num: 5 },
     { name: "Services", link: `/customerservices`, icon: MdRememberMe, num: 6 },
     { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7 },
+    { name: "Active Members", link: `/activemembers`, icon: MdCardMembership, num: 7 },
     { name: "Subscription", link: `/Subscription`, icon:MdCardMembership , num: 7 },
     { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8 },
     { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9 },
