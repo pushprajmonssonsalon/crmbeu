@@ -30,6 +30,7 @@ import SingleNotification from "./pages/notification/singleNotification";
 import Categorywise from "./components/categorywise/Categorywise";
 import Subscription from "./pages/subscription/Subscription";
 import activeMembers from "./pages/activeMembers/ActiveMembers";
+import Dashboard from "./pages/Dashboard/Dashboard";
 
 function App() {
   useEffect(() => {
@@ -52,6 +53,10 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
 
+        <Route
+          path="/dashboard"
+          element={<PrivateRoute Component={Dashboard} />}
+        />
         <Route
           path="/"
           element={<PrivateRoute Component={BookAppointment} />}

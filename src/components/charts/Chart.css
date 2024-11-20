@@ -1,0 +1,8 @@
+.donut{
+    height: 300px;
+    width: 80%;
+    margin: 0 auto;
+}
+.donut >canvas{
+    /* margin: 0 auto; */
+}

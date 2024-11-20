@@ -176,6 +176,15 @@ const Inventorydetails = () => {
       toast.error("Product is already added!");
     }
   };
+  const removeItem = (idx) => {
+
+    if (idx) {
+      setCart((prev) => prev.filter(elm=>elm._id!==idx));
+      toast.success("Product added successfully");
+    } else {
+      toast.error("Product is already added!");
+    }
+  };
 
   const shopKartClick = () => {
     setShowOrderPopup(true);
@@ -452,6 +461,7 @@ const Inventorydetails = () => {
           isVisible={showOrderPopup}
           onClose={() => setShowOrderPopup(false)}
           data={cart}
+          removeItem={removeItem}
         />
         <MyProductPopup
           data={newMyProducts?.find((elm)=>elm.products._id===myProductId)?.products}

@@ -16,7 +16,8 @@ const VerticalSidebar = () => {
   const location = useLocation();
   const { pathname } = location;
   const menus = [
-    { name: "Book Appointment", link: `/`, icon: FaBookOpen, num: 1 },
+    // { name: "Dashboard", link: `/`, icon: MdDashboard, num: 1 },
+    { name: "Book Appointment", link: `/`, icon:FaBookOpen, num: 2 },
     {
       name: "View Appointment",
       link: `/viewAppointment`,
