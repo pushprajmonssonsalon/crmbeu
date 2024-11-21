@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { GrStatusGoodSmall } from "react-icons/gr";
+import React, { useState } from 'react';
 
 import SwitchExample from '../switch';
 
@@ -9,7 +8,7 @@ const EmployeeTable = ({data,startIndex,endIndex,isBool,setIsBool}) => {
   const toggleSwitch = () => {
     setIsChecked(!isChecked);
   };
-  console.log("emplyoee active",data)
+  
   return (
     <>
         <table className="styled-table" style={{ height: "40px" }}>

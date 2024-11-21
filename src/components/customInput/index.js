@@ -10,9 +10,9 @@ export default function CustomSearchInputFeild({
 }) {
   const navigate = useNavigate();
   const handleClick = () => {
-     console.log(startDate, endDate,"date");
+     
      const temp =new Date(startDate).toLocaleDateString();
-     console.log(temp,"temp",new Date(temp));
+     
     navigate(`?start=${startDate}&end=${endDate}`);
     submitClick()
   };

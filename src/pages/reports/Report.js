@@ -25,7 +25,7 @@ const Report = () => {
   const [membershipCredit,setMembershipCredit] = useState([]);
   const [wholeCustomerRevenue,setWholeCustomerRevenue] = useState("")
   const [newCustomerRevenue,setNewCustomerRevenue] = useState("")
-  console.log("dataResponse",dataResponse)
+  
   const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
   const tableHeaders = [
     "EMPLLOYEE NAME",
@@ -45,7 +45,7 @@ const Report = () => {
       "reports/salonDailyReport",
       data,
       (resp) => {
-        console.log("Checkrra hu console", resp)
+        
         setAppointmentStatus(resp.appointmentStatus);
         setServiceDistribution(resp.serviceCategoryWiseRevenue);
         setStaffDistribution(resp.staffRevenueDistribution);
@@ -62,15 +62,15 @@ const Report = () => {
                 findTotalById(resp.subscriptionPaymentMethodReport, method)
         }));
         setPaymentMethodReport(paymentReport)
-        console.log(paymentMethodReport)
+        
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
 
   },[])
-  console.log("category wise", categoryWiseDistrubution)
+  
 
   const findTotalById = (reportArray, id) => {
     const report = reportArray.find(item => item._id === id);
@@ -102,8 +102,8 @@ const Report = () => {
       "reports/salonDailyReport",
       data,
       (resp) => {
-        console.log("data reponse",resp)
-        console.log("reports", resp.appointmentPaymentMethodReport);
+        
+        
         setAppointmentStatus(resp.appointmentStatus);
         setServiceDistribution(resp.serviceCategoryWiseRevenue);
         setStaffDistribution(resp.staffRevenueDistribution);
@@ -122,7 +122,7 @@ const Report = () => {
         setPaymentMethodReport(paymentReport)
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -139,13 +139,13 @@ const Report = () => {
   //     }
   //   )
   // },[])
-  console.log({staffDistribution})
+  
   const credits = membershipCredit[0]?.membershipCreditUsed;
-  console.log("credits",credits)
+  
   
   const totalPayment = paymentMethodReport.reduce((acc, payment) => acc + payment.total, 0);
 
-  console.log("paymets",paymentMethodReport);
+  
 
   useEffect(()=>{
     const data = {
@@ -163,9 +163,9 @@ const Report = () => {
         }, {});
         setWholeCustomerRevenue(result?.old?.totalRevenue)
         setNewCustomerRevenue(result?.new?.totalRevenue)
-        console.log("new customer result",result)
+        
       },(error)=>{
-        console.log(error)
+        
       }
     )
   },[startDate,endDate])

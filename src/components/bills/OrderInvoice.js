@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 const OrderBill = () => {
     const location = useLocation();
     const orderList = location.state;
-    console.log("order invoice list", orderList)
+    
     const contentToPrint = useRef(null);
     const [parlorDetails,setParlorDetails] = useState([])
     const currentDate = new Date();
@@ -20,15 +20,15 @@ const OrderBill = () => {
         getApiCall(
           "parlor/getParlorDetail",
           (resp) => {
-            console.log("getparlour", resp);
+            
             setParlorDetails(resp);
           },
           (error) => {
-            console.log("error", error);
+            
           }
         );
       }, []);
-      console.log("parlor detail list",parlorDetails)
+      
       function FormatDate(date) {
         const dates = new Date(date)
         
@@ -40,12 +40,11 @@ const OrderBill = () => {
       }
       const handlePrint = useReactToPrint({
         documentTitle: "Apointment Bill",
-        onBeforePrint: () => console.log("before printing..."),
-        onAfterPrint: () => console.log("after printing..."),
+      
         removeAfterPrint: true,
       });
       function handleChange(current)  {
-        console.log("uploaded to s3 bucket")
+        
         const doc = new jsPDF();
         doc.html(current, {
           html2canvas: { scale: 2/13, autoPaging: true },
@@ -70,7 +69,7 @@ const OrderBill = () => {
               if (err) {
                 console.error('Error uploading PDF to S3:', err);
               } else {
-                console.log('PDF uploaded successfully to S3:', data.Location);
+                
               }
             });
           },
@@ -141,7 +140,7 @@ const OrderBill = () => {
             </thead>
             <tbody>
             {paymentMethodsValue.map((item, index) => {
-                    console.log("item", item);
+                    
                     return (
                       <tr>
                         <td>{item.name}</td>

@@ -52,8 +52,8 @@ const ViewAppointment = () => {
 
   const navigate = useNavigate();
 
-  console.log({ viewAppointmentDetails });
-  console.log("alreadyAddedProduct", alreadyAddedProduct);
+  
+  
 
   // ...
 
@@ -85,7 +85,7 @@ const ViewAppointment = () => {
     },
   ];
   const handlePrint = (item) => {
-    console.log("mera h item", item);
+    
     if (item.status === 2 || item.status === 1) {
       toast.error("Appointment is not completed!");
     } else {
@@ -123,7 +123,7 @@ const ViewAppointment = () => {
         "appointment/changeAppointmentStatus",
         data,
         (resp) => {
-          console.log("response", resp);
+          
           if (resp) {
             setLoadingStates((prevLoadingStates) => ({
               ...prevLoadingStates,
@@ -140,7 +140,7 @@ const ViewAppointment = () => {
             ...prevLoadingStates,
             [item._id]: false,
           }));
-          console.log("error", error);
+          
         }
       );
     } else {
@@ -161,7 +161,7 @@ const ViewAppointment = () => {
       "appointment/changeAppointmentStatus",
       data,
       (resp) => {
-        console.log("response", resp);
+        
         if (resp) {
           setAppointmentStatus(false);
           // setStatus(2)
@@ -170,7 +170,7 @@ const ViewAppointment = () => {
         }
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -188,7 +188,7 @@ const ViewAppointment = () => {
       "appointment/changeAppointmentStatus",
       data,
       (resp) => {
-        console.log("response", resp);
+        
         if (resp) {
           setAppointmentStatus(false);
           // setStatus(2)
@@ -197,7 +197,7 @@ const ViewAppointment = () => {
         }
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -214,7 +214,7 @@ const ViewAppointment = () => {
     isCaptured,
     _id,
   }) => {
-    console.log("amountpayable", membershipPoints, isCaptured, isPaid);
+    
 
     setModalAmount(total);
     setMemberShipPoints(membershipCreditUsed);
@@ -232,7 +232,7 @@ const ViewAppointment = () => {
   };
 
   const getStatusNumber = (status) => {
-    console.log("status", status);
+    
     switch (status) {
       case 1:
         return "Pending";
@@ -265,14 +265,14 @@ const ViewAppointment = () => {
       "appointment/getAppointments",
       data,
       (resp) => {
-        console.log("appresp", resp);
+        
         if (resp) {
           setTab("crm");
           setViewAppointmentDetails(resp);
         }
       },
       (error) => {
-        console.log("erro", error);
+        
       }
     );
   }, [isStatusChange, showQuantityPopup]);
@@ -287,13 +287,13 @@ const ViewAppointment = () => {
       "appointment/getAppointments",
       data,
       (resp) => {
-        console.log("appresp", resp);
+        
         if (resp) {
           setViewAppointmentDetails(resp);
         }
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
     setTab("app");
@@ -307,14 +307,14 @@ const ViewAppointment = () => {
       data,
 
       (resp) => {
-        console.log("appresp", resp);
+        
         if (resp) {
           setTab("crm");
           setViewAppointmentDetails(resp);
         }
       },
       (error) => {
-        console.log("erro", error);
+        
       }
     );
   };
@@ -329,14 +329,14 @@ const ViewAppointment = () => {
       `appointment/getAppointments/?start=${start}&end=${end}`,
       data,
       (resp) => {
-        console.log("tabresp", resp);
+        
         if (resp) {
           setTab(tab);
           setViewAppointmentDetails(resp);
         }
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };

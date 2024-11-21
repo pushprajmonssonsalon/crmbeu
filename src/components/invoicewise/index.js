@@ -30,13 +30,13 @@ const InvoiceWise = () => {
       "appointment/getAppointments",
       data,
       (resp) => {
-        console.log("appresp", resp);
+        
         if (resp) {
           setViewAppointmentDetails(resp);
         }
       },
       (error) => {
-        console.log("erro", error);
+        
       }
     );
   }, []);
@@ -50,17 +50,17 @@ const InvoiceWise = () => {
       "appointment/getAppointments",
       data,
       (resp) => {
-        console.log("tabresp", resp);
+        
         if (resp) {
           setViewAppointmentDetails(resp);
         }
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
-  console.log("invoise wise collections", viewAppointmentDetails);
+  
 
   const headings = [
     { name: "Date", id: "createdAt" },

@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { getApiCall } from '../../utils/services';
 import { usePDF } from "react-to-pdf";
-import CustomizedTables from '../MaterialTable';
-import CustomizedInvoiceTables from '../MaterialTable/invoiceTable';
 const MembershipInvoiceGenrator = () => {
     const location = useLocation();
     const membershipData = location.state;
-    console.log({membershipData})
+    
     const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
     // parlor details
     const [parlorDetails, setParlorDetails] = useState([]);
@@ -25,18 +23,18 @@ const MembershipInvoiceGenrator = () => {
   const Total = Math.ceil(price/1.18)+GST;
 
   const data = [customerName,customerPhoneNumber,employees,membershiptype,price,GST,Total]
-  console.log("dataaaaaaa------------",data)
+  
 
     useEffect(() => {
       getApiCall(
         "parlor/getParlorDetail",
         (resp) => {
-          console.log("getparlour", resp);
+          
           setParlorDetails(resp);
           parlorDetails(resp);
         },
         (error) => {
-          console.log("error", error);
+          
         }
       );
     }, []);

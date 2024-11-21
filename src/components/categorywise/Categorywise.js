@@ -54,14 +54,14 @@ const Categorywise = () => {
       "reports/minisubCategoryWiseRevenue",
       data,
       (resp) => {
-        console.log("tabresp", resp);
+        
         if (resp[0]) {
           setSubCategories(resp[0]?.bySubCategory);
           setMiniSubCategories(resp[0]?.byMiniSubCategory);
         }
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };

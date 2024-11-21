@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { MdOutlineClose } from "react-icons/md";
-import { getApiCall, postApiData } from '../../utils/services';
+import { postApiData } from '../../utils/services';
 import toast from 'react-hot-toast';
 
 const ProductOrderPopup= ({isVisible,onClose,data,orderId,bool,setBool}) => {
 
-    console.log({data})
+    
     const [orderData, setOrderData] = useState([]);
     const [orderedQuantity,setOrderedQuantity] = useState([]);
     const [allOrderDetails,setAllOrderDetails] = useState({});
@@ -14,7 +14,7 @@ const ProductOrderPopup= ({isVisible,onClose,data,orderId,bool,setBool}) => {
         setOrderData(data);
         setOrderedQuantity(data.map(item => item.quantity)); // Set orderedQuantity to match quantity initially
       }, [data]);
-    console.log({orderData})
+    
     if(!isVisible) return null;
 
     
@@ -24,7 +24,7 @@ const ProductOrderPopup= ({isVisible,onClose,data,orderId,bool,setBool}) => {
     updatedOrderData[index].receivedQuantity = parseInt(event.target.value);
     setOrderData(updatedOrderData);
   };
-  console.log("order ka data",orderData)
+  
 
   const onSubmit=()=>{
     setAllOrderDetails({
@@ -38,19 +38,19 @@ const ProductOrderPopup= ({isVisible,onClose,data,orderId,bool,setBool}) => {
     postApiData("purchaseorder/editPurchaseOrder",
     data,
     (resp)=>{
-        console.log("orders resp",resp)
+        
         toast.success("Order Has been Placed Successfully!")
         setBool(!bool)
         onClose()
     },
     (error)=>{
-        console.log("Something went wrong", error)
+        
         toast.error("Somting went wrong!!")
     }
     )
     
   }
-  console.log("all orders",allOrderDetails)
+  
   return (
     <div className='fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center'>
         <div className='absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto'>

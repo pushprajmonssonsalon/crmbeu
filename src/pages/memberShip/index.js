@@ -36,7 +36,7 @@ export default function Membership() {
         setmemeberShipDetails(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [buyNowclick]);
@@ -53,7 +53,7 @@ export default function Membership() {
         setTodayMembership(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [add]);
@@ -65,7 +65,7 @@ export default function Membership() {
         setMembershipType(resp.membershipList);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [ isNewMembershipModal]);
@@ -113,7 +113,7 @@ export default function Membership() {
           }
         },
         (error) => {
-          console.log("error", error);
+          
           toast.error("Something went wrong, Please try again!!");
           res = false;
         }
@@ -136,7 +136,7 @@ export default function Membership() {
   };
 
   const handlePrint = (item) => {
-    console.log("membership li h bsdk", item);
+    
     navigate("/membershipinvoicegenerator", { state: item });
   };
   const searchClick = () => {
@@ -151,7 +151,7 @@ export default function Membership() {
         setTodayMembership(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };

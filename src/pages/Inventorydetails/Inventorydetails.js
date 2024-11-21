@@ -221,7 +221,7 @@ const Inventorydetails = () => {
       `inventory/getSalonProducts/?limit=${itemsPerPage}&page=${currentPage}`,
       data,
       (resp) => {
-        console.log("getMyProduct----------------------------------", resp);
+        
         if (resp.products.length > 0) {
           // setMyProductList(resp.products);
           setNewMyProducts(resp.products);
@@ -236,11 +236,11 @@ const Inventorydetails = () => {
         setNewMyProducts([]);
         setTotalMyProducts(0);
 
-        console.log("error");
+        
       }
     );
   };
-  console.log({ newMyProducts });
+  
 
   const getAllProducts = () => {
     const data = {
@@ -252,12 +252,12 @@ const Inventorydetails = () => {
       `inventory/getAllProducts/?limit=${itemsPerPage1}&page=${currentPage1}`,
       data,
       (resp) => {
-        console.log("getallproducts", resp);
+        
         setgetSalonProducts(resp.products);
         setTotalProducts(resp?.total);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };

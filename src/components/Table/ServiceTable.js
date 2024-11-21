@@ -1,7 +1,7 @@
 import { BiSolidAddToQueue } from 'react-icons/bi'
 
 const ServiceTable = ({data,startIndex,endIndex,addclick}) => {
-  console.log("service-----data",data)
+  
   return (
     <>
 

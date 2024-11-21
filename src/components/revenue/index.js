@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import Layout from '../Layout'
+import React, { useEffect, useState } from 'react';
+import Layout from '../Layout';
 import CustomInputFeild from "../../components/customInput";
 import { postApiData } from '../../utils/services';
 import { styled } from '@mui/material/styles';
@@ -10,7 +10,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { IoPrintSharp } from 'react-icons/io5';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -44,11 +43,11 @@ const Revenue = () => {
     postApiData("reports/getRevenueReportDayWise",
     data,
     (resp)=>{
-        console.log("revenue detail", resp)
+        
         setRevenue(resp)
     },
     (error)=>{
-        console.log("revenue error",error)
+        
     }
 )
   },[])
@@ -60,15 +59,15 @@ const Revenue = () => {
     postApiData("reports/getRevenueReportDayWise",
     data,
     (resp)=>{
-        console.log("revenue detail", resp)
+        
         setRevenue(resp)
     },
     (error)=>{
-        console.log("revenue error",error)
+        
     }
 )
   }
-  console.log("revenue",revenue)
+  
 
   const headings = ["Date","Appointments","Total Revenue","Services","Products","Membership Revenue"]
   return (

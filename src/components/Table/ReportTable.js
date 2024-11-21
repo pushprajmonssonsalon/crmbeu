@@ -13,7 +13,7 @@ const tableHeaders = [
   ];
 
 const ReportTable = ({data}) => {
-  console.log("employeerevenues",data)
+  
   return(
     <table className="styled-table">
       <thead className="">

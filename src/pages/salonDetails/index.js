@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { MdOutlineClose } from 'react-icons/md';
 import { getApiCall, postApiData } from '../../utils/services';
 import Layout from '../../components/Layout';
-import { useDropzone } from 'react-dropzone';
 import AWS from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
-import { parlordetail } from '../../redux/actions';
 import { MdCancel } from "react-icons/md";
 import axios from 'axios';
 const s3 = new AWS.S3({
@@ -36,11 +32,11 @@ const SalonDeatils = () => {
   const token = localStorage.getItem("token");
   const handleFileChange = async(e) => {
     setImageFile(e.target.files[0]);
-    console.log(e.target.files[0]);
+    
     let imageData = e.target.files[0]
     const formData = new FormData();
     formData.append('image', imageData);
-    console.log("imageData------",imageData)
+    
   
     try {
       // const response = await fetch('http://192.168.2.19:4002/upload', {
@@ -49,7 +45,7 @@ const SalonDeatils = () => {
       // });
   
       // if (response.ok) {
-      //   console.log("images link", response.data)
+      //   
       //   // alert('Image uploaded successfully');
       //   setImageKey(imageData.name); 
       // } else {
@@ -64,7 +60,7 @@ const SalonDeatils = () => {
       });
       
       if(response){
-        console.log("resp------->",response.data.data)
+        
         setImages((prevUrls) => [...prevUrls, response.data.data]);
       }
     } catch (error) {
@@ -72,7 +68,7 @@ const SalonDeatils = () => {
     }
   };
 
-  console.log("images",images)
+  
   
 
 
@@ -83,9 +79,9 @@ const SalonDeatils = () => {
 //     }
 //     postApiData("/upload",data,
 //       (resp)=>{
-//         console.log("resp")
+//         
 //       },(error)=>{
-//         console.log("error")
+//         
 //       }
 //     )
 //     // const uniqueId = uuidv4()
@@ -107,19 +103,19 @@ const SalonDeatils = () => {
 //     //     console.error('Error uploading files:', error);
 //     // }
 // };
-console.log("uploaded files:",images)
+
 
   // const { getRootProps, getInputProps } = useDropzone({ onDrop: handleDrop });
   useEffect(() => {
     getApiCall(
       "parlor/getParlorDetail",
       (resp) => {
-        console.log("getparlour", resp);
+        
         setParlorDetails(resp);
         // parlorDetails(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [bool,del]);
@@ -154,7 +150,7 @@ console.log("uploaded files:",images)
     },
     (error)=>{
         toast.error("Something went wrong!");
-        // console.log("error",error)
+        // 
     }
 )
   }

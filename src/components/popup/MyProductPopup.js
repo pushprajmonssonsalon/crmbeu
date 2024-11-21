@@ -36,7 +36,7 @@ const MyProductPopup = ({
         }
       },
       (error) => {
-        console.log("error", error);
+        
         //   alert("service already Added");
         toast.error("Something Went Wrong!!");
       }

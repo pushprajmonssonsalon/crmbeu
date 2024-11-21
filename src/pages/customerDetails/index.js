@@ -24,11 +24,11 @@ const CustomerDetails = () => {
         postApiData('user/getCustomerDetails',
         data,
         (res)=>{
-            console.log("customer ka resp", res)
+            
             setClientsAppointment(res)
         },
         (err)=>{
-            console.log("customer ki error", err)
+            
         }
         )
     }

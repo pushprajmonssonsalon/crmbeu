@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import { getApiCall } from '../../utils/services';
 import { usePDF } from "react-to-pdf";
 const OrderInvoice = () => {
     const location = useLocation();
     const orderList = location.state;
-    console.log("order invoice list", orderList)
+    
     const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
     const [parlorDetails,setParlorDetails] = useState([])
     const currentDate = new Date();
@@ -15,15 +15,15 @@ const OrderInvoice = () => {
         getApiCall(
           "parlor/getParlorDetail",
           (resp) => {
-            console.log("getparlour", resp);
+            
             setParlorDetails(resp);
           },
           (error) => {
-            console.log("error", error);
+            
           }
         );
       }, []);
-      console.log("parlor detail list",parlorDetails)
+      
   return(
     <div class="invoice-wrapper" id="print-area" ref={targetRef}>
       <div class="invoice">

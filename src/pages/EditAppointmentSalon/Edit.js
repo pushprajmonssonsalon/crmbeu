@@ -63,11 +63,11 @@ const Edit = () => {
       "salonService/getServiceCategory",
 
       (resp) => {
-        console.log("salonService", resp);
+        
         setService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [gender]);
@@ -84,7 +84,7 @@ const Edit = () => {
         setSubService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.category]);
@@ -102,7 +102,7 @@ const Edit = () => {
         setMiniService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.subCategory]);
@@ -112,7 +112,7 @@ const Edit = () => {
     getApiCall(
       `appointment/getSingleAppointmentDetails?id=${id}`,
       (resp) => {
-        console.log("new edit ki single data :", resp.discountPercentage);
+        
         setDiscount(resp?.discountPercentage || 0);
         setAddedAppointmentDetails(
           resp.services.map((item) => ({ ...item, staffId: item?.staffId|| "", satffName: item?.satffName|| "" }))
@@ -129,7 +129,7 @@ const Edit = () => {
         // setCreditUsed(resp.membershipCreditUsed)
       },
       (error) => {
-        console.log(`newEdit page error: ${error}`);
+        
       }
     );
   }, []);
@@ -143,7 +143,7 @@ const Edit = () => {
         setStaffData(res?.filter(elm=>elm?.isActive));
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.subCategory]);
@@ -155,14 +155,14 @@ const Edit = () => {
      {phoneNumber},
       (resp) => {
         if (resp) {
-          // console.log("membership", resp[0]);
+          // 
           setMembershipDetails(resp[0]?.activeMembership)
           setUserId(resp[0]?._id)
           
         }
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   },[phoneNumber])
@@ -176,9 +176,9 @@ const Edit = () => {
     setAddedAppointmentDetails([...addedAppointmentDetails, serviceSelection]);
    
   };
-  console.log("adding or added services", addedAppointmentDetails);
+  
   const handleServiceChange = (e) => {
-    console.log("selected value", e.target.value);
+    
     setServiceSelection({
       ...serviceSelection,
       category: e.target.value,
@@ -186,7 +186,7 @@ const Edit = () => {
     });
   };
   const handleSubCategoryChange = (e) => {
-    console.log("selected value", e.target.value);
+    
     setServiceSelection({
       ...serviceSelection,
       subCategory: e.target.value,
@@ -195,10 +195,10 @@ const Edit = () => {
   };
 
   const handleminiChange = (event) => {
-    // console.log("minichangedata", e.target.value);
+    // 
     const selectedOption = event.target.options[event.target.selectedIndex];
     const selectedPrice = selectedOption.getAttribute("data-price");
-    console.log("selectedPrice", +selectedPrice);
+    
     // Now you have the selected price, you can use it as needed
     setServiceSelection({
       ...serviceSelection,
@@ -210,8 +210,8 @@ const Edit = () => {
     let splited = e.target.value.split("-");
     let Name = splited[1];
     let Id = splited[0];
-    console.log("staffffffff------", Name, Id);
-    console.log("staffselect", e.target.value);
+    
+    
     if (newService) {
       setServiceSelection({
         ...serviceSelection,
@@ -247,11 +247,11 @@ const Edit = () => {
       "inventory/getSuggestedProductOfSalon",
       data,
       (resp) => {
-        console.log("resp.products", resp.products);
+        
         setShowSearchProduct(resp.products);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -287,7 +287,7 @@ const Edit = () => {
       staffName: productStaff.staffName,
     }; // Adding staffId key
     
-    console.log("product data coming", itemWithAdditionalInfo);
+    
     setAppointmentProducts((prev) => {
       const index = prev.findIndex((elm) => elm._id === item._id);
   
@@ -330,7 +330,7 @@ const Edit = () => {
 
   // handle book appointment
   const handleBookAppointment = () => {
-    console.log("book Appointment");
+    
 
     const data = {
       services: addedAppointmentDetails,
@@ -353,12 +353,12 @@ const Edit = () => {
       (resp) => {
         if (resp) {
           toast.success("Appointment Booked SuccessFully");
-          console.log("appointment", resp);
+          
           navigate(-1);
         }
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -371,15 +371,15 @@ const Edit = () => {
       memId: memberShipId,
       isMembershipUsed: !memberShipStatus,
     };
-    // console.log("after",subTotalService)
-    console.log("------------------------------data", data);
+    // 
+    
 
     postApiData(
       "membership/applyMembership",
       data,
       (resp) => {
         if (resp) {
-          console.log("resp.data.creditsLeft", resp?.creditsLeft);
+          
           if (memberShipStatus) {
             setMembershipCoin(resp?.creditsLeft);
             setMemberShipStatus(false);
@@ -395,7 +395,7 @@ const Edit = () => {
         }
       },
       (error) => {
-        console.log("error", error);
+        
         alert("Select Correct Options");
       }
     );
@@ -738,7 +738,7 @@ const Edit = () => {
                   className="absolute  shadow-xl bg-white top-16 h-[104px] w-[450px] overflow-auto"
                 >
                   {showSearchProduct?.map((item) => {
-                    console.log({ "product id": item });
+                    
                     return (
                       <div
                         style={{ display: "flex" }}

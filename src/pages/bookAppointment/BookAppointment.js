@@ -129,9 +129,9 @@ const BookAppointment = () => {
     setTime(timeString);
   };
   const handleAmPmChange = (ampm) => {
-    console.log("AM/PM changed:", ampm);
+    
   };
-  console.log("time", time);
+  
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
   );
@@ -146,7 +146,7 @@ const BookAppointment = () => {
     0
   );
   const countdiscount = Math.ceil((subtotalPrice * applyDisountPer) / 100);
-  console.log("countdiscount", applyDisountPer);
+  
   const payableAmount = subtotalPrice - countdiscount;
   const totalProductServicePayable = payableAmount + productTotalPrice;
   const [serviceSelection, setServiceSelection] = useState({
@@ -182,11 +182,11 @@ const BookAppointment = () => {
       "salonService/getServiceCategory",
 
       (resp) => {
-        console.log("salonService", resp);
+        
         setService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [customerDetails?.gender]);
@@ -203,7 +203,7 @@ const BookAppointment = () => {
         setSubService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.category]);
@@ -218,10 +218,10 @@ const BookAppointment = () => {
       minicatgdata,
       (resp) => {
         setMiniService(resp[0]);
-        console.log("min cat resp", resp);
+        
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.subCategory]);
@@ -232,7 +232,7 @@ const BookAppointment = () => {
         setStaffData(res.filter(elm=>elm.isActive));
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.subCategory]);
@@ -312,7 +312,7 @@ const BookAppointment = () => {
         }
       },
       (error) => {
-        console.log("error", error);
+        
         // alert(" Booking Status Failed");
         toast.error("Booking status failed!");
       }
@@ -322,7 +322,7 @@ const BookAppointment = () => {
   // ...`
   const nameOnclick = (item) => {
     // e.preventDefault();
-    console.log(item,"nameonClick")
+    
     setMemberShipItem(item);
     setCustomerDetails((prev) => ({
       ...prev,
@@ -333,7 +333,7 @@ const BookAppointment = () => {
     setUserId(item._id);
     setVisible(false);
   };
-  console.log({ membershipitem });
+  
   // product name on click
 
   const productNameOnclick = (item) => {
@@ -352,10 +352,10 @@ const BookAppointment = () => {
       "parlor/registerUserForCrm",
       customerDetails,
       (resp) => {
-        console.log("respns", resp);
+        
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
     closeModal();
@@ -381,11 +381,11 @@ const BookAppointment = () => {
       "inventory/getSuggestedProductOfSalon",
       data,
       (resp) => {
-        console.log("resp.products", resp.products);
+        
         setShowSearchProduct(resp.products);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -396,7 +396,7 @@ const BookAppointment = () => {
   };
 
   const applyMemberShip = () => {
-    console.log("before", subTotalService);
+    
    
     const data = {
       creditsUsed: memberShipStatus
@@ -406,15 +406,15 @@ const BookAppointment = () => {
       memId: memberShipId,
       isMembershipUsed: !memberShipStatus,
     };
-    console.log("after", subTotalService);
-    console.log("------------------------------data", data);
+    
+    
 
     postApiData(
       "membership/applyMembership",
       data,
       (resp) => {
         if (resp) {
-          console.log("resp.data.creditsLeft", resp?.creditsLeft);
+          
           if (memberShipStatus) {
             setMembershipCoin(resp?.creditsLeft);
             setMemberShipStatus(false);
@@ -435,7 +435,7 @@ const BookAppointment = () => {
         }
       },
       (error) => {
-        console.log("error", error);
+        
         // alert("Select Correct Options");
         toast.error("Select Correct Options !");
       }
@@ -457,11 +457,11 @@ const BookAppointment = () => {
       "user/searchUser",
       data,
       (resp) => {
-        console.log("respons", resp);
+        
         setUserData(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -477,7 +477,7 @@ const BookAppointment = () => {
     productStaffid,
     productStaffName
   ) => {
-    console.log("staff", productStaffName, productStaffid, serviceSelection);
+    
     if (productQnt === "0" || !productQnt) {
       toast.error("Please Enter Quantiy");
 
@@ -497,17 +497,13 @@ const BookAppointment = () => {
       staffName: productStaffName, // Adding staffId key
     };
 
-    console.log(
-      "product data coming",
-      itemWithAdditionalInfo,
-      productDataReducer
-    );
+   
 
     dispatch(productAdded(itemWithAdditionalInfo));
     toast.success("product added succesfully");
   };
 
-  console.log({ staffData });
+  
 
   // Function to format the date as "dd-mm-yyyy"
 
@@ -919,7 +915,7 @@ const BookAppointment = () => {
                     className="absolute top-16 w-full p-2 max-h-[200px]  overflow-y-auto bg-white shadow-lg "
                   >
                     {showSearchProduct?.map((item) => {
-                      console.log({ "product id": item });
+                      
                       return (
                         <div
                           onClick={() => productNameOnclick(item.itemId)}

@@ -1,5 +1,5 @@
 const CustomTable = ({ columns, rows }) => {
-    console.log(rows,"rows")
+    
   return (
     <>
       {" "}

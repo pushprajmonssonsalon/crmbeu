@@ -3,7 +3,7 @@ import { MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 const NormalPagination = ({onPageChange,currentPage,totalItems,itemsPerPage}) => {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const handlePageChange = (page) => {
-        console.log(page)
+        
         if (page < 1) {
             onPageChange(totalPages);
         } else if (page > totalPages) {

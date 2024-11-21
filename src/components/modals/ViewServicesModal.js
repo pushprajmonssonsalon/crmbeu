@@ -37,7 +37,7 @@ const ChildComponent = ({ closeModal, data,modalRef }) => {
     
   ];
 
-  console.log(data, "data");
+  
   const tablesFields = [
     { heading: "Services", rows: data?.services, cols: cols },
     { heading: "Products", rows: data?.products, cols: prodCols },

@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react';
 import { Navigate, useNavigate } from 'react-router';
-import Login from '../../pages/login/Login';
 
 const PrivateRoute = (props) => {
     let {Component} = props;
     let navigate = useNavigate();
     const token = localStorage.getItem('token')
-    console.log("token----------------------------------",token)
+    
     // useEffect(()=>{
     //     let login = localStorage.getItem('token');
     //     if(!login) navigate('/login');

@@ -15,7 +15,7 @@ export default function CustomModal({
   const [upi, setUpi] = useState(0);
   const totalCardUpiCash=parseInt(cash) + parseInt(card) + parseInt(upi);
   const payTotal=payableAmount-membershipPoints
-  console.log("payTotal",totalCardUpiCash)
+  
 
   // const []
   const customStyles = {
@@ -40,7 +40,7 @@ export default function CustomModal({
   
   const hnadleUpdate = () => {
     // onUpdatePayment(cash, card);
-    console.log("update payment",totalCardUpiCash,payTotal);
+    
 
     
   if(totalCardUpiCash===payTotal){
@@ -49,7 +49,7 @@ export default function CustomModal({
   }
  // Close the modal after updating
   };
-  console.log("membershipPoints",membershipPoints)
+  
   return (
     // {
     // modal &&

@@ -22,7 +22,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
   };
   if (!isVisible) return null;
 
-  console.log("dyanmic quantities", quantities);
+  
 
   const orderpayload = data.map((obj, index) => ({
     ...obj,
@@ -30,7 +30,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
     receivedQuantity: 0,
   }));
 
-  console.log("orderPayload", orderpayload);
+  
   const handleSubmitOrder = () => {
     const data = {
       products: orderpayload,
@@ -45,7 +45,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
         }
       },
       (error) => {
-        console.log("error", error);
+        
         toast.error("something went wrong!");
       }
     );

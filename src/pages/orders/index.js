@@ -7,7 +7,6 @@ import { IoPrintSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { MdDriveFolderUpload } from "react-icons/md";
 import InvoiceUpload from "../../components/popup/InvoiceUpload";
-import { FaFilePdf } from "react-icons/fa6";
 import { LuFileImage } from "react-icons/lu";
 
 const Orders = () => {
@@ -29,15 +28,15 @@ const Orders = () => {
     getApiCall(
       "purchaseorder/getPurchaseOrders",
       (res) => {
-        console.log("orders ki list", res);
+        
         setOrdersList(res);
       },
       (error) => {
-        console.log(error);
+        
       }
     );
   }, [bool]);
-  console.log({ ordersList });
+  
 
   function FormatDate(date) {
     const dates = new Date(date);

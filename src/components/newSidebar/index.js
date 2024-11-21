@@ -1,5 +1,5 @@
 import React from "react";
-import { MdEditSquare, MdRememberMe } from "react-icons/md";
+import { MdDashboard, MdEditSquare, MdRememberMe } from "react-icons/md";
 import { RiAccountPinBoxFill } from "react-icons/ri";
 import { MdCardMembership } from "react-icons/md";
 import { FaBookOpen } from "react-icons/fa";
@@ -16,8 +16,8 @@ const VerticalSidebar = () => {
   const location = useLocation();
   const { pathname } = location;
   const menus = [
-    // { name: "Dashboard", link: `/`, icon: MdDashboard, num: 1 },
-    { name: "Book Appointment", link: `/`, icon:FaBookOpen, num: 2 },
+    { name: "Dashboard", link: `/`, icon: MdDashboard, num: 1 },
+    { name: "Book Appointment", link: `/bookappointment`, icon:FaBookOpen, num: 2 },
     {
       name: "View Appointment",
       link: `/viewAppointment`,
@@ -56,7 +56,7 @@ const VerticalSidebar = () => {
   const dispatch = useDispatch();
 
   const { open, openAccordion } = useSelector((state) => state.SidebarReducer);
-  console.log("open", open);
+  
   //   const [open, setOpen] = useState(true);
   //   const [openAccordion, setOpenAccordion] = useState(false);
   const handleOpen = () => {

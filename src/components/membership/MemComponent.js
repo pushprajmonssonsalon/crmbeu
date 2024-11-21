@@ -16,7 +16,7 @@ const MemComponent = ({
   onPayed,
   onClickBuyNow,
 }) => {
-  console.log(memValue, "memValue");
+  
   const [isVisible, setIsVisible] = useState(false);
 
   const { heading, actions, banners } = fields;
@@ -64,11 +64,11 @@ const MemComponent = ({
       "user/searchUser",
       data,
       (resp) => {
-        console.log("respons", resp);
+        
         setUserData(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -132,7 +132,7 @@ const MemComponent = ({
       "parlor/registerUserForCrm",
       apiData,
       (resp) => {
-        console.log("respns", resp);
+        
         closeModal();
         setCustomerDetails({
           name: "",
@@ -143,7 +143,7 @@ const MemComponent = ({
         toast.success("User has been created! Please select the user");
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -155,7 +155,7 @@ const MemComponent = ({
             phoneNumber
         }
     const res=  onClickBuyNow(data)
-    console.log("res",res)
+    
     if(res){
       setSelectedStaff([]);
       setExpanded(false);
@@ -171,7 +171,7 @@ const MemComponent = ({
         setStaffData(res);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);

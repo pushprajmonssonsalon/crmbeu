@@ -16,7 +16,7 @@ const SingleNotification = () => {
           setNotification(res);
         },
         (err) => {
-          console.log(err);
+          
         }
       );
     })();

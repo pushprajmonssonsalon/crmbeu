@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 const MembershipBill = () => {
     const location = useLocation();
     const membershipData = location.state;
-    console.log({membershipData})
+    
     const contentToPrint = useRef(null);
     // parlor details
     const [parlorDetails, setParlorDetails] = useState([]);
@@ -33,18 +33,18 @@ const MembershipBill = () => {
   const credits = membershipData.credits
 
   const data = [customerName,customerPhoneNumber,employees,membershiptype,price,GST,Total]
-  console.log("dataaaaaaa------------",data)
+  
 
     useEffect(() => {
       getApiCall(
         "parlor/getParlorDetail",
         (resp) => {
-          console.log("getparlour", resp);
+          
           setParlorDetails(resp);
           parlorDetails(resp);
         },
         (error) => {
-          console.log("error", error);
+          
         }
       );
     }, []);
@@ -60,14 +60,13 @@ const MembershipBill = () => {
 
       const handlePrint = useReactToPrint({
         documentTitle: "Membership Bill",
-        onBeforePrint: () => console.log("before printing..."),
-        onAfterPrint: () => console.log("after printing..."),
+       
         // handleChange : () =>handleChange(),
         removeAfterPrint: true,
       });
 
       function handleChange(current)  {
-        console.log("uploaded to s3 bucket")
+        
         const doc = new jsPDF();
         doc.html(current, {
           html2canvas: { scale: 2/13, autoPaging: true },
@@ -103,13 +102,13 @@ const MembershipBill = () => {
                   "membership/sendMembershipInvoice",
                   payload,
                   (resp)=>{
-                    console.log("membership pdf has been uploaded ",resp)
+                    
                   },
                   (error)=>{
-                    console.log("Something error in uploading membership pdf",error)
+                    
                   }
                 )
-                console.log('PDF uploaded successfully to S3:', data.Location);
+                
               }
             });
           },

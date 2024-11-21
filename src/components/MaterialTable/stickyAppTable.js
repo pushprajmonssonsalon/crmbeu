@@ -133,7 +133,7 @@ export default function StickyAppHeadTable({
   };
 
   const getStatusNumber = (status) => {
-    console.log("status", status);
+    
     switch (status) {
       case 1:
         return "Pending";
@@ -148,7 +148,7 @@ export default function StickyAppHeadTable({
   };
 
   function formatDateTime(timestamp) {
-    console.log("timestamp", timestamp);
+    
 
     // Parse the timestamp
     const [dateString, timeString] = timestamp.split("T");
@@ -170,7 +170,7 @@ export default function StickyAppHeadTable({
       .toString()
       .padStart(2, "0")} ${period}`;
 
-    console.log(`Date: ${formattedDate}, Time: ${formattedTime}`);
+    
     return `${formattedDate} ${formattedTime}`;
   }
   const handleSelect =(item)=>{
@@ -179,7 +179,7 @@ export default function StickyAppHeadTable({
 
   }
   useEffect(() => {
-    console.log("data", data);
+    
   }, [data]);
   return (
     <>

@@ -39,7 +39,7 @@ const OrderPaymentPopup = ({
         return acc;
       }, 0);
 
-      console.log(currentTotal, membership, "total");
+      
 
       // Calculate the maximum allowable value for the current payment method
       const maxAllowableValue = payTotal - currentTotal;
@@ -80,7 +80,7 @@ const OrderPaymentPopup = ({
 
   //   const hnadleUpdate = () => {
   //     // onUpdatePayment(cash, card);
-  //     console.log("update payment",totalCardUpiCash,payTotal);
+  //     
 
   //   if(totalCardUpiCash===payTotal){
   //     onUpdatePayment(cash, card, upi);
@@ -88,7 +88,7 @@ const OrderPaymentPopup = ({
   //   }
   //  // Close the modal after updating
   //   };
-  //   console.log("membershipPoints",membershipPoints)
+  //   
   return (
     <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
       <div className="absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto">

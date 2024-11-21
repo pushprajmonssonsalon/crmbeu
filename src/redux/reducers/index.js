@@ -91,7 +91,7 @@ const userDataIntialState = {
 };
 export const authReducer = (state = userDataIntialState, action) => {
   const { type, payload } = action
-  console.log("athflow", payload)
+  
   switch (type) {
       case 'SET_USERDETAILS':
           return {
@@ -146,7 +146,7 @@ export const UpadateProductReducer = (state = UpdateproductDataIntialState, acti
   switch (type) {
     case 'EDIT_PRODUCT_DATA_ADDED':
       // Check if payload is correctly structured
-      console.log("Payload:", payload);
+      
       
       return {
         ...state,

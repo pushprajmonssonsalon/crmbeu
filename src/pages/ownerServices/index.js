@@ -11,7 +11,7 @@ export default function OwnerService() {
   const [bookAppointment,setBookAppointment]=useState({
     
   })
-  console.log("salonService", service);
+  
   const colors = ["#b2ddeb", "#f0c2a0", "#9ad3bc", "#f4e4bb", "#c1b1d1"];
   const serviceClick=(item)=>{
     setCategoryName(item)
@@ -30,11 +30,11 @@ const subserviceClick=(item)=>{
       "salonService/getServiceCategory",
       data,
       (resp) => {
-        console.log("salonService", resp);
+        
         setService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);
@@ -47,11 +47,11 @@ const subserviceClick=(item)=>{
       "salonService/getSubServiceCategory",
       categorydata,
       (resp) => {
-        console.log("category", resp);
+        
         setSubcategory(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [categoryName]);
@@ -68,7 +68,7 @@ const subserviceClick=(item)=>{
         setMiniService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [subservice]);

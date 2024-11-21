@@ -90,7 +90,7 @@ const Royalities = () => {
       "parlor/showSalonRoyaltyInvoice",
       data,
       (resp) => {
-        console.log("resp", resp);
+        
         setInvoices(resp);
       },
       (error) => {
@@ -120,7 +120,7 @@ const Royalities = () => {
       )
     );
   }, [invoices]);
-  console.log("single parlour", invoices);
+  
   return (
     <Layout>
       <div className="mt-32 flex flex-col w-[90%] mx-auto">

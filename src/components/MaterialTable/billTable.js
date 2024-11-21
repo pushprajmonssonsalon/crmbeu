@@ -7,7 +7,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { IoPrintSharp } from 'react-icons/io5';
 import { getApiCall } from '../../utils/services';
 
 
@@ -34,7 +33,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 export default function BillTables({headings,data}) {
-    console.log("table data", data)
+    
     const [staffData,setStaffData] = React.useState([])
   React.useEffect(() => {
     getApiCall(
@@ -43,13 +42,13 @@ export default function BillTables({headings,data}) {
         setStaffData(res);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);
   const stafflist = staffData.filter((item)=>item._id === data[0].staffId)
   const staffname = stafflist[0]?.name
-  console.log("staffname",staffname)
+  
 
   return (
     <TableContainer component={Paper}>

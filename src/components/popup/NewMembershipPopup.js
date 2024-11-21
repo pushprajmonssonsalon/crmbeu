@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react';
 import { MdOutlineClose } from "react-icons/md";
-import { getApiCall, postApiData } from '../../utils/services';
+import { postApiData } from '../../utils/services';
 import toast from 'react-hot-toast';
 const NewMembershipModal= ({isVisible,onClose}) => {
     const [name,setName] = useState("");
@@ -9,7 +9,7 @@ const NewMembershipModal= ({isVisible,onClose}) => {
     const [expiry,setExpiry] = useState("");
    
     if(!isVisible) return null;
-    // console.log({id})
+    // 
     
 
     
@@ -24,7 +24,7 @@ const NewMembershipModal= ({isVisible,onClose}) => {
         postApiData("parlor/createMembershipForParlor",
         data,
         (res)=>{
-            console.log("response done",res)
+            
             toast.success("Membership Added Successfully!")
             onClose()
             setName("")
@@ -33,7 +33,7 @@ const NewMembershipModal= ({isVisible,onClose}) => {
             setExpiry(null)
         },
         (error)=>{
-            console.log("error",error)
+            
             toast.error("Something went wrong!")
         }
         )

@@ -4,7 +4,7 @@ import { postApiData } from '../../utils/services'
 import toast from 'react-hot-toast'
 
 const MyProductTable = ({data,handleOpen,setIsChanged,isChanged}) => {
-  console.log("handle open data",data)
+  
   const handleDelete=(id)=>{
     const data = {
       id: id

@@ -25,9 +25,7 @@ const BarChart = ({heading,data}) => {
       },
       y: {
         grid: { color: "rgba(200, 200, 200, 0.2)" },
-        ticks: {
-          stepSize: 200,
-        },
+        
       },
     },
   };
@@ -36,7 +34,7 @@ const BarChart = ({heading,data}) => {
     <div>
         <h2 className="text-gray-800 text-start text-2xl font-semibold mb-2">{heading}</h2>
 
-    <div className="donut" >
+    <div className="bar" >
       <Bar data={data} options={options} />
     </div>
     </div>

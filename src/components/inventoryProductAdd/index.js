@@ -8,7 +8,7 @@ export default function InventoryProductAddModal({
   setAddProductModal,
   productDetailsModal,
 }) {
-  console.log("productDetailsModal", productDetailsModal);
+  
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const [quantity, setQuantity] = useState(0);
   const [price, setPrice] = useState(0);
@@ -49,12 +49,12 @@ export default function InventoryProductAddModal({
       "inventory/addProductToSalons",
       data,
       (resp) => {
-        console.log("productDetails", resp);
+        
         // alert("product Added Succesfully")
         toast.success("Product Added Successfully!!")
       },
       (error) => {
-        console.log("error", error);
+        
         toast.error("Something Went Wrog!!")
       }
     );

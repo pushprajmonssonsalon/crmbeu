@@ -1,31 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { MdOutlineClose } from 'react-icons/md';
-import AWS from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
-import toast from 'react-hot-toast';
-import { getApiCall, postApiData } from '../../utils/services';
+import { getApiCall } from '../../utils/services';
 import axios from 'axios';
 import { MdCancel } from "react-icons/md";
 
 const InvoiceUpload = ({ isVisible, onClose, orderId }) => {
-  console.log("orderId",orderId)
+  
   const [pdfNames, setPdfNames] = useState([]);
   const [pdfUrls, setPdfUrls] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [OrdersList,setOrdersList]=useState([])
   const [cancel,setCancel]=useState(false)
   const token = localStorage.getItem("token");
-  console.log("tokencoming",token)
+  
   useEffect(()=>{
     getApiCall(
         "purchaseorder/getPurchaseOrders",
         (res)=>{
-            console.log("orders ki list",res)
+            
             setOrdersList(res)
             
            
         },(error)=>{
-            console.log(error)
+            
         }
     )
 },[isVisible,imageFiles,cancel])
@@ -36,7 +33,7 @@ const InvoiceUpload = ({ isVisible, onClose, orderId }) => {
     formData.append("image", imageData);
     // formData.append("fileId", fileId);
     formData.append("fieldId", orderId);
-    // console.log("imageData------", imageData);
+    // 
 
     try {
       const response = await axios.post(
@@ -51,17 +48,17 @@ const InvoiceUpload = ({ isVisible, onClose, orderId }) => {
       );
 
       if (response) {
-        console.log("resp------->", response.data.data);
+        
         // setImages(response.data.data);
         getApiCall(
           "purchaseorder/getPurchaseOrders",
           (res)=>{
-              console.log("orderlist",res)
+              
               setOrdersList(res)
               
              
           },(error)=>{
-              console.log(error)
+              
           }
       )
       
@@ -72,7 +69,7 @@ const InvoiceUpload = ({ isVisible, onClose, orderId }) => {
   };
 
   const onSubmit = () => {
-    console.log('onSubmit');
+    
 
   };
 

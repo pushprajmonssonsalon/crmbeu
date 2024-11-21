@@ -64,7 +64,7 @@ const Employeedetails = () => {
         setStateStafff(true)
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [staffstatus,isBool]);
@@ -94,17 +94,17 @@ const Employeedetails = () => {
       "/owner/addStaff",
       staffData,
       (resp) => {
-        console.log("bodaydata", resp);
+        
         if(resp){
           setStaffStaus(true)
 
         }
       },
       (error) => {
-        // console.log("errorbody", error);
+        // 
       }
     );
-    // console.log('Form Data:', formData);
+    // 
 
     // setsubmittedData((prevData) => [...prevData, formData]);
 

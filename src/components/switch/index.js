@@ -19,10 +19,10 @@ const SwitchExample = ({ isActive,id,isBool,setIsBool}) => {
     postApiData("owner/editStaff",
     data,
     (resp)=>{
-      console.log("edit response",resp)
+      
       setIsBool(!isBool)
     },(error)=>{
-      console.log("error",error)
+      
     }
     )
   };

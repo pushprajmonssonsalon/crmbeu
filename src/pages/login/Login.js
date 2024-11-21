@@ -2,11 +2,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
-import { postApiData, setAuthorizationToken } from "../../utils/services";
 import axios from "axios";
-import { loginUser } from "../../redux/actions";
 import { useDispatch } from "react-redux";
-import { userDetails } from "../../redux/actions";
 import { toast } from "react-hot-toast";
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -36,7 +33,7 @@ const Login = ({ onLogin }) => {
       .then((resp) => {
         if (resp) {
          localStorage.setItem("token", resp?.data?.data);
-        console.log("response", resp.data.data);
+        
         // dispatch(userDetails(resp.data.data));
         toast.success("You have logined sucessfully")
           
@@ -47,7 +44,7 @@ const Login = ({ onLogin }) => {
       })
       .catch((error) => {
         toast.error("please provide valid details")
-        console.log("error", error);
+        
         // alert("please provide valid details")
       });
   };

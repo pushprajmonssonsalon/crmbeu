@@ -41,7 +41,7 @@ function App() {
     };
 
     document.addEventListener("wheel", handleWheel, { passive: false });
-    console.log("scroll");
+    
     return () => {
       document.removeEventListener("wheel", handleWheel);
     };
@@ -54,11 +54,11 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route
-          path="/dashboard"
+          path="/"
           element={<PrivateRoute Component={Dashboard} />}
         />
         <Route
-          path="/"
+          path="/bookappointment"
           element={<PrivateRoute Component={BookAppointment} />}
         />
         <Route

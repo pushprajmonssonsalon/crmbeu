@@ -25,7 +25,7 @@ const Notification = () => {
           settotalItems(res.total);
         },
         (err) => {
-          console.log(err);
+          
         }
       );
     })();

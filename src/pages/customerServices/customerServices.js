@@ -124,7 +124,7 @@ export default function CustomerServices() {
   const handlePageChange1 = (page) => {
     setCurrentPage1(page);
   };
-  console.log({ myServiceData });
+  
   const customStyles = {
     content: {
       top: "50%",
@@ -157,12 +157,12 @@ export default function CustomerServices() {
       `salonService/getAllServices/?limit=${itemsPerPage}&page=${currentPage}`,
       allServiceFilters,
       (resp) => {
-        console.log(resp);
+        
         setCustomerServiceData(resp.services);
         setTotal(resp.totalCount);
       },
       (error) => {
-        console.log("errro", error);
+        
       }
     );
   };
@@ -207,12 +207,12 @@ export default function CustomerServices() {
       `salonService/getSalonServices/?limit=${itemsPerPage1}&page=${currentPage1}`,
       myServiceFilters,
       (resp) => {
-        console.log("myservice----------respone", resp);
+        
         setMyserviceData(resp.services);
         setTotal1(resp.totalCount);
       },
       (error) => {
-        console.log("errro", error);
+        
       }
     );
   };
@@ -253,7 +253,7 @@ export default function CustomerServices() {
         setAddProductModal(false);
       },
       (error) => {
-        console.log("my service ki error", error);
+        
         toast.error("Service already Added");
       }
     );

@@ -17,7 +17,7 @@ const ProductQuantityPopup = ({
   useEffect(() => {
     setSelectedProducts(alreadyAddedProduct);
   }, [isVisible, alreadyAddedProduct]);
-  console.log(alreadyAddedProduct,"already")
+  
 
   const [editingProductIndex, setEditingProductIndex] = useState(null);
   const [products, setProducts] = useState([]);
@@ -33,11 +33,11 @@ const ProductQuantityPopup = ({
       "inventory/getSalonProducts",
       data,
       (resp) => {
-        console.log("result success", resp);
+        
         setProducts(resp?.products);
       },
       (error) => {
-        console.log("result error", error);
+        
       }
     );
   };
@@ -71,7 +71,7 @@ const ProductQuantityPopup = ({
   };
   if (!isVisible) return null;
 
-  console.log("selectedProducts", selectedProducts);
+  
 
   const handleSubmit = () => {
     const data = {
@@ -103,7 +103,7 @@ const ProductQuantityPopup = ({
     );
   };
 
-  console.log(selectedProducts, "product");
+  
 
   return (
     <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">

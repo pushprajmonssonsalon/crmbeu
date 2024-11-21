@@ -59,7 +59,7 @@ const ChildComponent = ({ closeModal, data,modalRef }) => {
         }
       },
       (error) => {
-        console.log("error", error);
+        
         // alert("Select Correct Options");
         toast.error("Select Correct Options !");
       }

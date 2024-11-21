@@ -26,12 +26,12 @@ const InventoryModel = ({ data, isVisible, onClose }) => {
       "inventory/addProductToSalons",
       payload,
       (resp) => {
-        console.log("productDetails", resp);
+        
         // alert("product Added Succesfully")
         toast.success("Product Added Successfully!!");
       },
       (error) => {
-        // console.log("my product error", error.response.data.message);
+        // 
         toast.error(error.response.data.message);
       }
     );

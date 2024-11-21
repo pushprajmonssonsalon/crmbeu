@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { postApiData } from '../../utils/services';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import axios from 'axios';
@@ -24,15 +23,15 @@ const NewLogin = () => {
     //         data,
     //         (resp) => {
     //           if(resp){
-    //             console.log("resp1",resp)
+    //             
     //             localStorage.setItem("token",resp?.data?.data);
     //             navigate("/");
-    //             console.log("localStorage.getItem",localStorage.getItem("token"))
+    //             
     //           }
-    //         //   console.log("respns", resp);
+    //         //   
     //         },
     //         (error) => {
-    //           console.log("error", error);
+    //           
     //         }
     //       );
     // }  
@@ -54,7 +53,7 @@ const NewLogin = () => {
         console.error(res.data.message);
       }
     } catch (error) {
-      console.log(error);
+      
     
     }
   };

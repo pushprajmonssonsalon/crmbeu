@@ -3,13 +3,9 @@ import { getApiCall, postApiData } from "../../utils/services";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  EditproductAdded,
-  UpdateServiceAdded,
-  deletEditItems,
-  deletItems,
-  deleteProducts,
-  productAdded,
-  serviceAdded,
+    EditproductAdded,
+    UpdateServiceAdded,
+    deletEditItems, deleteProducts
 } from "../../redux/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
@@ -17,28 +13,28 @@ import Layout from "../../components/Layout";
 import { toast } from "react-hot-toast";
 const EditAppointment = () => {
   const { id } = useParams();
-  console.log("parmasid", id);
+  
   const [editAppointmentDetails, setEditAppointmentDetails] = useState([]);
   // membership details
   const [membershipDetails,setMembershipDetails] = useState([]);
   const [filterMembershipId,setFilterMembershipId] = useState("");
-  console.log("appointementDetails", editAppointmentDetails.services);
+  
   const userAppointmentDetails = editAppointmentDetails;
-  console.log({ userAppointmentDetails });
+  
 // sum of total servicex
 
-console.log(userAppointmentDetails?.customer?.name);
+
 const servicesData = useSelector((store) => store.UpdateServices.EditService);
-console.log("servicesData", servicesData);
+
 // const mergedArray = [...editAppointmentDetails?.services, ...servicesData];
-// console.log("totalServices",mergedArray)
+// 
 const deleteEditService = (index) => {
   const updatedDetails = [editAppointmentDetails];
   updatedDetails.splice(index, 1);
   setEditAppointmentDetails(updatedDetails);
 };
 const mergedArray = servicesData.concat(editAppointmentDetails.services);
-console.log("mergedArray", mergedArray);
+
 
   const deleteEditProduct = (index) => {
     const updatedDetails = [editproduct];
@@ -91,7 +87,7 @@ console.log("mergedArray", mergedArray);
   const [productQnt, setProductQnt] = useState(0);
   const [productStaff, setProductStaff] = useState("");
   const [editproduct, setEditProduct] = useState([]);
-  console.log("showSearchProduct",editproduct)
+  
   
   // const [singleResponse,setSingleResponse]= useState([])
   
@@ -101,7 +97,7 @@ console.log("mergedArray", mergedArray);
   };
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
-    console.log("selectedMembership", selectedMembership);
+    
     setMemberShipId(e.target.value);
   };
   const datePart = new Date(date);
@@ -122,7 +118,7 @@ console.log("mergedArray", mergedArray);
     // Check if selectedTime is not null before accessing its properties
     if (selectedTime && selectedTime.format) {
       // Handle the time change
-      console.log("Selected time:", selectedTime.format("hh:mm A"));
+      
       setTime(selectedTime);
       // Add your logic here
     } else {
@@ -130,11 +126,11 @@ console.log("mergedArray", mergedArray);
       console.error("Selected time is null");
     }
   };
-  console.log({ time });
+  
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
   );
-  console.log("productDatacoming", productDataReducer);
+  
 
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
   const subtotalPrice = x.reduce((accumulator, currentItem) => {
@@ -142,7 +138,7 @@ console.log("mergedArray", mergedArray);
   }, 0);
 
   const countdiscount = (subtotalPrice * applyDisountPer) / 100;
-  console.log("countdiscount", countdiscount);
+  
   const payableAmount = subtotalPrice - countdiscount;
 
   const [serviceSelection, setServiceSelection] = useState({
@@ -159,7 +155,7 @@ console.log("mergedArray", mergedArray);
     price: 0,
     staffId: "",
   });
-  console.log("serviceSelection", serviceSelection);
+  
 
   const isServiceSelectionValid = () => {
     for (const key in serviceSelection) {
@@ -179,11 +175,11 @@ console.log("mergedArray", mergedArray);
       "salonService/getServiceCategory",
       data,
       (resp) => {
-        console.log("salonService", resp);
+        
         setService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [gender]);
@@ -200,7 +196,7 @@ console.log("mergedArray", mergedArray);
         setSubService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.category]);
@@ -217,7 +213,7 @@ console.log("mergedArray", mergedArray);
         setMiniService(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.subCategory]);
@@ -228,14 +224,14 @@ console.log("mergedArray", mergedArray);
         setStaffData(res);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, [serviceSelection.subCategory]);
 
   const dispatch = useDispatch();
   const handleServiceChange = (e) => {
-    console.log("selected value", e.target.value);
+    
     setServiceSelection({
       ...serviceSelection,
       category: e.target.value,
@@ -243,7 +239,7 @@ console.log("mergedArray", mergedArray);
     });
   };
   const handleSubCategoryChange = (e) => {
-    console.log("selected value", e.target.value);
+    
     setServiceSelection({
       ...serviceSelection,
       subCategory: e.target.value,
@@ -252,10 +248,10 @@ console.log("mergedArray", mergedArray);
   };
 
   const handleminiChange = (event) => {
-    // console.log("minichangedata", e.target.value);
+    // 
     const selectedOption = event.target.options[event.target.selectedIndex];
     const selectedPrice = selectedOption.getAttribute("data-price");
-    console.log("selectedPrice", +selectedPrice);
+    
     // Now you have the selected price, you can use it as needed
     setServiceSelection({
       ...serviceSelection,
@@ -264,7 +260,7 @@ console.log("mergedArray", mergedArray);
     });
   };
   const handlestaffChange = (e) => {
-    console.log("staffselect", e.target.value);
+    
     setServiceSelection({
       ...serviceSelection,
       staffId: e.target.value,
@@ -280,7 +276,7 @@ console.log("mergedArray", mergedArray);
     }
   };
   const handldeBookAppointment = () => {
-    console.log("book Appointment");
+    
 
     const data = {
       services: x,
@@ -304,11 +300,11 @@ console.log("mergedArray", mergedArray);
           if (resp) {
             // alert("Appointment Booked Sucessfully");
             toast.success("Appointment Booked SuccessFully");
-            console.log("appointment", resp);
+            
           }
         },
         (error) => {
-          console.log("error", error);
+          
           // alert(" Booking Status Failed");
           toast.error("Booking Status Failed");
         }
@@ -317,7 +313,7 @@ console.log("mergedArray", mergedArray);
   };
   // ...`
   const nameOnclick = (item) => {
-    console.log("itemNumber", item);
+    
     // e.preventDefault();
     setMemberShipItem(item);
 
@@ -325,19 +321,19 @@ console.log("mergedArray", mergedArray);
     setPhoneNumber(item.phoneNumber);
     setUserId(item._id);
   };
-  console.log({ membershipitem });
+  
   // product name on click
 
   const productNameOnclick = (item) => {
     setSelectedProduct(item);
     setsearchProduct("");
   };
-  console.log({ selectedProduct });
+  
 
   const handleSelectChange = (event) => {
     const selectedValue = event.target.value;
     // Do something with the selected value, for example, store it in state
-    console.log("selectedValue", event.target.value);
+    
     setSelectedItem(selectedValue);
   };
 
@@ -371,10 +367,10 @@ console.log("mergedArray", mergedArray);
       "parlor/registerUserForCrm",
       apiData,
       (resp) => {
-        console.log("respns", resp);
+        
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
     closeModal();
@@ -400,11 +396,11 @@ console.log("mergedArray", mergedArray);
       "inventory/getSuggestedProductOfSalon",
       data,
       (resp) => {
-        console.log("resp.products", resp.products);
+        
         setShowSearchProduct(resp.products);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -422,7 +418,7 @@ console.log("mergedArray", mergedArray);
   //     "membership/applyMembership",
   //     data,
   //     (resp) => {
-  //       console.log("itemnumber", resp);
+  //       
   //       if (resp) {
   //         // alert("MemberShip Applied sucessfully");
   //         toast.success("Membership applied sucessfully");
@@ -430,14 +426,14 @@ console.log("mergedArray", mergedArray);
   //       }
   //     },
   //     (error) => {
-  //       console.log("error", error);
+  //       
   //       // alert("Select Correct Options");
   //       toast.error("Select Correct Options");
   //     }
   //   );
   // };
   const applyMemberShip = () => {
-    // console.log("before",subTotalService)
+    // 
     // setIsMembershipUsed(!isMembershipUsed)
     // post api = {"creditsUsed":650, "userId":"659ba793f289e0151305cba0", "memId":"65b0e6dc44201e04eae2ae7b"}
     // setMemberShipStatus(!memberShipStatus)
@@ -448,8 +444,8 @@ console.log("mergedArray", mergedArray);
       memId: memberShipId,
       isMembershipUsed: !memberShipStatus
     };
-    // console.log("after",subTotalService)
-    console.log("------------------------------data",data)
+    // 
+    
 
 
     postApiData(
@@ -457,7 +453,7 @@ console.log("mergedArray", mergedArray);
       data,
       (resp) => {
         if (resp) {
-          console.log("resp.data.creditsLeft",resp?.creditsLeft)
+          
           if(memberShipStatus){
             // setMembershipCoin(resp?.creditsLeft)
             setMemberShipStatus(false)
@@ -479,7 +475,7 @@ console.log("mergedArray", mergedArray);
         }
       },
       (error) => {
-        console.log("error", error);
+        
         alert("Select Correct Options");
       }
     );
@@ -496,11 +492,11 @@ console.log("mergedArray", mergedArray);
       "user/searchUser",
       data,
       (resp) => {
-        console.log("respons", resp);
+        
         setUserData(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   };
@@ -517,7 +513,7 @@ console.log("mergedArray", mergedArray);
       quantity: +productQnt, // Adding quantity key
       staffId: productStaffid, // Adding staffId key
     };
-    console.log("product data coming", itemWithAdditionalInfo);
+    
 
     dispatch(EditproductAdded(itemWithAdditionalInfo));
   };
@@ -528,7 +524,7 @@ console.log("mergedArray", mergedArray);
     getApiCall(
       `appointment/getSingleAppointmentDetails?id=${id}`,
       (resp) => {
-        console.log("resp", resp);
+        
         // resp.customer.activeMembership
         // setDiscountPercent(resp.discountPercentage);
         setDiscount(resp.discountPercentage)
@@ -544,30 +540,30 @@ console.log("mergedArray", mergedArray);
         setSubServiceCoins(subTotalServices)
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);
   // const isMembershipUsed = singleResponse?.membershipUsed;
-  // console.log("membership use ho ri ya nhi",isMembershipUsed)
-  console.log("memvership ki details: ",membershipDetails)
-  console.log("memberki filter id", filterMembershipId)
-  console.log({ editAppointmentDetails });
+  // 
+  
+  
+  
 
   const arr = membershipDetails?.filter((item)=>item?._id === filterMembershipId)
-  console.log({arr})
+  
 
   const subTotalServices = mergedArray.reduce((acc,item)=>acc+item?.price,0);
-  console.log("subtotalsumservice",subTotalServices)
+  
 
   const subProductTotal = productDataReducer.reduce((acc,item)=>acc+item.price,0);
-  console.log("subproduct ka total",subProductTotal)
+  
 
   const serviceDiscount = (subTotalServices*(discount/100));
-  console.log("service ka discount",serviceDiscount)
+  
 
   const totalService = subTotalServices-serviceDiscount;
-  console.log("total ka service",totalService)
+  
 
   const totalAmount = totalService+subProductTotal;
 
@@ -895,7 +891,7 @@ console.log("mergedArray", mergedArray);
                   className="absolute left-80 shadow-xl bg-white top-16 ml-8 h-[104px] w-[260px] overflow-auto"
                 >
                   {showSearchProduct?.map((item) => {
-                    console.log({ "product id": item });
+                    
                     return (
                       <div
                         style={{ display: "flex" }}

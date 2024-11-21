@@ -20,7 +20,7 @@ const authToken = store.getState();
 // });
 
 const setAuthorizationToken = (auth_token) => {
-  console.log("token", auth_token);
+  
   if (auth_token) {
     // instance.defaults.headers.common['Authorization'] =  `Bearer ${auth_token}`;
   }
@@ -36,15 +36,15 @@ const postApiData = (endpoint, apidata, success, failur) => {
       Authorization: `Bearer ${token}`,
     },
   });
-  // console.log("endpointdata",apidata)
+  // 
   instance
     .post(endpoint, apidata)
     .then((res) => {
-      console.log("otpresponse", res);
+      
       success(res?.data?.data);
     })
     .catch((error) => {
-      console.log("databaase", error);
+      
       failur(error);
     });
 };

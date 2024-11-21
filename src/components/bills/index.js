@@ -1,13 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router";
 import { getApiCall, postApiData } from "../../utils/services";
-import BillTables from "../MaterialTable/billTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
-import { ConstructionOutlined } from "@mui/icons-material";
 
 
 const AppointmentBills = () => {
@@ -23,16 +21,16 @@ const AppointmentBills = () => {
         setStaffData(res);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);
   
-  console.log({ staffData });
+  
   const data = location.state;
-  console.log("dede bhaii data", data);
-  console.log("dataitem", data.services);
-  console.log("productdataitem", data.products);
+  
+  
+  
   function FormatDate(date) {
     const dates = new Date(date);
 
@@ -50,7 +48,7 @@ const AppointmentBills = () => {
   const serviceTotal = data.services.reduce((accumulator, { price }) => {
     return accumulator + price;
   }, 0);
-  console.log("serviceTotal", serviceTotal);
+  
 
   const serviceDiscount = data.discount;
   const serviceTaxable = serviceTotal - serviceDiscount;
@@ -66,7 +64,7 @@ const AppointmentBills = () => {
     },
     0
   );
-  console.log("productTotalPrice", productTotalPrice);
+  
   const productTotalTaxtable = Math.ceil(productTotalPrice / 1.18);
   const CGSTProduct = (productTotalTaxtable * 9) / 100;
   const SGSTProduct = (productTotalTaxtable * 9) / 100;
@@ -78,16 +76,16 @@ const AppointmentBills = () => {
     getApiCall(
       "parlor/getParlorDetail",
       (resp) => {
-        console.log("getparlour", resp);
+        
         setParlorDetails(resp);
         // parlorDetails(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);
-  console.log("parlorDetails",parlorDetails.name);
+  
   const paytax = Math.ceil(data.total / 1.18);
   // const CGST = (paytax * 9) / 100;
   // const SGST = (paytax * 9) / 100;
@@ -108,12 +106,11 @@ const AppointmentBills = () => {
 
   const handlePrint = useReactToPrint({
     documentTitle: "Apointment Bill",
-    onBeforePrint: () => console.log("before printing..."),
-    onAfterPrint: () => console.log("after printing..."),
+   
     removeAfterPrint: true,
   });
   function handleChange(current)  {
-    console.log("uploaded to s3 bucket")
+    
     const doc = new jsPDF();
     doc.html(current, {
       html2canvas: { scale: 1/8, autoPaging: true },
@@ -143,14 +140,14 @@ const AppointmentBills = () => {
               invoiceUrl:data1.Location,
               salonName: parlorDetails.name
             }
-            console.log('PDF uploaded successfully to S3:', data1.Location);
+            
             postApiData("appointment/printAndSendInvoiceOfAppointment",
             datas,
             (resp)=>{
-              console.log("Pdf has been send through message",resp)
+              
             },
             (err)=>{
-              console.log("Error in sending message",err)
+              
             }
           )
           }
@@ -328,7 +325,7 @@ const AppointmentBills = () => {
               </thead>
               <tbody>
                 {data?.products.map((item, index) => {
-                  // console.log("itemdata",item)
+                  // 
                   const totalPrice = item.quantity * item.price;
                   return (
                     <tr className="text-black font-semibold">
@@ -397,7 +394,7 @@ const AppointmentBills = () => {
             </thead>
             <tbody>
               {paymentMethodsValue.map((item, index) => {
-                console.log("item", item);
+                
                 return (
                   <tr className="text-black font-medium">
                     <td>{item.name}</td>

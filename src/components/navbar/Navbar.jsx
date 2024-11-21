@@ -21,22 +21,22 @@ const Navbar = () => {
     getApiCall(
       "parlor/getParlorDetail",
       (resp) => {
-        console.log("getparlour", resp);
+        
         setParlorDetails(resp);
         parlordetail(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
     getApiCall(
       "/notification/totalUnreadNotification",
       (resp) => {
-        console.log("noti", resp);
+        
         setUnReadMsg(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);

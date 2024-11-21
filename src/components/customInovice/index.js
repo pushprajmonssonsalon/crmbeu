@@ -17,15 +17,15 @@ export default function  InvoiceGenrator() {
         setStaffData(res);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);
-  console.log({staffData})
+  
   const data = location.state;
-  console.log("dede bhaii data",data)
-  console.log("dataitem", data.services);
-  console.log('productdataitem',data.products)
+  
+  
+  
   const memberShipDataused = data?.membershipCreditUsed;
   const paymentMethodsValue = data?.paymentMethod;
   const currentDate = new Date();
@@ -34,7 +34,7 @@ export default function  InvoiceGenrator() {
   const serviceTotal = data.services.reduce((accumulator, { price }) => {
     return accumulator + price;
   }, 0);
-  console.log("serviceTotal", serviceTotal);
+  
 
   const serviceDiscount = data.discount;
   const serviceTaxable = serviceTotal - serviceDiscount;
@@ -51,7 +51,7 @@ export default function  InvoiceGenrator() {
     },
     0
   );
-  console.log("productTotalPrice", productTotalPrice);
+  
   const productTotalTaxtable = Math.ceil(productTotalPrice / 1.18);
   const CGSTProduct = (productTotalTaxtable * 9) / 100;
   const SGSTProduct = (productTotalTaxtable * 9) / 100;
@@ -65,12 +65,12 @@ export default function  InvoiceGenrator() {
     getApiCall(
       "parlor/getParlorDetail",
       (resp) => {
-        console.log("getparlour", resp);
+        
         setParlorDetails(resp);
         parlorDetails(resp);
       },
       (error) => {
-        console.log("error", error);
+        
       }
     );
   }, []);
@@ -145,7 +145,7 @@ export default function  InvoiceGenrator() {
                 </thead>
                 <tbody>
                   {data?.services.map((item, index) => {
-                    // console.log("itemdata",item)
+                    // 
                     return (
                       <tr>
                         <td>{item.miniSubcategory}</td>
@@ -254,7 +254,7 @@ export default function  InvoiceGenrator() {
                 </thead>
                 <tbody>
                   {data?.products.map((item, index) => {
-                    // console.log("itemdata",item)
+                    // 
                     const totalPrice = item.quantity * item.price;
                     return (
                       <tr>
@@ -411,7 +411,7 @@ export default function  InvoiceGenrator() {
 
                 <tbody>
                   {paymentMethodsValue.map((item, index) => {
-                    console.log("item", item);
+                    
                     return (
                       <tr>
                         <td>{item.name}</td>

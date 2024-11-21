@@ -1,7 +1,7 @@
 import { BiSolidAddToQueue } from 'react-icons/bi'
 
 const MyServiceTable = ({data,startIndex,endIndex,handleEditService}) => {
-  console.log("serviceData data", data)
+  
   return (
     <>
         <table className="styled-table" style={{ height: "40px" }}>
@@ -21,7 +21,7 @@ const MyServiceTable = ({data,startIndex,endIndex,handleEditService}) => {
                   <tbody>
                   {
                     data.map((item, index) =>{
-                      console.log("itemservice",item)
+                      
                       return(
                         <tr key={index}>
                         <td>{item.services.name}</td>

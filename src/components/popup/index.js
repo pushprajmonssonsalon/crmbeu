@@ -78,7 +78,7 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
       },
       (error) => {
 
-        console.log("error", error);
+        
 
         toast.error("service already Added");
       }

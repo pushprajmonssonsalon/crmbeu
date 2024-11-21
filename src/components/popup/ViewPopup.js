@@ -53,7 +53,7 @@ const ViewPopup = ({
   
   };
 
-  console.log("paymentMethod", paymentMethod ,activeAppointment);
+  
 
   return (
     <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">

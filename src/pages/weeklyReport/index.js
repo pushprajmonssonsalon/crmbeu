@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
-import CustomInputFeild from "../../components/customInput";
 import { postApiData } from '../../utils/services';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -10,8 +9,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import DatePicker from "react-datepicker";
-import { IoPrintSharp } from 'react-icons/io5';
 import MonthPicker from '../../components/Pickers/MonthPicker';
 import YearPicker from '../../components/Pickers/YearPicker';
  
@@ -62,11 +59,11 @@ const WeeklyReport = () => {
     postApiData("reports/salonWeeklyReport",
     data,
     (resp)=>{
-        console.log("revenue detail", resp)
+        
         setWeeklyReport(resp)          
     },
     (error)=>{
-        console.log("revenue error",error)
+        
     }
 )
   },[month,year])
@@ -77,15 +74,15 @@ const WeeklyReport = () => {
     postApiData("reports/salonWeeklyReport",
     data,
     (resp)=>{
-        console.log("revenue detail", resp)
+        
         setWeeklyReport(resp)
     },
     (error)=>{
-        console.log("revenue error",error)
+        
     }
 )
   }
-  // console.log("revenue",revenue)
+  // 
 
   const headings = ["Week","Tickets","No. Of Services","No. Of Products","Revenue","AvgServicePerBill","AvgTicketSize"]
   return (

@@ -28,7 +28,7 @@ export default function CheckBox({ staffData,selectedStaff, setSelectedStaff,exp
   }
   
   
-  console.log("staff data --------------",staffData)
+  
 
   return (
     <div>

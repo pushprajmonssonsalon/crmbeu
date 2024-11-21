@@ -74,7 +74,7 @@ export default function StickyHeadTable({
   };
 
   const getStatusNumber = (status) => {
-    console.log("status", status);
+    
     switch (status) {
       case 1:
         return "Pending";
@@ -89,7 +89,7 @@ export default function StickyHeadTable({
   };
 
   function formatDateTime(timestamp) {
-    console.log("timestamp", timestamp);
+    
 
     // Parse the timestamp
     const [dateString, timeString] = timestamp.split("T");
@@ -111,7 +111,7 @@ export default function StickyHeadTable({
       .toString()
       .padStart(2, "0")} ${period}`;
 
-    console.log(`Date: ${formattedDate}, Time: ${formattedTime}`);
+    
     return `${formattedDate} ${formattedTime}`;
   }
 

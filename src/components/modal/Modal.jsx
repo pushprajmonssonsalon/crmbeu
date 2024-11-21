@@ -7,14 +7,14 @@ const Modal = ({show,setShow,children}) => {
   };
   const closeModal = () => {
     if (modalRef.current) {
-      modalRef.current.classList.remove("slide-in-top");
-      modalRef.current.classList.add("slide-out-bottom");
+      modalRef?.current?.classList?.remove("slide-in-top");
+      modalRef?.current?.classList?.add("slide-out-bottom");
 
       // Delay hiding the modal until after the transition finishes
       setTimeout(() => {
         setShow(false);
-        modalRef.current.classList.remove("slide-out-bottom");
-        modalRef.current.classList.add("slide-in-top"); // Reset for future opens
+        modalRef?.current?.classList?.remove("slide-out-bottom");
+        modalRef?.current?.classList?.add("slide-in-top"); // Reset for future opens
       }, 300); // 300ms matches the transition duration (should match your CSS)
     }
   };
