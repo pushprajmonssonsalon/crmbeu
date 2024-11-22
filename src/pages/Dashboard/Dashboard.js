@@ -163,7 +163,7 @@ const Dashboard = () => {
 
   const totalRevenue =useMemo(()=>{
 
-    return salonDetails?.sales.reduce((curr,acc)=>curr+acc,0)
+    return salonDetails?.sales.slice(0,-1).reduce((curr,acc)=>curr+acc,0)
   },[salonDetails.sales])
  
   const serviceRevenue =useMemo(()=>{
@@ -176,8 +176,11 @@ const Dashboard = () => {
   },[salonDetails.products])
  
   useEffect(() => {
+    const stDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-01T00:00:00.000Z`;
+    // "2024-10-31T18:30:00.000Z"
+                    console.log(stDate,"stDate")
     const data = {
-      startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // First day of the current month at 00:00:00
+      startDate: new Date(stDate), // First day of the current month at 00:00:00
       endDate: new Date(), // Current date and time
     };
 
@@ -285,7 +288,7 @@ const Dashboard = () => {
   return (
     <>
       <Layout>
-        <div className="mt-32 md:mt-40 mb-16  w-[90%] mx-auto ">
+        <div className="mt-32 md:mt-40 mb-16 w-[95%]  xl:w-[90%] mx-auto ">
         <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 2xl:grid-cols-4 gap-5 mb-6">
       
         <div className="w-full">

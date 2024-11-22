@@ -5,7 +5,6 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const BarChart = ({heading,data}) => {
  
-
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -22,6 +21,10 @@ const BarChart = ({heading,data}) => {
     scales: {
       x: {
         grid: { display: false },
+        ticks: {
+          maxRotation: 0, // Optionally control label rotation
+        },
+        barThickness: 50, // Set the maximum bar width (in pixels)
       },
       y: {
         grid: { color: "rgba(200, 200, 200, 0.2)" },
@@ -29,7 +32,7 @@ const BarChart = ({heading,data}) => {
       },
     },
   };
-
+  
   return (
     <div>
         <h2 className="text-gray-800 text-start text-2xl font-semibold mb-2">{heading}</h2>

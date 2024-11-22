@@ -116,8 +116,7 @@ const Report = () => {
 
         let paymentReport = paymentMethods.map(method => ({
           _id: method,
-          total: findTotalById(resp.appointmentPaymentMethodReport, method) +
-                findTotalById(resp.subscriptionPaymentMethodReport, method)
+          total: findTotalById(resp.appointmentPaymentMethodReport, method) 
         }));
         setPaymentMethodReport(paymentReport)
       },
@@ -335,10 +334,10 @@ const Report = () => {
             return (
            
                 <tr>
-                  {item._id == 3 && <td>{"Completed"}</td>}
-                  {item._id == 2 && <td>{"Cancelled"}</td>}
-                  {item._id == 3 && <td>{item.total}</td>}
-                  {item._id == 2 && <td>{item.total}</td>}
+                  {item._id === 3 && <td>{"Completed"}</td>}
+                  {item._id === 2 && <td>{"Cancelled"}</td>}
+                  {item._id === 3 && <td>{item.total}</td>}
+                  {item._id === 2 && <td>{item.total}</td>}
                 </tr>
        
             );
