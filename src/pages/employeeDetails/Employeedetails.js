@@ -186,7 +186,9 @@ const Employeedetails = () => {
             </table>
           {/* } */} 
         {/* </div> */}
+        <div className="max-w-[95%] mx-auto overflow-y-auto ">
         <EmployeeTable data={getstaffData} startIndex={startIndex} endIndex={endIndex} isBool={isBool} setIsBool={setIsBool}/>
+        </div>
         <Pagination 
               totalItems={getstaffData.length}
               itemsPerPage={itemsPerPage}

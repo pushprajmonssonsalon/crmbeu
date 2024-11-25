@@ -8,7 +8,7 @@ import { useLocation } from "react-router";
 const InvoiceWise = () => {
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
   const location = useLocation();
-
+  const [loading,setLoading]=useState(false)
   // Use URLSearchParams to parse query parameters
   const queryParams = new URLSearchParams(location.search);
 
@@ -26,6 +26,7 @@ const InvoiceWise = () => {
       startDate: startDate,
       endDate: endDate,
     };
+    setLoading(true)
     postApiData(
       "appointment/getAppointments",
       data,
@@ -33,10 +34,13 @@ const InvoiceWise = () => {
         
         if (resp) {
           setViewAppointmentDetails(resp);
+          setLoading(false)
+
         }
       },
       (error) => {
-        
+        setLoading(false)
+
       }
     );
   }, []);
@@ -46,17 +50,22 @@ const InvoiceWise = () => {
       startDate: startDate,
       endDate: endDate,
     };
+    setLoading(true)
+
     postApiData(
       "appointment/getAppointments",
       data,
       (resp) => {
         
         if (resp) {
+          setLoading(false)
+
           setViewAppointmentDetails(resp);
         }
       },
       (error) => {
-        
+        setLoading(false)
+
       }
     );
   };
@@ -124,6 +133,7 @@ const InvoiceWise = () => {
           endDate={endDate}
           setEndDate={setEndDate}
           submitClick={searchClick}
+          loading={loading}
         />
         {/* <CustomizedInvoiceWiseTables headings={headings} data={viewAppointmentDetails}  ref={tableRef}/> */}
         <div className="max-w-[100%] max-h-[calc(100vh-200px)]   my-9 shadow-md  overflow-auto">

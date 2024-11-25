@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 
 import "./report.css";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { postApiData } from "../../utils/services";
 import { usePDF } from 'react-to-pdf';
 import Layout from "../../components/Layout";
 import ReportTable from "../../components/Table/ReportTable";
 import { MdPeopleAlt } from "react-icons/md";
+import CustomSearchInputFeild from "../../components/customInput";
 
 const Report = () => {
   const defaultStartDate = new Date();
+  const [loading,setLoading]=useState(false)
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultStartDate);
   const [reports, setReports] = useState([]);
@@ -41,11 +42,13 @@ const Report = () => {
       startDate: startDate,
       endDate: startDate,
     };
+    setLoading(true)
     postApiData(
       "reports/salonDailyReport",
       data,
       (resp) => {
-        
+        setLoading(false)
+
         setAppointmentStatus(resp.appointmentStatus);
         setServiceDistribution(resp.serviceCategoryWiseRevenue);
         setStaffDistribution(resp.staffRevenueDistribution);
@@ -65,7 +68,8 @@ const Report = () => {
         
       },
       (error) => {
-        
+        setLoading(false)
+
       }
     );
 
@@ -97,13 +101,14 @@ const Report = () => {
       startDate: startDate,
       endDate: endDate,
     };
+    setLoading(true)
 
     postApiData(
       "reports/salonDailyReport",
       data,
       (resp) => {
         
-        
+        setLoading(false)
         setAppointmentStatus(resp.appointmentStatus);
         setServiceDistribution(resp.serviceCategoryWiseRevenue);
         setStaffDistribution(resp.staffRevenueDistribution);
@@ -121,7 +126,8 @@ const Report = () => {
         setPaymentMethodReport(paymentReport)
       },
       (error) => {
-        
+        setLoading(false)
+
       }
     );
   };
@@ -197,65 +203,16 @@ const Report = () => {
       >
         <span className="selectDate">Select Date</span>
       </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <div
-          style={{
-            marginLeft: "10px",
-            flexDirection: "column",
-            display: "flex",
-          }}
-        >
-          <label>Start Date</label>
-
-          <DatePicker
-            selectsStart
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            startDate={startDate}
-          />
-        </div>
-
-        <div
-          style={{
-            marginLeft: "10px",
-            flexDirection: "column",
-            display: "flex",
-          }}
-        >
-          <label>End Date</label>
-          <DatePicker
-            selectsEnd
-            selected={endDate}
-            onChange={(date) => setEndDate(date)}
-            endDate={endDate}
-            startDate={startDate}
-            minDate={startDate}
-          />
-        </div>
-
-        <button
-        className="flex items-center justify-center"
-          style={{
-            height: "35px",
-            borderRadius: "20px solid grey",
-            width: "150px",
-            backgroundColor: "black",
-            marginLeft: "20px",
-            marginTop: "23px",
-          }}
-          onClick={submitClick}
-        >
-        
-            Submit
-         
-        </button>
-      </div>
+      <div className=" flex my-3 justify-center items-center">
+            <CustomSearchInputFeild
+              startDate={startDate}
+              setStartDate={setStartDate}
+              endDate={endDate}
+              setEndDate={setEndDate}
+              submitClick={submitClick}
+              loading={loading}
+            />
+          </div>
 
  <div ref={targetRef} >     
       <div className="mt-10"

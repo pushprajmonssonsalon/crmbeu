@@ -15,6 +15,7 @@ import exportToExcel from "../../utils/exportToExcel";
 
 const ViewAppointment = () => {
   const [params] = useSearchParams();
+  const [loading,setLoading]=useState(false)
   const start = params.get("start");
   const end = params.get("end");
   const [apptId, setApptId] = useState("");
@@ -257,68 +258,41 @@ const ViewAppointment = () => {
   };
   useEffect(() => {
     const data = {
-      type: "crm",
+      type: tab,
       startDate: startDate,
       endDate: endDate,
     };
     postApiData(
-      "appointment/getAppointments",
+      `appointment/getAppointments`,
       data,
       (resp) => {
         
-        if (resp) {
-          setTab("crm");
+        if (resp?.length>0) {
+                    setLoading(false)
           setViewAppointmentDetails(resp);
+        }
+        else{
+          setLoading(false)
         }
       },
       (error) => {
-        
+        setLoading(false)
+
       }
     );
-  }, [isStatusChange, showQuantityPopup]);
+  }, [isStatusChange, showQuantityPopup,tab]);
 
   const handleAppTab = () => {
-    const data = {
-      type: "app",
-      startDate: startDate,
-      endDate: endDate,
-    };
-    postApiData(
-      "appointment/getAppointments",
-      data,
-      (resp) => {
-        
-        if (resp) {
-          setViewAppointmentDetails(resp);
-        }
-      },
-      (error) => {
-        
-      }
-    );
+    
     setTab("app");
   };
   const handleCrmTab = () => {
-    const data = {
-      type: "crm",
-    };
-    postApiData(
-      "appointment/getAppointments",
-      data,
+   
+    setTab("crm")
 
-      (resp) => {
-        
-        if (resp) {
-          setTab("crm");
-          setViewAppointmentDetails(resp);
-        }
-      },
-      (error) => {
-        
-      }
-    );
   };
   const searchClick = () => {
+    setLoading(true)
     const data = {
       type: tab,
       startDate: startDate,
@@ -330,13 +304,22 @@ const ViewAppointment = () => {
       data,
       (resp) => {
         
-        if (resp) {
-          setTab(tab);
+        if (resp?.length>0) {
+                    setTab(tab);
+          setLoading(false)
+
           setViewAppointmentDetails(resp);
+        }
+        else{
+          toast.error("No Result Found")
+          setLoading(false)
+
         }
       },
       (error) => {
-        
+        toast.error("No Result Found")
+        setLoading(false)
+
       }
     );
   };
@@ -382,6 +365,7 @@ const ViewAppointment = () => {
               endDate={endDate}
               setEndDate={setEndDate}
               submitClick={searchClick}
+              loading={loading}
             />
           </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from "../../utils/services";
 import toast from "react-hot-toast";
@@ -9,11 +9,17 @@ import { FiShoppingCart } from "react-icons/fi";
 const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
   const navigate = useNavigate();
   const [quantities, setQuantities] = useState([]);
+  const brands = useMemo(() => {
+    return [...new Set(data?.map((elm) => elm.brand))];
+  }, [data]);
+  const [activeBrand, setActiveBrand] = useState(brands?.length>0?brands[0]:"");
 
   useEffect(() => {
     setQuantities(data.map(() => 1));
   }, [data]);
-
+  useEffect(()=>{
+    if(brands.length>0)setActiveBrand(brands[0])
+  },[brands])
   const [bool, setBool] = useState(false);
   const handleQuantityChange = (index, value) => {
     const newQuantities = [...quantities];
@@ -22,15 +28,14 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
   };
   if (!isVisible) return null;
 
-  
-
   const orderpayload = data.map((obj, index) => ({
     ...obj,
     orderedQuantity: +quantities[index],
     receivedQuantity: 0,
   }));
 
-  
+  console.log(brands, "brands");
+
   const handleSubmitOrder = () => {
     const data = {
       products: orderpayload,
@@ -45,7 +50,6 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
         }
       },
       (error) => {
-        
         toast.error("something went wrong!");
       }
     );
@@ -53,6 +57,13 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
     onClose();
     navigate("/orders");
   };
+  const handleBrandChange=(brand)=>{
+    if(brands.length>0){
+      setActiveBrand(brand)
+
+    }
+  }
+  
 
   return (
     <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center ">
@@ -69,6 +80,21 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
               <MdOutlineClose />
             </div>
           </div>
+          <div className="my-3 ">
+          <span className="text-xs text-black font-medium leading-6">Filter Brands</span>
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4 bg-gray-50 p-2 border rounded-sm">
+              {brands?.length > 0 &&
+                brands?.map((brand, idx) => (
+                  <div
+                  onClick={()=>handleBrandChange(brand)}
+                    className={`active:scale-105 active:outline active:outline-neutral-50  ${activeBrand===brand?"bg-blue-500 text-white":"text-black"} transition-all w-auto lg:min-w-[150px] ease-in duration-100  p-2 text-center  rounded-md font-semibold text-black cursor-pointer`}
+                    key={idx}
+                  >
+                    {brand}
+                  </div>
+                ))}
+            </div>
+          </div>
 
           {data?.length > 0 ? (
             <>
@@ -82,7 +108,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((item, index) => (
+                  {data?.filter(elm=>elm.brand===activeBrand)?.map((item, index) => (
                     <tr key={index}>
                       <td>{item?.name}</td>
                       <td>{item?.size}</td>
@@ -109,21 +135,18 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
               </table>
 
               <button
-                className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl`}
+                className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500  rounded-xl`}
                 onClick={handleSubmitOrder}
               >
                 Submit
               </button>
             </>
-          
           ) : (
             <div className="h-[20vh] flex items-center justify-center bg-gray-100 rounded-[25px]">
-            <div>
-
-         
-            <FiShoppingCart className="h-[10vh] text-gray-300 w-[10vw]" />
-            <h2 className="text-gray-300 text-xl">Your Cart is Empty</h2>
-            </div>
+              <div>
+                <FiShoppingCart className="h-[10vh] text-gray-300 w-[10vw]" />
+                <h2 className="text-gray-300 text-xl">Your Cart is Empty</h2>
+              </div>
             </div>
           )}
         </div>

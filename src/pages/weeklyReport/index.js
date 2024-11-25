@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
 import { postApiData } from '../../utils/services';
 import { styled } from '@mui/material/styles';
@@ -89,14 +89,14 @@ const WeeklyReport = () => {
     <Layout>
         <div className='mt-32'>
         {/* <CustomInputFeild startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} submitClick={searchClick}/> */}
-        <div className='flex justify-center items-center gap-x-5'>
+        <div className='flex justify-center items-center gap-x-5 my-9'>
         <MonthPicker months={months} month={month} setMonth={setMonth}/>
           <YearPicker years={years} year={year} setYear={setYear}/>
           </div>
         </div>
         
 
-        <TableContainer component={Paper}>
+        <TableContainer sx={{ maxWidth:"95%",overflowX:"auto",margin:"0 auto"}} component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>
                 <TableRow >

@@ -35,6 +35,7 @@ const subCategoryHeadings = [
   },
 ];
 const Categorywise = () => {
+  const [loading,setLoading]=useState(false)
   const defaultStartDate = new Date();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -50,18 +51,22 @@ const Categorywise = () => {
       startDate: startDate,
       endDate: endDate,
     };
+    setLoading(true)
     postApiData(
       "reports/minisubCategoryWiseRevenue",
       data,
       (resp) => {
         
         if (resp[0]) {
+          setLoading(false)
+
           setSubCategories(resp[0]?.bySubCategory);
           setMiniSubCategories(resp[0]?.byMiniSubCategory);
         }
       },
       (error) => {
-        
+        setLoading(false)
+
       }
     );
   };
@@ -135,6 +140,7 @@ const Categorywise = () => {
             setStartDate={setStartDate}
             endDate={endDate}
             setEndDate={setEndDate}
+            loading={loading}
             submitClick={searchClick}
           />
 

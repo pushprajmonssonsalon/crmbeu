@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Layout from '../Layout';
-import CustomInputFeild from "../../components/customInput";
 import { postApiData } from '../../utils/services';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -10,6 +9,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import CustomSearchInputFeild from '../../components/customInput';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -32,6 +32,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 const Revenue = () => {
     const defaultStartDate = new Date();
+    const [loading,setLoading]=useState(false);
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultStartDate);
   const [revenue,setRevenue] = useState([])
@@ -40,14 +41,17 @@ const Revenue = () => {
         startDate: startDate,
         endDate: endDate
     }
+    setLoading(true)
     postApiData("reports/getRevenueReportDayWise",
     data,
     (resp)=>{
-        
+      setLoading(false)
+
         setRevenue(resp)
     },
     (error)=>{
-        
+      setLoading(false)
+
     }
 )
   },[])
@@ -56,14 +60,18 @@ const Revenue = () => {
         startDate: startDate,
         endDate: endDate
     }
+    setLoading(true)
+
     postApiData("reports/getRevenueReportDayWise",
     data,
     (resp)=>{
-        
+      setLoading(false)
+
         setRevenue(resp)
     },
     (error)=>{
-        
+      setLoading(false)
+
     }
 )
   }
@@ -72,12 +80,20 @@ const Revenue = () => {
   const headings = ["Date","Appointments","Total Revenue","Services","Products","Membership Revenue"]
   return (
     <Layout>
-        <div className='mt-32'>
-        <CustomInputFeild startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} submitClick={searchClick}/>
+        <div className='mt-32 mb-9'>
+
+        <CustomSearchInputFeild
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            loading={loading}
+            submitClick={searchClick}
+          />
         </div>
         
 
-        <TableContainer component={Paper}>
+        <TableContainer sx={{ maxWidth:"95%",overflowX:"auto",margin:"0 auto"}} component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
         <TableHead>
                 <TableRow >
