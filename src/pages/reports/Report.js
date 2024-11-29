@@ -2,13 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import "./report.css";
 import "react-datepicker/dist/react-datepicker.css";
-import { postApiData } from "../../utils/services";
+import { postApiData, formatValue } from "../../utils/services";
 import { usePDF } from 'react-to-pdf';
 import Layout from "../../components/Layout";
 import ReportTable from "../../components/Table/ReportTable";
 import { MdPeopleAlt } from "react-icons/md";
 import CustomSearchInputFeild from "../../components/customInput";
-
 const Report = () => {
   const defaultStartDate = new Date();
   const [loading,setLoading]=useState(false)
@@ -20,7 +19,6 @@ const Report = () => {
   const [appointmentStatus, setAppointmentStatus] = useState([]);
   const [serviceDistribution, setServiceDistribution] = useState([]);
   const [staffDistribution, setStaffDistribution] = useState([]);
-  const [dataResponse,setDataResponse]=useState([]);
   const [categoryWiseDistrubution,setCategoryWiseDistrubution] = useState([])
   const [productDistribution,setProductDistribution] = useState([]);
   const [membershipCredit,setMembershipCredit] = useState([]);
@@ -48,21 +46,18 @@ const Report = () => {
       data,
       (resp) => {
         setLoading(false)
+        setAppointmentStatus(resp?.appointmentStatus);
+        setServiceDistribution(resp?.serviceCategoryWiseRevenue);
+        setStaffDistribution(resp?.staffRevenueDistribution);
+        setCategoryWiseDistrubution(resp?.staffCategoryWiseRevenue)
+        setMemberShipSale(resp?.membershipSale);
+        setProductDistribution(resp?.productRevenueDistribution)
+        setMembershipCredit(resp?.membershipCreditUsed)
+        const paymentMethods =  ["Cash", "Card", "Online", "Upi"];
 
-        setAppointmentStatus(resp.appointmentStatus);
-        setServiceDistribution(resp.serviceCategoryWiseRevenue);
-        setStaffDistribution(resp.staffRevenueDistribution);
-        setCategoryWiseDistrubution(resp.staffCategoryWiseRevenue)
-        setMemberShipSale(resp.membershipSale);
-        setProductDistribution(resp.productRevenueDistribution)
-        setMembershipCredit(resp.membershipCreditUsed)
-        setDataResponse(resp)
-        const paymentMethods = ["Card", "Upi", "Cash"];
-
-        let paymentReport = paymentMethods.map(method => ({
+        let paymentReport = paymentMethods?.map(method => ({
           _id: method,
-          total: findTotalById(resp.appointmentPaymentMethodReport, method) +
-                findTotalById(resp.subscriptionPaymentMethodReport, method)
+          total: findTotalById(resp?.paymentMethodReport, method) 
         }));
         setPaymentMethodReport(paymentReport)
         
@@ -82,7 +77,7 @@ const Report = () => {
   }
   const serviceDistributionTotal =useMemo(()=>{
    if(serviceDistribution){
-    const total =serviceDistribution.reduce((acc,curr)=>acc+curr?.totalRevenue,0)
+    const total =serviceDistribution?.reduce((acc,curr)=>acc+curr?.totalRevenue,0)
     return total.toFixed(2||0);
    }
    return 0;
@@ -90,7 +85,7 @@ const Report = () => {
 
   const productDistributionTotal =useMemo(()=>{
    if(productDistribution){
-    const total =productDistribution.reduce((acc,curr)=>acc+curr?.totalRevenue,0)
+    const total =productDistribution?.reduce((acc,curr)=>acc+curr?.totalRevenue,0)
     return total.toFixed(2||0);
    }
    return 0;
@@ -107,21 +102,19 @@ const Report = () => {
       "reports/salonDailyReport",
       data,
       (resp) => {
-        
         setLoading(false)
-        setAppointmentStatus(resp.appointmentStatus);
-        setServiceDistribution(resp.serviceCategoryWiseRevenue);
-        setStaffDistribution(resp.staffRevenueDistribution);
-        setCategoryWiseDistrubution(resp.staffCategoryWiseRevenue)
-        setProductDistribution(resp.productRevenueDistribution)
-        setMemberShipSale(resp.membershipSale);
-        setMembershipCredit(resp.membershipCreditUsed)
-        setDataResponse(resp);
+        setAppointmentStatus(resp?.appointmentStatus);
+        setServiceDistribution(resp?.serviceCategoryWiseRevenue);
+        setStaffDistribution(resp?.staffRevenueDistribution);
+        setCategoryWiseDistrubution(resp?.staffCategoryWiseRevenue)
+        setMemberShipSale(resp?.membershipSale);
+        setProductDistribution(resp?.productRevenueDistribution)
+        setMembershipCredit(resp?.membershipCreditUsed)
         const paymentMethods = ["Card", "Upi", "Cash"];
 
-        let paymentReport = paymentMethods.map(method => ({
+        let paymentReport = paymentMethods?.map(method => ({
           _id: method,
-          total: findTotalById(resp.appointmentPaymentMethodReport, method) 
+          total: findTotalById(resp?.paymentMethodReport, method) 
         }));
         setPaymentMethodReport(paymentReport)
       },
@@ -145,10 +138,10 @@ const Report = () => {
   //   )
   // },[])
   
-  const credits = membershipCredit[0]?.membershipCreditUsed;
+  const credits = membershipCredit?.length>0&& membershipCredit[0]?.membershipCreditUsed;
   
   
-  const totalPayment = paymentMethodReport.reduce((acc, payment) => acc + payment.total, 0);
+  const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
 
   
 
@@ -166,8 +159,8 @@ const Report = () => {
           };
           return acc;
         }, {});
-        setWholeCustomerRevenue(result?.old?.totalRevenue)
-        setNewCustomerRevenue(result?.new?.totalRevenue)
+        setWholeCustomerRevenue(formatValue(result?.old?.totalRevenue))
+        setNewCustomerRevenue(formatValue(result?.new?.totalRevenue))
         
       },(error)=>{
         
@@ -237,7 +230,7 @@ const Report = () => {
           </tr>
         </thead>
         <tbody style={{ height: "80px" }}>
-          {paymentMethodReport.map((item, index) => {
+          {paymentMethodReport?.map((item, index) => {
             return (
               <>
                 <tr>
@@ -287,7 +280,7 @@ const Report = () => {
           </tr>
         </thead>
         <tbody style={{ height: "80px" }}>
-          {appointmentStatus.map((item, index) => {
+          {appointmentStatus?.map((item, index) => {
             return (
            
                 <tr>
@@ -324,7 +317,7 @@ const Report = () => {
           </tr>
         </thead>
         <tbody style={{ height: "80px" }}>
-          {membershipSale.map((item, index) => {
+          {membershipSale?.map((item, index) => {
             return (
               <>
                 <tr>
@@ -359,7 +352,7 @@ const Report = () => {
           </tr>
         </thead>
         <tbody style={{ height: "80px" }}>
-          {serviceDistribution.map((item, index) => {
+          {serviceDistribution?.map((item, index) => {
             return (
               <>
                 <tr>

@@ -24,7 +24,7 @@ const DashboardCard = ({ heading ,value ,icon}) => {
     <>
      
       <div className="border shadow-lg bg-white rounded-xl p-6 flex flex-col gap-4">
-      <h3 className="text-2xl font-semibold text-gray-700">{heading}</h3>
+      <h3 className="text-lg font-semibold text-gray-700">{heading}</h3>
       <div className="flex items-center justify-between">
         {/* Revenue Value */}
         <span className="text-3xl font-bold text-blue-600"> {value} </span>

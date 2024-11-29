@@ -2,7 +2,7 @@ import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
 const BASE_URL = "https://crm.smartsalon.in/";
-// const BASE_URL = "http://192.168.2.32:4002";
+// const BASE_URL = "http://192.168.2.21:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
@@ -98,5 +98,13 @@ function formatDateToFull(dateString,full=true) {
   }
   return dateString;
 }
+function formatValue(value){
+  if(Array.isArray(value)){
+  return  value.map(elm=>formatValue(elm))
+  }
+  else{
+    return value>0? value?.toFixed(2):value;
 
-export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull};
+  }
+}
+export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue};

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import BarChart from "../../components/charts/BarChart";
 import DonutChart from "../../components/charts/DonutChart";
 import Layout from "../../components/Layout";
-import { postApiData } from "../../utils/services";
+import { formatValue, postApiData } from "../../utils/services";
 import DashboardCard from "../../components/charts/DashboardCards";
 import { MdCurrencyRupee } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
@@ -64,35 +64,36 @@ const Dashboard = () => {
         },
       ],
     },
+    membership:2323
   });
   const data = {
-    labels: [`Cash : ₹${salonDetails?.sales[0]}`, `Card : ₹${salonDetails?.sales[1]}`, `App : ₹${salonDetails?.sales[2]}`, `Upi : ₹${salonDetails?.sales[3]}`, `Membership Points : ₹${salonDetails?.sales[4]}`],
+    labels: [`Cash : ₹${formatValue(salonDetails?.sales[0])}`, `Card : ₹${formatValue(salonDetails?.sales[1])}`, `App : ₹${formatValue(salonDetails?.sales[2])}`, `Upi : ₹${formatValue(salonDetails?.sales[3])}`, `Membership Points : ₹${salonDetails?.sales[4]}`],
     datasets: [
       {
         label: "sales",
-        data: [...salonDetails?.sales],
-        backgroundColor: [
-          "rgba(178, 39, 76, 0.8)", // Darker red
-          "rgba(26, 98, 174, 0.8)", // Darker blue
-          "rgba(204, 145, 43, 0.8)", // Darker yellow
-          "rgba(54, 162, 235, 1)", // Darker yellow
-          "rgba(35, 133, 133, 0.8)", // Darker teal
-        ],
-        borderColor: [
-          "rgba(178, 39, 76, 1)", // Darker red
-          "rgba(26, 98, 174, 1)", // Darker blue
-          "rgba(204, 145, 43, 1)", // Darker yellow
-          "rgba(54, 162, 235, 1)", // Darker yellow
-          "rgba(35, 133, 133, 1)", // Darker teal
-        ],
+        data: [...formatValue(salonDetails?.sales)],
+      backgroundColor: [
+    'rgba(255, 99, 132, 0.8)', // Red
+    'rgba(54, 162, 235, 0.8)', // Blue
+    'rgba(255, 206, 86, 0.8)', // Yellow
+    'rgba(75, 192, 192, 0.8)', // Teal
+    'rgba(153, 102, 255, 0.8)', // Purple
+],
+borderColor: [
+    'rgba(255, 99, 132, 1)',
+    'rgba(54, 162, 235, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(153, 102, 255, 1)',
+],
         borderWidth: 1,
       },
     ],
   };
   const appointments = {
     labels: [
-      `Completed : ${salonDetails?.appointments[0]}`,
-      `Cancelled : ${salonDetails?.appointments[1]}`,
+      `Completed : ${formatValue(salonDetails?.appointments[0])}`,
+      `Cancelled : ${formatValue(salonDetails?.appointments[1])}`,
     ],
     datasets: [
       {
@@ -115,7 +116,7 @@ const Dashboard = () => {
     datasets: [
       {
         label: "sales in Rs",
-        data: salonDetails?.services, // Impression data for services
+        data: formatValue(salonDetails?.services), // Impression data for services
         backgroundColor: "rgba(54, 162, 235, 0.8)", // Blue bars
         borderRadius: 4,
         borderSkipped: false,
@@ -127,7 +128,7 @@ const Dashboard = () => {
     datasets: [
       {
         label: "sales in Rs",
-        data: salonDetails?.products, // Impression data for services
+        data: formatValue(salonDetails?.products), // Impression data for services
         backgroundColor: "rgba(0, 128, 128, 1)", // Blue bars
         borderRadius: 4,
         borderSkipped: false,
@@ -163,16 +164,16 @@ const Dashboard = () => {
 
   const totalRevenue =useMemo(()=>{
 
-    return salonDetails?.sales.slice(0,-1).reduce((curr,acc)=>curr+acc,0)
+    return formatValue(salonDetails?.sales.slice(0,-1).reduce((curr,acc)=>curr+acc,0))
   },[salonDetails.sales])
  
   const serviceRevenue =useMemo(()=>{
 
-    return salonDetails?.services.reduce((curr,acc)=>curr+acc,0)
+    return formatValue(salonDetails?.services.reduce((curr,acc)=>curr+acc,0))
   },[salonDetails.services])
   const productRevenue =useMemo(()=>{
 
-    return salonDetails?.products.reduce((curr,acc)=>curr+acc,0)
+    return formatValue(salonDetails?.products.reduce((curr,acc)=>curr+acc,0))
   },[salonDetails.products])
  
   useEffect(() => {
@@ -189,14 +190,15 @@ const Dashboard = () => {
       data,
       (res) => {
         const {
-          appointmentPaymentMethodReport,
+          paymentMethodReport,
           membershipCreditUsed,
           appointmentStatus,
           serviceCategoryWiseRevenue,
           productRevenueDistribution,
           staffCategoryWiseRevenue,
+          membershipSale
         } = res;
-        const payments = appointmentPaymentMethodReport;
+        const payments = paymentMethodReport;
 
         const salesOrder = ["Cash", "Card", "Online", "Upi"];
         const appoOrder = [3, 1];
@@ -244,9 +246,8 @@ const Dashboard = () => {
             const categoryData = empData.categories.find(
               (cat) => cat.category === category
             );
-            return categoryData ? categoryData.sumTotal : 0;
+            return categoryData ? formatValue(categoryData.sumTotal) : 0;
           });
-
           // Add styling for the dataset
           return {
             label: category,
@@ -261,6 +262,9 @@ const Dashboard = () => {
           labels: employeeNames,
           datasets: datasets,
         };
+        const membershipRev = membershipSale?.length>0?membershipSale[0]?.membershipRevenue:0;
+
+
         setSalonDetails({
           sales: [...orderedTotals, subsTotal],
           appointments: [...appoData],
@@ -269,6 +273,7 @@ const Dashboard = () => {
           productLabels: [...productLabels],
           products: [...products],
           employees,
+          membership:membershipRev
         });
       },
       () => {}
@@ -289,7 +294,7 @@ const Dashboard = () => {
     <>
       <Layout>
         <div className="mt-32 md:mt-40 mb-16 w-[95%]  xl:w-[90%] mx-auto ">
-        <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 2xl:grid-cols-4 gap-5 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 2xl:grid-cols-5 gap-5 mb-6">
       
         <div className="w-full">
         <DashboardCard heading="Total Revenue" value={totalRevenue} icon={<MdCurrencyRupee className="text-green-700 text-[2rem]"/>}/>
@@ -304,7 +309,11 @@ const Dashboard = () => {
 
         </div>
         <div className="w-full">
-        <DashboardCard heading="Products Revenue" value={productRevenue} icon={<MdCurrencyRupee className="text-orange-600 text-[2rem]"/>} />
+        <DashboardCard heading="Products Revenue" value={productRevenue} icon={<MdCurrencyRupee className="text-teal-600 text-[2rem]"/>} />
+
+        </div>
+        <div className="w-full">
+        <DashboardCard heading="MemberShip Revenue" value={salonDetails?.membership} icon={<MdCurrencyRupee className="text-orange-600 text-[2rem]"/>} />
 
         </div>
 
