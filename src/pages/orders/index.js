@@ -70,7 +70,7 @@ const Orders = () => {
         {/* Table of Recent Orders */}
         <table
           className="styled-table"
-          style={{ height: "40px", marginTop: "60px" }}
+          style={{ height: "40px", marginTop: "60px" ,width:"95%",margin:"40px auto"}}
         >
           <thead>
             <tr>
