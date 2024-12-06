@@ -10,6 +10,8 @@ import { MdCardMembership } from "react-icons/md";
 import NewMembershipModal from "../../components/popup/NewMembershipPopup";
 import CustomizedTables from "../../components/MaterialTable";
 import MemComponent from "../../components/membership/MemComponent";
+import { FaFileExcel } from "react-icons/fa";
+import exportToExcel from "../../utils/exportToExcel";
 export default function Membership() {
   const [isNewMembershipModal, setIsNewMembershipModal] = useState(false);
   const [add, setAdd] = useState(true);
@@ -35,9 +37,7 @@ export default function Membership() {
       (resp) => {
         setmemeberShipDetails(resp);
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   }, [buyNowclick]);
   // today' membership buy api
@@ -52,9 +52,7 @@ export default function Membership() {
       (resp) => {
         setTodayMembership(resp);
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   }, [add]);
 
@@ -64,11 +62,9 @@ export default function Membership() {
       (resp) => {
         setMembershipType(resp.membershipList);
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
-  }, [ isNewMembershipModal]);
+  }, [isNewMembershipModal]);
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
     const filteredStaffData = membershiptype.filter(
@@ -113,7 +109,6 @@ export default function Membership() {
           }
         },
         (error) => {
-          
           toast.error("Something went wrong, Please try again!!");
           res = false;
         }
@@ -123,7 +118,6 @@ export default function Membership() {
       res = false;
     }
 
-   
     return res;
     // setMemberShipData(null)
   };
@@ -136,7 +130,6 @@ export default function Membership() {
   };
 
   const handlePrint = (item) => {
-    
     navigate("/membershipinvoicegenerator", { state: item });
   };
   const searchClick = () => {
@@ -150,9 +143,7 @@ export default function Membership() {
       (resp) => {
         setTodayMembership(resp);
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   };
 
@@ -201,6 +192,11 @@ export default function Membership() {
     ],
   };
 
+  const handleExport = () => {
+    if (todayMembership)
+      exportToExcel(todayMembership, "Membership", "membership.xlsx");
+  };
+
   return (
     <Layout>
       <MemComponent
@@ -218,7 +214,7 @@ export default function Membership() {
         onClickBuyNow={onClickBuyNow}
       />
 
-      <div className="flex my-6 items-start justify-center">
+      <div className="flex gap-9 my-6 items-start justify-center">
         <CustomInputFeild
           startDate={startDate}
           setStartDate={setStartDate}
@@ -226,6 +222,13 @@ export default function Membership() {
           setEndDate={setEndDate}
           submitClick={searchClick}
         />
+        <button
+          onClick={handleExport}
+          className="bg-green-600 text-sm mt-auto mb-1 flex items-center justify-center gap-1 font-semibold hover:bg-green-500 text-white rounded-md w-[80px] active:scale-105 transition-all ease-in duration-100"
+        >
+          <span>Export</span>
+          <FaFileExcel />
+        </button>{" "}
       </div>
 
       {/* MEMBERSHIP TABLE */}

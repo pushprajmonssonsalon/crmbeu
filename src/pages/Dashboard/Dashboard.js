@@ -50,7 +50,7 @@ const Dashboard = () => {
         },
         {
           label: "Hand & Feet",
-          data: [0, 1200, 0, 0],
+          data: [0, 0, 0, 0],
           backgroundColor: "rgba(153, 102, 255, 1)",
           borderRadius: 4,
           borderSkipped: false,
@@ -64,10 +64,10 @@ const Dashboard = () => {
         },
       ],
     },
-    membership:2323
+    membership:0
   });
   const data = {
-    labels: [`Cash : ₹${formatValue(salonDetails?.sales[0])}`, `Card : ₹${formatValue(salonDetails?.sales[1])}`, `App : ₹${formatValue(salonDetails?.sales[2])}`, `Upi : ₹${formatValue(salonDetails?.sales[3])}`, `Membership Points : ₹${salonDetails?.sales[4]}`],
+    labels: [`Cash : ₹${formatValue(salonDetails?.sales[0])}`, `Card : ₹${formatValue(salonDetails?.sales[1])}`, `App : ₹${formatValue(salonDetails?.sales[2])}`, `Upi : ₹${formatValue(salonDetails?.sales[3])}`, `Membership Points : ₹${salonDetails?.sales[4]||0}`],
     datasets: [
       {
         label: "sales",
@@ -179,7 +179,7 @@ borderColor: [
   useEffect(() => {
     const stDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-01T00:00:00.000Z`;
     // "2024-10-31T18:30:00.000Z"
-                    console.log(stDate,"stDate")
+                    
     const data = {
       startDate: new Date(stDate), // First day of the current month at 00:00:00
       endDate: new Date(), // Current date and time

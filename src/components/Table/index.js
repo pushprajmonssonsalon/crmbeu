@@ -83,7 +83,7 @@ const Table = ({ header, data, orderClick, handleInventryOpen }) => {
                   </div>
                 ) : (
                 
-                  <div className=" cursor-not-allowed  bg-red-600  rounded-[15px] p-1 ">
+                  <div className="w-[120px] cursor-not-allowed  bg-red-600  rounded-[15px] p-1 ">
                 
                   <div className=" text-[0.89rem] text-white font-bold pr-2 flex items-center justify-center ">
                   Out Of Stock

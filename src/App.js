@@ -31,6 +31,7 @@ import Categorywise from "./components/categorywise/Categorywise";
 import Subscription from "./pages/subscription/Subscription";
 import activeMembers from "./pages/activeMembers/ActiveMembers";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import InventoryReport from "./pages/inventoryReport/InventoryReport";
 
 function App() {
   useEffect(() => {
@@ -135,6 +136,10 @@ function App() {
         <Route
           path="/weeklyreport"
           element={<PrivateRoute Component={WeeklyReport} />}
+        />
+        <Route
+          path="/inventoryreport"
+          element={<PrivateRoute Component={InventoryReport} />}
         />
         <Route
           path="/salon-details"

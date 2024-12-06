@@ -30,7 +30,7 @@ const ProductOrderPopup = ({
     setOrderData(updatedOrderData);
   };
 
-  console.log(orderData, "order");
+  
   const onSubmit = () => {
    
     const isRecievedQuantityValid = orderData?.some(

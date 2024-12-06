@@ -34,7 +34,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
     receivedQuantity: 0,
   }));
 
-  console.log(brands, "brands");
+  
 
   const handleSubmitOrder = () => {
     const data = {

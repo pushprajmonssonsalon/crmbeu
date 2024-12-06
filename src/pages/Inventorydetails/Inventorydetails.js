@@ -14,6 +14,7 @@ import * as XLSX from "xlsx";
 import GridRows from "../../components/pagination/gridRows";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
+import Loader from "../../components/loader/Loader";
 const allProductHeading = {
   name: "NAME",
   mrp: "MRP",
@@ -54,6 +55,7 @@ const DropdownRow = ({ label, options, value, onChange }) => {
 const Inventorydetails = () => {
   const [count, setCount] = useState(0);
   const [tab, setTab] = useState(2);
+  const [loading,setLoading]=useState(false)
   const [allProductFilters, setAllProductFilters] = useState({
     name: "",
     brand: "",
@@ -217,6 +219,7 @@ const Inventorydetails = () => {
       limit: itemsPerPage1,
       ...myProductFilters,
     };
+    setLoading(true)
     postApiData(
       `inventory/getSalonProducts/?limit=${itemsPerPage}&page=${currentPage}`,
       data,
@@ -224,15 +227,20 @@ const Inventorydetails = () => {
         
         if (resp.products.length > 0) {
           // setMyProductList(resp.products);
+          setLoading(false)
+
           setNewMyProducts(resp.products);
           setTotalMyProducts(resp.totalCount);
         }
         else{
+          setLoading(false)
+
           setNewMyProducts([]);
           setTotalMyProducts(0);
         }
       },
       (error) => {
+        setLoading(false)
         setNewMyProducts([]);
         setTotalMyProducts(0);
 
@@ -248,16 +256,19 @@ const Inventorydetails = () => {
       limit: itemsPerPage1,
       ...allProductFilters,
     };
+    setLoading(true);
+
     postApiData(
       `inventory/getAllProducts/?limit=${itemsPerPage1}&page=${currentPage1}`,
       data,
       (resp) => {
-        
+        setLoading(false)
         setgetSalonProducts(resp.products);
         setTotalProducts(resp?.total);
       },
       (error) => {
-        
+        setLoading(false)
+
       }
     );
   };
@@ -417,7 +428,13 @@ const Inventorydetails = () => {
             </button>
           )}
         </div>
-        {tab === 1 ? (
+        {loading?
+        <div className="flex items-center justify-center h-[60vh]">
+        <Loader/>
+
+        </div>
+        :
+        tab === 1 ? (
           <div className="flex ">
             <div className="inventory-container-main">
               <MyProductTable

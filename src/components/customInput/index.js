@@ -98,7 +98,7 @@ export default function CustomSearchInputFeild({
       </button>
      
      : <button
-        className="px-3 py-2 grow md:grow-0 rounded-lg bg-black text-white font-bold mt-6 ml-4"
+        className="px-3 py-2 grow md:grow-0 rounded-lg bg-black text-white font-bold mb-1 mt-auto ml-4"
         onClick={handleClick}
       >
         Submit
