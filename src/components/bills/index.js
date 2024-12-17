@@ -6,6 +6,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
+import salonLogo from "../../images/logo2.png";
 
 
 const AppointmentBills = () => {
@@ -21,16 +22,16 @@ const AppointmentBills = () => {
         setStaffData(res);
       },
       (error) => {
-        
+
       }
     );
   }, []);
-  
-  
+
+
   const data = location.state;
-  
-  
-  
+
+
+
   function FormatDate(date) {
     const dates = new Date(date);
 
@@ -48,7 +49,7 @@ const AppointmentBills = () => {
   const serviceTotal = data.services.reduce((accumulator, { price }) => {
     return accumulator + price;
   }, 0);
-  
+
 
   const serviceDiscount = data.discount;
   const serviceTaxable = serviceTotal - serviceDiscount;
@@ -56,7 +57,7 @@ const AppointmentBills = () => {
   const CGST = ((serviceFinalTax * 9) / 100).toFixed(2);
   const SGST = ((serviceFinalTax * 9) / 100).toFixed(2);
   const servicePayableAmount = Math.floor(Number(serviceFinalTax) + Number(CGST) + Number(SGST))
-  
+
   // const productSubtotalAmount=data.products;
   const productTotalPrice = data.products.reduce(
     (accumulator, { price, quantity }) => {
@@ -64,7 +65,7 @@ const AppointmentBills = () => {
     },
     0
   );
-  
+
   const productTotalTaxtable = Math.ceil(productTotalPrice / 1.18);
   const CGSTProduct = (productTotalTaxtable * 9) / 100;
   const SGSTProduct = (productTotalTaxtable * 9) / 100;
@@ -76,16 +77,16 @@ const AppointmentBills = () => {
     getApiCall(
       "parlor/getParlorDetail",
       (resp) => {
-        
+
         setParlorDetails(resp);
         // parlorDetails(resp);
       },
       (error) => {
-        
+
       }
     );
   }, []);
-  
+
   const paytax = Math.ceil(data.total / 1.18);
   // const CGST = (paytax * 9) / 100;
   // const SGST = (paytax * 9) / 100;
@@ -106,23 +107,23 @@ const AppointmentBills = () => {
 
   const handlePrint = useReactToPrint({
     documentTitle: "Apointment Bill",
-   
+
     removeAfterPrint: true,
   });
-  function handleChange(current)  {
-    
+  function handleChange(current) {
+
     const doc = new jsPDF();
     doc.html(current, {
-      html2canvas: { scale: 1/8, autoPaging: true },
+      html2canvas: { scale: 1 / 8, autoPaging: true },
       callback: (pdf) => {
         const pdfData = pdf.output('blob');
         const uniqueId = uuidv4();
         const s3 = new AWS.S3({
-          accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY ,
-          secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY ,
-          region: process.env.REACT_APP_AWS_REGION ,
+          accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY,
+          secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY,
+          region: process.env.REACT_APP_AWS_REGION,
         });
-  
+
         const params = {
           Bucket: 'tphpdfs',
           Key: `uploaded/pdf_${uniqueId}.pdf`,
@@ -130,26 +131,26 @@ const AppointmentBills = () => {
           ContentType: 'application/pdf',
           ACL: 'public-read',
         };
-  
+
         s3.upload(params, (err, data1) => {
           if (err) {
             console.error('Error uploading PDF to S3:', err);
           } else {
             const datas = {
-              appointmentId:data?._id,
-              invoiceUrl:data1.Location,
+              appointmentId: data?._id,
+              invoiceUrl: data1.Location,
               salonName: parlorDetails.name
             }
-            
+
             postApiData("appointment/printAndSendInvoiceOfAppointment",
-            datas,
-            (resp)=>{
-              
-            },
-            (err)=>{
-              
-            }
-          )
+              datas,
+              (resp) => {
+
+              },
+              (err) => {
+
+              }
+            )
           }
         });
       },
@@ -162,32 +163,42 @@ const AppointmentBills = () => {
         className="px-5 py-4 flex flex-col w-full mx-auto"
         ref={contentToPrint}
       >
-        <div className="border-b-2 border-dotted border-black">
-          <h1 className="text-center text-2xl font-bold text-black mb-4">
-            {parlorDetails.name}
-          </h1>
-          <h2 className="text-lg font-semibold text-black">
-            {parlorDetails.address}
-          </h2>
-          <h2 className="text-lg font-semibold text-black">
-            {parlorDetails.address2}
-          </h2>
-          <h2 className="text-lg font-semibold text-black">
-            {parlorDetails.stateName}
-          </h2>
-          <h2 className="text-lg font-bold text-black mb-2">
-           Contact No. - {parlorDetails.contactNumber}
-          </h2>
-          <h2 className="text-lg font-bold text-black mb-2">
-          GST No - {parlorDetails?.gstNumber}
-          </h2>
+<div className=" bg-white mb-5  flex h-full justify-center items-center">
+            <img
+              src={salonLogo}
+              alt=""
+              className="h-[100px] w-[150px]    text-white"
+            />
+          </div>
+        <div className="flex relative items-center border-b-2 border-dotted border-black">
+          
+          <div className="mx-auto">
+            <h1 className="text-center text-2xl font-bold text-black mb-4">
+              {parlorDetails.name}
+            </h1>
+            <h2 className="text-lg font-semibold text-black">
+              {parlorDetails.address}
+            </h2>
+            <h2 className="text-lg font-semibold text-black">
+              {parlorDetails.address2}
+            </h2>
+            <h2 className="text-lg font-semibold text-black">
+              {parlorDetails.stateName}
+            </h2>
+            <h2 className="text-lg font-bold text-black mb-2">
+              Contact No. - {parlorDetails.contactNumber}
+            </h2>
+            <h2 className="text-lg font-bold text-black mb-2">
+              GST No - {parlorDetails?.gstNumber}
+            </h2>
+          </div>
         </div>
         <div className="my-2 mx-4">
           <h1 className="text-center text-2xl font-bold text-black mb-4">
             TAX INVOICE
           </h1>
-       
-         
+
+
           <div className="grid grid-cols-2 gap-3">
             <div className="text-black font-medium">Invoice No:</div>
             <div className="text-black font-medium text-right">
@@ -218,25 +229,25 @@ const AppointmentBills = () => {
         {/* Membership  */}
         {
           data?.membershipCreditUsed > 0 && (
-        <div className="mt-2">
-          <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
-            MEMBERSHIP DETAILS
-          </h1>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="text-black font-medium">Name:</div>
-            <div className="text-black font-medium text-right">
-              {data?.userMembership?.name}
+            <div className="mt-2">
+              <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
+                MEMBERSHIP DETAILS
+              </h1>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-black font-medium">Name:</div>
+                <div className="text-black font-medium text-right">
+                  {data?.userMembership?.name}
+                </div>
+                <div className="text-black font-medium">Amount:</div>
+                <div className="text-black font-medium text-right">
+                  {data?.userMembership?.amount}
+                </div>
+                <div className="text-black font-medium">Coins Left:</div>
+                <div className="text-black font-medium text-right">
+                  {data?.userMembership?.creditsLeft}
+                </div>
+              </div>
             </div>
-            <div className="text-black font-medium">Amount:</div>
-            <div className="text-black font-medium text-right">
-              {data?.userMembership?.amount}
-            </div>
-            <div className="text-black font-medium">Coins Left:</div>
-            <div className="text-black font-medium text-right">
-              {data?.userMembership?.creditsLeft}
-            </div>
-          </div>
-        </div>
           )
         }
         {/* SERVICES */}
@@ -394,7 +405,7 @@ const AppointmentBills = () => {
             </thead>
             <tbody>
               {paymentMethodsValue.map((item, index) => {
-                
+
                 return (
                   <tr className="text-black font-medium">
                     <td>{item.name}</td>

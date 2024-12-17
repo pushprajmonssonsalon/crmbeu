@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from 'react'
+import { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { getApiCall, postApiData } from '../../utils/services';
 import { useReactToPrint } from 'react-to-print';
@@ -6,6 +6,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import AWS from 'aws-sdk';
 import { v4 as uuidv4 } from 'uuid';
+import salonLogo from "../../images/logo2.png";
 
 
 const MembershipBill = () => {
@@ -121,6 +122,13 @@ const MembershipBill = () => {
     <>
  
     <div className='px-5 py-4 flex flex-col w-[90%] mx-auto' ref={contentToPrint}>
+    <div className=" bg-white mb-5  flex h-full justify-center items-center">
+            <img
+              src={salonLogo}
+              alt=""
+              className="h-[100px] w-[150px]    text-white"
+            />
+          </div>
         <div className='border-b-2 border-dotted border-black'>
             <h1 className='text-center text-2xl font-bold text-black mb-4'>{parlorDetails.name}</h1>
             <h2 className='text-lg font-semibold text-black'>{parlorDetails.address}</h2>

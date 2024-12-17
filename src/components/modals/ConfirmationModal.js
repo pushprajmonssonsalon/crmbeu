@@ -1,19 +1,20 @@
 import Modal from "../modal/Modal";
 
-const ConfirmationModal = ({ show, setShow, data,text,onConfirm }) => {
+const ConfirmationModal = ({ show, setShow, data, text, onConfirm }) => {
   return (
     <>
       {" "}
       <Modal show={show} setShow={setShow}>
-        <ChildComponent data={data} text={text} onConfirm={onConfirm}/>
+        <ChildComponent data={data} text={text} onConfirm={onConfirm} />
       </Modal>
     </>
   );
 };
 
-const ChildComponent = ({ closeModal, modalRef,text,onConfirm }) => {
+const ChildComponent = ({ closeModal, data, modalRef, text, onConfirm }) => {
+
   return (
-    <div className="relative top-[25%] bottom-[25%] m-auto p-4 w-fit min-w-[300px] md:min-w-[450px] mx-auto h-full my-auto  max-h-full">
+    <div className="relative  mx-auto p-4 w-fit min-w-[300px] md:min-w-[450px] xl:min-w-[700px]  h-full my-[5%]  max-h-full">
       {/* Modal content */}
       <div
         ref={modalRef}
@@ -48,14 +49,48 @@ const ChildComponent = ({ closeModal, modalRef,text,onConfirm }) => {
         </div>
         {/* Modal body */}
         <div className="max-h-[60vh] py-5 flex flex-col gap-2 overflow-y-auto ">
+          {!data ?
             <div className="border border-b py-5 border-gray-200">
-                <h2 className="font-semibold text-md  ">{text}</h2>
-            </div>
-            <div className="flex gap-3 justify-end items-end pt-2 px-3">
+              <h2 className="font-semibold text-md  ">{text}</h2>
+            </div> :
+            <div className="">
+            <h2 className="font-semibold text-md  mb-2">{text}</h2>
+              {Object.keys(data).map((elm, idx) => {
+                return (
+                  <div key={idx} className="p-3">
+                  <h2 className="font-bold mb-2 text-sm text-start">{elm}</h2>
+          <table className="" >
+                  <thead>
+                    <tr >
+                      <th className="text-sm">Name</th>
+                      <th className="text-sm">Size</th>
+                      <th className="text-sm">Quantity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data[elm]?.map((item, index) => (
+                      <tr key={index}>
+                        <td className="text-sm">{item?.name}</td>
+                        <td className="text-sm">{item?.size}</td>
+                        <td className="text-sm">
+                          {item?.orderedQuantity}
+                        </td>
+                       
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                  </div>
+                )
+              })}
+
+
+            </div>}
+          <div className="flex gap-3 justify-end items-end pt-2 px-3">
             <button className={`bg-red-600 w-[90px] hover:bg-red-500 text-white rounded-md font-bold p-3   `} onClick={closeModal} >Cancel</button>
             <button className={`bg-green-600 w-[90px] hover:bg-green-500 text-white rounded-md font-bold p-3   `} onClick={onConfirm} >Confirm</button>
 
-            </div>
+          </div>
         </div>
       </div>
     </div>

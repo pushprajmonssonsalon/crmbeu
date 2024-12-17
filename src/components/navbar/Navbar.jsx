@@ -4,7 +4,7 @@ import { useState } from "react";
 import { getApiCall } from "../../utils/services";
 import { parlordetail } from "../../redux/actions";
 import { useNavigate } from "react-router";
-import salonLogo from "../../images/smartsalonlogowhiteborder.png";
+import salonLogo from "../../images/logo1.png";
 import { toast } from "react-hot-toast";
 import { IoIosNotifications } from "react-icons/io";
 import ChangePassword from "../modals/ChangePassword";
@@ -49,12 +49,14 @@ const Navbar = () => {
   return (
     <>
       <nav className="flex  flex-row  justify-between items-center nav px-6  bg-[#191919] fixed  top-0 z-10 w-full ">
-        <div className="flex flex-row items-center justify-center">
+      <div className="py-2">
+        <div className="  p-1 overflow-hidden  ">
           <img
             src={salonLogo}
             alt=""
-            className="w-[152px] h-[80px] my-2 text-white"
+            className="w-[100px] h-[80px]"
           />
+        </div>
         </div>
         <div>
           <ul className="flex flex-row justify-between items-center">

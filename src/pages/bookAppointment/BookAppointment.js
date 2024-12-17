@@ -88,7 +88,13 @@ const BookAppointment = () => {
     }));
     if (name === "gender") {
       setServiceSelection({
+        ...serviceSelection,
         category: "",
+        subCategory: "",
+        miniSubcategory: "",
+     
+        
+      
       });
       setSubService(null);
       setMiniService(null);
@@ -128,10 +134,8 @@ const BookAppointment = () => {
     const timeString = selectedTime._d.toString().split(" ")[4];
     setTime(timeString);
   };
-  const handleAmPmChange = (ampm) => {
-    
-  };
-  
+  const handleAmPmChange = (ampm) => {};
+
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
   );
@@ -146,7 +150,7 @@ const BookAppointment = () => {
     0
   );
   const countdiscount = Math.ceil((subtotalPrice * applyDisountPer) / 100);
-  
+
   const payableAmount = subtotalPrice - countdiscount;
   const totalProductServicePayable = payableAmount + productTotalPrice;
   const [serviceSelection, setServiceSelection] = useState({
@@ -182,12 +186,9 @@ const BookAppointment = () => {
       "salonService/getServiceCategory",
 
       (resp) => {
-        
         setService(resp);
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   }, [customerDetails?.gender]);
   // api call for getting subcategory
@@ -202,9 +203,7 @@ const BookAppointment = () => {
       (resp) => {
         setSubService(resp);
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   }, [serviceSelection.category]);
   const minicatgdata = {
@@ -218,22 +217,17 @@ const BookAppointment = () => {
       minicatgdata,
       (resp) => {
         setMiniService(resp[0]);
-        
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   }, [serviceSelection.subCategory]);
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
       (res) => {
-        setStaffData(res.filter(elm=>elm.isActive));
+        setStaffData(res.filter((elm) => elm.isActive));
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   }, [serviceSelection.subCategory]);
 
@@ -272,12 +266,13 @@ const BookAppointment = () => {
     const { miniSub, miniSubcategory, ...rest } = serviceSelection;
 
     const selected = {
+    
       ...rest,
       miniSubcategory: miniSub,
     };
-    const isEveryEmpty = Object.values(selected).some((elm) =>  !elm);
+    const isEveryEmpty = Object.values(selected).some((elm) => !elm);
     if (isEveryEmpty) {
-      return toast.error("Please Select All Fields")
+      return toast.error("Please Select All Fields");
     }
     dispatch(serviceAdded(selected));
     // alert("All service added")
@@ -312,7 +307,6 @@ const BookAppointment = () => {
         }
       },
       (error) => {
-        
         // alert(" Booking Status Failed");
         toast.error("Booking status failed!");
       }
@@ -322,7 +316,7 @@ const BookAppointment = () => {
   // ...`
   const nameOnclick = (item) => {
     // e.preventDefault();
-    
+
     setMemberShipItem(item);
     setCustomerDetails((prev) => ({
       ...prev,
@@ -333,7 +327,7 @@ const BookAppointment = () => {
     setUserId(item._id);
     setVisible(false);
   };
-  
+
   // product name on click
 
   const productNameOnclick = (item) => {
@@ -351,12 +345,8 @@ const BookAppointment = () => {
     postApiData(
       "parlor/registerUserForCrm",
       customerDetails,
-      (resp) => {
-        
-      },
-      (error) => {
-        
-      }
+      (resp) => {},
+      (error) => {}
     );
     closeModal();
   };
@@ -381,12 +371,9 @@ const BookAppointment = () => {
       "inventory/getSuggestedProductOfSalon",
       data,
       (resp) => {
-        
         setShowSearchProduct(resp.products);
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   };
   const applyDiscount = () => {
@@ -396,8 +383,6 @@ const BookAppointment = () => {
   };
 
   const applyMemberShip = () => {
-    
-   
     const data = {
       creditsUsed: memberShipStatus
         ? subTotalService
@@ -406,15 +391,12 @@ const BookAppointment = () => {
       memId: memberShipId,
       isMembershipUsed: !memberShipStatus,
     };
-    
-    
 
     postApiData(
       "membership/applyMembership",
       data,
       (resp) => {
         if (resp) {
-          
           if (memberShipStatus) {
             setMembershipCoin(resp?.creditsLeft);
             setMemberShipStatus(false);
@@ -435,7 +417,6 @@ const BookAppointment = () => {
         }
       },
       (error) => {
-        
         // alert("Select Correct Options");
         toast.error("Select Correct Options !");
       }
@@ -457,12 +438,9 @@ const BookAppointment = () => {
       "user/searchUser",
       data,
       (resp) => {
-        
         setUserData(resp);
       },
-      (error) => {
-        
-      }
+      (error) => {}
     );
   };
   const onChangeProdutName = (e) => {
@@ -477,7 +455,6 @@ const BookAppointment = () => {
     productStaffid,
     productStaffName
   ) => {
-    
     if (productQnt === "0" || !productQnt) {
       toast.error("Please Enter Quantiy");
 
@@ -497,13 +474,9 @@ const BookAppointment = () => {
       staffName: productStaffName, // Adding staffId key
     };
 
-   
-
     dispatch(productAdded(itemWithAdditionalInfo));
     toast.success("product added succesfully");
   };
-
-  
 
   // Function to format the date as "dd-mm-yyyy"
 
@@ -559,28 +532,26 @@ const BookAppointment = () => {
       name: "name",
       label: "First Name",
       placeholder: "Enter Name",
-      value:customerDetails.name
+      value: customerDetails.name,
     },
     {
       name: "phoneNumber",
       label: "Mobile Number",
       placeholder: "Enter Mobile Number",
-      value:customerDetails.phoneNumber
-
+      value: customerDetails.phoneNumber,
     },
     {
       name: "email",
       label: "Email Address",
-      value:customerDetails.email,
+      value: customerDetails.email,
 
       placeholder: "Enter Email Address",
     },
     {
       name: "gender",
       label: "Gender",
-      value:customerDetails.gender,
-      options:genderFields
-
+      value: customerDetails.gender,
+      options: genderFields,
     },
   ];
 
@@ -702,16 +673,14 @@ const BookAppointment = () => {
                   <IoMdPersonAdd />
                 </button>
 
-           <AddCustomerModal
-            isModalOpen={isModalOpen}
-            closeModal={closeModal}
-            addCustomerFields={addCustomerFields}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-            heading={"Add Customer Appointment"}
-           />
-
-             
+                <AddCustomerModal
+                  isModalOpen={isModalOpen}
+                  closeModal={closeModal}
+                  addCustomerFields={addCustomerFields}
+                  handleChange={handleChange}
+                  handleSubmit={handleSubmit}
+                  heading={"Add Customer Appointment"}
+                />
 
                 {!showAddButton && (
                   <div className="suggestions">
@@ -915,7 +884,6 @@ const BookAppointment = () => {
                     className="absolute top-16 w-full p-2 max-h-[200px]  overflow-y-auto bg-white shadow-lg "
                   >
                     {showSearchProduct?.map((item) => {
-                      
                       return (
                         <div
                           onClick={() => productNameOnclick(item.itemId)}
@@ -1069,7 +1037,6 @@ const BookAppointment = () => {
                 }))}
                 disabled={memberShipStatus ? true : false}
               />
-           
             </div>
 
             {memberShipStatus ? (
@@ -1096,8 +1063,6 @@ const BookAppointment = () => {
                 </span>
               </h3>
             </div>
-
-        
           </div>
 
           <button
@@ -1109,29 +1074,27 @@ const BookAppointment = () => {
         </div>
         {customerDetails?.phoneNumber && (
           <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl mb-10 flex justify-between  items-center">
-          {tableFields.map((elm,idx)=>{
-            return (
-              <div key={idx} className="w-[40%] mb-auto ">
-              <table className="table-auto  w-full">
-                <thead></thead>
-                <tbody>
-                  {elm?.map((item, index) => (
-                    <tr key={index}>
-                      <td className="font-bold text-black  text-lg border-none px-4 py-2">
-                        {item.label}
-                      </td>
-                      <td className=" font-bold   text-lg border-none px-4 py-2 text-green-800">
-                        {item.value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            )
-          }) }
-
-        
+            {tableFields.map((elm, idx) => {
+              return (
+                <div key={idx} className="w-[40%] mb-auto ">
+                  <table className="table-auto  w-full">
+                    <thead></thead>
+                    <tbody>
+                      {elm?.map((item, index) => (
+                        <tr key={index}>
+                          <td className="font-bold text-black  text-lg border-none px-4 py-2">
+                            {item.label}
+                          </td>
+                          <td className=" font-bold   text-lg border-none px-4 py-2 text-green-800">
+                            {item.value}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

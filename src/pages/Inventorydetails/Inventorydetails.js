@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./inventorydetails.css";
-import { postApiData } from "../../utils/services";
+import { getApiCall, postApiData } from "../../utils/services";
 import Pagination from "../../components/pagination";
 import Layout from "../../components/Layout";
 import { toast } from "react-hot-toast";
@@ -55,7 +55,7 @@ const DropdownRow = ({ label, options, value, onChange }) => {
 const Inventorydetails = () => {
   const [count, setCount] = useState(0);
   const [tab, setTab] = useState(2);
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false);
   const [allProductFilters, setAllProductFilters] = useState({
     name: "",
     brand: "",
@@ -166,10 +166,10 @@ const Inventorydetails = () => {
   const TypeData = [{ productType: "Retail" }, { productType: "Professional" }];
   // Add a state to store the product list
 
-  const addclick = (item) => {};
+  const addclick = (item) => { };
 
   const orderClick = (item) => {
-    const product = cart?.find((elm) => item._id === elm._id);
+    const product = cart?.find((elm) => item.itemId === elm.itemId);
 
     if (!product) {
       setCart((prev) => [...prev, item]);
@@ -179,9 +179,8 @@ const Inventorydetails = () => {
     }
   };
   const removeItem = (idx) => {
-
     if (idx) {
-      setCart((prev) => prev.filter(elm=>elm._id!==idx));
+      setCart((prev) => prev.filter((elm) => elm.itemId !== idx));
       toast.success("Product added successfully");
     } else {
       toast.error("Product is already added!");
@@ -189,6 +188,8 @@ const Inventorydetails = () => {
   };
 
   const shopKartClick = () => {
+
+
     setShowOrderPopup(true);
   };
 
@@ -219,36 +220,31 @@ const Inventorydetails = () => {
       limit: itemsPerPage1,
       ...myProductFilters,
     };
-    setLoading(true)
+    setLoading(true);
     postApiData(
       `inventory/getSalonProducts/?limit=${itemsPerPage}&page=${currentPage}`,
       data,
       (resp) => {
-        
         if (resp.products.length > 0) {
           // setMyProductList(resp.products);
-          setLoading(false)
+          setLoading(false);
 
           setNewMyProducts(resp.products);
           setTotalMyProducts(resp.totalCount);
-        }
-        else{
-          setLoading(false)
+        } else {
+          setLoading(false);
 
           setNewMyProducts([]);
           setTotalMyProducts(0);
         }
       },
       (error) => {
-        setLoading(false)
+        setLoading(false);
         setNewMyProducts([]);
         setTotalMyProducts(0);
-
-        
       }
     );
   };
-  
 
   const getAllProducts = () => {
     const data = {
@@ -262,13 +258,12 @@ const Inventorydetails = () => {
       `inventory/getAllProducts/?limit=${itemsPerPage1}&page=${currentPage1}`,
       data,
       (resp) => {
-        setLoading(false)
+        setLoading(false);
         setgetSalonProducts(resp.products);
         setTotalProducts(resp?.total);
       },
       (error) => {
-        setLoading(false)
-
+        setLoading(false);
       }
     );
   };
@@ -291,6 +286,21 @@ const Inventorydetails = () => {
     }
   }, [isModalOpen, allProductFilters, currentPage1, itemsPerPage1]);
 
+  useEffect(() => {
+    getApiCall(
+      "inventory/getOutOfStockProducts",
+      (res) => {
+        const prods = res?.products.length > 0 ? res?.products : [];
+        const filterdProds = prods?.filter((elm) => {
+          const isAlreadyPresent = cart.find((item) => item.itemId === elm.itemId)
+          return !isAlreadyPresent
+
+        })
+        setCart((prev) => [...prev, ...filterdProds])
+      },
+      () => { }
+    );
+  }, [])
   useEffect(() => {
     // Debounce function for API call
     if (tab === 1) {
@@ -361,6 +371,7 @@ const Inventorydetails = () => {
     name: elm.productType,
     value: elm.productType,
   }));
+
   return (
     <Layout>
       <nav className="navbar mt-52 md:mt-38 w-[80%] mx-auto ">
@@ -377,13 +388,13 @@ const Inventorydetails = () => {
           >
             My Products
           </li>
-          <li className="relative">
+          <li onClick={shopKartClick}
+            className="relative cursor-pointer">
             <AiOutlineShoppingCart
-              className="text-3xl font-bold cursor-pointer text-black hover:text-green-700"
-              onClick={shopKartClick}
+              className="text-[2.8rem] font-bold  text-black hover:text-green-700"
             />
-            <span className="absolute -right-4 bottom-4 text-green-600 font-bold">
-              {cart?.length}
+            <span className="absolute flex items-center text-sm justify-center h-7 w-7 rounded-full -top-1 -right-1 bottom-4 bg-red-700 text-white font-bold">
+              {cart?.length > 9 ? "9+" : cart?.length}
             </span>
           </li>
         </ul>
@@ -428,13 +439,11 @@ const Inventorydetails = () => {
             </button>
           )}
         </div>
-        {loading?
-        <div className="flex items-center justify-center h-[60vh]">
-        <Loader/>
-
-        </div>
-        :
-        tab === 1 ? (
+        {loading ? (
+          <div className="flex items-center justify-center h-[60vh]">
+            <Loader />
+          </div>
+        ) : tab === 1 ? (
           <div className="flex ">
             <div className="inventory-container-main">
               <MyProductTable
@@ -450,7 +459,6 @@ const Inventorydetails = () => {
             <Table
               header={allProductHeading}
               data={getSalonProducts}
-              
               addClick={addclick}
               orderClick={orderClick}
               handleInventryOpen={handleInventryOpen}
@@ -481,7 +489,10 @@ const Inventorydetails = () => {
           removeItem={removeItem}
         />
         <MyProductPopup
-          data={newMyProducts?.find((elm)=>elm.products._id===myProductId)?.products}
+          data={
+            newMyProducts?.find((elm) => elm.products._id === myProductId)
+              ?.products
+          }
           isVisible={showMyProductPopup}
           onClose={() => setShowMyProductPopup(false)}
           id={myProductId}
