@@ -69,16 +69,17 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
 
 
   const handleSubmitOrder = () => {
-    const payload = {
-      products: data,
-    };
+   
     setShowConfirmModal(true)
 
   };
   const placeOrder = () => {
+    const payload = {
+      products: cartData,
+    };
     postApiData(
       "purchaseorder/createPurchaseOrder",
-      data,
+      payload,
       (resp) => {
         if (resp) {
         } else {
