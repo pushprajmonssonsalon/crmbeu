@@ -225,7 +225,7 @@ const ViewAppointment = () => {
       appointment.paymentMethod = paymentMethods;
     }
 
-    if (status === 1) {
+    if (status === 1||status===4) {
       setIsPaid(isPaid && isCaptured);
       setActiveAppointment(appointment);
       setShowPopup(true);
@@ -504,6 +504,10 @@ const paymentMethods = [
   },
   {
     name: "Online",
+    amount: 0,
+  },
+  {
+    name: "Pending",
     amount: 0,
   },
 ];

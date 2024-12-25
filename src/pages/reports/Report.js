@@ -10,7 +10,7 @@ import { MdPeopleAlt } from "react-icons/md";
 import CustomSearchInputFeild from "../../components/customInput";
 const Report = () => {
   const defaultStartDate = new Date();
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(defaultStartDate);
   const [reports, setReports] = useState([]);
@@ -19,13 +19,13 @@ const Report = () => {
   const [appointmentStatus, setAppointmentStatus] = useState([]);
   const [serviceDistribution, setServiceDistribution] = useState([]);
   const [staffDistribution, setStaffDistribution] = useState([]);
-  const [categoryWiseDistrubution,setCategoryWiseDistrubution] = useState([])
-  const [productDistribution,setProductDistribution] = useState([]);
-  const [membershipCredit,setMembershipCredit] = useState([]);
-  const [wholeCustomerRevenue,setWholeCustomerRevenue] = useState("")
-  const [newCustomerRevenue,setNewCustomerRevenue] = useState("")
-  
-  const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
+  const [categoryWiseDistrubution, setCategoryWiseDistrubution] = useState([])
+  const [productDistribution, setProductDistribution] = useState([]);
+  const [membershipCredit, setMembershipCredit] = useState([]);
+  const [wholeCustomerRevenue, setWholeCustomerRevenue] = useState("")
+  const [newCustomerRevenue, setNewCustomerRevenue] = useState("")
+
+  const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
   const tableHeaders = [
     "EMPLLOYEE NAME",
     "HAIR",
@@ -35,7 +35,7 @@ const Report = () => {
     "HAND & FEET",
     "MAKEUP",
   ];
-  useEffect(()=>{
+  useEffect(() => {
     const data = {
       startDate: startDate,
       endDate: startDate,
@@ -53,14 +53,14 @@ const Report = () => {
         setMemberShipSale(resp?.membershipSale);
         setProductDistribution(resp?.productRevenueDistribution)
         setMembershipCredit(resp?.membershipCreditUsed)
-        const paymentMethods =  ["Cash", "Card", "Online", "Upi"];
+        const paymentMethods = ["Cash", "Card", "Online", "Upi","Pending"];
 
         let paymentReport = paymentMethods?.map(method => ({
           _id: method,
-          total: findTotalById(resp?.paymentMethodReport, method) 
+          total: findTotalById(resp?.paymentMethodReport, method)
         }));
         setPaymentMethodReport(paymentReport)
-        
+
       },
       (error) => {
         setLoading(false)
@@ -68,29 +68,29 @@ const Report = () => {
       }
     );
 
-  },[])
-  
+  }, [])
+
 
   const findTotalById = (reportArray, id) => {
     const report = reportArray.find(item => item._id === id);
     return report ? report.total : 0;
   }
-  const serviceDistributionTotal =useMemo(()=>{
-   if(serviceDistribution){
-    const total =serviceDistribution?.reduce((acc,curr)=>acc+curr?.totalRevenue,0)
-    return total.toFixed(2||0);
-   }
-   return 0;
-  },[serviceDistribution])
+  const serviceDistributionTotal = useMemo(() => {
+    if (serviceDistribution) {
+      const total = serviceDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
+      return total.toFixed(2 || 0);
+    }
+    return 0;
+  }, [serviceDistribution])
 
-  const productDistributionTotal =useMemo(()=>{
-   if(productDistribution){
-    const total =productDistribution?.reduce((acc,curr)=>acc+curr?.totalRevenue,0)
-    return total.toFixed(2||0);
-   }
-   return 0;
-  },[productDistribution])
-  
+  const productDistributionTotal = useMemo(() => {
+    if (productDistribution) {
+      const total = productDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
+      return total.toFixed(2 || 0);
+    }
+    return 0;
+  }, [productDistribution])
+
   const submitClick = () => {
     const data = {
       startDate: startDate,
@@ -114,7 +114,7 @@ const Report = () => {
 
         let paymentReport = paymentMethods?.map(method => ({
           _id: method,
-          total: findTotalById(resp?.paymentMethodReport, method) 
+          total: findTotalById(resp?.paymentMethodReport, method)
         }));
         setPaymentMethodReport(paymentReport)
       },
@@ -137,21 +137,21 @@ const Report = () => {
   //     }
   //   )
   // },[])
-  
-  const credits = membershipCredit?.length>0&& membershipCredit[0]?.membershipCreditUsed;
-  
-  
+
+  const credits = membershipCredit?.length > 0 && membershipCredit[0]?.membershipCreditUsed;
+
+
   const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
 
-  
 
-  useEffect(()=>{
+
+  useEffect(() => {
     const data = {
-      startDate:startDate,
+      startDate: startDate,
       endDate: endDate
     }
-    postApiData("reports/getSalesReportOfCustomers",data,
-      (resp)=>{
+    postApiData("reports/getSalesReportOfCustomers", data,
+      (resp) => {
         const result = resp.reduce((acc, item) => {
           acc[item._id] = {
             ...item,
@@ -161,268 +161,270 @@ const Report = () => {
         }, {});
         setWholeCustomerRevenue(formatValue(result?.old?.totalRevenue))
         setNewCustomerRevenue(formatValue(result?.new?.totalRevenue))
-        
-      },(error)=>{
-        
+
+      }, (error) => {
+
       }
     )
-  },[startDate,endDate])
+  }, [startDate, endDate])
 
   return (
     <Layout>
-    <div className="mt-32 w-[90%] mx-auto mb-20">
+      <div className="mt-32 w-[90%] mx-auto mb-20">
         <div>
-    <button onClick={() => toPDF()}>Download PDF</button>
- </div>
- <div className="w-full flex justify-evenly my-5 items-center">
-  <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
-    <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"> <MdPeopleAlt className="text-3xl"/>Old Customer Revenue</h1>
-    <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {wholeCustomerRevenue}</h3>
-  </div>
-  <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
-    <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"><MdPeopleAlt className="text-3xl"/> New Customer Revenue</h1>
-    <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {newCustomerRevenue}</h3>
-  </div>
- </div>
-      <div className="reportContainer">
-        <span className="text-3xl font-bold text-green-600 ">REPORTS</span>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <span className="selectDate">Select Date</span>
-      </div>
-      <div className=" flex my-3 justify-center items-center">
-            <CustomSearchInputFeild
-              startDate={startDate}
-              setStartDate={setStartDate}
-              endDate={endDate}
-              setEndDate={setEndDate}
-              submitClick={submitClick}
-              loading={loading}
-            />
+          <button onClick={() => toPDF()}>Download PDF</button>
+        </div>
+        <div className="w-full flex justify-evenly my-5 items-center">
+          <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
+            <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"> <MdPeopleAlt className="text-3xl" />Old Customer Revenue</h1>
+            <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {wholeCustomerRevenue}</h3>
           </div>
+          <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
+            <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"><MdPeopleAlt className="text-3xl" /> New Customer Revenue</h1>
+            <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {newCustomerRevenue}</h3>
+          </div>
+        </div>
+        <div className="reportContainer">
+          <span className="text-3xl font-bold text-green-600 ">REPORTS</span>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <span className="selectDate">Select Date</span>
+        </div>
+        <div className=" flex my-3 justify-center items-center">
+          <CustomSearchInputFeild
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            submitClick={submitClick}
+            loading={loading}
+          />
+        </div>
 
- <div ref={targetRef} >     
-      <div className="mt-10"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <span className="text-3xl font-bold text-black" >
-          COLLECTION
-        </span>
-      </div>
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>MODE</th>
-            <th>AMOUNT</th>
+        <div ref={targetRef} >
+          <div className="mt-10"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <span className="text-3xl font-bold text-black" >
+              COLLECTION
+            </span>
+          </div>
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th>MODE</th>
+                <th>AMOUNT</th>
 
-            {/* <th>Category</th> */}
-            {/* Add more column headers as needed */}
-          </tr>
-        </thead>
-        <tbody style={{ height: "80px" }}>
-          {paymentMethodReport?.map((item, index) => {
-            return (
-              <>
-                <tr>
-                  <td>{item._id}</td>
-                  <td>{item.total}</td>
-                </tr>
+                {/* <th>Category</th> */}
+                {/* Add more column headers as needed */}
+              </tr>
+            </thead>
+            <tbody style={{ height: "80px" }}>
+              {paymentMethodReport?.map((item, index) => {
+                return (
+                  <>
+                    <tr>
+                      <td>{item._id}</td>
+                      <td>{item.total}</td>
+                    </tr>
 
-              </>
-            );
-          })}
-          <tr>
-            <td className="font-bold text-black">Membership Credit Used</td>
-            <td className="font-bold text-black">{credits}</td>
-          </tr>
-          <tr>
-            <td className="text-bold text-black">Total</td>
-            <td className="font-bold text-black">{totalPayment}</td>
-          </tr>
-        </tbody>
+                  </>
+                );
+              })}
+              <tr>
+                <td className="font-bold text-black">Membership Credit Used</td>
+                <td className="font-bold text-black">{credits}</td>
+              </tr>
+              <tr>
+                <td className="text-bold text-black">Total</td>
+                <td className="font-bold text-black">{totalPayment}</td>
+              </tr>
+            </tbody>
 
-        {/* <div className="grid grid-cols-2 gap-3 w-full border-2 border-black">
+            {/* <div className="grid grid-cols-2 gap-3 w-full border-2 border-black">
             <div className="text-black font-medium">Total :</div>
             
         <div className="text-black font-medium text-right">
              {totalPayment}
             </div>
         </div> */}
-      </table>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "10px",
-          marginBottom: "14px"
-        }}
-      >
-        <span className="text-3xl font-bold text-black">
-          APPOINTMENT STATUS
-        </span>
-      </div>
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>STATUS</th>
-            <th>VALUE</th>
-          </tr>
-        </thead>
-        <tbody style={{ height: "80px" }}>
-          {appointmentStatus?.map((item, index) => {
-            return (
-           
-                <tr>
-                  {item._id === 3 && <td>{"Completed"}</td>}
-                  {item._id === 2 && <td>{"Cancelled"}</td>}
-                  {item._id === 3 && <td>{item.total}</td>}
-                  {item._id === 2 && <td>{item.total}</td>}
-                </tr>
-       
-            );
-          })}
-        </tbody>
-      </table>
+          </table>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "10px",
+              marginBottom: "14px"
+            }}
+          >
+            <span className="text-3xl font-bold text-black">
+              APPOINTMENT STATUS
+            </span>
+          </div>
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th>STATUS</th>
+                <th>VALUE</th>
+              </tr>
+            </thead>
+            <tbody style={{ height: "80px" }}>
+              {appointmentStatus?.map((item, index) => {
+                return (
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "10px",
-          marginBottom: "14px"
-        }}
-      >
-        <span className="text-3xl font-bold text-black">
-          MEMBERSHIP STATUS 
-        </span>
-      </div>
+                  <tr>
+                    {item._id === 3 && <td>{"Completed"}</td>}
+                    {item._id === 2 && <td>{"Cancelled"}</td>}
+                    {item._id === 4 && <td>{"Half Completed"}</td>}
+                    {item._id === 3 && <td>{item?.total||0}</td>}
+                    {item._id === 2 && <td>{item?.total||0}</td>}
+                    {item._id === 4 && <td>{item?.total||0}</td>}
+                  </tr>
 
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>MEMBERSHIP REVENUE</th>
-            <th>MEMBERSHIP COUNT</th>
-          </tr>
-        </thead>
-        <tbody style={{ height: "80px" }}>
-          {membershipSale?.map((item, index) => {
-            return (
-              <>
-                <tr>
-                  <td>{item.membershipRevenue}</td>
-                  <td>{item.membershipCount}</td>
-                </tr>
-              </>
-            );
-          })}
-        </tbody>
-      </table>
+                );
+              })}
+            </tbody>
+          </table>
 
-      {/* SERVICE REVENUE */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "10px",
-          marginBottom: "14px"
-        }}
-      >
-        <span className="text-3xl font-bold text-black">
-          SERVICE DISTRIBUTION
-        </span>
-      </div>
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>SERVICE</th>
-            <th>TOTAL REVENUE</th>
-          </tr>
-        </thead>
-        <tbody style={{ height: "80px" }}>
-          {serviceDistribution?.map((item, index) => {
-            return (
-              <>
-                <tr>
-                  <td>{item._id}</td>
-                  <td>{item.totalRevenue}</td>
-                </tr>
-              </>
-            );
-          })}
-          <tr>
-                  <td className="text-black font-bold">Total</td>
-                  <td className="text-black font-bold">{serviceDistributionTotal}</td>
-                </tr>
-        </tbody>
-      </table>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "10px",
+              marginBottom: "14px"
+            }}
+          >
+            <span className="text-3xl font-bold text-black">
+              MEMBERSHIP STATUS
+            </span>
+          </div>
 
-      {/* PRODUCT REVENUE */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "40px",
-          marginBottom: "20px"
-        }}
-      >
-        <span  className="text-3xl font-bold text-black">
-          PRODUCT DISTRIBUTION
-        </span>
-      </div>
-      <table className="styled-table">
-        <thead>
-          <tr>
-            <th>PRODUCT</th>
-            <th>TOTAL REVENUE</th>
-          </tr>
-        </thead>
-        <tbody style={{ height: "80px" }}>
-          {productDistribution?.map((item, index) => {
-            return (
-              <>
-                <tr>
-                  <td>{item?.name}</td>
-                  <td>{item?.totalRevenue}</td>
-                </tr>
-              </>
-            
-            );
-          })}
-          <tr>
-          <td className="text-black font-bold">Total</td>
-          <td className="text-black font-bold">{productDistributionTotal}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div
-        style={{
-          marginTop: "10px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: "14px",
-          marginTop: "40px"
-        }}
-      >
-        <span className="text-3xl font-bold text-black">
-          EMPLOYEE SERVICE DISTRIBUTION
-        </span>
-      </div>
-      {/* <table>
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th>MEMBERSHIP REVENUE</th>
+                <th>MEMBERSHIP COUNT</th>
+              </tr>
+            </thead>
+            <tbody style={{ height: "80px" }}>
+              {membershipSale?.map((item, index) => {
+                return (
+                  <>
+                    <tr>
+                      <td>{item.membershipRevenue}</td>
+                      <td>{item.membershipCount}</td>
+                    </tr>
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {/* SERVICE REVENUE */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "10px",
+              marginBottom: "14px"
+            }}
+          >
+            <span className="text-3xl font-bold text-black">
+              SERVICE DISTRIBUTION
+            </span>
+          </div>
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th>SERVICE</th>
+                <th>TOTAL REVENUE</th>
+              </tr>
+            </thead>
+            <tbody style={{ height: "80px" }}>
+              {serviceDistribution?.map((item, index) => {
+                return (
+                  <>
+                    <tr>
+                      <td>{item._id}</td>
+                      <td>{item.totalRevenue}</td>
+                    </tr>
+                  </>
+                );
+              })}
+              <tr>
+                <td className="text-black font-bold">Total</td>
+                <td className="text-black font-bold">{serviceDistributionTotal}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* PRODUCT REVENUE */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "40px",
+              marginBottom: "20px"
+            }}
+          >
+            <span className="text-3xl font-bold text-black">
+              PRODUCT DISTRIBUTION
+            </span>
+          </div>
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th>PRODUCT</th>
+                <th>TOTAL REVENUE</th>
+              </tr>
+            </thead>
+            <tbody style={{ height: "80px" }}>
+              {productDistribution?.map((item, index) => {
+                return (
+                  <>
+                    <tr>
+                      <td>{item?.name}</td>
+                      <td>{item?.totalRevenue}</td>
+                    </tr>
+                  </>
+
+                );
+              })}
+              <tr>
+                <td className="text-black font-bold">Total</td>
+                <td className="text-black font-bold">{productDistributionTotal}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div
+            style={{
+              marginTop: "10px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginBottom: "14px",
+              marginTop: "40px"
+            }}
+          >
+            <span className="text-3xl font-bold text-black">
+              EMPLOYEE SERVICE DISTRIBUTION
+            </span>
+          </div>
+          {/* <table>
         <thead>
           <tr>
             <th>EMPLLOYEE NAME</th>
@@ -452,9 +454,9 @@ const Report = () => {
           })}
         </tbody>
       </table> */}
-      <ReportTable data={categoryWiseDistrubution} />
+          <ReportTable data={categoryWiseDistrubution} />
+        </div>
       </div>
-    </div>
     </Layout>
   );
 };

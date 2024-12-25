@@ -141,6 +141,8 @@ export default function StickyAppHeadTable({
         return "Canceled";
       case 3:
         return "Completed";
+      case 4:
+        return "Half Completed";
       default:
         // Handle other cases if needed
         return null; // or 'N/A'
@@ -241,7 +243,8 @@ export default function StickyAppHeadTable({
                               ? "text-blue-500"
                               : item.status === 2
                               ? "text-red-500"
-                              : "text-green-600"
+                              
+                              :item.status===4?"text-purple-600": "text-green-600"
                           }`}
                         >
                           {getStatusNumber(item.status)}

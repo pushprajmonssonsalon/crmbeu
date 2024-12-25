@@ -82,6 +82,8 @@ export default function StickyHeadTable({
         return "Canceled";
       case 3:
         return "Completed";
+      case 4:
+        return "Half Completed";
       default:
         // Handle other cases if needed
         return null; // or 'N/A'
@@ -208,6 +210,8 @@ export default function StickyHeadTable({
                             ? "text-blue-500"
                             : item.status === 2
                             ? "text-red-500"
+                            :item.status===4?
+                            "text-purple-600"
                             : "text-green-600"
                         }`}
                       >
@@ -252,7 +256,7 @@ export default function StickyHeadTable({
                           <button
                             onClick={() => selectClick(item)}
                             className={`text-xl w-full font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105 ${
-                              item.status === 3 || item.status === 2
+                           (   item.status === 3 || item.status === 2)
                                 ? "cursor-not-allowed"
                                 : "cursor-pointer"
                             }`}
@@ -286,8 +290,8 @@ export default function StickyHeadTable({
                       </div>
                     </TableCell>
                     <TableCell>
-                      {item.status === 3 &&
-                        item.paymentMethod
+                      {(item.status === 3||item.status===4 )&&
+                        item?.paymentMethod
                           .filter((item) => item.amount !== 0)
                           .map((item) => item.name)
                           .join("\n")}
