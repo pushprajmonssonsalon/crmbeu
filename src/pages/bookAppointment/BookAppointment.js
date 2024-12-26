@@ -25,6 +25,9 @@ import NormalRadio from "../../components/customInput/NormalRadio";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import AddCustomerModal from "../../components/modals/AddCustomerModal";
+import MultiSelectInput from "../../components/customInput/MultiSelectInput";
+import CustomInput from "../../components/customInput/CustomInput";
+import useDebouncer from "../../utils/hooks/useDebouncer";
 const formatDate = (date) => {
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // January is 0!
@@ -40,6 +43,7 @@ const BookAppointment = () => {
     email: "",
     gender: "F",
   });
+  const { debouncedFunction } = useDebouncer();
 
   const [isMembershipUsed, setIsMembershipUsed] = useState(true);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -68,10 +72,8 @@ const BookAppointment = () => {
   const activemember = membershipitem?.activeMembership;
 
   const [applyDisountPer, setApplyDiscountPer] = useState(0);
-  const [productQnt, setProductQnt] = useState(1);
   const [searchProduct, setsearchProduct] = useState("");
   const [showSearchProduct, setShowSearchProduct] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
   const [services, setServices] = useState(x);
   const navigate = useNavigate();
@@ -88,20 +90,22 @@ const BookAppointment = () => {
     }));
     if (name === "gender") {
       setServiceSelection({
-        ...serviceSelection,
-        category: "",
-        subCategory: "",
-        miniSubcategory: "",
-     
         
-      
+        category: "",
+    subCategory: "",
+    miniSubcategory: "",
+
+    staffs: [],
+    price: 0,
+
+
+
       });
       setSubService(null);
       setMiniService(null);
     }
   };
   const membershipPress = (e) => {
-    const selectedMembership = e.target.value;
     setMemberShipId(e.target.value);
   };
 
@@ -134,11 +138,12 @@ const BookAppointment = () => {
     const timeString = selectedTime._d.toString().split(" ")[4];
     setTime(timeString);
   };
-  const handleAmPmChange = (ampm) => {};
+  const handleAmPmChange = (ampm) => { };
 
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
   );
+
 
   const subtotalPrice = services.reduce((accumulator, currentItem) => {
     return accumulator + Number(currentItem.price);
@@ -157,26 +162,14 @@ const BookAppointment = () => {
     category: "",
     subCategory: "",
     miniSubcategory: "",
-    staffId: "",
-    price: 0,
-    satffName: "",
-  });
-  const [productData, setProductData] = useState({
-    name: "",
-    itemId: "",
-    price: 0,
-    staffId: "",
-  });
 
-  const isServiceSelectionValid = () => {
-    for (const key in serviceSelection) {
-      if (serviceSelection[key] === "") {
-        return false; // If any field is empty, return false
-      }
-    }
-    return true; // All fields are filled, return true
-  };
+    staffs: [],
+    price: 0,
 
+  });
+  const [productData, setProductData] = useState(null);
+
+ 
   // const data = {
   //   gender: gender,
   // };
@@ -188,7 +181,7 @@ const BookAppointment = () => {
       (resp) => {
         setService(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [customerDetails?.gender]);
   // api call for getting subcategory
@@ -203,7 +196,7 @@ const BookAppointment = () => {
       (resp) => {
         setSubService(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.category]);
   const minicatgdata = {
@@ -218,7 +211,7 @@ const BookAppointment = () => {
       (resp) => {
         setMiniService(resp[0]);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.subCategory]);
   useEffect(() => {
@@ -227,13 +220,128 @@ const BookAppointment = () => {
       (res) => {
         setStaffData(res.filter((elm) => elm.isActive));
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.subCategory]);
 
   const dispatch = useDispatch();
-  const handleServiceChange = (e) => {
+
+  const handleStaffSelection = (tag, id) => (e) => {
+    const { value, checked } = e.target;
+    const splited = value?.split("-");
+    const satffName = splited[1];
+
+    const staffId = splited[0];
+    if (tag === "service") {
+      if (checked) {
+        const arr = [...serviceSelection.staffs, { satffName, staffId }]
+
+        const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+        setServiceSelection((prev) => ({
+          ...prev,
+          staffs: updatedStaffs
+        }))
+      } else {
+        const arr = serviceSelection?.staffs?.filter((elm) => elm.staffId !== staffId)
+        const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+
+        setServiceSelection((prev) => ({
+          ...prev,
+          staffs: updatedStaffs
+        }))
+      }
+    }
+    else {
+      if (checked) {
+        const arr = [...productData?.staffs, {
+          staffId: staffId,
+          staffName: satffName
+
+        }]
+
+        const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+        setProductData((prev) => ({
+          ...prev,
+          staffs: updatedStaffs
+        }))
+      } else {
+        const arr = productData?.staffs?.filter((elm) => elm.staffId !== staffId)
+        const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+
+        setProductData((prev) => ({
+          ...prev,
+          staffs: updatedStaffs
+        }))
+      }
+    }
+
+
+
+    // staffId: Id,
+    // satffName: Name,
+
+
+
+  }
+  const handleShareChange = (tag, id) => (e) => {
+    const newShare = +e.target.value; // Get the updated share value from input
+
+
+    if(tag==="service"){
+      setServiceSelection((prev) => {
+        // Calculate the current total share excluding the current staff
+        const currentTotal = prev.staffs.reduce(
+          (sum, staff) => (staff.staffId === id ? sum : sum + staff.share),
+          0
+        );
+  
+        // Limit the new share to ensure total does not exceed 100
+        const adjustedShare = Math.min(newShare, 100 - currentTotal);
+  
+        return {
+          ...prev,
+          staffs: prev.staffs.map((staff) =>
+            staff.staffId === id
+              ? { ...staff, share: adjustedShare }
+              : staff
+          ),
+        };
+      });
+
+    }
+    else{
+      setProductData((prev) => {
+        // Calculate the current total share excluding the current staff
+        const currentTotal = prev.staffs.reduce(
+          (sum, staff) => (staff.staffId === id ? sum : sum + staff.share),
+          0
+        );
+  
+        // Limit the new share to ensure total does not exceed 100
+        const adjustedShare = Math.min(newShare, 100 - currentTotal);
+  
+        return {
+          ...prev,
+          staffs: prev.staffs.map((staff) =>
+            staff.staffId === id
+              ? { ...staff, share: adjustedShare }
+              : staff
+          ),
+        };
+      });
+    }
+    
+  };
+  const handleProductChange = (e) => {
     const { name, value } = e.target;
+    setProductData((prev) => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+  const handleServiceChange = (e) => {
+    const { name, value, checked } = e.target;
+
     if (name === "miniSubcategory") {
       const splited = value.split("---");
       const price = splited[0];
@@ -244,16 +352,6 @@ const BookAppointment = () => {
         price: +price,
         miniSub: val,
       });
-    } else if (name === "staff") {
-      const splited = value.split("-");
-      const Name = splited[1];
-      const Id = splited[0];
-
-      setServiceSelection({
-        ...serviceSelection,
-        staffId: Id,
-        satffName: Name,
-      });
     } else {
       setServiceSelection((prev) => ({
         ...prev,
@@ -263,15 +361,19 @@ const BookAppointment = () => {
   };
 
   const handldeAddButton = () => {
-    const { miniSub, miniSubcategory, ...rest } = serviceSelection;
+    const { miniSub, staffs, miniSubcategory, ...rest } = serviceSelection;
 
     const selected = {
-    
+
       ...rest,
+      staffs,
       miniSubcategory: miniSub,
     };
     const isEveryEmpty = Object.values(selected).some((elm) => !elm);
-    if (isEveryEmpty) {
+    const isStaffEmpty = staffs.some((elm) => !elm.share);
+
+    console.log(staffs,"selcted")
+    if (isEveryEmpty ||staffs?.length===0|| isStaffEmpty) {
       return toast.error("Please Select All Fields");
     }
     dispatch(serviceAdded(selected));
@@ -279,6 +381,8 @@ const BookAppointment = () => {
     toast.success("All Service Added!!");
   };
   const handldeBookAppointment = () => {
+ 
+    
     const data = {
       services: services,
       customer: customerDetails,
@@ -331,7 +435,16 @@ const BookAppointment = () => {
   // product name on click
 
   const productNameOnclick = (item) => {
-    setSelectedProduct(item);
+    const { name, itemId, price,brand ,stockQuantity} = item;
+    setProductData({
+      name,
+      brand,
+      itemId,
+      price,
+      quantity: 1,
+      staffs: [],
+      stockQuantity
+    })
     setsearchProduct("");
   };
 
@@ -345,8 +458,8 @@ const BookAppointment = () => {
     postApiData(
       "parlor/registerUserForCrm",
       customerDetails,
-      (resp) => {},
-      (error) => {}
+      (resp) => { },
+      (error) => { }
     );
     closeModal();
   };
@@ -361,11 +474,9 @@ const BookAppointment = () => {
     setModalOpen(false);
   };
 
-  // on search product click
-  const searchProductOnchange = (e) => {
-    setsearchProduct(e.target.value);
+  const fetchSearchProduct = (val) => {
     const data = {
-      name: searchProduct,
+      name: val,
     };
     postApiData(
       "inventory/getSuggestedProductOfSalon",
@@ -373,8 +484,14 @@ const BookAppointment = () => {
       (resp) => {
         setShowSearchProduct(resp.products);
       },
-      (error) => {}
+      (error) => { }
     );
+  }
+  // on search product click
+  const searchProductOnchange = (e) => {
+    setsearchProduct(e.target.value);
+    debouncedFunction(fetchSearchProduct, 500, e.target.value)
+
   };
   const applyDiscount = () => {
     setApplyDiscountPer(discount);
@@ -440,41 +557,29 @@ const BookAppointment = () => {
       (resp) => {
         setUserData(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   };
-  const onChangeProdutName = (e) => {
-    setProductData({
-      ...productData,
-      name: e.target.value,
-    });
-  };
-  const addproductPress = (
-    item,
-    productQnt,
-    productStaffid,
-    productStaffName
-  ) => {
-    if (productQnt === "0" || !productQnt) {
-      toast.error("Please Enter Quantiy");
+  
+  const addproductPress = () => {
+
+    if (!productData) {
+      toast.error("Please Select All Fields");
 
       return;
     }
-    if (!productStaffid || !productStaffName) {
-      toast.error("Please Select Staff");
+    const { staffs, ...rest } = productData;
+    const isEveryEmpty = Object.values(rest).some(elm => !elm)
+    const isStaffEmpty = staffs?.some(elm => !elm.share)
+    if (isEveryEmpty || isStaffEmpty || staffs?.length===0) {
+      toast.error("Please Select All Fields");
 
       return;
     }
 
-    // productQnt,productStaffid
-    const itemWithAdditionalInfo = {
-      ...item, // Copying existing properties of item
-      quantity: +productQnt, // Adding quantity key
-      staffId: productStaffid,
-      staffName: productStaffName, // Adding staffId key
-    };
 
-    dispatch(productAdded(itemWithAdditionalInfo));
+    dispatch(productAdded(productData));
+    setProductData(null)
     toast.success("product added succesfully");
   };
 
@@ -491,18 +596,7 @@ const BookAppointment = () => {
     setServices(updatedServices);
     dispatch(newUpdateService(updatedServices));
   };
-  const handleProductStaff = (e) => {
-    const { value } = e.target;
-    const splited = value.split("-");
-    const Name = splited[1];
-    const Id = splited[0];
-
-    setProductStaff({
-      ...serviceSelection,
-      staffId: Id,
-      satffName: Name,
-    });
-  };
+  
   const genderFields = [
     {
       name: "Male",
@@ -524,8 +618,36 @@ const BookAppointment = () => {
       name: "miniSubcategory",
     },
     {
-      name: "staff",
+      name: "staffs",
     },
+  ];
+  const staffOptions = staffData?.map((elm) => ({
+    name: elm.name,
+    value: `${elm._id}-${elm.name}`,
+  }))
+  const productFields = [
+    {
+      name: "name",
+      placeholder: "Name"
+
+    },
+    {
+      name: "price",
+      placeholder: "Price"
+
+    },
+    {
+      name: "quantity",
+      placeholder: "Quantity"
+
+    },
+    {
+      name: "staffs",
+
+      options: staffOptions
+    },
+
+
   ];
   const addCustomerFields = [
     {
@@ -562,10 +684,7 @@ const BookAppointment = () => {
       name: elm.name,
       value: `${elm.price}---${elm.name}`,
     })),
-    staff: staffData?.map((elm) => ({
-      name: elm.name,
-      value: `${elm._id}-${elm.name}`,
-    })),
+    staffs: staffOptions,
   };
   const customerDetailsArray = [
     { label: "NAME", value: customerDetails.name },
@@ -664,9 +783,8 @@ const BookAppointment = () => {
                 </div>
 
                 <button
-                  className={`mx-4 ${
-                    isMobileValid ? "add-customer-btn" : "disabled-btn"
-                  }`}
+                  className={`mx-4 ${isMobileValid ? "add-customer-btn" : "disabled-btn"
+                    }`}
                   onClick={isMobileValid ? openModal : null}
                   disabled={!isMobileValid}
                 >
@@ -742,14 +860,27 @@ const BookAppointment = () => {
                   const { name } = item;
                   const value = serviceSelection[name];
                   const options = servicesOptions[name];
+
+
                   return (
-                    <NormalSelect
-                      inputStyles={{ background: "#cbd5e1" }}
-                      name={name}
-                      value={value}
-                      options={options}
-                      onChange={handleServiceChange}
-                    />
+                    name === "staffs" ?
+                      <MultiSelectInput
+                        options={options}
+                        handleStaffSelection={handleStaffSelection}
+                        handleShareChange={handleShareChange}
+                        val={value}
+                        tag="service"
+                      />
+
+
+                      :
+                      <NormalSelect
+                        inputStyles={{ background: "#cbd5e1" }}
+                        name={name}
+                        value={value}
+                        options={options}
+                        onChange={handleServiceChange}
+                      />
                   );
                 })}
 
@@ -793,10 +924,19 @@ const BookAppointment = () => {
                           <td>{item?.category}</td>
                           <td>{item?.subCategory}</td>
                           <td>
-                            {staffData
-                              ?.filter((staff) => staff._id === item.staffId)
+                            {item.staffs
                               ?.map((data) => (
-                                <span>{data.name}</span>
+                                <div className="flex mb-2 items-center justify-between">
+                                  <span className="">{data.satffName}</span>
+
+                                  <CustomInput
+
+
+                                    value={data?.share}
+                                    readOnly={true}
+                                  />
+
+                                </div>
                               ))}
                           </td>
                           {/* <td>{item?.price}</td> */}
@@ -849,7 +989,20 @@ const BookAppointment = () => {
                       <td>{item?.price}</td>
                       <td>{item?.brand}</td>
                       <td>{item?.quantity}</td>
-                      <td>{item?.staffName}</td>
+                      <td>  {item.staffs
+                        ?.map((data) => (
+                          <div className="flex mb-2 items-center justify-between">
+                            <span className="">{data.staffName}</span>
+
+                            <CustomInput
+
+
+                              value={data?.share}
+                              readOnly={true}
+                            />
+
+                          </div>
+                        ))}</td>
                       <td>
                         {" "}
                         <MdDeleteOutline
@@ -886,7 +1039,7 @@ const BookAppointment = () => {
                     {showSearchProduct?.map((item) => {
                       return (
                         <div
-                          onClick={() => productNameOnclick(item.itemId)}
+                          onClick={() => productNameOnclick(item)}
                           className="flex bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
                         >
                           <p className="mr-2 font-semibold">{item.name}</p>
@@ -898,90 +1051,79 @@ const BookAppointment = () => {
               </div>
             </div>
 
-            {selectedProduct && (
-              <div className="table-container">
-                <table className="styled-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Staff</th>
-                      <th>Action</th>
+            {productData && (
+              <div className="">
+                <table className="">
+                  <thead className="">
+                    <tr className="">
+                      <th className="bg-black text-white">Name</th>
+                      <th className="bg-black text-white">Price</th>
+                      <th className="bg-black text-white">Quantity</th>
+                      <th className="bg-black text-white">Staff</th>
+                      <th className="bg-black text-white">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {showSearchProduct
-                      ?.filter((item) => item.itemId === selectedProduct)
-                      ?.map((item, index) => (
-                        <tr key={index}>
-                          <td>
-                            <input
-                              value={item.name}
-                              placeholder="product Quantity "
-                              disabled
-                              onChange={onChangeProdutName}
-                            />
-                          </td>
-                          <td>{item?.price}</td>
-                          <td>
-                            <input
-                              value={productQnt}
-                              placeholder="product Quantity "
-                              onChange={(e) => setProductQnt(e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            {" "}
-                            <select
-                              style={{
-                                // border: "1px solid green",
 
-                                borderRadius: "8px",
-                              }}
-                              onChange={handleProductStaff}
-                              value={`${productStaff.staffId}-${productStaff.satffName}`}
-                            >
-                              <option value="">Select Staff</option>
-                              {staffData?.map((item) => (
-                                <option
-                                  key={item._id}
-                                  value={`${item._id}-${item.name}`}
-                                  style={{ width: "300px" }}
-                                >
-                                  {item.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
 
-                          <td>
-                            <button
-                              className="flex items-center justify-center"
-                              style={{
-                                font: "white",
-                                fontWeight: "500",
-                                font: "14px",
+                    <tr >
+                      {productFields?.map((field, idx) => {
+                        const { name, options, placeholder } = field;
+                        const value = productData[name];
 
-                                height: "40px",
-                                borderRadius: "20px solid grey",
-                                width: "150px",
-                                backgroundColor: "black",
-                              }}
-                              onClick={() =>
-                                addproductPress(
-                                  item,
-                                  productQnt,
-                                  productStaff.staffId,
-                                  productStaff.satffName
-                                )
-                              }
-                            >
-                              <span className="">Add Product</span>
-                            </button>
+                        return (
+
+                          <td key={idx} >
+                            {
+                              name === "staffs" ?
+                                <MultiSelectInput
+                                  options={options}
+                                  handleStaffSelection={handleStaffSelection}
+                                  handleShareChange={handleShareChange}
+                                  val={value}
+                                  tag="Product"
+                                />
+
+                                : <NormalInput
+                                  disabled={name === "name"}
+                                  placeholder={placeholder}
+                                  type={typeof value === "number" ? "number" : "text"}
+                                  name={name}
+                                  onChange={handleProductChange}
+                                  value={value}
+
+                                />
+                            }
+
+
                           </td>
-                        </tr>
-                      ))}
+                        )
+                      })}
+
+
+                      <td>
+                        <button
+                          className="flex items-center justify-center"
+                          style={{
+                            font: "white",
+                            fontWeight: "500",
+                            font: "14px",
+
+                            height: "40px",
+                            borderRadius: "20px solid grey",
+                            width: "150px",
+                            backgroundColor: "black",
+                          }}
+                          onClick={
+                            addproductPress
+
+                          }
+                        >
+                          <span className="">Add Product</span>
+                        </button>
+                      </td>
+                    </tr>
+
                   </tbody>
                 </table>
               </div>

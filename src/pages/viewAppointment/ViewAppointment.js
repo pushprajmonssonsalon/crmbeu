@@ -94,16 +94,7 @@ const ViewAppointment = () => {
     }
     //  window.open(item.invoiceUrl,'_blank');
   };
-  const handleAppointmentChange = (e) => {
-    setStatus(e.target.value);
-    if (e.target.value === "Pending") {
-      setStatus(1);
-    } else if (e.target.value === "Canceled") {
-      setStatus(2);
-    } else {
-      setStatus(3);
-    }
-  };
+  
 
   const submitPress = (item) => {
     const activeAppointment = viewAppointmentDetails.find(
@@ -221,7 +212,7 @@ const ViewAppointment = () => {
     setMemberShipPoints(membershipCreditUsed);
     setModal(true);
     const appointment = viewAppointmentDetails.find((elm) => elm._id === _id);
-    if (appointment.paymentMethod.length === 0) {
+    if (appointment?.paymentMethod?.length === 0) {
       appointment.paymentMethod = paymentMethods;
     }
 
@@ -241,6 +232,8 @@ const ViewAppointment = () => {
         return "Canceled";
       case 3:
         return "Completed";
+      case 4:
+        return "Half Completed";
       default:
         // Handle other cases if needed
         return null; // or 'N/A'
@@ -504,6 +497,10 @@ const paymentMethods = [
   },
   {
     name: "Online",
+    amount: 0,
+  },
+  {
+    name: "Pending",
     amount: 0,
   },
 ];

@@ -82,6 +82,8 @@ export default function StickyHeadTable({
         return "Canceled";
       case 3:
         return "Completed";
+      case 4:
+        return "Half Completed";
       default:
         // Handle other cases if needed
         return null; // or 'N/A'

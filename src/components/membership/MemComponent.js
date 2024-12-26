@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import AddCustomerModal from "../modals/AddCustomerModal";
 import toast from "react-hot-toast";
 import { getApiCall, postApiData } from "../../utils/services";
-import CheckBox from "../checkbox";
 import OrderPaymentPopup from "../popup/OrderPayment";
+import MultiSelectInput from "../customInput/MultiSelectInput";
 
 const MemComponent = ({
   fields,
@@ -16,7 +16,7 @@ const MemComponent = ({
   onPayed,
   onClickBuyNow,
 }) => {
-  
+
   const [isVisible, setIsVisible] = useState(false);
 
   const { heading, actions, banners } = fields;
@@ -37,6 +37,55 @@ const MemComponent = ({
     email: "",
     gender: "",
   });
+
+  const handleStaffSelection = (tag, id) => (e) => {
+    const { value, checked } = e.target;
+    const splited = value?.split("-");
+    const satffName = splited[1];
+
+    const employeeId = splited[0];
+
+    if (checked) {
+      const arr = [...selectedStaff, { name: satffName, employeeId }]
+
+      const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+      setSelectedStaff(updatedStaffs
+      )
+    } else {
+      const arr = selectedStaff?.filter((elm) => elm.employeeId !== employeeId)
+      const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+
+      setSelectedStaff(updatedStaffs)
+
+    }
+  }
+
+
+
+
+
+
+
+
+  const handleShareChange = (tag, id) => (e) => {
+    const newShare = +e.target.value; // Get the updated share value from input
+
+
+    setSelectedStaff((prev) => {
+      const currentTotal = prev.staffs.reduce(
+        (sum, staff) => (staff.employeeId === id ? sum : sum + staff.share),
+        0
+      );
+      const adjustedShare = Math.min(newShare, 100 - currentTotal);
+
+      return prev.staffs.map((staff) =>
+        staff.employeeId === id
+          ? { ...staff, share: adjustedShare }
+          : staff
+      )
+
+    })
+  }
 
   const nameOnclick = (item) => {
     setPhoneNumber(item.phoneNumber);
@@ -64,11 +113,11 @@ const MemComponent = ({
       "user/searchUser",
       data,
       (resp) => {
-        
+
         setUserData(resp);
       },
       (error) => {
-        
+
       }
     );
   };
@@ -132,7 +181,7 @@ const MemComponent = ({
       "parlor/registerUserForCrm",
       apiData,
       (resp) => {
-        
+
         closeModal();
         setCustomerDetails({
           name: "",
@@ -143,27 +192,31 @@ const MemComponent = ({
         toast.success("User has been created! Please select the user");
       },
       (error) => {
-        
+
       }
     );
   };
   const handleBuy = () => {
-   
-        const data ={
-            selectedStaff,
-            paymentMethods,
-            phoneNumber
-        }
-    const res=  onClickBuyNow(data)
-    
-    if(res){
+
+    const data = {
+      selectedStaff,
+      paymentMethods,
+      phoneNumber
+    }
+
+    const res = onClickBuyNow(data)
+
+    if (res) {
       setSelectedStaff([]);
       setExpanded(false);
       setPhoneNumber("")
     }
-   
-  };
 
+  };
+  const staffOptions = staffData?.filter(elm => elm?.isActive)?.map((elm) => ({
+    name: elm?.name,
+    value: `${elm?._id}-${elm?.name}`,
+  }))
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
@@ -171,10 +224,11 @@ const MemComponent = ({
         setStaffData(res);
       },
       (error) => {
-        
+
       }
     );
   }, []);
+
   return (
     <>
       <div className="mt-52 md:mt-32 w-[90%] mx-auto ">
@@ -206,12 +260,13 @@ const MemComponent = ({
         <div className="flex   flex-wrap justify-between gap-3 items-center shadow-lg px-4 py-4 rounded-lg bg-[#fffffe] mt-4">
           <div className="relative ">
             <input
-            className="mx-2 py-3 w-[240px] rouded-[10px] outline-none border-2 border-gray-400"
-            type="text"
+                    className=" relative flex items-center justify-between mx-2 py-3 w-[240px] capitalize border border-gray-400 text-gray-900 text-sm rounded-lg p-2.5"
+
+              type="text"
               placeholder="Search by Mobile"
               onChange={handleMobileChange}
               value={phoneNumber}
-             
+
             />
 
             {visible && phoneNumber.length > 0 && (
@@ -242,9 +297,9 @@ const MemComponent = ({
           </div>
 
           <select
-            className="mx-2 py-3 w-[240px] rouded-[11px] outline-none border-2 border-gray-400"
-            onChange={memChange}
-           
+                    className=" relative flex items-center justify-between mx-2 py-3 w-[240px] capitalize border border-gray-400 text-gray-900 text-sm rounded-lg p-2.5"
+                    onChange={memChange}
+
             // value={memberShipdata[0]?.name}
             value={memValue}
           >
@@ -254,13 +309,15 @@ const MemComponent = ({
             })}
           </select>
 
-          <CheckBox
-            staffData={staffData}
-            selectedStaff={selectedStaff}
-            setSelectedStaff={setSelectedStaff}
-            expanded={expanded}
-            setExpanded={setExpanded}
+
+          <MultiSelectInput
+            val={selectedStaff}
+            handleStaffSelection={handleStaffSelection}
+            handleShareChange={handleShareChange}
+            tag="membership"
+            options={staffOptions}
           />
+
 
           <button
             className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105"
@@ -275,7 +332,7 @@ const MemComponent = ({
           >
             <span
               className="text-white font-medium text-[15px]"
-              // onClick={onClickBuyNow}
+            // onClick={onClickBuyNow}
             >
               Buy Now
             </span>

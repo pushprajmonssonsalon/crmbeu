@@ -51,14 +51,19 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
     if (brands.length > 0) setActiveBrand(brands[0])
   }, [brands])
   const [bool, setBool] = useState(false);
-  const handleQuantityChange = (index, value) => {
-    const updatedCart = [...cartData];
-
+  const handleQuantityChange = (idx, value) => {
+    const updatedCart = cartData.map((elm)=>{
+      if(elm.itemId===idx){
+        return {
+          ...elm,
+          orderedQuantity:value
+        }
+      }
+      return elm
+    })
+    
     // Update the specific item's quantity
-    updatedCart[index] = {
-      ...updatedCart[index], // Copy existing properties
-      orderedQuantity: value, // Update the specific field
-    };
+    
     setCartData(updatedCart)
 
   };
@@ -156,10 +161,13 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
                         <td>{item?.size}</td>
                         <td>
                           <input
+                          type="number"
                             className="w-full h-full"
                             value={item?.orderedQuantity}
+                            min={0}
+                            
                             onChange={(e) =>
-                              handleQuantityChange(index, e.target.value)
+                              handleQuantityChange(item.itemId, e.target.value)
                             }
                           />
                         </td>

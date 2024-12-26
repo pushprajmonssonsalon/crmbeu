@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { IoPrintSharp } from 'react-icons/io5';
 import { formatDateToFull } from '../../utils/services';
+import CustomInput from '../customInput/CustomInput';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -31,22 +32,22 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 
-export default function CustomizedTables({headings,data,handlePrint}) {
+export default function CustomizedTables({ headings, data, handlePrint }) {
 
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700,maxWidth:"100%" ,overflowY:"auto"}} aria-label="customized table">
+      <Table sx={{ minWidth: 700, maxWidth: "100%", overflowY: "auto" }} aria-label="customized table">
         <TableHead>
-                <TableRow >
-        {
-            headings.map((item,index)=>(
-                    <StyledTableCell>{item}</StyledTableCell>
-            ))
-        }
-                </TableRow>
+          <TableRow >
+            {
+              headings.map((item, index) => (
+                <StyledTableCell>{item}</StyledTableCell>
+              ))
+            }
+          </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((row,index) => (
+          {data.map((row, index) => (
             <StyledTableRow key={index}>
               <StyledTableCell scope="row">
                 {row.customerName}
@@ -54,19 +55,30 @@ export default function CustomizedTables({headings,data,handlePrint}) {
               <StyledTableCell >{row?.customerPhoneNumber}</StyledTableCell>
               {/* <StyledTableCell >{row?.employees?.name}</StyledTableCell> */}
               <StyledTableCell>
-                {
-                  row?.employees?.map((item)=>(
-                    <div>{item.name}</div>
-                  ))
-                }
+
+                {row?.employees
+                  ?.map((data) => (
+                    <div className="flex mb-2 items-center justify-between">
+                      <span className="">{data?.name}</span>
+
+                      <CustomInput
+
+
+                        value={data?.share}
+                        readOnly={true}
+                      />
+
+                    </div>
+                  ))}
+
               </StyledTableCell>
               <StyledTableCell >{row?.name}</StyledTableCell>
               <StyledTableCell >{row?.price}</StyledTableCell>
               <StyledTableCell >{row?.credits}</StyledTableCell>
-              <StyledTableCell >{formatDateToFull(row?.createdAt,false)}</StyledTableCell>
-              <StyledTableCell >{formatDateToFull(row?.expiryDate,false)||row?.expiry}</StyledTableCell>
+              <StyledTableCell >{formatDateToFull(row?.createdAt, false)}</StyledTableCell>
+              <StyledTableCell >{formatDateToFull(row?.expiryDate, false) || row?.expiry}</StyledTableCell>
               <StyledTableCell align="right">
-              <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(row)}/>
+                <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={() => handlePrint(row)} />
               </StyledTableCell>
             </StyledTableRow>
           ))}

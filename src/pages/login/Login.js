@@ -1,11 +1,22 @@
 // pages/login/Login.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
+import logo from "../../images/logo1.png";
+import Typewriter from "../../components/TypewriterText/Typewriter";
+import { MdPhone } from "react-icons/md";
+import { RiLockPasswordFill } from "react-icons/ri";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 const Login = ({ onLogin }) => {
+  const messages = [
+    'lead in Salon Franchises!',
+    'Sell Premium Salon Products!',
+    'Serve Salon Owners and Consumers!',
+  ];
   const navigate = useNavigate();
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -32,11 +43,11 @@ const Login = ({ onLogin }) => {
       .post("https://crm.smartsalon.in/parlor/login", data)
       .then((resp) => {
         if (resp) {
-         localStorage.setItem("token", resp?.data?.data);
-        
-        // dispatch(userDetails(resp.data.data));
-        toast.success("You have logined sucessfully")
-          
+          localStorage.setItem("token", resp?.data?.data);
+
+          // dispatch(userDetails(resp.data.data));
+          toast.success("You have logined sucessfully")
+
           // setAuthorizationToken(resp.data.data)
 
           navigate("/");
@@ -44,85 +55,60 @@ const Login = ({ onLogin }) => {
       })
       .catch((error) => {
         toast.error("please provide valid details")
-        
+
         // alert("please provide valid details")
       });
   };
 
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "800px",
-      }}
+      className="flex  h-screen"
     >
-      <div className="login-container">
+      <div className="w-[45%] bg-black flex items-center ">
         <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          className="w-full h-full flex flex-col items-center justify-center"
         >
-           <img
-          src={"https://smartsalon.in/static/media/applogo.d153d799341a8fb862fd.jpg"}
-          style={{marginLeft:'20px',marginTop:'8px',width:'132px',height:'80px',marginBottom:'10px' }}
-        />
+          <img
+            src={logo}
+            className="h-[150px] w-[190px]"
+          />
+          <span
+            className="mt-5 text-white font-bold text-[2rem]"
+          >
+            Hi, Welcome Back
+          </span>
+          <Typewriter texts={messages} />
+
+          <div
+
+          >
+
+          </div>
         </div>
-        <span
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            fontWeight: "700",
-            fontSize: "26px",
-            color: "rgb(63, 81, 181)",
-            marginTop: "20px",
-          }}
-        >
-          Hi, Welcome Back
-        </span>
-        <span
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            fontWeight: "400",
-            fontSize: "16px",
-            marginTop: "10px",
-            color: "rgb(158, 158, 158)",
-          }}
-        >
-          {"Enter your credentials to continue"}
-        </span>
-        <div
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            display: "flex",
-            marginTop: "25px",
-          }}
-        >
-          <form onSubmit={handleLogin}>
-            <input
-              type="tel"
-              id="mobileNumber"
-              name="mobileNumber"
-              placeholder="Mobile Number"
-              value={mobileNumber}
-              onChange={(e) => setMobileNumber(e.target.value)}
-              required
-              style={{
-                height: "50px",
-                border: "1px solid grey",
-                width: "350px",
-                borderRadius: "11px",
-                paddingLeft: "10px", // Add padding for better visual appearance
-              }}
-            />
-            <div style={{ position: "relative" }}>
+
+      </div>
+      <div className="w-[55%] flex items-center justify-center ">
+        <div className="h-[80%] w-[60%]   flex items-center justify-center flex-col">
+          <h2 className="text-[1.8rem] font-bold mb-5">Login</h2>
+          <form className="w-full" onSubmit={handleLogin}>
+            <div className="relative w-full  flex items-center justify-center">
+              <MdPhone className="absolute left-3 text-xl text-gray-400" />
+              <input
+                type="tel"
+                id="mobileNumber"
+                name="mobileNumber"
+                placeholder="Mobile Number"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
+                required
+                className="border w-full rounded-[25px] focus:ring-1 ring-blue-400 outline-none px-9 h-[50px]"
+
+              />
+            </div>
+
+            <div className="relative mt-5 w-full  flex items-center justify-center">
+              <RiLockPasswordFill className="absolute left-3 text-xl text-gray-400" />
+
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
@@ -131,43 +117,32 @@ const Login = ({ onLogin }) => {
                 placeholder="Password"
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                style={{
-                  height: "50px",
-                  border: "1px solid grey",
-                  width: "350px",
-                  borderRadius: "11px",
-                  paddingRight: "30px", // Add space for the eye icon
-                }}
+                className="border rounded-[25px] focus:ring-1 ring-blue-400  outline-none px-9 h-[50px] w-full "
+
               />
-              <span
-                onClick={togglePasswordVisibility}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "40%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                }}
-              >
-                {showPassword ? "👁️" : "👁️‍🗨️"}
-              </span>
+              {showPassword ? <FaEye onClick={togglePasswordVisibility} className="absolute right-4 text-xl text-gray-400" /> :
+                <FaEyeSlash onClick={togglePasswordVisibility} className="absolute right-4 text-xl text-gray-400" />
+
+              }
+
             </div>
 
             <button
               type="submit"
               // onClick={handleLogin}
-              style={{
-                height: "50px",
-                border: "1px solid grey",
-                width: "350px",
-                borderRadius: "11px",
-                fontSize: "16px",
-                backgroundColor: "rgb(63, 81, 181)",
-              }}
+              className="border rounded-[25px] mt-5 flex items-center justify-center text-white font-medium h-[50px] w-full bg-black"
+
             >
+
               Login
+
+
             </button>
           </form>
+
+
+
+
         </div>
       </div>
     </div>

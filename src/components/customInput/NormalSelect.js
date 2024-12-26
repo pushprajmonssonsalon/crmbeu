@@ -16,7 +16,7 @@ const NormalSelect = ({name,value,options=[],onChange,inputStyles={},disabled=fa
     value={value}
     disabled={disabled}
     style={{...inputStyles}}
-    className="bg-gray-50 min-w-sm capitalize border border-gray-400 text-gray-900 text-sm rounded-lg   grow p-2.5 "
+    className="bg-gray-50 z-[2] min-w-sm capitalize border border-gray-400 text-gray-900 text-sm rounded-lg   grow p-2.5 "
     onChange={onChange}
   >
     <option value="">Choose a {name}</option>

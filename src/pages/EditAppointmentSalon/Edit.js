@@ -5,25 +5,32 @@ import Layout from "../../components/Layout";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
 import { toast } from "react-hot-toast";
+import MultiSelectInput from "../../components/customInput/MultiSelectInput";
+import useDebouncer from "../../utils/hooks/useDebouncer";
+import NormalSelect from "../../components/customInput/NormalSelect";
+import NormalInput from "../../components/customInput/NormalInput";
+import CustomInput from "../../components/customInput/CustomInput";
 
 const Edit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { debouncedFunction } = useDebouncer();
   //Staff data fiktering
   const [staffData, setStaffData] = useState([]);
- 
+
   const [appointementProducts, setAppointmentProducts] = useState([]);
   const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
-  
+
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
     subCategory: "",
     miniSubcategory: "",
-    staffId: "",
+
+    staffs: [],
     price: 0,
-    satffName: "",
+
   });
-  const [productData, setProductData] = useState({});
+  const [productData, setProductData] = useState(null);
   const [userId, setUserId] = useState("");
 
   // services getting state
@@ -33,13 +40,7 @@ const Edit = () => {
   const [gender, setGender] = useState("F");
   const [searchProduct, setsearchProduct] = useState("");
   const [showSearchProduct, setShowSearchProduct] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [productQnt, setProductQnt] = useState(0);
-  const [productStaff, setProductStaff] = useState({
-    staffId: "",
-    staffName: "",
-  
-  });
+
   const [discount, setDiscount] = useState(0);
   // membership details
   const [membershipDetails, setMembershipDetails] = useState([]);
@@ -50,9 +51,176 @@ const Edit = () => {
   const [creditUsed, setCreditUsed] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [subServiceTotal, setSubServiceTotal] = useState(0);
-  
 
- 
+  const handleStaffSelection = (tag, _id, idx) => (e) => {
+    const { value, checked } = e.target;
+    const splited = value?.split("-");
+    const satffName = splited[1];
+
+    const staffId = splited[0];
+    if (checked) {
+
+      if (tag === "service") {
+
+        const arr = [...serviceSelection.staffs, { satffName, staffId }]
+
+        const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+        setServiceSelection((prev) => ({
+          ...prev,
+          staffs: updatedStaffs
+        }))
+      }
+      else if (tag === "edit") {
+
+
+
+        setAddedAppointmentDetails((prev) => prev?.map((elm, index) => {
+          if (index === idx) {
+            return {
+              ...elm, staffs: (() => {
+                const arr = [...elm.staffs, { satffName, staffId }]
+                return arr.map((item) => ({ ...item, share: parseInt(100 / arr?.length) }))
+              })()
+            }
+          }
+          return elm
+        }))
+
+
+      }
+      else {
+
+        const arr = [...productData?.staffs, {
+          staffId: staffId,
+          staffName: satffName
+
+        }]
+
+        const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+        setProductData((prev) => ({
+          ...prev,
+          staffs: updatedStaffs
+        }))
+
+      }
+    }
+    else {
+      if (tag === "service") {
+        const arr = serviceSelection?.staffs?.filter((elm) => elm.staffId !== staffId)
+        const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+
+        setServiceSelection((prev) => ({
+          ...prev,
+          staffs: updatedStaffs
+        }))
+      }
+      else if (tag === "edit") {
+        const updatedAppointments = addedAppointmentDetails?.map((elm, index) => {
+          if (index === idx) {
+            return {
+              ...elm, staffs: (() => {
+                const newArr = elm?.staffs?.filter((elm) => elm.staffId !== staffId)
+                return newArr.map((item) => ({ ...item, share: parseInt(100 / newArr?.length) }))
+
+
+              })()
+            }
+          }
+          return elm
+        })
+
+        setAddedAppointmentDetails(updatedAppointments)
+
+
+      } else {
+        const arr = productData?.staffs?.filter((elm) => elm.staffId !== staffId)
+        const updatedStaffs = arr.map((prev) => ({ ...prev, share: parseInt(100 / arr.length) }))
+
+        setProductData((prev) => ({
+          ...prev,
+          staffs: updatedStaffs
+        }))
+      }
+    }
+
+  }
+  const handleShareChange = (tag, _id, idx) => (e) => {
+    const newShare = +e.target.value; // Get the updated share value from input
+
+
+    if (tag === "service") {
+      setServiceSelection((prev) => {
+        // Calculate the current total share excluding the current staff
+        const currentTotal = prev.staffs.reduce(
+          (sum, staff) => (staff.staffId === _id ? sum : sum + staff.share),
+          0
+        );
+
+        // Limit the new share to ensure total does not exceed 100
+        const adjustedShare = Math.min(newShare, 100 - currentTotal);
+
+        return {
+          ...prev,
+          staffs: prev.staffs.map((staff) =>
+            staff.staffId === _id
+              ? { ...staff, share: adjustedShare }
+              : staff
+          ),
+        };
+      });
+
+    }
+    else if (tag === "edit") {
+
+      setAddedAppointmentDetails((prev) => prev.map((elm, index) => {
+
+
+        // Limit the new share to ensure total does not exceed 100
+        if (index === idx) {
+          const currentTotal = elm.staffs.reduce(
+            (sum, staff) => (staff.staffId === _id ? sum : sum + staff.share),
+            0
+          );
+          const adjustedShare = Math.min(newShare, 100 - currentTotal);
+
+          return {
+            ...elm,
+            staffs: elm.staffs.map((staff) =>
+              staff.staffId === _id
+                ? { ...staff, share: adjustedShare }
+                : staff
+            ),
+          }
+        }
+        return elm
+
+      }))
+
+    }
+    else {
+      setProductData((prev) => {
+        // Calculate the current total share excluding the current staff
+        const currentTotal = prev.staffs.reduce(
+          (sum, staff) => (staff.staffId === _id ? sum : sum + staff.share),
+          0
+        );
+
+        // Limit the new share to ensure total does not exceed 100
+        const adjustedShare = Math.min(newShare, 100 - currentTotal);
+
+        return {
+          ...prev,
+          staffs: prev.staffs.map((staff) =>
+            staff.staffId === _id
+              ? { ...staff, share: adjustedShare }
+              : staff
+          ),
+        };
+      });
+    }
+
+  };
+
 
   // api call for getting service category
   useEffect(() => {
@@ -63,11 +231,11 @@ const Edit = () => {
       "salonService/getServiceCategory",
 
       (resp) => {
-        
+
         setService(resp);
       },
       (error) => {
-        
+
       }
     );
   }, [gender]);
@@ -84,7 +252,7 @@ const Edit = () => {
         setSubService(resp);
       },
       (error) => {
-        
+
       }
     );
   }, [serviceSelection.category]);
@@ -102,22 +270,24 @@ const Edit = () => {
         setMiniService(resp);
       },
       (error) => {
-        
+
       }
     );
   }, [serviceSelection.subCategory]);
+
+  console.log(miniservice, "miniservice")
 
   //single appointment api
   useEffect(() => {
     getApiCall(
       `appointment/getSingleAppointmentDetails?id=${id}`,
       (resp) => {
-        
+
         setDiscount(resp?.discountPercentage || 0);
         setAddedAppointmentDetails(
-          resp.services.map((item) => ({ ...item, staffId: item?.staffId|| "", satffName: item?.satffName|| "" }))
+          resp?.services?.map((elm) => ({ ...elm, staffs: elm?.staffs?.length > 0 ? elm?.staffs : [] }))
         );
-        setAppointmentProducts(resp.products);
+        setAppointmentProducts(resp?.products);
         // setMembershipDetails(resp.customer.activeMembership)
         setMemberShipStatus(resp.membershipUsed);
         setFilterMembershipId(resp.membershipId);
@@ -129,134 +299,126 @@ const Edit = () => {
         // setCreditUsed(resp.membershipCreditUsed)
       },
       (error) => {
-        
+
       }
     );
   }, []);
 
-  
+
   // staff get api
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
       (res) => {
-        setStaffData(res?.filter(elm=>elm?.isActive));
+        setStaffData(res?.filter(elm => elm?.isActive));
       },
       (error) => {
-        
+
       }
     );
   }, [serviceSelection.subCategory]);
 
-  useEffect(()=>{
-    if(phoneNumber)
-    postApiData(
-      `/membership/getActiveMembershipOfUser`,
-     {phoneNumber},
-      (resp) => {
-        if (resp) {
-          // 
-          setMembershipDetails(resp[0]?.activeMembership)
-          setUserId(resp[0]?._id)
-          
+  useEffect(() => {
+    if (phoneNumber)
+      postApiData(
+        `/membership/getActiveMembershipOfUser`,
+        { phoneNumber },
+        (resp) => {
+          if (resp) {
+            // 
+            setMembershipDetails(resp[0]?.activeMembership)
+            setUserId(resp[0]?._id)
+
+          }
+        },
+        (error) => {
+
         }
-      },
-      (error) => {
-        
-      }
-    );
-  },[phoneNumber])
+      );
+  }, [phoneNumber])
 
   // handle buttons for add service
   const serviceAddpress = () => {
-    const isAnyEmpty = Object.values(serviceSelection).some(elm=>!elm)
-    if(isAnyEmpty){
-     return toast.error("Please Select All Fields")
+    const { miniSub, staffs, miniSubcategory, ...rest } = serviceSelection;
+
+    const selected = {
+
+      ...rest,
+      staffs,
+      miniSubcategory: miniSub,
+    };
+    console.log(selected, "selected")
+    const isEveryEmpty = Object?.values(selected).some((elm) => !elm);
+    const isStaffEmpty = staffs?.some((elm) => !elm.share);
+    if (isEveryEmpty || isStaffEmpty || staffs?.length === 0) {
+      return toast.error("Please Select All Fields");
     }
-    setAddedAppointmentDetails([...addedAppointmentDetails, serviceSelection]);
-   
-  };
-  
-  const handleServiceChange = (e) => {
-    
-    setServiceSelection({
-      ...serviceSelection,
-      category: e.target.value,
-      subCategory: "",
-    });
-  };
-  const handleSubCategoryChange = (e) => {
-    
-    setServiceSelection({
-      ...serviceSelection,
-      subCategory: e.target.value,
-      miniSubcategory: "",
-    });
+    setAddedAppointmentDetails([...addedAppointmentDetails, selected]);
+
   };
 
-  const handleminiChange = (event) => {
-    // 
-    const selectedOption = event.target.options[event.target.selectedIndex];
-    const selectedPrice = selectedOption.getAttribute("data-price");
-    
-    // Now you have the selected price, you can use it as needed
-    setServiceSelection({
-      ...serviceSelection,
-      miniSubcategory: event.target.value,
-      price: +selectedPrice,
-    });
-  };
-  const handlestaffChange = (e, index, newService) => {
-    let splited = e.target.value.split("-");
-    let Name = splited[1];
-    let Id = splited[0];
-    
-    
-    if (newService) {
+  const handleServiceChange = (e) => {
+    const { name, value } = e.target
+
+    if (name === "miniSubcategory") {
+      const splited = value.split("---");
+      const price = splited[0];
+      const val = splited[1];
       setServiceSelection({
         ...serviceSelection,
-        staffId: Id,
-        satffName: Name,
+        miniSubcategory: value,
+        price: +price,
+        miniSub: val,
       });
     } else {
-      setAddedAppointmentDetails((prev) =>
-        prev.map((item, idx) => {
-          if (index === idx) {
-            return {
-              ...item,
-              staffId: Id,
-              satffName: Name,
-            };
-          }
-          return item;
-        })
-      );
+
+      setServiceSelection((prev) => ({
+        ...prev,
+        [name]: value
+      }));
     }
+
   };
 
+
+
+
+  const fetchSearchProduct = (val) => {
+    const data = {
+      name: val,
+    };
+    postApiData(
+      "inventory/getSuggestedProductOfSalon",
+      data,
+      (resp) => {
+
+        setShowSearchProduct(resp.products);
+      },
+      (error) => {
+
+      }
+    );
+  }
 
 
   // search product api
   // on search product click
   const searchProductOnchange = (e) => {
     setsearchProduct(e.target.value);
-    const data = {
-      name: searchProduct,
-    };
-    postApiData(
-      "inventory/getSuggestedProductOfSalon",
-      data,
-      (resp) => {
-        
-        setShowSearchProduct(resp.products);
-      },
-      (error) => {
-        
-      }
-    );
+    debouncedFunction(fetchSearchProduct, 500, e.target.value)
+
   };
   const productNameOnclick = (item) => {
-    setSelectedProduct(item);
+    const { name, itemId, price, brand,stockQuantity } = item;
+    setProductData({
+      name,
+      brand,
+      itemId,
+      price,
+      quantity: 1,
+      staffs: [],
+      stockQuantity
+    })
     setsearchProduct("");
   };
   const onChangeProdutName = (e) => {
@@ -265,48 +427,44 @@ const Edit = () => {
       name: e.target.value,
     });
   };
-  const addproductPress = (item, productQnt) => {
+  const addproductPress = () => {
 
-    if(productQnt===0||!productQnt){
+    if (!productData) {
+      toast.error("Please Select All Fields");
 
-      toast.error("Please Select  Quantity")
-      return ;
-      
+      return;
     }
-    if(!productStaff.staffId || !productStaff.staffName){
+    const { staffs, ...rest } = productData;
+    const isEveryEmpty = Object?.values(rest).some(elm => !elm)
+    const isStaffEmpty = staffs?.some(elm => !elm.share)
+    if (isEveryEmpty || isStaffEmpty || staffs.length == 0) {
+      toast.error("Please Select All Fields");
 
-      toast.error("Please Select Staff")
-      return ;
-      
+      return;
     }
-    // productQnt,productStaffid
-    const itemWithAdditionalInfo = {
-      ...item, // Copying existing properties of item
-      quantity: +productQnt, // Adding quantity key
-      staffId: productStaff.staffId,
-      staffName: productStaff.staffName,
-    }; // Adding staffId key
-    
-    
-    setAppointmentProducts((prev) => {
-      const index = prev.findIndex((elm) => elm._id === item._id);
-  
-      if (index !== -1) {
-        return prev.map((elm, i) => 
-          i === index ? itemWithAdditionalInfo : elm
-        );
-      } else {
-        return [...prev, itemWithAdditionalInfo];
-      }
-    });
-  
+    const index = appointementProducts.findIndex((elm) => elm?.itemId === productData?.itemId)
+
+    if (index !== -1) {
+      const updatedDetails = [...appointementProducts]
+      updatedDetails[index] = productData;
+      setAppointmentProducts(updatedDetails)
+
+    }
+    else {
+      setAppointmentProducts([...appointementProducts, productData])
+
+
+    }
+
+
+
     // dispatch(EditproductAdded(itemWithAdditionalInfo));
     // setProductData(itemWithAdditionalInfo)
   };
 
   const deleteEditService = (indexId) => {
     // const updatedDetails = [addedAppointmentDetails]
-    const updatedDetails = addedAppointmentDetails.filter(
+    const updatedDetails = addedAppointmentDetails?.filter(
       (_, index) => index !== indexId
     );
     setAddedAppointmentDetails(updatedDetails);
@@ -322,6 +480,11 @@ const Edit = () => {
     setGender(selectedGender);
     setServiceSelection({
       category: "",
+      subCategory: "",
+      miniSubcategory: "",
+
+      staffs: [],
+      price: 0,
     });
     setSubService(null);
     setMiniService(null);
@@ -330,8 +493,29 @@ const Edit = () => {
 
   // handle book appointment
   const handleBookAppointment = () => {
-    
 
+    const hasInvalidStaffs = addedAppointmentDetails.some((service) => {
+      // Check if the `staffs` array is empty
+      if (service.staffs.length === 0) {
+        return true;
+      }
+      // Check if any staff's `share` is invalid
+      return service.staffs.some((staff) => !staff.share);
+    });
+    const hasInvalidProdStaffs = appointementProducts?.some((product) => {
+      // Check if the `staffs` array is empty
+      if (product?.staffs?.length === 0) {
+        return true;
+      }
+      // Check if any staff's `share` is invalid
+      return product?.staffs?.some((staff) => !staff.share);
+    });
+    if (hasInvalidStaffs) {
+      return toast.error("Select Staffs on Each Service")
+    }
+    if (hasInvalidProdStaffs) {
+      return toast.error("Select Staffs on Each Product")
+    }
     const data = {
       services: addedAppointmentDetails,
 
@@ -353,12 +537,12 @@ const Edit = () => {
       (resp) => {
         if (resp) {
           toast.success("Appointment Booked SuccessFully");
-          
+
           navigate(-1);
         }
       },
       (error) => {
-        
+
       }
     );
   };
@@ -372,14 +556,14 @@ const Edit = () => {
       isMembershipUsed: !memberShipStatus,
     };
     // 
-    
+
 
     postApiData(
       "membership/applyMembership",
       data,
       (resp) => {
         if (resp) {
-          
+
           if (memberShipStatus) {
             setMembershipCoin(resp?.creditsLeft);
             setMemberShipStatus(false);
@@ -395,7 +579,7 @@ const Edit = () => {
         }
       },
       (error) => {
-        
+
         alert("Select Correct Options");
       }
     );
@@ -403,12 +587,12 @@ const Edit = () => {
   const arr = membershipDetails?.filter(
     (item) => item?._id === filterMembershipId
   );
-  
 
-  const subTotalServices = addedAppointmentDetails.reduce(
+
+  const subTotalServices = addedAppointmentDetails ? addedAppointmentDetails?.reduce(
     (acc, item) => acc + +item?.price,
     0
-  );
+  ) : 0;
 
 
   const subProductTotal = appointementProducts
@@ -425,14 +609,71 @@ const Edit = () => {
     setMemberShipId(e.target.value);
   };
 
-  
+  const handleProductChange = (e) => {
+    const { name, value } = e.target;
+    setProductData((prev) => ({
+      ...prev,
+      [name]: value
+    }))
+  }
   const handlePriceChange = (index, newPrice) => {
     const updatedAppointments = [...addedAppointmentDetails];
-    updatedAppointments[index].price =+ newPrice;
+    updatedAppointments[index].price = + newPrice;
     setAddedAppointmentDetails(updatedAppointments);
   };
-  
 
+  const staffOptions = staffData?.map((elm) => ({
+    name: elm.name,
+    value: `${elm._id}-${elm.name}`,
+  }))
+  const servicesFields = [
+    {
+      name: "category",
+    },
+    {
+      name: "subCategory",
+    },
+    {
+      name: "miniSubcategory",
+    },
+    {
+      name: "staffs",
+    },
+
+  ];
+  const servicesOptions = {
+    category: service,
+    subCategory: subservice,
+    miniSubcategory: miniservice?.map((elm) => ({
+      name: elm.name,
+      value: `${elm.price}---${elm.name}`,
+    })),
+    staffs: staffOptions,
+  };
+  const productFields = [
+    {
+      name: "name",
+      placeholder: "Name"
+
+    },
+    {
+      name: "price",
+      placeholder: "Price"
+
+    },
+    {
+      name: "quantity",
+      placeholder: "Quantity"
+
+    },
+    {
+      name: "staffs",
+
+      options: staffOptions
+    },
+
+
+  ];
   return (
     <Layout>
       <div className="my-40">
@@ -489,74 +730,62 @@ const Edit = () => {
         Selected Gender: {gender && <strong>{gender}</strong>}
       </div> */}
         </div>
-        <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl  border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
+        <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl  border-2 border-gray-300 w-[95%] h-full  p-5">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             Your Services
           </h1>
-          <div className="w-full overflow-x-auto my-4">
-            <div className="table-container">
-              <table className="styled-table">
+          <div className="w-full   max-w-[90%] h-full  my-4">
+            <div className="">
+              <table className="h-full w-full">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th> Sub Category</th>
-                    <th>Staff</th>
-                    <th>Price</th>
-                    <th>Action</th>
+                    <th className="bg-black  lg:text-lg text-white">Name</th>
+                    <th className="bg-black  lg:text-lg text-white">Category</th>
+                    <th className="bg-black  lg:text-lg text-white"> Sub Category</th>
+                    <th className="bg-black  lg:text-lg text-white">Staff</th>
+                    <th className="bg-black  lg:text-lg text-white">Price</th>
+                    <th className="bg-black text-lg text-white">Action</th>
 
                     {/* <th>Brand</th> */}
                   </tr>
                 </thead>
                 <tbody>
                   {addedAppointmentDetails?.length > 0
-                    ? addedAppointmentDetails.map((item, index) => (
-                        <tr key={index} className="bg-white">
-                          <td>{item?.miniSubcategory || item?.name}</td>
-                          <td>{item?.category}</td>
-                          <td>{item?.subCategory}</td>
-                          <td>
-                           
+                    ? addedAppointmentDetails?.map((item, index) => (
+                      <tr key={index} className="bg-white">
+                        <td>{item?.miniSubcategory || item?.name}</td>
+                        <td>{item?.category}</td>
+                        <td>{item?.subCategory}</td>
+                        <td>
+                          <MultiSelectInput
+                            options={staffOptions}
+                            val={item?.staffs}
+                            handleStaffSelection={handleStaffSelection}
+                            handleShareChange={handleShareChange}
+                            tag="edit"
+                            data={index}
 
-                            <select
-                              className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-                              onChange={(e) =>
-                                handlestaffChange(e, index, false)
-                              }
-                              // value={item.staffId}
-                              value={`${item.staffId}-${item.satffName}`}
-                            >
-                              <option className="bg-white">Select Staff</option>
-                              {staffData?.map((elm) => (
-                                <option
-                                  key={elm._id}
-                                  value={`${elm._id}-${elm.name}`}
-                                  //  value={`${item._id}`}
-                                  className="border-none shadow-lg rounded-lg bg-white "
-                                >
-                                  {elm.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          {/* <td>{item?.price}</td> */}
-                          <td>
-                            <input
-                              type="number"
-                              value={item.price}
-                              onChange={(e) =>
-                                handlePriceChange(index, e.target.value)
-                              }
-                            />
-                          </td>
-                          <td>
-                            <MdDeleteOutline
-                              onClick={() => deleteEditService(index)}
-                              className="text-xl text-red-600 font-bold cursor-pointer"
-                            />
-                          </td>
-                        </tr>
-                      ))
+                          />
+
+                      
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={item.price}
+                            onChange={(e) =>
+                              handlePriceChange(index, e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <MdDeleteOutline
+                            onClick={() => deleteEditService(index)}
+                            className="text-xl text-red-600 font-bold cursor-pointer"
+                          />
+                        </td>
+                      </tr>
+                    ))
                     : ""}
                 </tbody>
               </table>
@@ -565,107 +794,54 @@ const Edit = () => {
         </div>
 
         {/*ADD Services Selection section */}
-        <div className="mx-auto my-14 rounded-lg bg-[#fffffe] shadow-xl border-2 border-gray-300 w-[95%]  overflow-y-auto">
+        <div className="mx-auto my-14 rounded-lg bg-[#fffffe] shadow-xl border-2 border-gray-300 w-[95%] ">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             ADD Services
           </h1>
 
-          <div
-            style={{
-              border: "",
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "10px",
-              paddingBottom: "30px",
-              marginTop: "20px",
-            }}
-          >
-            <select
-              className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={handleServiceChange}
-              value={serviceSelection.category} // Use 'value' for controlled components
-            >
-              <option value={service}>Select Category</option>
-              {service?.map((item, index) => (
-                <option
-                  key={item?.id}
-                  value={item?.value}
-                  style={{ width: "700px" }}
-                >
-                  {item?.name}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center justify-between flex-wrap gap-6 mt-9 p-3">
+            {servicesFields.map((item, elm) => {
+              const { name } = item;
+              const value = serviceSelection[name];
+              const options = servicesOptions[name];
 
-            <select
-              className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={handleSubCategoryChange}
-              value={serviceSelection.subCategory} // Use 'value' for controlled components
-            >
-              <option value={subservice}>Select SubCategory</option>
-              {subservice?.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.value}
-                  style={{ width: "300px" }}
-                >
-                  {item.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={handleminiChange}
-              value={serviceSelection.miniSubcategory}
-            >
-              <option value={miniservice}>Select MiniCategory</option>
-              {miniservice?.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.value}
-                  style={{ width: "300px" }}
-                  data-price={item.price}
-                >
-                  {item.name}
-                </option>
-              ))}
-            </select>
 
-            <select
-              className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={(e) => handlestaffChange(e, 0, true)}
-              value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
-            >
-              <option className="bg-white">Select Staff</option>
-              {staffData?.map((item) => (
-                <option
-                  key={item._id}
-                  value={`${item._id}-${item.name}`}
-                  //  value={`${item._id}`}
-                  className="border-none shadow-lg rounded-lg bg-white "
-                >
-                  {item.name}
-                </option>
-              ))}
-            </select>
+              return (
+                name === "staffs" ?
+                  <MultiSelectInput
+                    options={options}
+                    handleStaffSelection={handleStaffSelection}
+                    handleShareChange={handleShareChange}
+                    val={value}
+                    tag="service"
+                  />
+
+
+                  :
+                  <NormalSelect
+                    inputStyles={{ background: "#cbd5e1" }}
+                    name={name}
+                    value={value}
+                    options={options}
+                    onChange={handleServiceChange}
+                  />
+              );
+            })}
 
             <button
               style={{
                 height: "40px",
                 borderRadius: "20px solid grey",
                 width: "150px",
-                backgroundColor: "red",
+                backgroundColor: "black",
                 cursor: "pointer",
+                color: "white",
+                fontSize: "14px",
+                fontWeight: "500",
               }}
               onClick={serviceAddpress}
             >
-              <label
-                style={{ color: "white", fontSize: "14px", fontWeight: "500" }}
-              >
-                Add Service
-              </label>
+              Add Service
             </button>
           </div>
         </div>
@@ -698,8 +874,22 @@ const Edit = () => {
                         <td>{item?.price}</td>
                         <td>{item?.brand}</td>
                         <td>{item?.quantity}</td>
-                        <td>{item?.staffName}</td>
                         <td>
+                          {item.staffs
+                            ?.map((data) => (
+                              <div className="flex mb-2 items-center justify-between">
+                                <span className="">{data?.staffName}</span>
+
+                                <CustomInput
+
+
+                                  value={data?.share}
+                                  readOnly={true}
+                                />
+
+                              </div>
+                            ))}
+                        </td>                        <td>
                           {" "}
                           <MdDeleteOutline
                             onClick={() => deleteEditProduct(index)}
@@ -715,12 +905,12 @@ const Edit = () => {
         )}
 
         {/* ADD PRODUTS SECTION */}
-        <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl   border-2 border-gray-300 w-[95%] h-80 overflow-y-auto mt-10">
+        <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl   border-2 border-gray-300 w-[95%] h-80  mt-10">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             ADD Products
           </h1>
           {/* Search Table */}
-          <div className="search-container h-auto  ">
+          <div className="search-container w-[95%] mx-auto h-auto  ">
             <div className="flex w-fit mx-auto flex-row relative mb-10 ">
               {/* <h1 className="text-lg font-semibold">Search Product</h1> */}
               <div className="flex w-full min-w-[350px] md:min-w-[450px] relative mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
@@ -738,11 +928,11 @@ const Edit = () => {
                   className="absolute  shadow-xl bg-white top-16 h-[104px] w-[450px] overflow-auto"
                 >
                   {showSearchProduct?.map((item) => {
-                    
+
                     return (
                       <div
                         style={{ display: "flex" }}
-                        onClick={() => productNameOnclick(item.itemId)}
+                        onClick={() => productNameOnclick(item)}
                         className="flex items-center px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
                       >
                         <p className="mr-2 font-semibold">{item.name}</p>
@@ -753,93 +943,79 @@ const Edit = () => {
               )}
             </div>
 
-            {selectedProduct && (
-              <div className="table-container">
-                <table className="styled-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Staff</th>
-                      <th>Action</th>
+            {productData && (
+              <div className="">
+                <table className="">
+                  <thead className="">
+                    <tr className="">
+                      <th className="bg-black text-white">Name</th>
+                      <th className="bg-black text-white">Price</th>
+                      <th className="bg-black text-white">Quantity</th>
+                      <th className="bg-black text-white">Staff</th>
+                      <th className="bg-black text-white">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {showSearchProduct
-                      ?.filter((item) => item.itemId === selectedProduct)
-                      ?.map((item, index) => (
-                        <tr key={index}>
-                          <td>
-                            <input
-                              value={item.name}
-                              placeholder="product Quantity "
-                              disabled
-                              onChange={onChangeProdutName}
-                            />
-                          </td>
-                          <td>{item?.price}</td>
-                          <td>
-                            <input
-                              value={productQnt}
-                              placeholder="product Quantity "
-                              onChange={(e) => setProductQnt(e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            {" "}
-                            <select
-                            
-                              onChange={(e) =>
-                                    setProductStaff({
-                                      staffId: e.target.value.split("-")[0],
-                                      staffName: e.target.value.split("-")[1],
-                                    })
-                                  }
-                              value={`${productStaff.staffId}-${productStaff.staffName}`}
-                            >
-                              <option >
-                                Select Staff
-                              </option>
-                              {staffData?.map((item) => (
-                                <option
-                                  key={item._id}
-                                  value={`${item._id}-${item.name}`}
-                                  style={{ width: "300px" }}
-                               
-                                >
-                                  {item.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
 
-                          <td>
-                            <button
-                              style={{
-                                height: "40px",
-                                borderRadius: "20px solid grey",
-                                width: "150px",
-                                backgroundColor: "black",
-                                cursor: "pointer",
-                              }}
-                              onClick={() =>
-                                addproductPress(item, productQnt)
-                              }
-                            >
-                              <label
-                                style={{
-                                  color: "white",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Add Product
-                              </label>
-                            </button>
+
+                    <tr >
+                      {productFields?.map((field, idx) => {
+                        const { name, options, placeholder } = field;
+                        const value = productData[name];
+
+                        return (
+
+                          <td key={idx} >
+                            {
+                              name === "staffs" ?
+                                <MultiSelectInput
+                                  options={options}
+                                  handleStaffSelection={handleStaffSelection}
+                                  handleShareChange={handleShareChange}
+                                  val={value}
+                                  tag="Product"
+                                />
+
+                                : <NormalInput
+                                  disabled={name === "name"}
+                                  placeholder={placeholder}
+                                  type={name === "price" ? "number" : name === "quantity" ? "number" : typeof value === "number" ? "number" : "text"}
+                                  name={name}
+                                  onChange={handleProductChange}
+                                  value={value}
+
+                                />
+                            }
+
+
                           </td>
-                        </tr>
-                      ))}
+                        )
+                      })}
+
+
+                      <td>
+                        <button
+                          className="flex items-center justify-center"
+                          style={{
+                            font: "white",
+                            fontWeight: "500",
+                            font: "14px",
+
+                            height: "40px",
+                            borderRadius: "20px solid grey",
+                            width: "150px",
+                            backgroundColor: "black",
+                          }}
+                          onClick={
+                            addproductPress
+
+                          }
+                        >
+                          <span className="">Add Product</span>
+                        </button>
+                      </td>
+                    </tr>
+
                   </tbody>
                 </table>
               </div>
