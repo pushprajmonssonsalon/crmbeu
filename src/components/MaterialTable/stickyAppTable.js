@@ -243,7 +243,8 @@ export default function StickyAppHeadTable({
                               ? "text-blue-500"
                               : item.status === 2
                               ? "text-red-500"
-                              : "text-green-600"
+                              
+                              :item.status===4?"text-purple-600": "text-green-600"
                           }`}
                         >
                           {getStatusNumber(item.status)}

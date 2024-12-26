@@ -56,12 +56,13 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
       if(elm.itemId===idx){
         return {
           ...elm,
-          orderedQuantity:value
+          orderedQuantity: value,
+
         }
       }
       return elm
-    })
-    
+    });
+
     // Update the specific item's quantity
     
     setCartData(updatedCart)
@@ -74,7 +75,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
 
 
   const handleSubmitOrder = () => {
-   
+  
     setShowConfirmModal(true)
 
   };
@@ -167,7 +168,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
                             min={0}
                             
                             onChange={(e) =>
-                              handleQuantityChange(item.itemId, e.target.value)
+                              handleQuantityChange(item?.itemId, e.target.value)
                             }
                           />
                         </td>

@@ -67,7 +67,7 @@ const Dashboard = () => {
     membership:0
   });
   const data = {
-    labels: [`Cash : ₹${formatValue(salonDetails?.sales[0])}`, `Card : ₹${formatValue(salonDetails?.sales[1])}`, `App : ₹${formatValue(salonDetails?.sales[2])}`, `Upi : ₹${formatValue(salonDetails?.sales[3])}`, `Membership Points : ₹${salonDetails?.sales[4]||0}`],
+    labels: [`Cash : ₹${formatValue(salonDetails?.sales[0])}`, `Card : ₹${formatValue(salonDetails?.sales[1]||0)}`, `App : ₹${formatValue(salonDetails?.sales[2]||0)}`, `Upi : ₹${formatValue(salonDetails?.sales[3]||0)}`,`Pending : ₹${formatValue(salonDetails?.sales[4]||0)}`, `Membership Points : ₹${salonDetails?.sales[5]||0}`],
     datasets: [
       {
         label: "sales",
@@ -78,12 +78,14 @@ const Dashboard = () => {
     'rgba(255, 206, 86, 0.8)', // Yellow
     'rgba(75, 192, 192, 0.8)', // Teal
     'rgba(153, 102, 255, 0.8)', // Purple
-],
+    "rgba(255, 140, 0, 1)", // Darker orange
+  ],
 borderColor: [
     'rgba(255, 99, 132, 1)',
     'rgba(54, 162, 235, 1)',
     'rgba(255, 206, 86, 1)',
     'rgba(75, 192, 192, 1)',
+    "rgba(34, 139, 34, 0.8)", // Darker green
     'rgba(153, 102, 255, 1)',
 ],
         borderWidth: 1,
@@ -94,6 +96,7 @@ borderColor: [
     labels: [
       `Completed : ${formatValue(salonDetails?.appointments[0])}`,
       `Cancelled : ${formatValue(salonDetails?.appointments[1])}`,
+      `Half Completed : ${formatValue(salonDetails?.appointments[2])}`,
     ],
     datasets: [
       {
@@ -102,10 +105,12 @@ borderColor: [
         backgroundColor: [
           "rgba(34, 139, 34, 0.8)", // Darker green
           "rgba(255, 140, 0, 0.8)", // Darker orange
+          'rgba(54, 162, 235, 0.8)', // Blue
         ],
         borderColor: [
           "rgba(34, 139, 34, 1)", // Darker green
           "rgba(255, 140, 0, 1)", // Darker orange
+          'rgba(75, 192, 192, 1)',
         ],
         borderWidth: 1,
       },
@@ -200,8 +205,8 @@ borderColor: [
         } = res;
         const payments = paymentMethodReport;
 
-        const salesOrder = ["Cash", "Card", "Online", "Upi"];
-        const appoOrder = [3, 1];
+        const salesOrder = ["Cash", "Card", "Online", "Upi","Pending"];
+        const appoOrder = [3, 1,4];
         const services = [];
         const products = [];
         const subsTotal = membershipCreditUsed
