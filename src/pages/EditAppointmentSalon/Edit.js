@@ -623,8 +623,8 @@ const Edit = () => {
   };
 
   const staffOptions = staffData?.map((elm) => ({
-    name: elm.name,
-    value: `${elm._id}-${elm.name}`,
+    name: elm?.name,
+    value: `${elm?._id}-${elm?.name}`,
   }))
   const servicesFields = [
     {
@@ -995,17 +995,8 @@ const Edit = () => {
 
                       <td>
                         <button
-                          className="flex items-center justify-center"
-                          style={{
-                            font: "white",
-                            fontWeight: "500",
-                            font: "14px",
+                          className="  py-2 px-5 font-semibold mx-auto text-white bg-black"
 
-                            height: "40px",
-                            borderRadius: "20px solid grey",
-                            width: "150px",
-                            backgroundColor: "black",
-                          }}
                           onClick={
                             addproductPress
 
@@ -1041,8 +1032,8 @@ const Edit = () => {
                 />
                 <button
                   //    onClick={applyDiscount}
-                  className="bg-black"
-                >
+                  className="bg-black font-medium rounded-md text-white h-[40px] w-[150px]"
+                  >
                   Apply Discount
                 </button>
               </div>
@@ -1075,15 +1066,15 @@ const Edit = () => {
                 {memberShipStatus ? (
                   <button
                     onClick={applyMemberShip}
-                    className="bg-red-600 hover:bg-red-500"
-                  >
+                    className=" font-medium rounded-md text-white h-[40px] px-6 bg-red-600 hover:bg-red-500"
+                    >
                     Remove Membership
                   </button>
                 ) : (
                   <button
                     onClick={applyMemberShip}
-                    className="bg-black hover:bg-gray-800"
-                  >
+                    className="bg-black font-medium rounded-md text-white h-[40px] w-[150px]"
+                    >
                     Apply Membership
                   </button>
                 )}
@@ -1161,7 +1152,7 @@ const Edit = () => {
           </div>
 
           <button
-            className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black"
+            className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto text-white bg-black"
             onClick={handleBookAppointment}
           >
             Update Appointment

@@ -29,7 +29,7 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
           <button
             key={page}
             onClick={() => handlePageChange(page)}
-            className={`${currentPage === page ? 'bg-black text-white' : ''} mx-1 rounded-lg hover:bg-black`}
+            className={`${currentPage === page ? 'bg-black  text-white' : ''} mx-1 p-2 rounded-lg hover:bg-black`}
           >
             {page}
           </button>

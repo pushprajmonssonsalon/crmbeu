@@ -1,4 +1,3 @@
-import React from "react";
 import TableRow from "../TableRow";
 
 const tableHeaders = [
@@ -9,7 +8,6 @@ const tableHeaders = [
     "NAIL",
     "HAND & FEET",
     "MAKEUP",
-    "TOTAL"
   ];
 
 const ReportTable = ({data}) => {
@@ -21,6 +19,8 @@ const ReportTable = ({data}) => {
           {tableHeaders.map((header) => (
             <th key={header}>{header}</th>
           ))}
+          <th>Total Without Tax</th>
+          <th>Total With Tax</th>
         </tr>
       </thead>
       <tbody>
@@ -31,5 +31,5 @@ const ReportTable = ({data}) => {
     </table>
   )
 };
-  
-  export default ReportTable;
+
+export default ReportTable;

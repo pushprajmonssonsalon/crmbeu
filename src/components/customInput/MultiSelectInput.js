@@ -12,9 +12,9 @@ const MultiSelectInput = ({ options, val, tag, data = "", handleStaffSelection, 
   const formatText=(arr)=>{
 
     if(arr.length>0){
-      const str = arr.map((elm)=>elm.satffName).join(" , ")
-      const str2 = arr.map((elm)=>elm.name).join(" , ")
-      const str3 = arr.map((elm)=>elm.staffName).join(" , ")
+      const str = arr?.map((elm)=>elm.satffName).join(" , ")
+      const str2 = arr?.map((elm)=>elm.name).join(" , ")
+      const str3 = arr?.map((elm)=>elm.staffName).join(" , ")
       switch(tag){
         case 'service':
 
@@ -66,7 +66,7 @@ const MultiSelectInput = ({ options, val, tag, data = "", handleStaffSelection, 
       {isOpen && (
         <div className="absolute z-[3] h-full left-0 -bottom-[105%] w-full ">
           <ul className="bg-white border p-1">
-            {options.map((option, i) => {
+            {options?.length>0&& options?.map((option, i) => {
               const { name, value } = option;
               const splitted = value.split("-");
               const id = splitted[0];

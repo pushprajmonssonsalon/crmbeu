@@ -224,7 +224,7 @@ export default function Membership() {
         />
         <button
           onClick={handleExport}
-          className="bg-green-600 text-sm mt-auto mb-1 flex items-center justify-center gap-1 font-semibold hover:bg-green-500 text-white rounded-md w-[80px] active:scale-105 transition-all ease-in duration-100"
+          className="bg-green-600 text-sm mt-auto mb-1 flex items-center justify-center h-[40px] px-2 gap-1 font-semibold hover:bg-green-500 text-white rounded-md w-[80px] active:scale-105 transition-all ease-in duration-100"
         >
           <span>Export</span>
           <FaFileExcel />

@@ -1,3 +1,4 @@
+import CustomInput from "../customInput/CustomInput";
 import Modal from "../modal/Modal";
 import CustomTable from "../Table/CustomTable";
 
@@ -12,9 +13,9 @@ const ViewServicesModal = ({ show, setShow, data }) => {
   );
 };
 
-const ChildComponent = ({ closeModal, data,modalRef }) => {
+const ChildComponent = ({ closeModal, data, modalRef }) => {
   const cols = [
-    { name: "Name", id: data?.appointmentType==="crm"? "miniSubcategory" :"name"},
+    { name: "Name", id: data?.appointmentType === "crm" ? "miniSubcategory" : "name" },
     { name: "Category", id: "category" },
     { name: "Sub Category", id: "subCategory" },
     { name: "Staff", id: "satffName" }, // Special case for staff data
@@ -34,13 +35,51 @@ const ChildComponent = ({ closeModal, data,modalRef }) => {
     { name: "Size", id: "sizeUsed" },
     { name: "Unit", id: "unit" },
     { name: "Item Id", id: "itemId" },
-    
+
   ];
 
-  
+
   const tablesFields = [
-    { heading: "Services", rows: data?.services, cols: cols },
-    { heading: "Products", rows: data?.products, cols: prodCols },
+    {
+      heading: "Services", rows: data?.services?.map((elm) => ({
+        ...elm, satffName: <>
+          {elm?.staffs
+            ?.map((item) => (
+              <div className="flex mb-2 items-center justify-between">
+                <span className="">{item?.satffName}</span>
+
+                <CustomInput
+
+
+                  value={item?.share}
+                  readOnly={true}
+                />
+
+              </div>
+            ))}
+        </>
+      })), cols: cols
+    },
+    {
+      heading: "Products", rows: data?.products?.map((elm) => ({
+        ...elm, staffName: <>
+          {elm?.staffs
+            ?.map((item) => (
+              <div className="flex mb-2 items-center justify-between">
+                <span className="">{item?.staffName}</span>
+
+                <CustomInput
+
+
+                  value={item?.share}
+                  readOnly={true}
+                />
+
+              </div>
+            ))}
+        </>
+      })), cols: prodCols
+    },
     { heading: "Product Used", rows: data?.productUsed, cols: prodQuanCols },
   ];
   return (
@@ -80,17 +119,17 @@ const ChildComponent = ({ closeModal, data,modalRef }) => {
         <div className="p-4 max-h-[60vh] flex flex-col gap-2 overflow-y-auto md:p-5">
           {tablesFields.map((elm, idx) => {
             const { cols, rows, heading } = elm;
-           
+
             return (
-              rows?.length>0?   <div key={idx}>
+              rows?.length > 0 ? <div key={idx}>
                 <div className="font-medium my-2 text-black text-2xl">
                   {heading}
                 </div>
                 <CustomTable columns={cols} rows={rows} />
-              </div>:null
+              </div> : null
             )
           })}
-         
+
         </div>
       </div>
     </div>

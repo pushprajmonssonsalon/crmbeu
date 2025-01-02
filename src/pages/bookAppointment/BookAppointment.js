@@ -783,8 +783,7 @@ const BookAppointment = () => {
                 </div>
 
                 <button
-                  className={`mx-4 ${isMobileValid ? "add-customer-btn" : "disabled-btn"
-                    }`}
+                  className={`mx-4 text-gray-500  text-2xl`}
                   onClick={isMobileValid ? openModal : null}
                   disabled={!isMobileValid}
                 >
@@ -1103,17 +1102,8 @@ const BookAppointment = () => {
 
                       <td>
                         <button
-                          className="flex items-center justify-center"
-                          style={{
-                            font: "white",
-                            fontWeight: "500",
-                            font: "14px",
+                          className="  py-2 px-5 font-semibold mx-auto text-white bg-black"
 
-                            height: "40px",
-                            borderRadius: "20px solid grey",
-                            width: "150px",
-                            backgroundColor: "black",
-                          }}
                           onClick={
                             addproductPress
 
@@ -1157,7 +1147,9 @@ const BookAppointment = () => {
                 onChange={(e) => setDiscount(e.target.value)}
               />
             </div>
-            <button onClick={applyDiscount} className="bg-black">
+            <button onClick={applyDiscount} 
+            className="bg-black font-medium rounded-md text-white h-[40px] w-[150px]"
+            >
               Apply Discount
             </button>
           </div>
@@ -1184,14 +1176,14 @@ const BookAppointment = () => {
             {memberShipStatus ? (
               <button
                 onClick={applyMemberShip}
-                className="bg-red-600 hover:bg-red-500"
+                className=" font-medium rounded-md text-white h-[40px] px-6 bg-red-600 hover:bg-red-500"
               >
                 Remove Membership
               </button>
             ) : (
               <button
                 onClick={applyMemberShip}
-                className="bg-black hover:bg-gray-800"
+                className="bg-black font-medium rounded-md text-white h-[40px] px-6"
               >
                 Apply Membership
               </button>
@@ -1208,7 +1200,7 @@ const BookAppointment = () => {
           </div>
 
           <button
-            className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black"
+            className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto text-white bg-black"
             onClick={handldeBookAppointment}
           >
             Book Appointment

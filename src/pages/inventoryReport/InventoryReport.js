@@ -82,7 +82,7 @@ const InventoryReport = () => {
           <div className="mt-5 flex items-start ">
             <button
               onClick={handleExport}
-              className="bg-green-600 flex items-center justify-center gap-1 font-semibold hover:bg-green-500 text-white rounded-md w-[100px] active:scale-105 transition-all ease-in duration-100"
+              className="bg-green-600 px-3 h-[40px] flex items-center justify-center gap-1 font-semibold hover:bg-green-500 text-white rounded-md w-[100px] active:scale-105 transition-all ease-in duration-100"
             >
               <span>Export</span>
               <FaFileExcel />

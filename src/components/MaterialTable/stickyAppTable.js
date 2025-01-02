@@ -208,9 +208,13 @@ export default function StickyAppHeadTable({
                         {formatDateTime(item.appointmentDate)}
                       </TableCell>
                       <TableCell>
-                      <button onClick={()=>handleSelect(item)} className="text-center ">
-                        <MdOutlineGridView size={25} />
-                      </button>                      </TableCell>
+                      <div className="flex items-center justify-center">
+                          <button onClick={() => handleSelect(item)} className="text-center 0000000000 p-3 rounded-md bg-green-500 text-white">
+                            <MdOutlineGridView size={25} />
+                          </button>
+                        </div>
+                 
+                      </TableCell>
                       {/* <TableCell>
                         {item?.services.slice(0, 3).map((itemdata, index) => (
                           <React.Fragment key={index}>

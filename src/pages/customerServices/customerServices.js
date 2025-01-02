@@ -90,11 +90,13 @@ export default function CustomerServices() {
       name: "category",
       placeholder: "Category",
       label: "Category",
+      disabled:true,
     },
     {
       name: "subCategory",
       placeholder: "Sub Category",
       label: "Sub Category",
+      disabled:true
     },
     {
       name: "mrp",
@@ -124,7 +126,7 @@ export default function CustomerServices() {
   const handlePageChange1 = (page) => {
     setCurrentPage1(page);
   };
-  
+
   const customStyles = {
     content: {
       top: "50%",
@@ -157,12 +159,12 @@ export default function CustomerServices() {
       `salonService/getAllServices/?limit=${itemsPerPage}&page=${currentPage}`,
       allServiceFilters,
       (resp) => {
-        
+
         setCustomerServiceData(resp.services);
         setTotal(resp.totalCount);
       },
       (error) => {
-        
+
       }
     );
   };
@@ -185,7 +187,7 @@ export default function CustomerServices() {
     }
   }, [tab, allServiceFilters, tab, itemsPerPage, currentPage]);
   const clearService = () => {
-    if (tab == 1) {
+    if (tab === 1) {
       setAllServiceFilters({
         name: "",
         category: "",
@@ -200,19 +202,19 @@ export default function CustomerServices() {
     }
   };
 
-  
+
 
   const getSalonServices = () => {
     postApiData(
       `salonService/getSalonServices/?limit=${itemsPerPage1}&page=${currentPage1}`,
       myServiceFilters,
       (resp) => {
-        
+
         setMyserviceData(resp.services);
         setTotal1(resp.totalCount);
       },
       (error) => {
-        
+
       }
     );
   };
@@ -253,7 +255,7 @@ export default function CustomerServices() {
         setAddProductModal(false);
       },
       (error) => {
-        
+
         toast.error("Service already Added");
       }
     );
@@ -395,8 +397,8 @@ export default function CustomerServices() {
         )}
         <div className="my-3">
           <GridRows
-            itemsPerPage={tab == 1 ? itemsPerPage : itemsPerPage1}
-            handleRowschange={tab == 1 ? handleRowschange : handleRows1change}
+            itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
+            handleRowschange={tab === 1 ? handleRowschange : handleRows1change}
           />
         </div>
         <Pagination
@@ -422,41 +424,39 @@ export default function CustomerServices() {
             style={customStyles}
             contentLabel="Example Modal"
           >
-            <div className="flex gap-3 flex-col items-center justify-start">
+            <div className="flex w-[400px] bg-transparent gap-3 flex-col items-center justify-start">
               {/* Category Name */}
-              {serviceItemFields.map((input, index) => {
-                const { name, placeholder, label } = input;
-                const value = serviceItem[name];
-                const type =
-                  typeof serviceItem[name] === "number" ? "number" : "text";
-                return (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center "
-                  >
-                    <NormalInput
-                      name={name}
-                      type={type}
-                      value={value}
-                      placeholder={placeholder}
-                      label={label}
-                      onChange={handleChange}
-                      labelStyles={{ fontWeight: "bold" }}
-                      inputStyles={{
-                        width: "280px",
-                        background: "white",
-                        padding: "8px",
-                        alignSelf: "center",
-                        borderRadius: "4px",
-                      }}
-                    />
-                  </div>
-                );
-              })}
 
-              <button onClick={onclickService} className="px-4 py-3 ">
-                Update
+              <div className="grid gap-1 w-full items-center">
+                {serviceItemFields.map((input, index) => {
+                  const { name, placeholder, label ,disabled } = input;
+                  const value = serviceItem[name];
+
+
+                  return (
+                    <div key={index} className="flex flex-col gap-1">
+                      <NormalInput
+                        name={name}
+                        value={value}
+                        label={label}
+                        disabled={disabled}
+                      
+                        inputStyles={{ background: "#d1d5db" }}
+                        placeholder={placeholder}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                className={`bg-blue-400 mt-3 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
+                onClick={onclickService}
+              >
+                Submit
               </button>
+
             </div>
           </Modal>
         )}
