@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../Layout";
-import { postApiData } from "../../utils/services";
+import { formatValue, postApiData } from "../../utils/services";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -110,7 +110,7 @@ const Revenue = () => {
       </div>
 
       <TableContainer
-        sx={{ maxWidth: "95%", overflowX: "auto", margin: "0 auto" }}
+        sx={{ maxWidth: "95%", overflowX: "auto", margin: "40px auto" }}
         component={Paper}
       >
         <Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -125,11 +125,11 @@ const Revenue = () => {
             {revenue.map((row, index) => (
               <StyledTableRow key={index}>
                 <StyledTableCell scope="row">{row._id}</StyledTableCell>
-                <StyledTableCell>{row?.appointment}</StyledTableCell>
-                <StyledTableCell>{row?.total}</StyledTableCell>
-                <StyledTableCell>{row?.services}</StyledTableCell>
-                <StyledTableCell>{row?.products}</StyledTableCell>
-                <StyledTableCell>{row?.membershipPoints}</StyledTableCell>
+                <StyledTableCell>{formatValue(row?.appointment)}</StyledTableCell>
+                <StyledTableCell>{formatValue(row?.total)}</StyledTableCell>
+                <StyledTableCell>{formatValue(row?.services)}</StyledTableCell>
+                <StyledTableCell>{formatValue(row?.products)}</StyledTableCell>
+                <StyledTableCell>{formatValue(row?.membershipPoints)}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>

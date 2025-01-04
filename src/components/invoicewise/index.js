@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Layout from "../Layout";
-import { formatDateToFull, postApiData } from "../../utils/services";
+import { formatDateToFull, formatValue, postApiData } from "../../utils/services";
 import CustomInputFeild from "../../components/customInput";
 import { useDownloadExcel } from "react-export-table-to-excel";
 import { FaFilePdf } from "react-icons/fa6";
@@ -8,14 +8,14 @@ import { useLocation } from "react-router";
 const InvoiceWise = () => {
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
   const location = useLocation();
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
   // Use URLSearchParams to parse query parameters
   const queryParams = new URLSearchParams(location.search);
 
   // Access a specific query parameter
 
   const tableRef = useRef(null);
-  
+
   //date
   const defaultStartDate = new Date();
   const [startDate, setStartDate] = useState(defaultStartDate);
@@ -31,7 +31,7 @@ const InvoiceWise = () => {
       "appointment/getAppointments",
       data,
       (resp) => {
-        
+
         if (resp) {
           setViewAppointmentDetails(resp);
           setLoading(false)
@@ -56,7 +56,7 @@ const InvoiceWise = () => {
       "appointment/getAppointments",
       data,
       (resp) => {
-        
+
         if (resp) {
           setLoading(false)
 
@@ -69,7 +69,7 @@ const InvoiceWise = () => {
       }
     );
   };
-  
+
 
   const headings = [
     { name: "Date", id: "createdAt" },
@@ -105,15 +105,15 @@ const InvoiceWise = () => {
     window.open(url, "_blank");
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const stDate = queryParams.get('start');
     const edDate = queryParams.get('end');
-    if(stDate && edDate){
+    if (stDate && edDate) {
       setStartDate(new Date(stDate))
       setEndDate(new Date(edDate))
     }
 
-  },[location.pathname])
+  }, [location.pathname])
   return (
     <Layout>
       <div className="mt-52 w-[90%] mx-auto md:mt-32 flex flex-col">
@@ -146,46 +146,46 @@ const InvoiceWise = () => {
               </tr>
             </thead>
             <tbody>
-            {viewAppointmentDetails
-      ?.filter((item) => item.status === 3)
-      ?.map((row, index) => (
-        <tr key={index}>
-          {headings.map((heading, idx) => (
-            <td key={idx}>
-              {heading.id === "services" ? (
-                (row?.services?.length>0 && row?.products?.length>0)? 
-                "Service/Product"
-                : row?.services?.length>0?"Service" 
-                :row?.products?.length>0?"Product":""
-              ) : heading.id === "netAmount" ? (
-                ((row?.subTotal - (row?.discount || 0)) / 1.18).toFixed(2)
-              ) : heading.id === "gstAmount" ? (
-                (
-                  row?.subTotal -
-                  (row?.discount || 0) -
-                  ((row?.subTotal - (row?.discount || 0)) / 1.18).toFixed(2)
-                ).toFixed(2)
-              ) : heading.id === "invoiceUrl" ? (
-                <FaFilePdf
-                  className="text-2xl text-black font-bold cursor-pointer"
-                  onClick={() => handleUrl(row[heading.id])}
-                />
-              ) : heading.id === "Cash" ||
-                heading.id === "Upi" ||
-                heading.id === "Card" ||
-                heading.id === "Online" ? (
-                row.paymentMethod.find(
-                  (method) => method.name === heading.id
-                )?.amount || 0
-              ) : heading.id==="createdAt"?
-              formatDateToFull(row[heading.id],false)
-              :(
-                row[heading.id]
-              )}
-            </td>
-          ))}
-        </tr>
-      ))}
+              {viewAppointmentDetails
+                ?.filter((item) => item.status === 3)
+                ?.map((row, index) => (
+                  <tr key={index}>
+                    {headings.map((heading, idx) => (
+                      <td key={idx}>
+                        {heading.id === "services" ? (
+                          (row?.services?.length > 0 && row?.products?.length > 0) ?
+                            "Service/Product"
+                            : row?.services?.length > 0 ? "Service"
+                              : row?.products?.length > 0 ? "Product" : ""
+                        ) : heading.id === "netAmount" ? (
+                          formatValue((row?.subTotal - (row?.discount || 0)) / 1.18)
+                        ) : heading.id === "gstAmount" ? (
+                          formatValue(
+                            row?.subTotal -
+                            (row?.discount || 0) -
+                            ((row?.subTotal - (row?.discount || 0)) / 1.18)
+                          )
+                        ) : heading.id === "invoiceUrl" ? (
+                          <FaFilePdf
+                            className="text-2xl text-black font-bold cursor-pointer"
+                            onClick={() => handleUrl(row[heading.id])}
+                          />
+                        ) : heading.id === "Cash" ||
+                          heading.id === "Upi" ||
+                          heading.id === "Card" ||
+                          heading.id === "Online" ? (
+                          formatValue(row.paymentMethod.find(
+                            (method) => method.name === heading.id
+                          )?.amount) || 0
+                        ) : heading.id === "createdAt" ?
+                          formatDateToFull(row[heading.id], false)
+                          : (
+                            formatValue(row[heading.id])
+                          )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

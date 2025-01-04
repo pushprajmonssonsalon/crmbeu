@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./BookAppointment.css";
-import { getApiCall, postApiData } from "../../utils/services";
+import { formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -1001,6 +1001,7 @@ const BookAppointment = () => {
               <NormalInput
                 type="number"
                 value={discount}
+               
                 lableStyles={{
                   display: "flex",
                   width: "150px",
@@ -1012,8 +1013,8 @@ const BookAppointment = () => {
                   width: "200px",
                 }}
                 label="Apply Discount"
-                onChange={(e) => setDiscount(e.target.value)}
-              />
+                onChange={(e) => setDiscount(Math.floor(Math.min(Math.max(e.target.value, 0), 100)))}
+                />
             </div>
             <button onClick={applyDiscount} className="bg-black">
               Apply Discount
@@ -1086,7 +1087,7 @@ const BookAppointment = () => {
                             {item.label}
                           </td>
                           <td className=" font-bold   text-lg border-none px-4 py-2 text-green-800">
-                            {item.value}
+                            {formatValue(item.value)}
                           </td>
                         </tr>
                       ))}

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { getApiCall, postApiData } from "../../utils/services";
+import { useEffect, useState } from "react";
+import { formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    EditproductAdded,
-    UpdateServiceAdded,
-    deletEditItems, deleteProducts
+  EditproductAdded,
+  UpdateServiceAdded,
+  deletEditItems, deleteProducts
 } from "../../redux/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
@@ -1015,8 +1015,8 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
             type="number"
             className="outline-none"
             value={discount}
-            onChange={(e) => setDiscount(e.target.value)}
-          />
+            onChange={(e) => setDiscount(Math.floor(Math.min(Math.max(e.target.value, 0), 100)))}
+            />
           <button onClick={applyDiscount} className="bg-black">
             Apply Discount
           </button>
@@ -1079,14 +1079,14 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
           arr?.length>0 && (
             <div>
         <p className=" text-lg font-bold text-black">MEMBERSHIP: <span className="text-md font-medium ml-1 text-green-600">{arr[0]?.name}</span></p>
-              <p className=" text-lg font-bold text-black">CREDITS LEFT:<span className="text-md font-medium ml-1 text-green-600">{arr[0]?.creditsLeft}</span></p>
-              <p className=" text-lg font-bold text-black">AMOUNT:<span className="text-md font-medium ml-1 text-green-600">{arr[0]?.amount}</span></p>
-              <p className=" text-lg font-bold text-black">SubTotal Services:<span className="text-md font-medium ml-1 text-green-600">{subTotalServices}</span></p>
-              <p className=" text-lg font-bold text-black">SubTotal Products:<span className="text-md font-medium ml-1 text-green-600">{subProductTotal}</span></p>
-              <p className=" text-lg font-bold text-black">DISCOUNT:<span className="text-md font-medium ml-1 text-green-600">{serviceDiscount}</span></p>
-              <p className=" text-lg font-bold text-black">Total Services:<span className="text-md font-medium ml-1 text-green-600">{totalService}</span></p>
-              <p className=" text-lg font-bold text-black">Total Products:<span className="text-md font-medium ml-1 text-green-600">{subProductTotal}</span></p>
-              <p className=" text-lg font-bold text-black">Total Payable:<span className="text-md font-medium ml-1 text-green-600">{totalAmount}</span></p>
+              <p className=" text-lg font-bold text-black">CREDITS LEFT:<span className="text-md font-medium ml-1 text-green-600">{formatValue(arr[0]?.creditsLeft)}</span></p>
+              <p className=" text-lg font-bold text-black">AMOUNT:<span className="text-md font-medium ml-1 text-green-600">{formatValue(arr[0]?.amount)}</span></p>
+              <p className=" text-lg font-bold text-black">SubTotal Services:<span className="text-md font-medium ml-1 text-green-600">{formatValue(subTotalServices)}</span></p>
+              <p className=" text-lg font-bold text-black">SubTotal Products:<span className="text-md font-medium ml-1 text-green-600">{formatValue(subProductTotal)}</span></p>
+              <p className=" text-lg font-bold text-black">DISCOUNT:<span className="text-md font-medium ml-1 text-green-600">{formatValue(serviceDiscount)}</span></p>
+              <p className=" text-lg font-bold text-black">Total Services:<span className="text-md font-medium ml-1 text-green-600">{formatValue(totalService)}</span></p>
+              <p className=" text-lg font-bold text-black">Total Products:<span className="text-md font-medium ml-1 text-green-600">{formatValue(subProductTotal)}</span></p>
+              <p className=" text-lg font-bold text-black">Total Payable:<span className="text-md font-medium ml-1 text-green-600">{formatValue(totalAmount)}</span></p>
 
 
 

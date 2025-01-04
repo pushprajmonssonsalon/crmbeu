@@ -177,11 +177,11 @@ const Report = () => {
         <div className="w-full flex justify-evenly my-5 items-center">
           <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
             <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"> <MdPeopleAlt className="text-3xl" />Old Customer Revenue</h1>
-            <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {wholeCustomerRevenue}</h3>
+            <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {formatValue(wholeCustomerRevenue)}</h3>
           </div>
           <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">
             <h1 className="text-black font-bold text-xl text-center flex items-center justify-center gap-x-3 stardos-stencil-bold"><MdPeopleAlt className="text-3xl" /> New Customer Revenue</h1>
-            <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {newCustomerRevenue}</h3>
+            <h3 className="text-white font-bold text-2xl text-center stardos-stencil-bold">₹ {formatValue(newCustomerRevenue)}</h3>
           </div>
         </div>
         <div className="reportContainer">
@@ -235,7 +235,7 @@ const Report = () => {
                   <>
                     <tr>
                       <td>{item._id}</td>
-                      <td>{item.total}</td>
+                      <td>{formatValue(item.total)}</td>
                     </tr>
 
                   </>
@@ -243,11 +243,11 @@ const Report = () => {
               })}
               <tr>
                 <td className="font-bold text-black">Membership Credit Used</td>
-                <td className="font-bold text-black">{credits}</td>
+                <td className="font-bold text-black">{formatValue(credits)}</td>
               </tr>
               <tr>
                 <td className="text-bold text-black">Total</td>
-                <td className="font-bold text-black">{totalPayment}</td>
+                <td className="font-bold text-black">{formatValue(totalPayment)}</td>
               </tr>
             </tbody>
 
@@ -287,9 +287,9 @@ const Report = () => {
                     {item._id === 3 && <td>{"Completed"}</td>}
                     {item._id === 2 && <td>{"Cancelled"}</td>}
                     {item._id === 4 && <td>{"Half Completed"}</td>}
-                    {item._id === 3 && <td>{item?.total||0}</td>}
-                    {item._id === 2 && <td>{item?.total||0}</td>}
-                    {item._id === 4 && <td>{item?.total||0}</td>}
+                    {item._id === 3 && <td>{formatValue(item?.total)||0}</td>}
+                    {item._id === 2 && <td>{formatValue(item?.total)||0}</td>}
+                    {item._id === 4 && <td>{formatValue(item?.total)||0}</td>}
                   </tr>
 
                 );
@@ -323,8 +323,8 @@ const Report = () => {
                 return (
                   <>
                     <tr>
-                      <td>{item.membershipRevenue}</td>
-                      <td>{item.membershipCount}</td>
+                      <td>{formatValue(item.membershipRevenue)}</td>
+                      <td>{formatValue(item.membershipCount)}</td>
                     </tr>
                   </>
                 );
@@ -359,14 +359,14 @@ const Report = () => {
                   <>
                     <tr>
                       <td>{item._id}</td>
-                      <td>{item.totalRevenue}</td>
+                      <td>{formatValue(item.totalRevenue)}</td>
                     </tr>
                   </>
                 );
               })}
               <tr>
                 <td className="text-black font-bold">Total</td>
-                <td className="text-black font-bold">{serviceDistributionTotal}</td>
+                <td className="text-black font-bold">{formatValue(serviceDistributionTotal)}</td>
               </tr>
             </tbody>
           </table>
@@ -398,7 +398,7 @@ const Report = () => {
                   <>
                     <tr>
                       <td>{item?.name}</td>
-                      <td>{item?.totalRevenue}</td>
+                      <td>{formatValue(item?.totalRevenue)}</td>
                     </tr>
                   </>
 
@@ -406,7 +406,7 @@ const Report = () => {
               })}
               <tr>
                 <td className="text-black font-bold">Total</td>
-                <td className="text-black font-bold">{productDistributionTotal}</td>
+                <td className="text-black font-bold">{formatValue(productDistributionTotal)}</td>
               </tr>
             </tbody>
           </table>

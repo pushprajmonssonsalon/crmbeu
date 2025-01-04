@@ -14,6 +14,7 @@ import { MdOutlineGridView } from "react-icons/md";
 import ViewServicesModal from "../modals/ViewServicesModal";
 import { useState } from "react";
 import ApplyMembership from "../modals/ApplyMembership";
+import { formatValue } from "../../utils/services";
 const headings = [
   "Name",
   "Mobile No.",
@@ -196,9 +197,9 @@ export default function StickyHeadTable({
                         </React.Fragment>
                       ))}
                     </TableCell> */}
-                    <TableCell>{item.total}</TableCell>
+                    <TableCell>{formatValue(item.total)}</TableCell>
                     <TableCell>
-                      {item.membershipUsed ? item.membershipCreditUsed : 0}
+                      {item.membershipUsed ? formatValue(item.membershipCreditUsed) : 0}
                     </TableCell>
                     {/* <TableCell>
                      <button onClick={()=>handleApplyMembership(item)} className="font-medium text-sm w-full">Apply</button>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
-import { postApiData } from '../../utils/services';
+import { formatValue, postApiData } from '../../utils/services';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -113,12 +113,12 @@ const WeeklyReport = () => {
               <StyledTableCell scope="row">
                 {index+1}
               </StyledTableCell>
-              <StyledTableCell >{row?.tickets}</StyledTableCell>
-              <StyledTableCell >{row?.noOfServices}</StyledTableCell>
-              <StyledTableCell >{row?.noOfProducts}</StyledTableCell>
-              <StyledTableCell >{row?.revenue}</StyledTableCell>
-              <StyledTableCell >{row?.avgServicePerBill}</StyledTableCell>
-              <StyledTableCell >{row?.avgTicketSize}</StyledTableCell>
+              <StyledTableCell >{formatValue(row?.tickets)}</StyledTableCell>
+              <StyledTableCell >{formatValue(row?.noOfServices)}</StyledTableCell>
+              <StyledTableCell >{formatValue(row?.noOfProducts)}</StyledTableCell>
+              <StyledTableCell >{formatValue(row?.revenue)}</StyledTableCell>
+              <StyledTableCell >{formatValue(row?.avgServicePerBill)}</StyledTableCell>
+              <StyledTableCell >{formatValue(row?.avgTicketSize)}</StyledTableCell>
             </StyledTableRow>
           ))}
         </TableBody>
