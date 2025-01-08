@@ -1,0 +1,15 @@
+.rbc-event{
+    border-radius: 0px!important;
+    background: #8A00C4;
+    border: none!important;
+    flex-grow: 2!important;
+    height: auto!important;
+    outline: none!important;
+
+}
+.rbc-selected{
+    border-radius: 0px!important;
+    background: #C845FF!important;
+    border: none!important;
+    outline: none!important;
+}

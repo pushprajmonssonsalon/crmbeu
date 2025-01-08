@@ -1015,7 +1015,7 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
             type="number"
             className="outline-none"
             value={discount}
-            onChange={(e) => setDiscount(Math.floor(Math.min(Math.max(e.target.value, 0), 100)))}
+            onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
             />
           <button onClick={applyDiscount} className="bg-black">
             Apply Discount

@@ -391,7 +391,6 @@ const ViewAppointment = () => {
           </div>
 
           {/* Table */}
-
           {tab === "crm" ? (
             <div className="">
               {viewAppointmentDetails?.length > 0 ? (

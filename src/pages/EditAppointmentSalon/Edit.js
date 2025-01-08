@@ -874,7 +874,7 @@ const Edit = () => {
                   width: "200px",
                 }}
                 label="Apply Discount"
-                onChange={(e) => setDiscount(Math.floor(Math.min(Math.max(e.target.value, 0), 100)))}
+                onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
                 />
             </div>
              
