@@ -1,0 +1,286 @@
+import { useState } from 'react';
+import Layout from '../../components/Layout';
+import useDebouncer from '../../utils/hooks/useDebouncer';
+import { postApiData } from '../../utils/services';
+import OrderPaymentPopup from '../../components/popup/OrderPayment';
+import toast from 'react-hot-toast';
+import { IoMdPersonAdd } from 'react-icons/io';
+import AddCustomerModal from '../../components/modals/AddCustomerModal';
+
+const Advances = () => {
+
+    const [userData, setUserData] = useState([]);
+    const { debouncedFunction } = useDebouncer();
+    const [visible, setVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [customerDetails, setCustomerDetails] = useState({
+        name: "",
+        phoneNumber: "",
+        email: "",
+        gender: "",
+    });
+    const [advanceData, setAdvanceData] = useState({
+        name: "",
+        phoneNumber: "",
+        userId: "",
+        balance: 0,
+        paymentMethods: [],
+    });
+
+    const nameOnclick = (item) => {
+        setAdvanceData((prev) => ({ ...prev, name: item.name, phoneNumber: item.phoneNumber, userId: item._id }));
+
+        setVisible(false);
+    };
+   
+    const fetchUser = (phoneNumber,setState) => {
+        const data = {
+            phoneNumber,
+        };
+        postApiData(
+            "user/searchUser",
+            data,
+            (resp) => {
+              setState(resp);
+            },
+            (error) => {}
+          );
+        
+    };
+    const onChange = (name) => (event) => {
+
+        const value = event?.target?.value;
+        if (name === 'phoneNumber') {
+            setAdvanceData((prev) => ({ ...prev, [name]: value }));
+
+            setVisible(true);
+            debouncedFunction(fetchUser, 500, value,setUserData);
+        }
+       
+        else {
+            setAdvanceData((prev) => ({ ...prev, [name]: name === "balance" ? parseFloat(value) : value }));
+        }
+
+    };
+    const handleCustomerDetails = (e) => {
+        const { name, value } = e.target;
+        setCustomerDetails((prev) => ({ ...prev, [name]: value }));
+    };
+    const handleCustomerSubmit = () => {
+
+        const apiData = {
+            name: customerDetails.name,
+            phoneNumber: customerDetails.phoneNumber,
+            email: customerDetails.email,
+            gender: customerDetails.gender,
+        };
+
+        postApiData(
+            "parlor/registerUserForCrm",
+            apiData,
+            (resp) => {
+                setModalOpen(false);
+                setCustomerDetails({
+                    name: "",
+                    phoneNumber: "",
+                    email: "",
+                    gender: "",
+                });
+                toast.success("User has been created! Please select the user");
+            },
+            (error) => {
+
+            }
+        );
+
+    };
+    const handleAdd = () => {
+        const data = {
+            userId: advanceData.userId,
+            amount: advanceData.balance,
+            paymentMethods: advanceData.paymentMethods,
+        };
+        postApiData(
+            "advance/addAdvance",
+            data,
+            (resp) => {
+                if (resp) {
+                    toast.success("Advance Added ");
+                    setAdvanceData((prev) => ({
+                        name: "",
+                        phoneNumber: "",
+                        userId: "",
+                        balance: 0,
+                        expiryDate: '',
+                        paymentMethods: [],
+                    }));
+                }
+                console.log(resp);
+            },
+            (error) => {
+                toast.error("Advance not Added ");
+            })
+    }
+    const addCustomerFields = [
+        {
+            name: "name",
+            label: "First Name",
+            placeholder: "Enter Name",
+            value: customerDetails.name,
+        },
+        {
+            name: "phoneNumber",
+            label: "Mobile Number",
+            placeholder: "Enter Mobile Number",
+            value: customerDetails.phoneNumber,
+        },
+        {
+            name: "email",
+            label: "Email Address",
+            value: customerDetails.email,
+
+            placeholder: "Enter Email Address",
+        },
+        {
+            name: "gender",
+            label: "Gender",
+            value: customerDetails.gender,
+            options: [
+                {
+                    name: "Male",
+                    value: "M",
+                },
+                {
+                    name: "Female",
+                    value: "F",
+                },
+            ],
+        },
+    ];
+  
+    const handleUpdatePayment = (paymentMethods) => {
+        setAdvanceData((prev) => ({ ...prev, paymentMethods }));
+    };
+
+    return (
+        <Layout>
+            <div className="mt-52 md:mt-32 w-[90%] mx-auto ">
+                <div className="my-6 flex items-center justify-center">
+                    <span className="font-bold my-9 text-[30px] text-green-600 ">
+                        Advance Payment
+                    </span>
+                </div>
+                <div>
+                    <div className="my-6 flex items-center justify-start">
+
+                        <div className="flex  justify-start items-center">
+                            <h4 className="text-lg font-semibold text-black">
+                                Add new Customer
+                            </h4>
+                            <button
+                                // className={`mx-4 ${isMobileValid ? 'bg-black text-white font-semibold px-3 py-2 cursor-pointer' : 'bg-gray-500 text-white font-semibold px-3 py-2 cursor-not-allowed'}`}
+                                className={`mx-4 bg-black text-white font-semibold px-3 py-2 cursor-pointer`}
+                                onClick={()=>setModalOpen(true)}
+                            >
+                                <IoMdPersonAdd />
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                <div className="flex flex-wrap justify-between  gap-5 items-center shadow-lg px-4 py-4 rounded-lg bg-[#fffffe] mt-4">
+                    <div className="relative ">
+                        <input
+                            className=" py-3 w-[240px] rouded-[10px] outline-none border-2 border-gray-400"
+                            type="text"
+                            name='phoneNumber'
+                            placeholder="Search by Mobile"
+                            onChange={onChange('phoneNumber')}
+                            value={advanceData?.phoneNumber}
+
+                        />
+
+                        {visible && advanceData?.phoneNumber?.length > 0 && (
+                            <div className="absolute top-[70px] h-[104px] w-[283px] overflow-auto bg-white p-3 shadow-xl rounded-lg z-[3]">
+                                {userData?.length > 0 &&
+                                    userData?.map((item) => {
+                                        return (
+                                            <div
+                                                className="flex items-center px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
+                                                onClick={() => nameOnclick(item)}
+                                            >
+                                                <p className="mr-2 font-semibold">{item.name}</p>
+                                                <p className="font-semibold">{item.phoneNumber}</p>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+                        )}
+
+
+                    </div>
+
+                    <input
+                        className=" py-3 w-[240px] rouded-[10px] outline-none border-2 border-gray-400"
+                        name='balance'
+                        type="Number"
+                        placeholder="Enter Amount"
+                        onChange={onChange('balance')}
+                        value={advanceData?.balance}
+
+                    />
+
+            
+                    <button
+                        disabled={ advanceData?.balance === 0}
+                        className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105"
+                        onClick={() => setIsVisible(true)}
+                    >
+                        PAY
+                    </button>
+                    {/* <button
+                        className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105"
+                        onClick={() => setIsVisible(true)}
+                    >
+                        PAY
+                    </button> */}
+
+                    <button
+                        className="h-[40px] w-[100px] bg-black flex items-center justify-center border border-grey-200  px-[35px] ronded-[11px] cursor-pointer"
+                        onClick={handleAdd}
+                    >
+                        <span
+                            className="text-white font-medium text-[15px]"
+                        // onClick={onClickBuyNow}
+                        >
+                            ADD
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+
+            {isVisible && (
+                <OrderPaymentPopup
+                    isVisible={isVisible}
+                    onClose={() => setIsVisible(false)}
+                    membership={advanceData?.balance}
+                    onUpdatePayment={handleUpdatePayment}
+                />
+            )}
+            {isModalOpen && <AddCustomerModal
+                isModalOpen={isModalOpen}
+                closeModal={() => setModalOpen(false)}
+                addCustomerFields={addCustomerFields}
+                handleChange={handleCustomerDetails}
+                handleSubmit={handleCustomerSubmit}
+                heading={"Add Customer"}
+            />}
+
+        </Layout>
+
+    )
+}
+
+export default Advances
