@@ -5,6 +5,7 @@ import { getApiCall, postApiData } from "../../utils/services";
 import { FaFileExcel } from "react-icons/fa";
 import exportToExcel from "../../utils/exportToExcel";
 import MonthPicker from "../../components/customInput/MonthPicker";
+import { useSearchParams } from "react-router-dom";
 
 const InventoryReport = () => {
   const [inventoryData, setInventoryData] = useState([]);
@@ -12,7 +13,9 @@ const InventoryReport = () => {
   const [inventorySnap, setInventorySnap] = useState(null);
   const defaultStartDate = new Date();
   const [loading, setLoading] = useState(false)
-  const [selectDate, setSelectDate] = useState(defaultStartDate);
+  const [searchParams] = useSearchParams();
+  const date = searchParams.get("date");
+  const [selectDate, setSelectDate] = useState(date ? new Date(date) : defaultStartDate);
   const fetchInventorySnap = () => {
     setLoading(true)
     getApiCall(
@@ -154,13 +157,13 @@ const InventoryReport = () => {
           </h2>
           <div className=" flex my-9 justify-center items-center">
 
-          <MonthPicker
-            date={selectDate}
-            setDate={setSelectDate}
-            onSubmit={submitClick}
-            loading={loading}
+            <MonthPicker
+              date={selectDate}
+              setDate={setSelectDate}
+              onSubmit={submitClick}
+              loading={loading}
 
-          />
+            />
           </div>
           <div className="mb-9 border rounded-lg max-w-full overflow-x-auto shadow-md">
             <CustomTable columns={columns} rows={inventoryData} />

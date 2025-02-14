@@ -6,7 +6,7 @@ const MonthPicker = ({ loading, date, setDate, onSubmit }) => {
     const handleClick = () => {
 
 
-        navigate(`?data=${date}`);
+        navigate(`?date=${date}`);
         onSubmit()
     };
     return (
