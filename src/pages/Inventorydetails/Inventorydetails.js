@@ -142,6 +142,9 @@ const Inventorydetails = () => {
       brandName: "Loreal",
     },
     {
+      brandName: "SpringH2O",
+    },
+    {
       brandName: "Thalgo",
     },
     {

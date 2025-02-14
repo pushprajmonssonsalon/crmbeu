@@ -4,11 +4,39 @@ import CustomTable from "../../components/Table/CustomTable";
 import { getApiCall, postApiData } from "../../utils/services";
 import { FaFileExcel } from "react-icons/fa";
 import exportToExcel from "../../utils/exportToExcel";
+import MonthPicker from "../../components/customInput/MonthPicker";
 
 const InventoryReport = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [newMyProducts, setNewMyProducts] = useState([]);
   const [inventorySnap, setInventorySnap] = useState(null);
+  const defaultStartDate = new Date();
+  const [loading, setLoading] = useState(false)
+  const [selectDate, setSelectDate] = useState(defaultStartDate);
+  const fetchInventorySnap = () => {
+    setLoading(true)
+    getApiCall(
+      `inventory/getInventorySnap?date=${selectDate}`,
+      (res) => {
+        const { openingBal, usedBal, receivedBal } = res;
+
+        setInventorySnap({
+          openingBal,
+          usedBal,
+          receivedBal
+        });
+        setLoading(false)
+
+      },
+      () => {
+        setLoading(false)
+        setInventorySnap(null);
+        setInventoryData([]);
+
+
+      }
+    );
+  };
   const columns = [
     {
       id: "name",
@@ -47,6 +75,9 @@ const InventoryReport = () => {
     }
 
   };
+  const submitClick = () => {
+    fetchInventorySnap();
+  }
   const myproduct = () => {
     const data = {
       page: 1,
@@ -57,10 +88,10 @@ const InventoryReport = () => {
       data,
       (resp) => {
         if (resp.products.length > 0) {
-          
-        
 
-          setNewMyProducts(resp.products?.map((elm)=>elm.products));
+
+
+          setNewMyProducts(resp.products?.map((elm) => elm.products));
         } else {
 
           setNewMyProducts([]);
@@ -71,23 +102,12 @@ const InventoryReport = () => {
       }
     );
   };
+
   useEffect(() => {
-    getApiCall(
-      "inventory/getInventorySnap",
-      (res) => {
-        const { openingBal, usedBal, receivedBal } = res;
-      
-        setInventorySnap({
-          openingBal,
-          usedBal,
-          receivedBal
-        });
-      },
-      () => { }
-    );
+    fetchInventorySnap();
     myproduct();
   }, []);
-  
+
 
   useEffect(() => {
     if (newMyProducts?.length > 0 && inventorySnap) {
@@ -95,7 +115,7 @@ const InventoryReport = () => {
         const { name, brand, type } = elm;
         const opBal = inventorySnap?.openingBal?.find(
           (item) => item.itemId === elm.itemId
-        )?.stockQuantity||0;
+        )?.stockQuantity || 0;
         const usBal =
           inventorySnap?.usedBal?.find((item) => item._id === elm.itemId)
             ?.totalQuantity || 0;
@@ -107,7 +127,7 @@ const InventoryReport = () => {
           name,
           brand,
           type,
-          stockQuantity:opBal,
+          stockQuantity: opBal,
           usedBal: usBal,
           receivedBal: rsdBal,
           finalBal: fnBal,
@@ -132,6 +152,16 @@ const InventoryReport = () => {
           <h2 className="text-4xl my-9 text-center font-medium">
             Inventory Report
           </h2>
+          <div className=" flex my-9 justify-center items-center">
+
+          <MonthPicker
+            date={selectDate}
+            setDate={setSelectDate}
+            onSubmit={submitClick}
+            loading={loading}
+
+          />
+          </div>
           <div className="mb-9 border rounded-lg max-w-full overflow-x-auto shadow-md">
             <CustomTable columns={columns} rows={inventoryData} />
           </div>
