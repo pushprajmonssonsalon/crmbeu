@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import CustomTable from "../../components/Table/CustomTable";
-import { getApiCall } from "../../utils/services";
+import { getApiCall, postApiData } from "../../utils/services";
 import { FaFileExcel } from "react-icons/fa";
 import exportToExcel from "../../utils/exportToExcel";
 
 const InventoryReport = () => {
   const [inventoryData, setInventoryData] = useState([]);
-
+  const [newMyProducts, setNewMyProducts] = useState([]);
+  const [inventorySnap, setInventorySnap] = useState(null);
   const columns = [
     {
       id: "name",
@@ -40,41 +41,81 @@ const InventoryReport = () => {
     },
   ];
   const handleExport = () => {
-    if(inventoryData){
-      exportToExcel(inventoryData,"Inventory","inventory.xlsx");
+    if (inventoryData) {
+      exportToExcel(inventoryData, "Inventory", "inventory.xlsx");
 
     }
-    
+
+  };
+  const myproduct = () => {
+    const data = {
+      page: 1,
+      limit: 500,
+    };
+    postApiData(
+      `inventory/getSalonProducts/?limit=${data?.limit}&page=${data?.page}`,
+      data,
+      (resp) => {
+        if (resp.products.length > 0) {
+          
+        
+
+          setNewMyProducts(resp.products?.map((elm)=>elm.products));
+        } else {
+
+          setNewMyProducts([]);
+        }
+      },
+      (error) => {
+        setNewMyProducts([]);
+      }
+    );
   };
   useEffect(() => {
     getApiCall(
       "inventory/getInventorySnap",
       (res) => {
         const { openingBal, usedBal, receivedBal } = res;
-        const data = openingBal?.map((elm) => {
-          const { name, brand, type, stockQuantity } = elm;
-          const usBal =
-            usedBal?.find((item) => item._id === elm.itemId)?.totalQuantity ||
-            0;
-          const rsdBal =
-            receivedBal?.find((item) => item._id === elm.itemId)
-              ?.totalReceivedQuantity || 0;
-          const fnBal = elm?.stockQuantity + rsdBal - usBal;
-          return {
-            name,
-            brand,
-            type,
-            stockQuantity,
-            usedBal: usBal,
-            receivedBal: rsdBal,
-            finalBal: fnBal,
-          };
+      
+        setInventorySnap({
+          openingBal,
+          usedBal,
+          receivedBal
         });
-        setInventoryData(data);
       },
-      () => {}
+      () => { }
     );
+    myproduct();
   }, []);
+  
+
+  useEffect(() => {
+    if (newMyProducts?.length > 0 && inventorySnap) {
+      const data = newMyProducts?.map((elm) => {
+        const { name, brand, type } = elm;
+        const opBal = inventorySnap?.openingBal?.find(
+          (item) => item.itemId === elm.itemId
+        )?.stockQuantity||0;
+        const usBal =
+          inventorySnap?.usedBal?.find((item) => item._id === elm.itemId)
+            ?.totalQuantity || 0;
+        const rsdBal =
+          inventorySnap?.receivedBal?.find((item) => item._id === elm.itemId)
+            ?.totalReceivedQuantity || 0;
+        const fnBal = opBal + rsdBal - usBal;
+        return {
+          name,
+          brand,
+          type,
+          stockQuantity:opBal,
+          usedBal: usBal,
+          receivedBal: rsdBal,
+          finalBal: fnBal,
+        };
+      });
+      setInventoryData(data);
+    }
+  }, [newMyProducts, inventorySnap]);
   return (
     <>
       <Layout>

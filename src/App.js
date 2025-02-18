@@ -29,6 +29,7 @@ import Notification from "./pages/notification/notification";
 import SingleNotification from "./pages/notification/singleNotification";
 import Categorywise from "./components/categorywise/Categorywise";
 import Subscription from "./pages/subscription/Subscription";
+import Advances from "./pages/advances/Advances";
 import activeMembers from "./pages/activeMembers/ActiveMembers";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import InventoryReport from "./pages/inventoryReport/InventoryReport";
@@ -98,6 +99,10 @@ function App() {
         <Route
           path="/membership"
           element={<PrivateRoute Component={Membership} />}
+        />
+        <Route
+          path="/advance"
+          element={<PrivateRoute Component={Advances} />}
         />
         <Route
           path="/activeMembers"

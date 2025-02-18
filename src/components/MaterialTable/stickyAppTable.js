@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { MdOutlineGridView } from "react-icons/md";
 import ViewServicesModal from "../modals/ViewServicesModal";
+import { formatValue } from "../../utils/services";
 const headings = [
   "Name",
   "Mobile No.",
@@ -236,9 +237,9 @@ export default function StickyAppHeadTable({
                           </React.Fragment>
                         ))}
                       </TableCell> */}
-                      <TableCell>{item.total}</TableCell>
+                      <TableCell>{formatValue(item.total)}</TableCell>
                       <TableCell>
-                        {item.membershipUsed ? item.membershipCreditUsed : 0}
+                        {item.membershipUsed ? formatValue(item.membershipCreditUsed) : 0}
                       </TableCell>
                       <TableCell>
                         <h1

@@ -14,6 +14,7 @@ import { MdOutlineGridView } from "react-icons/md";
 import ViewServicesModal from "../modals/ViewServicesModal";
 import { useState } from "react";
 import ApplyMembership from "../modals/ApplyMembership";
+import { formatValue } from "../../utils/services";
 const headings = [
   "Name",
   "Mobile No.",
@@ -134,42 +135,73 @@ export default function StickyHeadTable({
   }
   return (
     <>
-      <Paper sx={{ width: "97%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: 440 }}>
-          <Table aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                {headings.map((column) => (
-                  <TableCell className={`${column === "Membership Credit Used" ? "w-[100px]" : ""}`}>{column}</TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .filter((type) => type.appointmentType === "crm")
-                .map((item) => {
-                  return (
-                    <TableRow hover role="checkbox" tabIndex={-1}>
-                      <TableCell>{item.customer.name}</TableCell>
-                      <TableCell>{item.customer.phoneNumber}</TableCell>
-                      <TableCell>
-                        {formatDateTime(item.appointmentDate)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-center">
-                          <button onClick={() => handleSelect(item)} className="text-center 0000000000 p-3 rounded-md bg-green-500 text-white">
-                            <MdOutlineGridView size={25} />
-                          </button>
-                        </div>
-
-                      </TableCell>
-                 
-                      <TableCell>{item.total}</TableCell>
-                      <TableCell>
-                        {item.membershipUsed ? item.membershipCreditUsed : 0}
-                      </TableCell>
-                      {/* <TableCell>
+    <Paper sx={{ width: "97%", overflow: "hidden" }}>
+      <TableContainer sx={{ maxHeight: 440 }}>
+        <Table aria-label="sticky table">
+          <TableHead>
+            <TableRow>
+              {headings.map((column) => (
+                <TableCell className={`${column==="Membership Credit Used"?"w-[100px]":""}`}>{column}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {data
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .filter((type) => type.appointmentType === "crm")
+              .map((item) => {
+                return (
+                  <TableRow hover role="checkbox" tabIndex={-1}>
+                    <TableCell>{item.customer.name}</TableCell>
+                    <TableCell>{item.customer.phoneNumber}</TableCell>
+                    <TableCell>
+                      {formatDateTime(item.appointmentDate)}
+                    </TableCell>
+                    <TableCell>
+                    <div className="flex items-center justify-center">
+                    <button onClick={()=>handleSelect(item)} className="text-center ">
+                        <MdOutlineGridView size={25} />
+                      </button>
+                    </div>
+                    
+                    </TableCell>
+                    {/* <TableCell>
+               
+                    {/* <TableCell>
+                      <button
+                        className={`text-md font-semibold text-white bg-green-600 px-3 py-1 rounded-lg hover:bg-green-800 hover:scale-105 `}
+                        onClick={() =>
+                          handleProductQuantityModal(
+                            item._id,
+                            item?.productUsed
+                          )
+                        }
+                      >
+                        Quantity Used
+                      </button>
+                    </TableCell> */}
+                    {/* <TableCell>
+                      {item?.productUsed.map((itemdata, index) => (
+                        <React.Fragment key={index}>
+                          <h1>{itemdata.name}</h1>
+                          {index < item.productUsed.length - 1 && (
+                            <span>, </span>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </TableCell> */}
+                    {/* <TableCell>
+                      {item?.services.map((itemdata, index) => (
+                        <React.Fragment key={index}>
+                          <h1>{itemdata.satffName}</h1>
+                        </React.Fragment>
+                      ))}
+                    </TableCell> */}
+                    <TableCell>{formatValue(item.total)}</TableCell>
+                    <TableCell>
+                      {item.membershipUsed ? formatValue(item.membershipCreditUsed) : 0}
+                    </TableCell>
+                    {/* <TableCell>
                      <button onClick={()=>handleApplyMembership(item)} className="font-medium text-sm w-full">Apply</button>
                     </TableCell> */}
                       <TableCell>

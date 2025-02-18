@@ -103,8 +103,12 @@ function formatValue(value){
   if(Array.isArray(value)){
   return  value.map(elm=>formatValue(elm))
   }
-  else{
+  else if(typeof value ==="number"){
     return value>0? value?.toFixed(2):value;
+
+  }
+  else{
+    return value;
 
   }
 }

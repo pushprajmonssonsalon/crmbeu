@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./BookAppointment.css";
-import { getApiCall, postApiData } from "../../utils/services";
+import { formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -18,7 +18,6 @@ import "rc-time-picker/assets/index.css";
 import Layout from "../../components/Layout";
 import moment from "moment";
 import { useNavigate } from "react-router";
-import CustomAlert from "../../components/customAlert";
 import { toast } from "react-hot-toast";
 import { IoMdPersonAdd } from "react-icons/io";
 import NormalRadio from "../../components/customInput/NormalRadio";
@@ -52,7 +51,6 @@ const BookAppointment = () => {
   const [isMobileValid, setIsMobileValid] = useState(false);
   const [userData, setUserData] = useState([]);
   const [date, setDate] = useState(formatDate(new Date()));
-  const [showAddButton, setShowAddButton] = useState(true);
 
   const [service, setService] = useState([]);
   const [subservice, setSubService] = useState([]);
@@ -66,7 +64,7 @@ const BookAppointment = () => {
   const [discount, setDiscount] = useState(0);
   const [membershipitem, setMemberShipItem] = useState(null);
   const [userId, setUserId] = useState("");
-  const [memberShipId, setMemberShipId] = useState("");
+  const [activeMembership, setActiveMemberShip] = useState({});
   const [memberShipStatus, setMemberShipStatus] = useState(false);
   // product table state
   const activemember = membershipitem?.activeMembership;
@@ -106,7 +104,8 @@ const BookAppointment = () => {
     }
   };
   const membershipPress = (e) => {
-    setMemberShipId(e.target.value);
+    if(e.target.value)
+    setActiveMemberShip(activemember?.find((elm) => elm._id === e.target.value));
   };
 
   useEffect(() => {
@@ -167,13 +166,20 @@ const BookAppointment = () => {
     price: 0,
 
   });
-  const [productData, setProductData] = useState(null);
 
  
   // const data = {
   //   gender: gender,
   // };
   // api call for getting service category
+  const [productData, setProductData] = useState({
+    name: "",
+    itemId: "",
+    price: 0,
+    staffId: "",
+  });
+
+  
   useEffect(() => {
     getApiCall(
       "salonService/getServiceCategory",
@@ -396,7 +402,7 @@ const BookAppointment = () => {
       products: productDataReducer,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
-      membershipId: memberShipId,
+      membershipId: activeMembership?._id,
     };
     // if (serviceDataReducerLength > 0) {
     postApiData(
@@ -500,12 +506,16 @@ const BookAppointment = () => {
   };
 
   const applyMemberShip = () => {
+    // console.log(activeMembership)
+    // let credLeft=activeMembership?activeMembership?.creditsLeft>0?activeMembership.creditsLeft:0:0;
+    // let credUsed=Math.min((subtotalPrice ), credLeft || 0);
+    // let remCred=Math.max(credLeft-credUsed,0);
     const data = {
       creditsUsed: memberShipStatus
         ? subTotalService
         : subtotalPrice - countdiscount,
       userId: userId,
-      memId: memberShipId,
+      memId: activeMembership?._id,
       isMembershipUsed: !memberShipStatus,
     };
 
@@ -520,7 +530,6 @@ const BookAppointment = () => {
             // setMemberShip(-memberShip)
             // setSubTotalService(subtotalPrice)
             setSubTotalService(resp.creditsUsed - resp.remainingAmount);
-            setIsMembershipUsed(true);
             toast.error("MemberShip Removed sucessfully");
           } else {
             // alert("MemberShip Applied sucessfully");
@@ -528,7 +537,6 @@ const BookAppointment = () => {
             setMembershipCoin(resp?.creditsLeft);
             setSubTotalService(resp.creditsUsed - resp.remainingAmount);
             setMemberShipStatus(true);
-            setIsMembershipUsed(false);
             // setMemberShip(-memberShip)
           }
         }
@@ -583,11 +591,7 @@ const BookAppointment = () => {
     toast.success("product added succesfully");
   };
 
-  // Function to format the date as "dd-mm-yyyy"
-
-  const handleAlertClose = () => {
-    setAlertVisible(false);
-  };
+ 
 
   const handlePriceChange = (index, newPrice) => {
     const updatedServices = services.map((item, i) =>
@@ -799,13 +803,7 @@ const BookAppointment = () => {
                   heading={"Add Customer Appointment"}
                 />
 
-                {!showAddButton && (
-                  <div className="suggestions">
-                    <div>Suggestion 1</div>
-                    <div>Suggestion 2</div>
-                    <div>Suggestion 3</div>
-                  </div>
-                )}
+
                 <div className="">
                   <div className="flex flex-col gap-3">
                     <NormalInput
@@ -1133,6 +1131,7 @@ const BookAppointment = () => {
               <NormalInput
                 type="number"
                 value={discount}
+               
                 lableStyles={{
                   display: "flex",
                   width: "150px",
@@ -1144,8 +1143,8 @@ const BookAppointment = () => {
                   width: "200px",
                 }}
                 label="Apply Discount"
-                onChange={(e) => setDiscount(e.target.value)}
-              />
+                onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
+                />
             </div>
             <button onClick={applyDiscount} 
             className="bg-black font-medium rounded-md text-white h-[40px] w-[150px]"
@@ -1164,6 +1163,7 @@ const BookAppointment = () => {
                   width: "300px",
                 }}
                 name="membership"
+                value={activeMembership?._id}
                 onChange={membershipPress}
                 options={activemember?.map((item) => ({
                   name: `${item.name}-${item.creditsLeft}`,
@@ -1220,7 +1220,7 @@ const BookAppointment = () => {
                             {item.label}
                           </td>
                           <td className=" font-bold   text-lg border-none px-4 py-2 text-green-800">
-                            {item.value}
+                            {formatValue(item.value)}
                           </td>
                         </tr>
                       ))}
@@ -1233,9 +1233,7 @@ const BookAppointment = () => {
         )}
       </div>
 
-      {alertVisible && (
-        <CustomAlert message={alertMessage} onClose={handleAlertClose} />
-      )}
+    
     </Layout>
   );
 };

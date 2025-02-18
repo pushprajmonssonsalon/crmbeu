@@ -11,7 +11,7 @@ import { MdPhone } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const messages = [
     'lead in Salon Franchises!',
     'Sell Premium Salon Products!',
@@ -52,6 +52,7 @@ const Login = ({ onLogin }) => {
 
           navigate("/");
         }
+        
       })
       .catch((error) => {
         toast.error("please provide valid details")

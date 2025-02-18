@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { getApiCall, postApiData } from "../../utils/services";
+import { formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useNavigate, useParams } from "react-router";
 import Layout from "../../components/Layout";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
 import { toast } from "react-hot-toast";
-import MultiSelectInput from "../../components/customInput/MultiSelectInput";
-import useDebouncer from "../../utils/hooks/useDebouncer";
-import NormalSelect from "../../components/customInput/NormalSelect";
 import NormalInput from "../../components/customInput/NormalInput";
+import NormalSelect from "../../components/customInput/NormalSelect";
+import useDebouncer from "../../utils/hooks/useDebouncer";
+import MultiSelectInput from "../../components/customInput/MultiSelectInput";
 import CustomInput from "../../components/customInput/CustomInput";
 
 const Edit = () => {
@@ -1023,13 +1023,26 @@ const Edit = () => {
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
               <div className="flex justify-start gap-3 items-center">
-                <h1 className="text-lg font-semibold">Apply Discount</h1>
-                <input
-                  type="number"
-                  className="outline-none"
-                  value={discount}
-                  onChange={(e) => setDiscount(e.target.value)}
+              <div className="flex items-center">
+              <NormalInput
+                type="number"
+                value={discount}
+               
+                lableStyles={{
+                  display: "flex",
+                  width: "150px",
+                  color: "#535b61",
+                  fontWeight: "medium",
+                  fontSize: "1.15rem",
+                }}
+                inputStyles={{
+                  width: "200px",
+                }}
+                label="Apply Discount"
+                onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
                 />
+            </div>
+             
                 <button
                   //    onClick={applyDiscount}
                   className="bg-black font-medium rounded-md text-white h-[40px] w-[150px]"
@@ -1037,28 +1050,23 @@ const Edit = () => {
                   Apply Discount
                 </button>
               </div>
-              <div className="flex mt-6 justify-start items-center mb-3">
+              <div className="flex mt-6 justify-start gap-3 items-center mb-3">
                 {/* MEMBERSHIP STATUS */}
-                <div className="flex items-center justify-center">
+                <div className="flex items-center gap-3 justify-center">
                   <h1 className="text-lg font-semibold">Membership</h1>
-                  <select
-                    className="mx-3 w-80 h-10 outline-none border-2 border-gray-500 rounded-lg"
-                    onChange={membershipPress}
-                    value={memberShipId}
-                    disabled={memberShipStatus ? true : false}
-                  >
-                    <option value="">Membership</option>
-                    {membershipDetails?.map((item) => {
-                      return (
-                        <option value={item._id}>
-                          {" "}
-                          {item?.name}
-                          {" -"}
-                          {item.creditsLeft}
-                        </option>
-                      );
-                    })}
-                  </select>
+                  <NormalSelect
+                inputStyles={{
+                  width: "300px",
+                }}
+                name="membership"
+                onChange={membershipPress}
+                options={membershipDetails?.map((item) => ({
+                  name: `${item.name}-${item.creditsLeft}`,
+                  value: item._id,
+                }))}
+                disabled={memberShipStatus ? true : false}
+              />
+                 
                 </div>
 
                 {/* Membership Button */}
@@ -1083,7 +1091,7 @@ const Edit = () => {
                   <h3 className="text-lg font-bold text-black">
                     BALANCE :{" "}
                     <span className="text-green-600 font-bold">
-                      {membershipCoin}
+                      {formatValue(membershipCoin)}
                     </span>
                   </h3>
                 </div>
@@ -1101,13 +1109,13 @@ const Edit = () => {
                   <p className=" text-lg font-bold text-black">
                     CREDITS LEFT:
                     <span className="text-md font-medium ml-1 text-green-600">
-                      {arr[0]?.creditsLeft}
+                      {formatValue(arr[0]?.creditsLeft)}
                     </span>
                   </p>
                   <p className=" text-lg font-bold text-black">
                     AMOUNT:
                     <span className="text-md font-medium ml-1 text-green-600">
-                      {arr[0]?.amount}
+                      {formatValue(arr[0]?.amount)}
                     </span>
                   </p>
                 </div>
@@ -1115,37 +1123,37 @@ const Edit = () => {
               <p className=" text-lg font-bold text-black">
                 SubTotal Services:
                 <span className="text-md font-medium ml-1 text-green-600">
-                  {subTotalServices}
+                  {formatValue(subTotalServices)}
                 </span>
               </p>
               <p className=" text-lg font-bold text-black">
                 SubTotal Products:
                 <span className="text-md font-medium ml-1 text-green-600">
-                  {subProductTotal}
+                  {formatValue(subProductTotal)}
                 </span>
               </p>
               <p className=" text-lg font-bold text-black">
                 DISCOUNT:
                 <span className="text-md font-medium ml-1 text-green-600">
-                  {serviceDiscount}
+                  {formatValue(serviceDiscount)}
                 </span>
               </p>
               <p className=" text-lg font-bold text-black">
                 Total Services:
                 <span className="text-md font-medium ml-1 text-green-600">
-                  {totalService}
+                  {formatValue(totalService)}
                 </span>
               </p>
               <p className=" text-lg font-bold text-black">
                 Total Products:
                 <span className="text-md font-medium ml-1 text-green-600">
-                  {subProductTotal}
+                  {formatValue(subProductTotal)}
                 </span>
               </p>
               <p className=" text-lg font-bold text-black">
                 Total Payable:
                 <span className="text-md font-medium ml-1 text-green-600">
-                  {totalAmount}
+                  {formatValue(totalAmount)}
                 </span>
               </p>
             </div>

@@ -1,3 +1,5 @@
+import { formatValue } from "../../utils/services"
+
 const CategoryTable = ({cols,rows,row}) => {
   return (
     <>
@@ -16,8 +18,8 @@ const CategoryTable = ({cols,rows,row}) => {
                     {cols.map((col, idx) => (
                       <td key={idx}>
                         {col.id === "totalRevenue"
-                          ? row[col.id]?.toFixed(2)
-                          : row[col.id]}
+                          ? formatValue(row[col.id])
+                          : formatValue(row[col.id])}
                       </td>
                     ))}
                   </tr>

@@ -2,7 +2,7 @@ import React from "react";
 import { MdDashboard, MdEditSquare, MdRememberMe } from "react-icons/md";
 import { RiAccountPinBoxFill } from "react-icons/ri";
 import { MdCardMembership } from "react-icons/md";
-import { FaBookOpen } from "react-icons/fa";
+import { FaBookOpen, FaWallet } from "react-icons/fa";
 import { LuView } from "react-icons/lu";
 import { FaTableList } from "react-icons/fa6";
 import { RiShoppingCartFill } from "react-icons/ri";
@@ -42,6 +42,8 @@ const VerticalSidebar = () => {
     { name: "Employee", link: `/employee`, icon: RiAccountPinBoxFill, num: 5 },
     { name: "Services", link: `/customerservices`, icon: MdRememberMe, num: 6 },
     { name: "Membership", link: `/Membership`, icon: MdCardMembership, num: 7 },
+    { name: "Advance", link: `/advance`, icon: FaWallet, num: 7 },
+
     { name: "Active Members", link: `/activemembers`, icon: MdCardMembership, num: 7 },
     { name: "Subscription", link: `/Subscription`, icon:MdCardMembership , num: 7 },
     { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8 },

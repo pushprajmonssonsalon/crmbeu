@@ -25,15 +25,8 @@ const ViewAppointment = () => {
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
   const [activeAppointment, setActiveAppointment] = useState({});
 
-  const [status, setStatus] = useState(1);
-  const [selectedOptions, setSelectedOptions] = useState([]);
   const [modal, setModal] = useState(false);
-  const [calculatedValues, setCalculatedValues] = useState([]);
-  const [appointmentstatus, setAppointmentStatus] = useState(false);
-  const [isPaid, setIsPaid] = useState(false);
   const [printStatus, setPrintStatus] = useState(false);
-  const [modalAmount, setModalAmount] = useState(0);
-  const [membershipPoints, setMemberShipPoints] = useState(0);
   // show popup
   const [showPopup, setShowPopup] = useState(false);
   // show quantity popup
@@ -59,32 +52,9 @@ const ViewAppointment = () => {
   // ...
 
   // Inside your component or a useEffect, calculate and store the values
-  useEffect(() => {
-    // Use map to calculate the values and create a new array
-    const calculatedArray = viewAppointmentDetails.map(
-      (item) => item.total - item.membershipCreditUsed
-    );
+  
 
-    // Set the calculated array to the state variable
-    setCalculatedValues(0);
-  }, [viewAppointmentDetails]);
-
-  const paymentMethode = [
-    {
-      methode: "Pay",
-    },
-  ];
-  const appointmentStatus = [
-    {
-      appointmentvalue: "Pending",
-    },
-    {
-      appointmentvalue: "Completed",
-    },
-    {
-      appointmentvalue: "Canceled",
-    },
-  ];
+  
   const handlePrint = (item) => {
     
     if (item.status === 2 || item.status === 1) {
@@ -94,16 +64,18 @@ const ViewAppointment = () => {
     }
     //  window.open(item.invoiceUrl,'_blank');
   };
-  
-
+ 
   const submitPress = (item) => {
     const activeAppointment = viewAppointmentDetails.find(
       (elm) => elm._id === item._id
     );
+    const {userId,advanceUsed}=activeAppointment;
     if (activeAppointment) {
       const data = {
         status: 3,
         id: item._id,
+        
+        ...((advanceUsed&&userId)&&{advanceUsed,userId}),
         paymentMethod: activeAppointment?.paymentMethod,
       };
       setLoadingStates((prevLoadingStates) => ({
@@ -121,7 +93,6 @@ const ViewAppointment = () => {
               ...prevLoadingStates,
               [item._id]: false,
             }));
-            setAppointmentStatus(true);
             // setStatus(3)
             setIsStatusChange(!isStatusChange);
             toast.success("Appointment Completed!");
@@ -155,7 +126,6 @@ const ViewAppointment = () => {
       (resp) => {
         
         if (resp) {
-          setAppointmentStatus(false);
           // setStatus(2)
           setIsStatusChange(!isStatusChange);
           toast.error("Appointment cancelled sucessfully!");
@@ -182,7 +152,6 @@ const ViewAppointment = () => {
       (resp) => {
         
         if (resp) {
-          setAppointmentStatus(false);
           // setStatus(2)
           setIsStatusChange(!isStatusChange);
           toast.error("Appointment cancelled sucessfully!");
@@ -208,8 +177,6 @@ const ViewAppointment = () => {
   }) => {
     
 
-    setModalAmount(total);
-    setMemberShipPoints(membershipCreditUsed);
     setModal(true);
     const appointment = viewAppointmentDetails.find((elm) => elm._id === _id);
     if (appointment?.paymentMethod?.length === 0) {
@@ -217,38 +184,13 @@ const ViewAppointment = () => {
     }
 
     if (status === 1||status===4) {
-      setIsPaid(isPaid && isCaptured);
       setActiveAppointment(appointment);
       setShowPopup(true);
     }
   };
 
-  const getStatusNumber = (status) => {
-    
-    switch (status) {
-      case 1:
-        return "Pending";
-      case 2:
-        return "Canceled";
-      case 3:
-        return "Completed";
-      case 4:
-        return "Half Completed";
-      default:
-        // Handle other cases if needed
-        return null; // or 'N/A'
-    }
-  };
-  const customStyles = {
-    content: {
-      top: "50%",
-      left: "50%",
-      right: "auto",
-      bottom: "auto",
-      marginRight: "-50%",
-      transform: "translate(-50%, -50%)",
-    },
-  };
+ 
+  
   useEffect(() => {
     const data = {
       type: tab,
@@ -318,11 +260,11 @@ const ViewAppointment = () => {
   };
 
 
-  const updatePaymentMethod = () => {
+  const updatePaymentMethod = (elm) => {
     setViewAppointmentDetails((prev) =>
       prev.map((item) => {
         if (item._id === activeAppointment._id) {
-          return activeAppointment;
+          return {...activeAppointment,...elm};
         }
         return item;
       })
@@ -384,7 +326,6 @@ const ViewAppointment = () => {
           </div>
 
           {/* Table */}
-
           {tab === "crm" ? (
             <div className="">
               {viewAppointmentDetails?.length > 0 ? (

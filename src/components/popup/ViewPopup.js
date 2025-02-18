@@ -1,4 +1,6 @@
 import { MdOutlineClose } from "react-icons/md";
+import { postApiData } from "../../utils/services";
+import { useEffect, useState } from "react";
 
 const ViewPopup = ({
   isVisible,
@@ -10,10 +12,32 @@ const ViewPopup = ({
   modal,
   setModal,
 }) => {
-  const { total, paymentMethod, membershipCreditUsed, _id } = activeAppointment;
-  
+  const { total, paymentMethod, membershipCreditUsed, _id, customer } = activeAppointment;
+  const [advance, setAdvance] = useState({});
+  const [advanceSelected, setAdvanceSelected] = useState({
+    selected: false,
+    advanceUsed: 0,
+  });
   // const totalCardUpiCash = parseInt(cash) + parseInt(card) + parseInt(upi);
-  const payTotal = total - membershipCreditUsed;
+  const payTotal = (Math.max((total - membershipCreditUsed) - (advanceSelected?.advanceUsed > 0 ? advanceSelected?.advanceUsed : 0), 0));
+  useEffect(() => {
+    if (customer?._id) {
+      const payload = {
+        userId: customer?._id,
+      }
+      postApiData("advance/getAdvance", payload, (res) => {
+        if (res) {
+          setAdvance(res);
+
+        }
+
+      }, (err) => {
+
+      });
+    }
+
+
+  }, [customer]);
   if (!isVisible) return null;
   const closeModal = () => {
     setModal(false);
@@ -47,79 +71,138 @@ const ViewPopup = ({
       };
     });
   };
+  const handleAdvance = (e) => {
+    const { checked } = e.target;
+    setAdvanceSelected((prev) => ({
+      ...prev,
+      selected: checked ? payTotal > 0 && advance?.balance > 0 : false,
+      advanceUsed: checked ? (payTotal > 0 && advance?.balance > 0) ? Math.min((total - membershipCreditUsed || 0), advance?.balance || 0) : 0 : 0,
+    }));
+
+
+
+    if (checked) setActiveAppointment((prev) => {
+      return {
+        ...prev,
+        paymentMethod: prev.paymentMethod.map((elm) => {
+          return {
+            ...elm,
+            amount: 0, // Ensure the amount doesn't exceed the max allowable value
+          };
+
+        }),
+      };
+    });
+  }
+  console.log(advanceSelected)
+
 
   const hnadleUpdate = () => {
-    onUpdate();
-  
+
+    const payload = {
+      userId: customer?._id,
+      advanceUsed: advanceSelected?.advanceUsed || 0,
+    };
+    onUpdate(payload);
+
   };
 
-  
+
+
 
   return (
-    <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
-      <div className="absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto">
-        <div className="bg-white p-4 rounded-xl ">
-          <div className="flex justify-around font-bold items-center">
+    <div
+      className=" overflow-y-hidden overflow-x-hidden flex items-center justify-center bg-black bg-opacity-50 fixed top-0 right-0 left-0 ma z-50  w-full md:inset-0 h-full"
+    >
+      <div
+        className=" z-40  h-[80%]  md:h-[80%] my-auto"
+      >
+        <div className="bg-white h-full  p-4 rounded-xl  shadow">
+          <div className="flex justify-between mb-3 font-bold items-center">
             <h1 className={`text-blue-500 text-lg font-bold `}>
               PAY : {payTotal}
             </h1>
             <button
-              className="text-3xl font-bold  text-red-600 hover:text-red-900 bg-transparent "
+              style={{ background: "#f5f5f5", borderRadius: "100%", }}
+              className="text-2xl font-bold  text-red-600 hover:text-red-900 bg-transparent "
               onClick={() => onClose()}
             >
               <MdOutlineClose />
             </button>
           </div>
+          <div className="bg-gray-200  p-3  flex items-center justify-between gap-3 ">
 
-          <table className="styled-table">
-            <thead>
-              <tr>
-                <th>Payment Method</th>
-                <th>Distribution</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paymentMethod?.map((item, index) => (
-                <tr key={index}>
-                  <td className="font-bold capitalize text-lg">{item?.name}</td>
-                  <td>
-                    <input
-                      disabled={isPaid}
-                      name={item.name}
-                      type="number"
-                      min={0}
-                      max={payTotal}
-                      className="w-[250px] outline-none "
-                      value={item?.amount}
-                      onChange={handleChange}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* {popupService?.map((item,index)=>(
-                     <div className="grid w-full items-center">
-                     <label htmlFor="name"><span className='font-bold text-md'>Card :</span></label>
-                     <input type="text" placeholder='name' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.name} disabled/>
-                     <label htmlFor="name"><span className='font-bold text-md'>Category :</span></label>
-                     <input type="text" placeholder='Category' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.category} disabled/>
-                     <label htmlFor="email"><span className='font-bold text-md'>Subcategory :</span></label>
-                     <input type="email" placeholder='email' id="email" className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={item?.subCategory} disabled/>
-                     <label htmlFor="number"><span className='font-bold text-md'>Mrp :</span></label>
-                     <input placeholder='MRP' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' defaultValue={item?.mrp} onChange={(e)=>setMrp(e.target.value)} />
-                     <label htmlFor="number"><span className='font-bold text-md'>Price :</span></label>
-                     <input placeholder='Price' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' defaultValue={item?.price} onChange={(e)=>setPrice(e.target.value)}/>
-                 </div>
-                ))} */}
-          {!isPaid && (
-            <button
-              className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
-              onClick={hnadleUpdate}
+
+            <div className="border-gray-300  focus:ring-blue-500  focus:ring-2">
+
+
+              <input
+                defaultChecked=""
+                id="advance"
+                type="checkbox"
+                value={advanceSelected?.selected}
+                checked={advanceSelected?.selected === true}
+                onChange={(e) => handleAdvance(e)}
+                name="bordered-checkbox"
+                className="w-5 h-5 text-blue-600  bg-gray-100  "
+              />
+            </div>
+            <label
+              htmlFor="advance"
+              className="w-full font-normal cursor-pointer text-black text-md flex items-center justify-between rounded-sm select-none"
             >
-              Update
-            </button>
-          )}
+              Advance
+
+            </label>
+            <div className="flex items-center gap-4 ">
+              <h1 className="font-bold whitespace-nowrap text-black text-lg">Rs {advance?.balance || 0} </h1>
+
+            </div>
+
+
+
+
+
+          </div>
+          <div className="max-h-[calc(100%-110px)] overflow-y-auto">
+
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  <th>Payment Method</th>
+                  <th>Distribution</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paymentMethod?.map((item, index) => (
+                  <tr key={index}>
+                    <td className="font-bold capitalize text-lg">{item?.name}</td>
+                    <td>
+                      <input
+                        disabled={isPaid}
+                        name={item.name}
+                        type="number"
+                        min={0}
+                        max={payTotal}
+                        className="w-[250px] outline-none "
+                        value={item?.amount}
+                        onChange={handleChange}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {!isPaid && (
+              <button
+                className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
+                onClick={hnadleUpdate}
+              >
+                Update
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
