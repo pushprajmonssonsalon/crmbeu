@@ -125,19 +125,6 @@ const Report = () => {
     );
   };
 
-  // useEffect(()=>{
-  //   getApiCall("",
-  //     (resp)=>{
-  //       setWholeCustomerRevenue(resp)
-  //     }
-  //   )
-  //   getApiCall("",
-  //     (resp)=>{
-  //       setNewCustomerRevenue(resp)
-  //     }
-  //   )
-  // },[])
-
   const credits = membershipCredit?.length > 0 && membershipCredit[0]?.membershipCreditUsed;
 
 
