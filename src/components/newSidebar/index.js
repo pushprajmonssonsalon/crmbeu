@@ -91,7 +91,7 @@ const VerticalSidebar = () => {
         if(open){
           handleOpen()
         }
-      }} className={`${open ? "w-64" : "w-16"}  duration-500  px-4 `}>
+      }} className={`${open ? "w-52" : "w-16"}  duration-500  px-4 `}>
       
         <div
           className={`py-16 flex flex-col gap-4 fixed top-40 overflow-y-auto h-[70%] hide-scrollbar ${open?"pointer-events-auto":"pointer-events-none"}`}

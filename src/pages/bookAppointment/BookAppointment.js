@@ -577,7 +577,7 @@ const BookAppointment = () => {
           <h1 className="text-green-600  font-semibold text-lg">
             Select Gender :{" "}
           </h1>
-          <div className="flex items-center justify-center">
+          <div className="flex items-center gap-6 justify-center">
             {genderFields.map((elm, index) => {
               return (
                 <NormalRadio
@@ -644,7 +644,7 @@ const BookAppointment = () => {
                 </div>
 
                 <button
-                  className={`mx-4 ${
+                  className={`mx-4 rounded-md px-3 py-1 text-white ${
                     isMobileValid ? "add-customer-btn" : "disabled-btn"
                   }`}
                   onClick={isMobileValid ? openModal : null}

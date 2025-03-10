@@ -6,6 +6,8 @@ module.exports = {
   theme: {
     extend: {
       colors:{
+        customGray: 'rgb(203, 213, 225)', // Add your custom color
+
       }
     },
   },

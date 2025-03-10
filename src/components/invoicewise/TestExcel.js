@@ -12,7 +12,7 @@ const TestExcel = () =>  {
 
         return (
             <div>
-                <button onClick={onDownload}> Export excel </button>
+                <button className='bg-green-500 text-white rounded-xl px-6 h-[50px]' onClick={onDownload}> Export excel </button>
 
                  <table  ref={tableRef}>
                   <tbody>

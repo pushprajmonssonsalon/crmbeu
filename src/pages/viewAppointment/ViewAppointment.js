@@ -179,7 +179,7 @@ const ViewAppointment = () => {
 
     setModal(true);
     const appointment = viewAppointmentDetails.find((elm) => elm._id === _id);
-    if (appointment.paymentMethod.length === 0) {
+    if (appointment?.paymentMethod?.length === 0) {
       appointment.paymentMethod = paymentMethods;
     }
 

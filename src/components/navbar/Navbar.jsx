@@ -86,7 +86,7 @@ const Navbar = () => {
               </div>}
             </li>
             <li className="mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer">
-              <button className=" bg-[#5865F2] py-2 px-4 rounded-lg text-white flex justify-center items-center">
+              <button className=" bg-white py-2 px-4 rounded-lg text-black flex justify-center items-center">
                 <h3
                   className="font-semibold text-xs xl:text-lg poppins"
                   onClick={adminPress}

@@ -454,7 +454,7 @@ export default function  InvoiceGenrator() {
               experience.
             </p>
           </div>
-          <button onClick={() => toPDF()}>Download PDF</button>
+          <button className="bg-green-500 text-white rounded-xl px-6 h-[50px]" onClick={() => toPDF()}>Download PDF</button>
         </div>
       </div>
     </div>

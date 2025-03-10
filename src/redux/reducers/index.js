@@ -47,11 +47,11 @@ export const ProductAddReducer = (state = productDataIntialState, action) => {
   switch (type) {
 
       case 'PRODUCT_DATA_ADDED':
-        const index = state.ProductData.findIndex((item) => item._id === payload._id);
+        const index = state.ProductData.findIndex((item) => item.itemId === payload.itemId);
 
         if(index!==-1){
           
-          const updatedprod= state.ProductData.map((item)=>(item._id===payload._id?payload:item))
+          const updatedprod= state.ProductData.map((item)=>(item.itemId===payload.itemId?payload:item))
           return {
             ...state,
             ProductData: updatedprod,
