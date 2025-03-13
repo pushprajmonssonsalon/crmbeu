@@ -36,6 +36,8 @@ const MemComponent = ({
     phoneNumber: "",
     email: "",
     gender: "",
+    dob:new Date(),
+    aniversary:new Date()
   });
 
   const nameOnclick = (item) => {
@@ -108,6 +110,16 @@ const MemComponent = ({
         },
       ],
     },
+    {
+      name: "dob",
+      label: "BirthDay",
+      value: customerDetails?.dob,
+    },
+    {
+      name: "aniversary",
+      label: "Aniversary",
+      value: customerDetails?.aniversary,
+    }
   ];
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -126,6 +138,8 @@ const MemComponent = ({
       phoneNumber: customerDetails.phoneNumber,
       email: customerDetails.email,
       gender: customerDetails.gender,
+      dob:customerDetails.dob,
+      aniversary:customerDetails.aniversary
     };
 
     postApiData(

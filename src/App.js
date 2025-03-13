@@ -33,6 +33,7 @@ import Advances from "./pages/advances/Advances";
 import activeMembers from "./pages/activeMembers/ActiveMembers";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import InventoryReport from "./pages/inventoryReport/InventoryReport";
+import AdvanceInvoice from "./components/customInovice/Advances";
 
 function App() {
   useEffect(() => {
@@ -120,6 +121,10 @@ function App() {
         <Route
           path="/membershipinvoicegenerator"
           element={<PrivateRoute Component={MembershipBill} />}
+        />
+        <Route
+          path="/advanceinvoice"
+          element={<PrivateRoute Component={AdvanceInvoice} />}
         />
         {/* <Route path="/membershipinvoicegenerator" element={<PrivateRoute Component={MembershipInvoiceGenrator} />} /> */}
         <Route

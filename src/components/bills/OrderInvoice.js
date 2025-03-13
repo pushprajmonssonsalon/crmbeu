@@ -177,7 +177,7 @@ const OrderBill = () => {
           handlePrint(null, () => contentToPrint.current);
           handleChange(contentToPrint.current);
         }}
-        className="w-full my-4"
+        className="w-full bg-green-600 text-white my-4"
       >
         PRINT
       </button>

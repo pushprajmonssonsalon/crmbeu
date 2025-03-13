@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Layout from '../../components/Layout';
 import useDebouncer from '../../utils/hooks/useDebouncer';
-import { postApiData } from '../../utils/services';
+import { formatDateToFull, postApiData } from '../../utils/services';
 import OrderPaymentPopup from '../../components/popup/OrderPayment';
 import toast from 'react-hot-toast';
-import { IoMdPersonAdd } from 'react-icons/io';
+import { IoMdPersonAdd, IoMdPrint } from 'react-icons/io';
 import AddCustomerModal from '../../components/modals/AddCustomerModal';
+import CustomSearchInputFeild from '../../components/customInput';
+import { FaFileExcel } from 'react-icons/fa';
+import exportToExcel from '../../utils/exportToExcel';
+import CustomTable from '../../components/Table/CustomTable';
+import { useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 
 const Advances = () => {
-
+    const [advances, setAdvances] = useState([]);
     const [userData, setUserData] = useState([]);
     const { debouncedFunction } = useDebouncer();
+    const [params] = useSearchParams();
+    const sd = params.get('start')
+    const ed = params.get('end')
+    const defaultStartDate = new Date();
+    const navigate = useNavigate();
+    const [startDate, setStartDate] = useState(sd ? new Date(sd) : defaultStartDate);
+    const [endDate, setEndDate] = useState(ed ? new Date(ed) : defaultStartDate);
     const [visible, setVisible] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [isModalOpen, setModalOpen] = useState(false);
@@ -19,6 +32,8 @@ const Advances = () => {
         phoneNumber: "",
         email: "",
         gender: "",
+        dob: new Date(),
+        aniversary: new Date()
     });
     const [advanceData, setAdvanceData] = useState({
         name: "",
@@ -33,8 +48,8 @@ const Advances = () => {
 
         setVisible(false);
     };
-   
-    const fetchUser = (phoneNumber,setState) => {
+
+    const fetchUser = (phoneNumber, setState) => {
         const data = {
             phoneNumber,
         };
@@ -42,11 +57,11 @@ const Advances = () => {
             "user/searchUser",
             data,
             (resp) => {
-              setState(resp);
+                setState(resp);
             },
-            (error) => {}
-          );
-        
+            (error) => { }
+        );
+
     };
     const onChange = (name) => (event) => {
 
@@ -55,9 +70,9 @@ const Advances = () => {
             setAdvanceData((prev) => ({ ...prev, [name]: value }));
 
             setVisible(true);
-            debouncedFunction(fetchUser, 500, value,setUserData);
+            debouncedFunction(fetchUser, 500, value, setUserData);
         }
-       
+
         else {
             setAdvanceData((prev) => ({ ...prev, [name]: name === "balance" ? parseFloat(value) : value }));
         }
@@ -74,6 +89,8 @@ const Advances = () => {
             phoneNumber: customerDetails.phoneNumber,
             email: customerDetails.email,
             gender: customerDetails.gender,
+            dob: customerDetails.dob,
+            aniversary: customerDetails.aniversary
         };
 
         postApiData(
@@ -86,6 +103,8 @@ const Advances = () => {
                     phoneNumber: "",
                     email: "",
                     gender: "",
+                    dob: new Date(),
+                    aniversary: new Date()
                 });
                 toast.success("User has been created! Please select the user");
             },
@@ -157,11 +176,114 @@ const Advances = () => {
                 },
             ],
         },
+        {
+            name: "dob",
+            label: "BirthDay",
+            value: customerDetails.dob,
+        },
+        {
+            name: "aniversary",
+            label: "Anniversary",
+            value: customerDetails.aniversary,
+
+
+        }
     ];
-  
+    const headings = [
+        {
+            id: "customerName",
+            name: "Customer Name",
+        },
+        {
+            id: "customerPhoneNumber",
+            name: "Customer Phone",
+
+        },
+        {
+            id: "amount",
+            name: "Amount"
+        },
+        {
+            id: "paymentMethod",
+            name: "Payment Methods"
+        },
+
+        {
+            id: "createdAt",
+            name: "Created At"
+        },
+        {
+            id: "action",
+            name: "Action"
+        }
+
+
+    ];
+    const revenue = useMemo(() => {
+        let total = 0;
+        let count = 0;
+        advances?.forEach((item) => {
+            total += item?.amount;
+            count++;
+        })
+        return { total, count };
+    }, [advances])
+    const banners = [
+        {
+            name: "Advances",
+            value: revenue?.count,
+        },
+        {
+            name: "Total Revenue",
+            value: revenue?.total,
+        },
+    ]
+    const handleExport = () => {
+        if (advances?.length > 0)
+            exportToExcel(advances, "Advances", "Advances.xlsx");
+    };
+
+    const handlePrint = (item) => {
+        navigate("/advanceinvoice", { state: item });
+    };
+    const searchClick = () => {
+        const data = {
+            startDate: startDate,
+            endDate: endDate,
+        };
+        postApiData(
+            "advance/getAdvanceList",
+            data,
+            (resp) => {
+                if (resp) {
+                    const data = resp.map((elm) => {
+                        return {
+                            ...elm,
+                            paymentMethod:elm?.paymentMethod?.filter(el=>el.amount>0).map((item) => item.name).join(" , ")||"",
+                            createdAt: formatDateToFull(elm?.createdAt),
+                            action: <div className="flex items-center">
+                                <button className="bg-green-600 text-white text-xl px-3 py-1 rounded-md" onClick={() => handlePrint(elm)}><IoMdPrint />
+                                </button>
+                            </div>
+
+                        }
+                    })
+                    setAdvances(data);
+
+                }
+
+            },
+            (error) => { }
+        );
+    };
     const handleUpdatePayment = (paymentMethods) => {
         setAdvanceData((prev) => ({ ...prev, paymentMethods }));
     };
+
+
+    useEffect(() => {
+        searchClick();
+    }, [])
 
     return (
         <Layout>
@@ -181,7 +303,7 @@ const Advances = () => {
                             <button
                                 // className={`mx-4 ${isMobileValid ? 'bg-black text-white font-semibold px-3 py-2 cursor-pointer' : 'bg-gray-500 text-white font-semibold px-3 py-2 cursor-not-allowed'}`}
                                 className={`mx-4 bg-black text-white font-semibold px-3 py-2 cursor-pointer`}
-                                onClick={()=>setModalOpen(true)}
+                                onClick={() => setModalOpen(true)}
                             >
                                 <IoMdPersonAdd />
                             </button>
@@ -231,9 +353,9 @@ const Advances = () => {
 
                     />
 
-            
+
                     <button
-                        disabled={ advanceData?.balance === 0}
+                        disabled={advanceData?.balance === 0}
                         className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105"
                         onClick={() => setIsVisible(true)}
                     >
@@ -258,6 +380,48 @@ const Advances = () => {
                         </span>
                     </button>
                 </div>
+                <div className="flex justify-start items-center gap-4">
+                    {banners.map((elm, index) => {
+                        return (
+                            <div className="gradient-container">
+                                <div
+                                    key={index}
+                                    className="flex  flex-col text-[20px] font-normal items-center"
+                                >
+                                    <span className="totalContainer">{elm.name}</span>
+                                    <span className="text-orange-600 font-semibold">
+                                        {elm.value}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="flex gap-9 my-6 items-start justify-center">
+                    <CustomSearchInputFeild
+                        startDate={startDate}
+                        setStartDate={setStartDate}
+                        endDate={endDate}
+                        setEndDate={setEndDate}
+                        submitClick={searchClick}
+                    />
+                    <button
+                        onClick={handleExport}
+                        className="bg-green-600 text-sm mt-auto mb-1 flex items-center justify-center gap-1 font-semibold hover:bg-green-500 text-white rounded-md w-[80px] active:scale-105 transition-all ease-in duration-100"
+                    >
+                        <span>Export</span>
+                        <FaFileExcel />
+                    </button>{" "}
+                </div>
+                {advances?.length > 0 && <div className="my-10 w-[95%] mx-auto ">
+
+                    <CustomTable
+                        rows={advances}
+                        columns={headings}
+                        handlePrint={handlePrint}
+                    />
+
+                </div>}
             </div>
 
 

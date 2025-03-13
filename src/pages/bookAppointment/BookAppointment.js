@@ -38,6 +38,8 @@ const BookAppointment = () => {
     phoneNumber: "",
     email: "",
     gender: "F",
+    dob: new Date(),
+    aniversary: new Date(),
   });
   const [visible, setVisible] = useState(false);
   const [isMobileValid, setIsMobileValid] = useState(false);
@@ -327,7 +329,9 @@ const BookAppointment = () => {
     postApiData(
       "parlor/registerUserForCrm",
       customerDetails,
-      (resp) => {},
+      (resp) => {
+        toast.success("Customer Added Sucessfully");
+      },
       (error) => {}
     );
     closeModal();
@@ -439,7 +443,7 @@ const BookAppointment = () => {
     productStaffid,
     productStaffName
   ) => {
-    if (productQnt === "0" || !productQnt) {
+    if (!productQnt||productQnt === "0") {
       toast.error("Please Enter Quantiy");
 
       return;
@@ -533,6 +537,18 @@ const BookAppointment = () => {
       value: customerDetails.gender,
       options: genderFields,
     },
+    {
+      name: "dob",
+      label: "Birthday",
+      value: customerDetails.dob,
+      placeholder: "Enter Aniversary",
+    },
+    {
+      name: "aniversary",
+      label: "Aniversary",
+      value: customerDetails.aniversary,
+      placeholder: "Enter Aniversary",
+    },
   ];
 
   const servicesOptions = {
@@ -621,7 +637,7 @@ const BookAppointment = () => {
                   {visible && customerDetails.phoneNumber?.length > 0 && (
                     <div
                       style={{}}
-                      className="absolute top-[100px] h-[104px] w-[283px] overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-1"
+                      className="absolute top-[100px] h-[104px] w-[283px] overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-[2]"
                     >
                       {userData.length > 0 &&
                         userData?.map((item, index) => {

@@ -2,6 +2,7 @@ import NormalInput from "../customInput/NormalInput";
 import Modal from "react-modal";
 import NormalSelect from "../customInput/NormalSelect";
 import "./AddCustomerModal.css"
+import CustomDatePicker from "../customInput/CustomDatePicker";
 const AddCustomerModal = ({
   isModalOpen,
   closeModal,
@@ -40,7 +41,16 @@ const AddCustomerModal = ({
               const { name, placeholder, label,value,options } = input;
               return (
                 <div key={index} className="flex  flex-col gap-2">
-                 { !options ?<NormalInput
+                 { (name==="dob"||name==="aniversary")?
+                 <CustomDatePicker
+                    label={label}
+                    name={name}
+                    value={value}
+                    onChange={handleChange}
+                    placeholder={placeholder}
+                 />
+                 :
+                 !options ?<NormalInput
                     placeholder={placeholder}
                     label={label}
                     name={name}
