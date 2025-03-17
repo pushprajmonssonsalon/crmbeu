@@ -33,6 +33,7 @@ const formatDate = (date) => {
 const BookAppointment = () => {
   const [subTotalService, setSubTotalService] = useState(0);
   const [membershipCoin, setMembershipCoin] = useState(0);
+  const [loading, setLoading] = useState(false)
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
     phoneNumber: "",
@@ -88,17 +89,17 @@ const BookAppointment = () => {
         category: "",
         subCategory: "",
         miniSubcategory: "",
-     
-        
-      
+
+
+
       });
       setSubService(null);
       setMiniService(null);
     }
   };
   const membershipPress = (e) => {
-    if(e.target.value)
-    setActiveMemberShip(activemember?.find((elm) => elm._id === e.target.value));
+    if (e.target.value)
+      setActiveMemberShip(activemember?.find((elm) => elm._id === e.target.value));
   };
 
   useEffect(() => {
@@ -130,7 +131,7 @@ const BookAppointment = () => {
     const timeString = selectedTime._d.toString().split(" ")[4];
     setTime(timeString);
   };
-  const handleAmPmChange = (ampm) => {};
+  const handleAmPmChange = (ampm) => { };
 
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
@@ -164,7 +165,7 @@ const BookAppointment = () => {
     staffId: "",
   });
 
-  
+
   useEffect(() => {
     getApiCall(
       "salonService/getServiceCategory",
@@ -172,7 +173,7 @@ const BookAppointment = () => {
       (resp) => {
         setService(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [customerDetails?.gender]);
   // api call for getting subcategory
@@ -187,7 +188,7 @@ const BookAppointment = () => {
       (resp) => {
         setSubService(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.category]);
   const minicatgdata = {
@@ -202,7 +203,7 @@ const BookAppointment = () => {
       (resp) => {
         setMiniService(resp[0]);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.subCategory]);
   useEffect(() => {
@@ -211,7 +212,7 @@ const BookAppointment = () => {
       (res) => {
         setStaffData(res.filter((elm) => elm.isActive));
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.subCategory]);
 
@@ -250,7 +251,7 @@ const BookAppointment = () => {
     const { miniSub, miniSubcategory, ...rest } = serviceSelection;
 
     const selected = {
-    
+
       ...rest,
       miniSubcategory: miniSub,
     };
@@ -332,7 +333,7 @@ const BookAppointment = () => {
       (resp) => {
         toast.success("Customer Added Sucessfully");
       },
-      (error) => {}
+      (error) => { }
     );
     closeModal();
   };
@@ -359,7 +360,7 @@ const BookAppointment = () => {
       (resp) => {
         setShowSearchProduct(resp.products);
       },
-      (error) => {}
+      (error) => { }
     );
   };
   const applyDiscount = () => {
@@ -369,10 +370,7 @@ const BookAppointment = () => {
   };
 
   const applyMemberShip = () => {
-    // console.log(activeMembership)
-    // let credLeft=activeMembership?activeMembership?.creditsLeft>0?activeMembership.creditsLeft:0:0;
-    // let credUsed=Math.min((subtotalPrice ), credLeft || 0);
-    // let remCred=Math.max(credLeft-credUsed,0);
+
     const data = {
       creditsUsed: memberShipStatus
         ? subTotalService
@@ -381,7 +379,8 @@ const BookAppointment = () => {
       memId: activeMembership?._id,
       isMembershipUsed: !memberShipStatus,
     };
-
+    setLoading(true)
+    toast.dismiss();
     postApiData(
       "membership/applyMembership",
       data,
@@ -402,9 +401,12 @@ const BookAppointment = () => {
             setMemberShipStatus(true);
             // setMemberShip(-memberShip)
           }
+          setLoading(false)
         }
       },
       (error) => {
+        setLoading(false)
+
         // alert("Select Correct Options");
         toast.error("Select Correct Options !");
       }
@@ -428,7 +430,7 @@ const BookAppointment = () => {
       (resp) => {
         setUserData(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   };
   const onChangeProdutName = (e) => {
@@ -443,7 +445,7 @@ const BookAppointment = () => {
     productStaffid,
     productStaffName
   ) => {
-    if (!productQnt||productQnt === "0") {
+    if (!productQnt || productQnt === "0") {
       toast.error("Please Enter Quantiy");
 
       return;
@@ -466,7 +468,7 @@ const BookAppointment = () => {
     toast.success("product added succesfully");
   };
 
- 
+
 
   const handlePriceChange = (index, newPrice) => {
     const updatedServices = services.map((item, i) =>
@@ -660,9 +662,8 @@ const BookAppointment = () => {
                 </div>
 
                 <button
-                  className={`mx-4 rounded-md px-3 py-1 text-white ${
-                    isMobileValid ? "add-customer-btn" : "disabled-btn"
-                  }`}
+                  className={`mx-4 rounded-md px-3 py-1 text-white ${isMobileValid ? "add-customer-btn" : "disabled-btn"
+                    }`}
                   onClick={isMobileValid ? openModal : null}
                   disabled={!isMobileValid}
                 >
@@ -991,7 +992,7 @@ const BookAppointment = () => {
               <NormalInput
                 type="number"
                 value={discount}
-               
+
                 lableStyles={{
                   display: "flex",
                   width: "150px",
@@ -1004,7 +1005,7 @@ const BookAppointment = () => {
                 }}
                 label="Apply Discount"
                 onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
-                />
+              />
             </div>
             <button onClick={applyDiscount} className="bg-black">
               Apply Discount
@@ -1031,21 +1032,54 @@ const BookAppointment = () => {
               />
             </div>
 
-            {memberShipStatus ? (
+            {loading ?
               <button
-                onClick={applyMemberShip}
-                className="bg-red-600 hover:bg-red-500"
+                className="w-[136px] flex items-center justify-center bg-black "
               >
-                Remove Membership
+                <span>
+                  <svg
+                    className="animate-spin"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      opacity="0.5"
+                      cx="10"
+                      cy="10"
+                      r="9"
+                      stroke="white"
+                      stroke-width="2"
+                    />
+                    <mask id="path-2-inside-1_2527_20936" fill="white">
+                      <path d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z" />
+                    </mask>
+                    <path
+                      d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z"
+                      stroke="white"
+                      stroke-width="4"
+                      mask="url(#path-2-inside-1_2527_20936)"
+                    />
+                  </svg>
+                </span>
               </button>
-            ) : (
-              <button
-                onClick={applyMemberShip}
-                className="bg-black hover:bg-gray-800"
-              >
-                Apply Membership
-              </button>
-            )}
+              : memberShipStatus ? (
+                <button
+                  onClick={applyMemberShip}
+                  className="bg-red-600 hover:bg-red-500"
+                >
+                  Remove Membership
+                </button>
+              ) : (
+                <button
+                  onClick={applyMemberShip}
+                  className="bg-black hover:bg-gray-800"
+                >
+                  Apply Membership
+                </button>
+              )}
 
             <div className="flex ml-6">
               <h3 className="text-lg font-bold text-black">
@@ -1091,7 +1125,7 @@ const BookAppointment = () => {
         )}
       </div>
 
-    
+
     </Layout>
   );
 };
