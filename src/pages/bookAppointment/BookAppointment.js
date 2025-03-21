@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./BookAppointment.css";
-import { formatValue, getApiCall, postApiData } from "../../utils/services";
+import { formatDateWOYear, formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -39,8 +39,12 @@ const BookAppointment = () => {
     phoneNumber: "",
     email: "",
     gender: "F",
-    dob: new Date(),
-    aniversary: new Date(),
+    'dob-date': "",
+    'dob-month': "",
+    'aniversary-date': "",
+    'aniversary-month': "",
+    dob: '',
+    aniversary: '',
   });
   const [visible, setVisible] = useState(false);
   const [isMobileValid, setIsMobileValid] = useState(false);
@@ -72,13 +76,14 @@ const BookAppointment = () => {
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
   const [services, setServices] = useState(x);
   const navigate = useNavigate();
-
+  
   useEffect(() => {
     setServices(x);
   }, [x]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setCustomerDetails((prev) => ({
       ...prev,
       [name]: value,
@@ -264,9 +269,21 @@ const BookAppointment = () => {
     toast.success("All Service Added!!");
   };
   const handldeBookAppointment = () => {
+    const { name,
+    phoneNumber,
+    email,
+    gender
+   } = customerDetails;
     const data = {
       services: services,
-      customer: customerDetails,
+      customer: {
+        name,
+        phoneNumber,
+        email,
+        gender,
+        dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
+        aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
+      },
       subTotal: subtotalPrice,
       // total: subtotalPrice,
       total: totalProductServicePayable,
@@ -326,10 +343,17 @@ const BookAppointment = () => {
   const deleteProduct = (id) => {
     dispatch(deleteProducts(id));
   };
+
   const handleSubmit = () => {
+    const payload ={
+      ...customerDetails,
+      dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
+      aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
+  
+    }
     postApiData(
       "parlor/registerUserForCrm",
-      customerDetails,
+      payload,
       (resp) => {
         toast.success("Customer Added Sucessfully");
       },
@@ -516,7 +540,7 @@ const BookAppointment = () => {
   const addCustomerFields = [
     {
       name: "name",
-      label: "First Name",
+      label: "Enter Name",
       placeholder: "Enter Name",
       value: customerDetails.name,
     },
@@ -542,13 +566,15 @@ const BookAppointment = () => {
     {
       name: "dob",
       label: "Birthday",
-      value: customerDetails.dob,
+      value1: customerDetails["dob-date"],
+      value2: customerDetails["dob-month"],
       placeholder: "Enter Aniversary",
     },
     {
       name: "aniversary",
       label: "Aniversary",
-      value: customerDetails.aniversary,
+      value1: customerDetails["aniversary-date"],
+      value2: customerDetails["aniversary-month"],
       placeholder: "Enter Aniversary",
     },
   ];

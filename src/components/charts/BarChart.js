@@ -3,9 +3,9 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import "./Chart.css";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const BarChart = ({heading,data}) => {
+const BarChart = ({heading,data,options}) => {
  
-  const options = {
+  const barOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -31,6 +31,7 @@ const BarChart = ({heading,data}) => {
         
       },
     },
+    ...options,
   };
   
   return (
@@ -38,7 +39,7 @@ const BarChart = ({heading,data}) => {
         <h2 className="text-gray-800 text-start text-2xl font-semibold mb-2">{heading}</h2>
 
     <div className="bar" >
-      <Bar data={data} options={options} />
+      <Bar data={data} options={barOptions} />
     </div>
     </div>
   );

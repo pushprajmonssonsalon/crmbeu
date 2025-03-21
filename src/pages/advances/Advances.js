@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Layout from '../../components/Layout';
 import useDebouncer from '../../utils/hooks/useDebouncer';
-import { formatDateToFull, postApiData } from '../../utils/services';
+import { formatDateToFull, formatDateWOYear, postApiData } from '../../utils/services';
 import OrderPaymentPopup from '../../components/popup/OrderPayment';
 import toast from 'react-hot-toast';
 import { IoMdPersonAdd, IoMdPrint } from 'react-icons/io';
@@ -32,8 +32,12 @@ const Advances = () => {
         phoneNumber: "",
         email: "",
         gender: "",
-        dob: new Date(),
-        aniversary: new Date()
+        'dob-date': "",
+        'dob-month': "",
+        'aniversary-date': "",
+        'aniversary-month': "",
+        dob: '',
+        aniversary: '',
     });
     const [advanceData, setAdvanceData] = useState({
         name: "",
@@ -89,8 +93,9 @@ const Advances = () => {
             phoneNumber: customerDetails.phoneNumber,
             email: customerDetails.email,
             gender: customerDetails.gender,
-            dob: customerDetails.dob,
-            aniversary: customerDetails.aniversary
+            dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
+            aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
+        
         };
 
         postApiData(
@@ -178,16 +183,18 @@ const Advances = () => {
         },
         {
             name: "dob",
-            label: "BirthDay",
-            value: customerDetails.dob,
-        },
-        {
+            label: "Birthday",
+            value1: customerDetails["dob-date"],
+            value2: customerDetails["dob-month"],
+            placeholder: "Enter Aniversary",
+          },
+          {
             name: "aniversary",
-            label: "Anniversary",
-            value: customerDetails.aniversary,
-
-
-        }
+            label: "Aniversary",
+            value1: customerDetails["aniversary-date"],
+            value2: customerDetails["aniversary-month"],
+            placeholder: "Enter Aniversary",
+          },
     ];
     const headings = [
         {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AddCustomerModal from "../modals/AddCustomerModal";
 import toast from "react-hot-toast";
-import { getApiCall, postApiData } from "../../utils/services";
+import { formatDateWOYear, getApiCall, postApiData } from "../../utils/services";
 import CheckBox from "../checkbox";
 import OrderPaymentPopup from "../popup/OrderPayment";
 
@@ -16,7 +16,7 @@ const MemComponent = ({
   onPayed,
   onClickBuyNow,
 }) => {
-  
+
   const [isVisible, setIsVisible] = useState(false);
 
   const { heading, actions, banners } = fields;
@@ -36,8 +36,12 @@ const MemComponent = ({
     phoneNumber: "",
     email: "",
     gender: "",
-    dob:new Date(),
-    aniversary:new Date()
+    'dob-date': "",
+    'dob-month': "",
+    'aniversary-date': "",
+    'aniversary-month': "",
+    dob: '',
+    aniversary: '',
   });
 
   const nameOnclick = (item) => {
@@ -66,11 +70,11 @@ const MemComponent = ({
       "user/searchUser",
       data,
       (resp) => {
-        
+
         setUserData(resp);
       },
       (error) => {
-        
+
       }
     );
   };
@@ -112,14 +116,18 @@ const MemComponent = ({
     },
     {
       name: "dob",
-      label: "BirthDay",
-      value: customerDetails?.dob,
+      label: "Birthday",
+      value1: customerDetails["dob-date"],
+      value2: customerDetails["dob-month"],
+      placeholder: "Enter Aniversary",
     },
     {
       name: "aniversary",
       label: "Aniversary",
-      value: customerDetails?.aniversary,
-    }
+      value1: customerDetails["aniversary-date"],
+      value2: customerDetails["aniversary-month"],
+      placeholder: "Enter Aniversary",
+    },
   ];
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -138,15 +146,16 @@ const MemComponent = ({
       phoneNumber: customerDetails.phoneNumber,
       email: customerDetails.email,
       gender: customerDetails.gender,
-      dob:customerDetails.dob,
-      aniversary:customerDetails.aniversary
-    };
+      dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
+      aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
 
+    };
+    
     postApiData(
       "parlor/registerUserForCrm",
       apiData,
       (resp) => {
-        
+
         closeModal();
         setCustomerDetails({
           name: "",
@@ -157,25 +166,25 @@ const MemComponent = ({
         toast.success("User has been created! Please select the user");
       },
       (error) => {
-        
+
       }
     );
   };
   const handleBuy = () => {
-   
-        const data ={
-            selectedStaff,
-            paymentMethods,
-            phoneNumber
-        }
-    const res=  onClickBuyNow(data)
-    
-    if(res){
+
+    const data = {
+      selectedStaff,
+      paymentMethods,
+      phoneNumber
+    }
+    const res = onClickBuyNow(data)
+
+    if (res) {
       setSelectedStaff([]);
       setExpanded(false);
       setPhoneNumber("")
     }
-   
+
   };
 
   useEffect(() => {
@@ -185,7 +194,7 @@ const MemComponent = ({
         setStaffData(res);
       },
       (error) => {
-        
+
       }
     );
   }, []);
@@ -220,12 +229,12 @@ const MemComponent = ({
         <div className="flex   flex-wrap justify-between gap-3 items-center shadow-lg px-4 py-4 rounded-lg bg-[#fffffe] mt-4">
           <div className="relative ">
             <input
-            className="mx-2 py-3 w-[240px] rouded-[10px] outline-none border-2 border-gray-400"
-            type="text"
+              className="mx-2 py-3 w-[240px] rouded-[10px] outline-none border-2 border-gray-400"
+              type="text"
               placeholder="Search by Mobile"
               onChange={handleMobileChange}
               value={phoneNumber}
-             
+
             />
 
             {visible && phoneNumber.length > 0 && (
@@ -258,7 +267,7 @@ const MemComponent = ({
           <select
             className="mx-2 py-3 w-[240px] rouded-[11px] outline-none border-2 border-gray-400"
             onChange={memChange}
-           
+
             // value={memberShipdata[0]?.name}
             value={memValue}
           >
@@ -289,7 +298,7 @@ const MemComponent = ({
           >
             <span
               className="text-white font-medium text-[15px]"
-              // onClick={onClickBuyNow}
+            // onClick={onClickBuyNow}
             >
               Buy Now
             </span>
