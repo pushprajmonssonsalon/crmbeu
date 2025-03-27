@@ -162,8 +162,11 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
                         <td>{item?.size}</td>
                         <td>
                           <input
+                          type="number"
                             className="w-full h-full"
                             value={item?.orderedQuantity}
+                            min={0}
+                            
                             onChange={(e) =>
                               handleQuantityChange(item?.itemId, e.target.value)
                             }

@@ -1,7 +1,8 @@
 import NormalInput from "../customInput/NormalInput";
 import Modal from "react-modal";
 import NormalSelect from "../customInput/NormalSelect";
-import "./AddCustomerModal.css"
+import "./AddCustomerModal.css";
+import CustomDateMonth from "../customInput/CustomDateMonth";
 const AddCustomerModal = ({
   isModalOpen,
   closeModal,
@@ -19,9 +20,9 @@ const AddCustomerModal = ({
         className="w-[70%] lg:w-[50%] relative top-[10%] bottom-[10%]  z-30  mx-auto"
         style={{
           content: {
-          
+
             height: "fit-content",
-         
+
             border: "1px solid #ccc",
             borderRadius: "8px",
             boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
@@ -37,24 +38,36 @@ const AddCustomerModal = ({
           <h1 className="font-bold text-black text-xl">{heading}</h1>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2  gap-2">
             {addCustomerFields.map((input, index) => {
-              const { name, placeholder, label,value,options } = input;
+              const { name, placeholder, label, value, options ,value1,value2} = input;
               return (
                 <div key={index} className="flex  flex-col gap-2">
-                 { !options ?<NormalInput
-                    placeholder={placeholder}
-                    label={label}
-                    name={name}
-                    value={value}
-                    onChange={handleChange}
-                  />
-                  :
-                  <NormalSelect
-                    label={label}
-                    name={name}
-                    value={value}
-                    options={options}
-                    onChange={handleChange}
-                  />}
+                  {(name === "dob" || name === "aniversary") ?
+                    <CustomDateMonth
+                        placeholder={placeholder}
+                      label={label}
+                      name={name}
+                      value1={value1}
+                      value2={value2}
+                      onChange={handleChange}
+                       
+
+                    />
+                    :
+                    !options ? <NormalInput
+                      placeholder={placeholder}
+                      label={label}
+                      name={name}
+                      value={value}
+                      onChange={handleChange}
+                    />
+                      :
+                      <NormalSelect
+                        label={label}
+                        name={name}
+                        value={value}
+                        options={options}
+                        onChange={handleChange}
+                      />}
                 </div>
               );
             })}

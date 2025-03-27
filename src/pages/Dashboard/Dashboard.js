@@ -2,12 +2,73 @@ import { useEffect, useMemo, useState } from "react";
 import BarChart from "../../components/charts/BarChart";
 import DonutChart from "../../components/charts/DonutChart";
 import Layout from "../../components/Layout";
-import { formatValue, postApiData } from "../../utils/services";
+import { formatValue, getApiCall, postApiData } from "../../utils/services";
 import DashboardCard from "../../components/charts/DashboardCards";
 import { MdCurrencyRupee } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
+import EventModal from "../../components/modals/EventModal";
+const backgroundColors = [
+  'rgba(255, 0, 0, 0.9)',     // Dark Red for Birthday This Week
+  'rgba(0, 0, 255, 0.9)',     // Dark Blue for Birthday This Month
+  'rgba(255, 165, 0, 0.9)',   // Dark Orange for Anniversary This Week
+  'rgba(0, 128, 0, 0.9)'      // Dark Green for Anniversary This Month
+];
 
+const borderColors = [
+  'rgba(139, 0, 0, 1)',       // Deep Red
+  'rgba(0, 0, 139, 1)',       // Deep Blue
+  'rgba(255, 140, 0, 1)',     // Dark Orange
+  'rgba(0, 100, 0, 1)'        // Dark Green
+];
+const wishesLabels = [
+  {
+    name: "Birthday This Week",
+    id: "birthdayThisWeekTotal",
+    val: "birthdayThisWeek",
+    type:"dob"
+
+  },
+  {
+    name: "Birthday This Month",
+    id: "birthdayThisMonthTotal",
+    val: "birthdayThisMonth",
+    type:"dob"
+
+  },
+  {
+    name: 'Anniversary This Week',
+    id: "aniversaryThisWeekTotal",
+    val: "aniversaryThisWeek",
+    type:"aniversary",
+
+
+  },
+  {
+    name: 'Anniversary This Month',
+    id: "aniversaryThisMonthTotal",
+    val: "aniversaryThisMonth",
+    type:"aniversary",
+
+  },
+]
 const Dashboard = () => {
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [wishes, setWishes] = useState({
+
+    labels: wishesLabels?.map((item) => item.name),
+    datasets: [
+      {
+        label: 'Count of Events',
+        data: [11, 12, 3, 2],
+        backgroundColor: 'rgba(75,192,192,0.4)', // Light color for the bars
+        borderColor: 'rgba(75,192,192,1)',       // Darker color for the borders
+        borderWidth: 1
+      }
+    ]
+
+  })
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [salonDetails, setSalonDetails] = useState({
     sales: [0, 0, 0, 0],
     appointments: [0, 0],
@@ -64,30 +125,31 @@ const Dashboard = () => {
         },
       ],
     },
-    membership:0
+
+    membership: 0
   });
   const data = {
-    labels: [`Cash : ₹${formatValue(salonDetails?.sales[0])}`, `Card : ₹${formatValue(salonDetails?.sales[1]||0)}`, `App : ₹${formatValue(salonDetails?.sales[2]||0)}`, `Upi : ₹${formatValue(salonDetails?.sales[3]||0)}`,`Pending : ₹${formatValue(salonDetails?.sales[4]||0)}`, `Membership Points : ₹${salonDetails?.sales[5]||0}`],
+    labels: [`Cash : ₹${formatValue(salonDetails?.sales[0])}`, `Card : ₹${formatValue(salonDetails?.sales[1] || 0)}`, `App : ₹${formatValue(salonDetails?.sales[2] || 0)}`, `Upi : ₹${formatValue(salonDetails?.sales[3] || 0)}`, `Pending : ₹${formatValue(salonDetails?.sales[4] || 0)}`, `Membership Points : ₹${salonDetails?.sales[5] || 0}`],
     datasets: [
       {
         label: "sales",
         data: [...formatValue(salonDetails?.sales)],
-      backgroundColor: [
-    'rgba(255, 99, 132, 0.8)', // Red
-    'rgba(54, 162, 235, 0.8)', // Blue
-    'rgba(255, 206, 86, 0.8)', // Yellow
-    'rgba(75, 192, 192, 0.8)', // Teal
-    'rgba(153, 102, 255, 0.8)', // Purple
-    "rgba(255, 140, 0, 1)", // Darker orange
-  ],
-borderColor: [
-    'rgba(255, 99, 132, 1)',
-    'rgba(54, 162, 235, 1)',
-    'rgba(255, 206, 86, 1)',
-    'rgba(75, 192, 192, 1)',
-    "rgba(34, 139, 34, 0.8)", // Darker green
-    'rgba(153, 102, 255, 1)',
-],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.8)', // Red
+          'rgba(54, 162, 235, 0.8)', // Blue
+          'rgba(255, 206, 86, 0.8)', // Yellow
+          'rgba(75, 192, 192, 0.8)', // Teal
+          'rgba(153, 102, 255, 0.8)', // Purple
+          "rgba(255, 140, 0, 1)", // Darker orange
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          "rgba(34, 139, 34, 0.8)", // Darker green
+          'rgba(153, 102, 255, 1)',
+        ],
         borderWidth: 1,
       },
     ],
@@ -124,6 +186,8 @@ borderColor: [
         data: formatValue(salonDetails?.services), // Impression data for services
         backgroundColor: "rgba(54, 162, 235, 0.8)", // Blue bars
         borderRadius: 4,
+        maxBarThickness: 80,  // Set the max bar width (adjust as needed)
+
         borderSkipped: false,
       },
     ],
@@ -137,10 +201,12 @@ borderColor: [
         backgroundColor: "rgba(0, 128, 128, 1)", // Blue bars
         borderRadius: 4,
         borderSkipped: false,
+        maxBarThickness: 80,  // Set the max bar width (adjust as needed)
+
       },
     ],
   };
- 
+
   // Predefined colors
   const predefinedColors = {
     Nail: "rgba(255, 99, 132, 1)",
@@ -167,24 +233,44 @@ borderColor: [
     return predefinedColors[category] || getRandomColor();
   }
 
-  const totalRevenue =useMemo(()=>{
+  const totalRevenue = useMemo(() => {
 
-    return formatValue(salonDetails?.sales.slice(0,-1).reduce((curr,acc)=>curr+acc,0))
-  },[salonDetails.sales])
- 
-  const serviceRevenue =useMemo(()=>{
+    return formatValue(salonDetails?.sales.slice(0, -1).reduce((curr, acc) => curr + acc, 0))
+  }, [salonDetails.sales])
 
-    return formatValue(salonDetails?.services.reduce((curr,acc)=>curr+acc,0))
-  },[salonDetails.services])
-  const productRevenue =useMemo(()=>{
+  const serviceRevenue = useMemo(() => {
 
-    return formatValue(salonDetails?.products.reduce((curr,acc)=>curr+acc,0))
-  },[salonDetails.products])
- 
+    return formatValue(salonDetails?.services.reduce((curr, acc) => curr + acc, 0))
+  }, [salonDetails.services])
+  const productRevenue = useMemo(() => {
+
+    return formatValue(salonDetails?.products.reduce((curr, acc) => curr + acc, 0))
+  }, [salonDetails.products])
+
+  const handleBarClick = (event, elements) => {
+    if (elements.length > 0) {
+      const index = elements[0].index;
+      const key = wishesLabels[index].val;
+      const label = wishesLabels[index].name;
+      const type = wishesLabels[index].type;
+
+      setSelectedEvent({
+        type,
+        key: label,
+        value: events[key]
+      })
+      setShowEventModal(true);
+    }
+  }
+  const options = {
+
+    onClick: (event, elements) => handleBarClick(event, elements), // Attach click event
+
+  };
   useEffect(() => {
     const stDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-01T00:00:00.000Z`;
     // "2024-10-31T18:30:00.000Z"
-                    
+
     const data = {
       startDate: new Date(stDate), // First day of the current month at 00:00:00
       endDate: new Date(), // Current date and time
@@ -205,8 +291,8 @@ borderColor: [
         } = res;
         const payments = paymentMethodReport;
 
-        const salesOrder = ["Cash", "Card", "Online", "Upi","Pending"];
-        const appoOrder = [3, 1,4];
+        const salesOrder = ["Cash", "Card", "Online", "Upi", "Pending"];
+        const appoOrder = [3, 1, 4];
         const services = [];
         const products = [];
         const subsTotal = membershipCreditUsed
@@ -260,6 +346,8 @@ borderColor: [
             backgroundColor: getColorForCategory(category), // Assign unique colors dynamically
             borderRadius: 4,
             borderSkipped: false,
+            maxBarThickness: 80,  // Set the max bar width (adjust as needed)
+
           };
         });
         // Step 4: Combine into empData
@@ -267,7 +355,7 @@ borderColor: [
           labels: employeeNames,
           datasets: datasets,
         };
-        const membershipRev = membershipSale?.length>0?membershipSale[0]?.membershipRevenue:0;
+        const membershipRev = membershipSale?.length > 0 ? membershipSale[0]?.membershipRevenue : 0;
 
 
         setSalonDetails({
@@ -278,52 +366,95 @@ borderColor: [
           productLabels: [...productLabels],
           products: [...products],
           employees,
-          membership:membershipRev
+          membership: membershipRev
         });
       },
-      () => {}
+      () => { }
     );
-  }, []);
-  const chartData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-    datasets: [
-      {
-        data: [50, 70, 100, 80, 90, 120],
-        backgroundColor: "#4CAF50",
-      },
-    ],
-  }
-  const compAppointment =salonDetails?.appointments[0];
+    getApiCall("reports/getBirthdaysAndAniversaries",
+      (res) => {
 
+        const data = wishesLabels.map((item) => res[item.id] ?? 0);
+        setEvents(res);
+
+        setWishes({
+          labels: wishesLabels?.map((item) => item.name),
+          datasets: [
+            {
+              label: 'Count of Events',
+              data: data,
+              backgroundColor: backgroundColors,  // Assigning different colors
+              borderColor: borderColors,
+              borderWidth: 1,
+              borderRadius: 4,
+              borderSkipped: false,
+              maxBarThickness: 80,  // Set the max bar width (adjust as needed)
+
+            }
+          ],
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            onClick: (event, elements) => handleBarClick(event, elements), // Attach click event
+            scales: {
+              x: {
+                barPercentage: 0.5,
+                categoryPercentage: 0.5,
+              },
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        })
+
+
+
+
+
+
+      }, () => { })
+    // getApiCall("reports/getInActiveCustomers",
+    //   (res) => {
+    //   }, () => { }
+    // )
+  }, []);
+
+  const compAppointment = salonDetails?.appointments[0];
+
+  useEffect(() => {
+    console.log(selectedEvent, "selectedEvent")
+  }, [selectedEvent])
+  console.log(selectedEvent, "selectedEvent")
   return (
     <>
       <Layout>
         <div className="mt-32 md:mt-40 mb-16 w-[95%]  xl:w-[90%] mx-auto ">
-        <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 2xl:grid-cols-5 gap-5 mb-6">
-      
-        <div className="w-full">
-        <DashboardCard heading="Total Revenue" value={totalRevenue} icon={<MdCurrencyRupee className="text-green-700 text-[2rem]"/>}/>
+          <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 2xl:grid-cols-5 gap-5 mb-6">
 
-        </div>
-        <div className="w-full">
-        <DashboardCard heading="Appointments" value={compAppointment} icon={<FaUser className="text-blue-400 text-[2rem]"/>} />
+            <div className="w-full">
+              <DashboardCard heading="Total Revenue" value={totalRevenue} icon={<MdCurrencyRupee className="text-green-700 text-[2rem]" />} />
 
-        </div>
-        <div className="w-full">
-        <DashboardCard heading="Services Revenue" value={serviceRevenue} icon={<MdCurrencyRupee className="text-yellow-500 text-[2rem]"/>} />
+            </div>
+            <div className="w-full">
+              <DashboardCard heading="Appointments" value={compAppointment} icon={<FaUser className="text-blue-400 text-[2rem]" />} />
 
-        </div>
-        <div className="w-full">
-        <DashboardCard heading="Products Revenue" value={productRevenue} icon={<MdCurrencyRupee className="text-teal-600 text-[2rem]"/>} />
+            </div>
+            <div className="w-full">
+              <DashboardCard heading="Services Revenue" value={serviceRevenue} icon={<MdCurrencyRupee className="text-yellow-500 text-[2rem]" />} />
 
-        </div>
-        <div className="w-full">
-        <DashboardCard heading="MemberShip Revenue" value={salonDetails?.membership} icon={<MdCurrencyRupee className="text-orange-600 text-[2rem]"/>} />
+            </div>
+            <div className="w-full">
+              <DashboardCard heading="Products Revenue" value={productRevenue} icon={<MdCurrencyRupee className="text-teal-600 text-[2rem]" />} />
 
-        </div>
+            </div>
+            <div className="w-full">
+              <DashboardCard heading="MemberShip Revenue" value={salonDetails?.membership} icon={<MdCurrencyRupee className="text-orange-600 text-[2rem]" />} />
 
-        </div>
-       
+            </div>
+
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 lg:gap-9 mb-9 ">
             <div className=" h-full  border shadow-xl bg-white rounded-[25px] p-5">
               <DonutChart heading={"Total Sales"} data={data} />
@@ -337,18 +468,33 @@ borderColor: [
             <div className="col-span-1 lg:col-span-1 h-full  border shadow-xl bg-white rounded-[25px] p-5">
               <BarChart data={prodData} heading={"Product Distribution"} />
             </div>
-        
+
             <div className="col-span-full h-full  border shadow-xl bg-white rounded-[25px] p-5">
               <BarChart
                 data={salonDetails?.employees}
                 heading={"Employee Distribution"}
               />
             </div>
-        
+            <div className="col-span-full h-full  border shadow-xl bg-white rounded-[25px] p-5">
+              <BarChart
+                options={options}
+                data={wishes}
+                heading={"Birthdays & Anniversarys"}
+              />
+            </div>
+
           </div>
-           
-          </div>
-      
+
+        </div>
+
+        <EventModal
+          show={showEventModal}
+          setShow={setShowEventModal}
+          data={selectedEvent}
+
+
+        />
+
       </Layout>
     </>
   );

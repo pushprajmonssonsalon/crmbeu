@@ -2,7 +2,7 @@ import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
 const BASE_URL = "https://crm.smartsalon.in/";
-// const BASE_URL = "http://192.168.2.49:4002";
+// const BASE_URL = "http://192.168.3.36:4002";
 // const BASE_URL = "http://192.168.2.226:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
@@ -99,6 +99,30 @@ function formatDateToFull(dateString,full=true) {
   }
   return dateString;
 }
+function formatDateMonth(dateString) {
+  if (dateString) {
+    const [datePart] = dateString.split("T");
+    const [year, month, day] = datePart.split("-");
+
+    // Convert month from "08" to "Aug" or any other short form
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const monthShort = monthNames[parseInt(month, 10) - 1];
+
+    // Format the time as "08:34 AM/PM"
+    const formattedDate = `${parseInt(day, 10)} ${monthShort}`;
+
+    // Format the full date as "7 Aug 2024 08:34 AM"
+    return formattedDate;
+  }
+  return dateString;
+}
+const formatDateWOYear = (day, month) => {
+  if (!day || !month) return null; // Handle empty values
+  return new Date(`1970-${month.padStart(2, "0")}-${day.padStart(2, "0")}T00:00:00Z`);
+};
 function formatValue(value){
   if(Array.isArray(value)){
   return  value.map(elm=>formatValue(elm))
@@ -112,4 +136,4 @@ function formatValue(value){
 
   }
 }
-export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue};
+export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear};

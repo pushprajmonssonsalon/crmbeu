@@ -13,10 +13,11 @@ const Edit = () => {
   const navigate = useNavigate();
   //Staff data fiktering
   const [staffData, setStaffData] = useState([]);
- 
+  const [loading,setLoading]=useState(false)
+
   const [appointementProducts, setAppointmentProducts] = useState([]);
   const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
-  
+
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
     subCategory: "",
@@ -40,7 +41,7 @@ const Edit = () => {
   const [productStaff, setProductStaff] = useState({
     staffId: "",
     staffName: "",
-  
+
   });
   const [discount, setDiscount] = useState(0);
   // membership details
@@ -52,9 +53,9 @@ const Edit = () => {
   const [creditUsed, setCreditUsed] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [subServiceTotal, setSubServiceTotal] = useState(0);
-  
 
- 
+
+
 
   // api call for getting service category
   useEffect(() => {
@@ -65,11 +66,11 @@ const Edit = () => {
       "salonService/getServiceCategory",
 
       (resp) => {
-        
+
         setService(resp);
       },
       (error) => {
-        
+
       }
     );
   }, [gender]);
@@ -86,7 +87,7 @@ const Edit = () => {
         setSubService(resp);
       },
       (error) => {
-        
+
       }
     );
   }, [serviceSelection.category]);
@@ -104,7 +105,7 @@ const Edit = () => {
         setMiniService(resp);
       },
       (error) => {
-        
+
       }
     );
   }, [serviceSelection.subCategory]);
@@ -114,10 +115,10 @@ const Edit = () => {
     getApiCall(
       `appointment/getSingleAppointmentDetails?id=${id}`,
       (resp) => {
-        
+
         setDiscount(resp?.discountPercentage || 0);
         setAddedAppointmentDetails(
-          resp.services.map((item) => ({ ...item, staffId: item?.staffId|| "", satffName: item?.satffName|| "" }))
+          resp.services.map((item) => ({ ...item, staffId: item?.staffId || "", satffName: item?.satffName || "" }))
         );
         setAppointmentProducts(resp.products);
         // setMembershipDetails(resp.customer.activeMembership)
@@ -131,56 +132,56 @@ const Edit = () => {
         // setCreditUsed(resp.membershipCreditUsed)
       },
       (error) => {
-        
+
       }
     );
   }, []);
 
-  
+
   // staff get api
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
       (res) => {
-        setStaffData(res?.filter(elm=>elm?.isActive));
+        setStaffData(res?.filter(elm => elm?.isActive));
       },
       (error) => {
-        
+
       }
     );
   }, [serviceSelection.subCategory]);
 
-  useEffect(()=>{
-    if(phoneNumber)
-    postApiData(
-      `/membership/getActiveMembershipOfUser`,
-     {phoneNumber},
-      (resp) => {
-        if (resp) {
-          // 
-          setMembershipDetails(resp[0]?.activeMembership)
-          setUserId(resp[0]?._id)
-          
+  useEffect(() => {
+    if (phoneNumber)
+      postApiData(
+        `/membership/getActiveMembershipOfUser`,
+        { phoneNumber },
+        (resp) => {
+          if (resp) {
+            // 
+            setMembershipDetails(resp[0]?.activeMembership)
+            setUserId(resp[0]?._id)
+
+          }
+        },
+        (error) => {
+
         }
-      },
-      (error) => {
-        
-      }
-    );
-  },[phoneNumber])
+      );
+  }, [phoneNumber])
 
   // handle buttons for add service
   const serviceAddpress = () => {
-    const isAnyEmpty = Object.values(serviceSelection).some(elm=>!elm)
-    if(isAnyEmpty){
-     return toast.error("Please Select All Fields")
+    const isAnyEmpty = Object.values(serviceSelection).some(elm => !elm)
+    if (isAnyEmpty) {
+      return toast.error("Please Select All Fields")
     }
     setAddedAppointmentDetails([...addedAppointmentDetails, serviceSelection]);
-   
+
   };
-  
+
   const handleServiceChange = (e) => {
-    
+
     setServiceSelection({
       ...serviceSelection,
       category: e.target.value,
@@ -188,7 +189,7 @@ const Edit = () => {
     });
   };
   const handleSubCategoryChange = (e) => {
-    
+
     setServiceSelection({
       ...serviceSelection,
       subCategory: e.target.value,
@@ -200,7 +201,7 @@ const Edit = () => {
     // 
     const selectedOption = event.target.options[event.target.selectedIndex];
     const selectedPrice = selectedOption.getAttribute("data-price");
-    
+
     // Now you have the selected price, you can use it as needed
     setServiceSelection({
       ...serviceSelection,
@@ -212,8 +213,8 @@ const Edit = () => {
     let splited = e.target.value.split("-");
     let Name = splited[1];
     let Id = splited[0];
-    
-    
+
+
     if (newService) {
       setServiceSelection({
         ...serviceSelection,
@@ -249,11 +250,11 @@ const Edit = () => {
       "inventory/getSuggestedProductOfSalon",
       data,
       (resp) => {
-        
+
         setShowSearchProduct(resp.products);
       },
       (error) => {
-        
+
       }
     );
   };
@@ -269,17 +270,17 @@ const Edit = () => {
   };
   const addproductPress = (item, productQnt) => {
 
-    if(productQnt===0||!productQnt){
+    if (productQnt === 0 || !productQnt) {
 
       toast.error("Please Select  Quantity")
-      return ;
-      
+      return;
+
     }
-    if(!productStaff.staffId || !productStaff.staffName){
+    if (!productStaff.staffId || !productStaff.staffName) {
 
       toast.error("Please Select Staff")
-      return ;
-      
+      return;
+
     }
     // productQnt,productStaffid
     const itemWithAdditionalInfo = {
@@ -288,20 +289,20 @@ const Edit = () => {
       staffId: productStaff.staffId,
       staffName: productStaff.staffName,
     }; // Adding staffId key
-    
-    
+
+
     setAppointmentProducts((prev) => {
       const index = prev.findIndex((elm) => elm._id === item._id);
-  
+
       if (index !== -1) {
-        return prev.map((elm, i) => 
+        return prev.map((elm, i) =>
           i === index ? itemWithAdditionalInfo : elm
         );
       } else {
         return [...prev, itemWithAdditionalInfo];
       }
     });
-  
+
     // dispatch(EditproductAdded(itemWithAdditionalInfo));
     // setProductData(itemWithAdditionalInfo)
   };
@@ -332,7 +333,7 @@ const Edit = () => {
 
   // handle book appointment
   const handleBookAppointment = () => {
-    
+
 
     const data = {
       services: addedAppointmentDetails,
@@ -355,12 +356,12 @@ const Edit = () => {
       (resp) => {
         if (resp) {
           toast.success("Appointment Booked SuccessFully");
-          
+
           navigate(-1);
         }
       },
       (error) => {
-        
+
       }
     );
   };
@@ -374,14 +375,14 @@ const Edit = () => {
       isMembershipUsed: !memberShipStatus,
     };
     // 
-    
+   setLoading(true)
 
     postApiData(
       "membership/applyMembership",
       data,
       (resp) => {
         if (resp) {
-          
+
           if (memberShipStatus) {
             setMembershipCoin(resp?.creditsLeft);
             setMemberShipStatus(false);
@@ -395,9 +396,10 @@ const Edit = () => {
             setMemberShipStatus(true);
           }
         }
+        setLoading(false)
       },
       (error) => {
-        
+        setLoading(false)
         alert("Select Correct Options");
       }
     );
@@ -405,7 +407,7 @@ const Edit = () => {
   const arr = membershipDetails?.filter(
     (item) => item?._id === filterMembershipId
   );
-  
+
 
   const subTotalServices = addedAppointmentDetails.reduce(
     (acc, item) => acc + +item?.price,
@@ -427,13 +429,13 @@ const Edit = () => {
     setMemberShipId(e.target.value);
   };
 
-  
+
   const handlePriceChange = (index, newPrice) => {
     const updatedAppointments = [...addedAppointmentDetails];
-    updatedAppointments[index].price =+ newPrice;
+    updatedAppointments[index].price = + newPrice;
     setAddedAppointmentDetails(updatedAppointments);
   };
-  
+
 
   return (
     <Layout>
@@ -513,52 +515,52 @@ const Edit = () => {
                 <tbody>
                   {addedAppointmentDetails?.length > 0
                     ? addedAppointmentDetails.map((item, index) => (
-                        <tr key={index} className="bg-white">
-                          <td>{item?.miniSubcategory || item?.name}</td>
-                          <td>{item?.category}</td>
-                          <td>{item?.subCategory}</td>
-                          <td>
-                           
+                      <tr key={index} className="bg-white">
+                        <td>{item?.miniSubcategory || item?.name}</td>
+                        <td>{item?.category}</td>
+                        <td>{item?.subCategory}</td>
+                        <td>
 
-                            <select
-                              className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-                              onChange={(e) =>
-                                handlestaffChange(e, index, false)
-                              }
-                              // value={item.staffId}
-                              value={`${item.staffId}-${item.satffName}`}
-                            >
-                              <option className="bg-white">Select Staff</option>
-                              {staffData?.map((elm) => (
-                                <option
-                                  key={elm._id}
-                                  value={`${elm._id}-${elm.name}`}
-                                  //  value={`${item._id}`}
-                                  className="border-none shadow-lg rounded-lg bg-white "
-                                >
-                                  {elm.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          {/* <td>{item?.price}</td> */}
-                          <td>
-                            <input
-                              type="number"
-                              value={item.price}
-                              onChange={(e) =>
-                                handlePriceChange(index, e.target.value)
-                              }
-                            />
-                          </td>
-                          <td>
-                            <MdDeleteOutline
-                              onClick={() => deleteEditService(index)}
-                              className="text-xl text-red-600 font-bold cursor-pointer"
-                            />
-                          </td>
-                        </tr>
-                      ))
+
+                          <select
+                            className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
+                            onChange={(e) =>
+                              handlestaffChange(e, index, false)
+                            }
+                            // value={item.staffId}
+                            value={`${item.staffId}-${item.satffName}`}
+                          >
+                            <option className="bg-white">Select Staff</option>
+                            {staffData?.map((elm) => (
+                              <option
+                                key={elm._id}
+                                value={`${elm._id}-${elm.name}`}
+                                //  value={`${item._id}`}
+                                className="border-none shadow-lg rounded-lg bg-white "
+                              >
+                                {elm.name}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        {/* <td>{item?.price}</td> */}
+                        <td>
+                          <input
+                            type="number"
+                            value={item.price}
+                            onChange={(e) =>
+                              handlePriceChange(index, e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <MdDeleteOutline
+                            onClick={() => deleteEditService(index)}
+                            className="text-xl text-red-600 font-bold cursor-pointer"
+                          />
+                        </td>
+                      </tr>
+                    ))
                     : ""}
                 </tbody>
               </table>
@@ -740,7 +742,7 @@ const Edit = () => {
                   className="absolute  shadow-xl bg-white top-16 h-[104px] w-[450px] overflow-auto"
                 >
                   {showSearchProduct?.map((item) => {
-                    
+
                     return (
                       <div
                         style={{ display: "flex" }}
@@ -791,13 +793,13 @@ const Edit = () => {
                           <td>
                             {" "}
                             <select
-                            
+
                               onChange={(e) =>
-                                    setProductStaff({
-                                      staffId: e.target.value.split("-")[0],
-                                      staffName: e.target.value.split("-")[1],
-                                    })
-                                  }
+                                setProductStaff({
+                                  staffId: e.target.value.split("-")[0],
+                                  staffName: e.target.value.split("-")[1],
+                                })
+                              }
                               value={`${productStaff.staffId}-${productStaff.staffName}`}
                             >
                               <option >
@@ -808,7 +810,7 @@ const Edit = () => {
                                   key={item._id}
                                   value={`${item._id}-${item.name}`}
                                   style={{ width: "300px" }}
-                               
+
                                 >
                                   {item.name}
                                 </option>
@@ -858,26 +860,26 @@ const Edit = () => {
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
               <div className="flex justify-start gap-3 items-center">
-              <div className="flex items-center">
-              <NormalInput
-                type="number"
-                value={discount}
-               
-                lableStyles={{
-                  display: "flex",
-                  width: "150px",
-                  color: "#535b61",
-                  fontWeight: "medium",
-                  fontSize: "1.15rem",
-                }}
-                inputStyles={{
-                  width: "200px",
-                }}
-                label="Apply Discount"
-                onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
-                />
-            </div>
-             
+                <div className="flex items-center">
+                  <NormalInput
+                    type="number"
+                    value={discount}
+
+                    lableStyles={{
+                      display: "flex",
+                      width: "150px",
+                      color: "#535b61",
+                      fontWeight: "medium",
+                      fontSize: "1.15rem",
+                    }}
+                    inputStyles={{
+                      width: "200px",
+                    }}
+                    label="Apply Discount"
+                    onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
+                  />
+                </div>
+
                 <button
                   //    onClick={applyDiscount}
                   className="bg-black"
@@ -890,37 +892,70 @@ const Edit = () => {
                 <div className="flex items-center gap-3 justify-center">
                   <h1 className="text-lg font-semibold">Membership</h1>
                   <NormalSelect
-                inputStyles={{
-                  width: "300px",
-                }}
-                name="membership"
-                onChange={membershipPress}
-                options={membershipDetails?.map((item) => ({
-                  name: `${item.name}-${item.creditsLeft}`,
-                  value: item._id,
-                }))}
-                disabled={memberShipStatus ? true : false}
-              />
-                 
+                    inputStyles={{
+                      width: "300px",
+                    }}
+                    name="membership"
+                    onChange={membershipPress}
+                    options={membershipDetails?.map((item) => ({
+                      name: `${item.name}-${item.creditsLeft}`,
+                      value: item._id,
+                    }))}
+                    disabled={memberShipStatus ? true : false}
+                  />
+
                 </div>
 
                 {/* Membership Button */}
 
-                {memberShipStatus ? (
+                {loading ?
                   <button
-                    onClick={applyMemberShip}
-                    className="bg-red-600 hover:bg-red-500"
+                    className="w-[136px] flex items-center justify-center bg-black "
                   >
-                    Remove Membership
+                    <span>
+                      <svg
+                        className="animate-spin"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle
+                          opacity="0.5"
+                          cx="10"
+                          cy="10"
+                          r="9"
+                          stroke="white"
+                          stroke-width="2"
+                        />
+                        <mask id="path-2-inside-1_2527_20936" fill="white">
+                          <path d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z" />
+                        </mask>
+                        <path
+                          d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z"
+                          stroke="white"
+                          stroke-width="4"
+                          mask="url(#path-2-inside-1_2527_20936)"
+                        />
+                      </svg>
+                    </span>
                   </button>
-                ) : (
-                  <button
-                    onClick={applyMemberShip}
-                    className="bg-black hover:bg-gray-800"
-                  >
-                    Apply Membership
-                  </button>
-                )}
+                  : memberShipStatus ? (
+                    <button
+                      onClick={applyMemberShip}
+                      className="bg-red-600 hover:bg-red-500"
+                    >
+                      Remove Membership
+                    </button>
+                  ) : (
+                    <button
+                      onClick={applyMemberShip}
+                      className="bg-black hover:bg-gray-800"
+                    >
+                      Apply Membership
+                    </button>
+                  )}
 
                 <div className="flex ml-6">
                   <h3 className="text-lg font-bold text-black">

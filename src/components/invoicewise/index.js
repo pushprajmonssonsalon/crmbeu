@@ -121,7 +121,7 @@ const InvoiceWise = () => {
           Invoice wise collection
         </h1>
         <div className="flex justify-end items-start mr-5">
-          <button onClick={onDownload} className="w-[100px]">
+          <button onClick={onDownload} className="bg-green-500 text-white rounded-xl px-6 h-[50px]">
             {" "}
             Export excel{" "}
           </button>

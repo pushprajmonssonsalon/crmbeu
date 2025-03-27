@@ -41,8 +41,17 @@ const AppointmentBills = () => {
 
     return formattedDate;
   }
-  const memberShipDataused = data?.membershipCreditUsed;
-  const paymentMethodsValue = data?.paymentMethod;
+  const otherMethod =[
+    {
+      name: "Membership Used",
+      amount: data?.membershipCreditUsed||0,
+    },
+    {
+      name: "Advance Used",
+      amount: data?.advanceUsed||0,
+    },
+  ]
+  const paymentMethodsValue = [...data?.paymentMethod,...otherMethod]?.filter((item) => item.amount > 0);
   const currentDate = new Date();
   const formattedDate = currentDate.toDateString();
 
@@ -390,7 +399,7 @@ const AppointmentBills = () => {
           <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
             PAYMENT DETAILS
           </h1>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 mb-3">
             <div className="text-black font-medium">Net Payable Amount:</div>
             <div className="text-black font-medium text-right">
               Rs {totalPayableAmount}
@@ -436,7 +445,7 @@ const AppointmentBills = () => {
           handlePrint(null, () => contentToPrint.current);
           // handleChange(contentToPrint.current);
         }}
-        className="w-full my-4"
+        className="w-full bg-green-600 text-white my-4"
       >
         PRINT
       </button>

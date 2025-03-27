@@ -89,7 +89,7 @@ export default function CustomizedCustomerTables({headings,data}) {
               <StyledTableCell>{item.total}</StyledTableCell>
               <StyledTableCell style={{ color: item.status === 1 ? 'blue' : item.status === 2 ? 'red' : 'green',fontWeight:700,fontSize:"18px" }}>{item.status ==1 ? "pending" : item.status == 2? "cancelled" : "completed"}</StyledTableCell>
               <StyledTableCell >{item?.membershipCreditUsed}</StyledTableCell>
-              <StyledTableCell ><button onClick={()=>handlePrint(item)}><MdPrint />
+              <StyledTableCell ><button className='bg-green-600 text-white p-2 rounded-lg' onClick={()=>handlePrint(item)}><MdPrint />
 </button></StyledTableCell>
             </StyledTableRow>
           ))}

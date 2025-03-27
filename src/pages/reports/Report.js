@@ -125,19 +125,6 @@ const Report = () => {
     );
   };
 
-  // useEffect(()=>{
-  //   getApiCall("",
-  //     (resp)=>{
-  //       setWholeCustomerRevenue(resp)
-  //     }
-  //   )
-  //   getApiCall("",
-  //     (resp)=>{
-  //       setNewCustomerRevenue(resp)
-  //     }
-  //   )
-  // },[])
-
   const credits = membershipCredit?.length > 0 && membershipCredit[0]?.membershipCreditUsed;
 
 
@@ -172,7 +159,7 @@ const Report = () => {
     <Layout>
       <div className="mt-32 w-[90%] mx-auto mb-20">
         <div>
-          <button onClick={() => toPDF()}>Download PDF</button>
+          <button className="bg-green-500 text-white rounded-xl px-6 h-[50px]" onClick={() => toPDF()}>Download PDF</button>
         </div>
         <div className="w-full flex justify-evenly my-5 items-center">
           <div className="w-1/4 h-[180px] shadow-xl  rounded-xl bg-orange-300 flex flex-col justify-center items-stretch gap-y-5 p-2">

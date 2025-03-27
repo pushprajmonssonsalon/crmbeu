@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./BookAppointment.css";
-import { formatValue, getApiCall, postApiData } from "../../utils/services";
+import { formatDateWOYear, formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -18,7 +18,6 @@ import "rc-time-picker/assets/index.css";
 import Layout from "../../components/Layout";
 import moment from "moment";
 import { useNavigate } from "react-router";
-import CustomAlert from "../../components/customAlert";
 import { toast } from "react-hot-toast";
 import { IoMdPersonAdd } from "react-icons/io";
 import NormalRadio from "../../components/customInput/NormalRadio";
@@ -34,21 +33,23 @@ const formatDate = (date) => {
 const BookAppointment = () => {
   const [subTotalService, setSubTotalService] = useState(0);
   const [membershipCoin, setMembershipCoin] = useState(0);
+  const [loading, setLoading] = useState(false)
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
     phoneNumber: "",
     email: "",
     gender: "F",
+    'dob-date': "",
+    'dob-month': "",
+    'aniversary-date': "",
+    'aniversary-month': "",
+    dob: '',
+    aniversary: '',
   });
-
-  const [isMembershipUsed, setIsMembershipUsed] = useState(true);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
   const [visible, setVisible] = useState(false);
   const [isMobileValid, setIsMobileValid] = useState(false);
   const [userData, setUserData] = useState([]);
   const [date, setDate] = useState(formatDate(new Date()));
-  const [showAddButton, setShowAddButton] = useState(true);
 
   const [service, setService] = useState([]);
   const [subservice, setSubService] = useState([]);
@@ -62,7 +63,7 @@ const BookAppointment = () => {
   const [discount, setDiscount] = useState(0);
   const [membershipitem, setMemberShipItem] = useState(null);
   const [userId, setUserId] = useState("");
-  const [memberShipId, setMemberShipId] = useState("");
+  const [activeMembership, setActiveMemberShip] = useState({});
   const [memberShipStatus, setMemberShipStatus] = useState(false);
   // product table state
   const activemember = membershipitem?.activeMembership;
@@ -75,13 +76,14 @@ const BookAppointment = () => {
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
   const [services, setServices] = useState(x);
   const navigate = useNavigate();
-
+  
   useEffect(() => {
     setServices(x);
   }, [x]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setCustomerDetails((prev) => ({
       ...prev,
       [name]: value,
@@ -92,17 +94,17 @@ const BookAppointment = () => {
         category: "",
         subCategory: "",
         miniSubcategory: "",
-     
-        
-      
+
+
+
       });
       setSubService(null);
       setMiniService(null);
     }
   };
   const membershipPress = (e) => {
-    const selectedMembership = e.target.value;
-    setMemberShipId(e.target.value);
+    if (e.target.value)
+      setActiveMemberShip(activemember?.find((elm) => elm._id === e.target.value));
   };
 
   useEffect(() => {
@@ -134,7 +136,7 @@ const BookAppointment = () => {
     const timeString = selectedTime._d.toString().split(" ")[4];
     setTime(timeString);
   };
-  const handleAmPmChange = (ampm) => {};
+  const handleAmPmChange = (ampm) => { };
 
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
@@ -168,19 +170,7 @@ const BookAppointment = () => {
     staffId: "",
   });
 
-  const isServiceSelectionValid = () => {
-    for (const key in serviceSelection) {
-      if (serviceSelection[key] === "") {
-        return false; // If any field is empty, return false
-      }
-    }
-    return true; // All fields are filled, return true
-  };
 
-  // const data = {
-  //   gender: gender,
-  // };
-  // api call for getting service category
   useEffect(() => {
     getApiCall(
       "salonService/getServiceCategory",
@@ -188,7 +178,7 @@ const BookAppointment = () => {
       (resp) => {
         setService(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [customerDetails?.gender]);
   // api call for getting subcategory
@@ -203,7 +193,7 @@ const BookAppointment = () => {
       (resp) => {
         setSubService(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.category]);
   const minicatgdata = {
@@ -218,7 +208,7 @@ const BookAppointment = () => {
       (resp) => {
         setMiniService(resp[0]);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.subCategory]);
   useEffect(() => {
@@ -227,7 +217,7 @@ const BookAppointment = () => {
       (res) => {
         setStaffData(res.filter((elm) => elm.isActive));
       },
-      (error) => {}
+      (error) => { }
     );
   }, [serviceSelection.subCategory]);
 
@@ -266,7 +256,7 @@ const BookAppointment = () => {
     const { miniSub, miniSubcategory, ...rest } = serviceSelection;
 
     const selected = {
-    
+
       ...rest,
       miniSubcategory: miniSub,
     };
@@ -279,9 +269,21 @@ const BookAppointment = () => {
     toast.success("All Service Added!!");
   };
   const handldeBookAppointment = () => {
+    const { name,
+    phoneNumber,
+    email,
+    gender
+   } = customerDetails;
     const data = {
       services: services,
-      customer: customerDetails,
+      customer: {
+        name,
+        phoneNumber,
+        email,
+        gender,
+        dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
+        aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
+      },
       subTotal: subtotalPrice,
       // total: subtotalPrice,
       total: totalProductServicePayable,
@@ -292,7 +294,7 @@ const BookAppointment = () => {
       products: productDataReducer,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
-      membershipId: memberShipId,
+      membershipId: activeMembership?._id,
     };
     // if (serviceDataReducerLength > 0) {
     postApiData(
@@ -341,12 +343,21 @@ const BookAppointment = () => {
   const deleteProduct = (id) => {
     dispatch(deleteProducts(id));
   };
+
   const handleSubmit = () => {
+    const payload ={
+      ...customerDetails,
+      dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
+      aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
+  
+    }
     postApiData(
       "parlor/registerUserForCrm",
-      customerDetails,
-      (resp) => {},
-      (error) => {}
+      payload,
+      (resp) => {
+        toast.success("Customer Added Sucessfully");
+      },
+      (error) => { }
     );
     closeModal();
   };
@@ -373,7 +384,7 @@ const BookAppointment = () => {
       (resp) => {
         setShowSearchProduct(resp.products);
       },
-      (error) => {}
+      (error) => { }
     );
   };
   const applyDiscount = () => {
@@ -383,15 +394,17 @@ const BookAppointment = () => {
   };
 
   const applyMemberShip = () => {
+
     const data = {
       creditsUsed: memberShipStatus
         ? subTotalService
         : subtotalPrice - countdiscount,
       userId: userId,
-      memId: memberShipId,
+      memId: activeMembership?._id,
       isMembershipUsed: !memberShipStatus,
     };
-
+    setLoading(true)
+    toast.dismiss();
     postApiData(
       "membership/applyMembership",
       data,
@@ -403,7 +416,6 @@ const BookAppointment = () => {
             // setMemberShip(-memberShip)
             // setSubTotalService(subtotalPrice)
             setSubTotalService(resp.creditsUsed - resp.remainingAmount);
-            setIsMembershipUsed(true);
             toast.error("MemberShip Removed sucessfully");
           } else {
             // alert("MemberShip Applied sucessfully");
@@ -411,12 +423,14 @@ const BookAppointment = () => {
             setMembershipCoin(resp?.creditsLeft);
             setSubTotalService(resp.creditsUsed - resp.remainingAmount);
             setMemberShipStatus(true);
-            setIsMembershipUsed(false);
             // setMemberShip(-memberShip)
           }
+          setLoading(false)
         }
       },
       (error) => {
+        setLoading(false)
+
         // alert("Select Correct Options");
         toast.error("Select Correct Options !");
       }
@@ -440,7 +454,7 @@ const BookAppointment = () => {
       (resp) => {
         setUserData(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   };
   const onChangeProdutName = (e) => {
@@ -455,7 +469,7 @@ const BookAppointment = () => {
     productStaffid,
     productStaffName
   ) => {
-    if (productQnt === "0" || !productQnt) {
+    if (!productQnt || productQnt === "0") {
       toast.error("Please Enter Quantiy");
 
       return;
@@ -478,11 +492,7 @@ const BookAppointment = () => {
     toast.success("product added succesfully");
   };
 
-  // Function to format the date as "dd-mm-yyyy"
 
-  const handleAlertClose = () => {
-    setAlertVisible(false);
-  };
 
   const handlePriceChange = (index, newPrice) => {
     const updatedServices = services.map((item, i) =>
@@ -530,7 +540,7 @@ const BookAppointment = () => {
   const addCustomerFields = [
     {
       name: "name",
-      label: "First Name",
+      label: "Enter Name",
       placeholder: "Enter Name",
       value: customerDetails.name,
     },
@@ -552,6 +562,20 @@ const BookAppointment = () => {
       label: "Gender",
       value: customerDetails.gender,
       options: genderFields,
+    },
+    {
+      name: "dob",
+      label: "Birthday",
+      value1: customerDetails["dob-date"],
+      value2: customerDetails["dob-month"],
+      placeholder: "Enter Aniversary",
+    },
+    {
+      name: "aniversary",
+      label: "Aniversary",
+      value1: customerDetails["aniversary-date"],
+      value2: customerDetails["aniversary-month"],
+      placeholder: "Enter Aniversary",
     },
   ];
 
@@ -597,7 +621,7 @@ const BookAppointment = () => {
           <h1 className="text-green-600  font-semibold text-lg">
             Select Gender :{" "}
           </h1>
-          <div className="flex items-center justify-center">
+          <div className="flex items-center gap-6 justify-center">
             {genderFields.map((elm, index) => {
               return (
                 <NormalRadio
@@ -641,7 +665,7 @@ const BookAppointment = () => {
                   {visible && customerDetails.phoneNumber?.length > 0 && (
                     <div
                       style={{}}
-                      className="absolute top-[100px] h-[104px] w-[283px] overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-1"
+                      className="absolute top-[100px] h-[104px] w-[283px] overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-[2]"
                     >
                       {userData.length > 0 &&
                         userData?.map((item, index) => {
@@ -664,9 +688,8 @@ const BookAppointment = () => {
                 </div>
 
                 <button
-                  className={`mx-4 ${
-                    isMobileValid ? "add-customer-btn" : "disabled-btn"
-                  }`}
+                  className={`mx-4 rounded-md px-3 py-1 text-white ${isMobileValid ? "add-customer-btn" : "disabled-btn"
+                    }`}
                   onClick={isMobileValid ? openModal : null}
                   disabled={!isMobileValid}
                 >
@@ -682,13 +705,7 @@ const BookAppointment = () => {
                   heading={"Add Customer Appointment"}
                 />
 
-                {!showAddButton && (
-                  <div className="suggestions">
-                    <div>Suggestion 1</div>
-                    <div>Suggestion 2</div>
-                    <div>Suggestion 3</div>
-                  </div>
-                )}
+
                 <div className="">
                   <div className="flex flex-col gap-3">
                     <NormalInput
@@ -1001,7 +1018,7 @@ const BookAppointment = () => {
               <NormalInput
                 type="number"
                 value={discount}
-               
+
                 lableStyles={{
                   display: "flex",
                   width: "150px",
@@ -1014,7 +1031,7 @@ const BookAppointment = () => {
                 }}
                 label="Apply Discount"
                 onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
-                />
+              />
             </div>
             <button onClick={applyDiscount} className="bg-black">
               Apply Discount
@@ -1031,6 +1048,7 @@ const BookAppointment = () => {
                   width: "300px",
                 }}
                 name="membership"
+                value={activeMembership?._id}
                 onChange={membershipPress}
                 options={activemember?.map((item) => ({
                   name: `${item.name}-${item.creditsLeft}`,
@@ -1040,21 +1058,54 @@ const BookAppointment = () => {
               />
             </div>
 
-            {memberShipStatus ? (
+            {loading ?
               <button
-                onClick={applyMemberShip}
-                className="bg-red-600 hover:bg-red-500"
+                className="w-[136px] flex items-center justify-center bg-black "
               >
-                Remove Membership
+                <span>
+                  <svg
+                    className="animate-spin"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      opacity="0.5"
+                      cx="10"
+                      cy="10"
+                      r="9"
+                      stroke="white"
+                      stroke-width="2"
+                    />
+                    <mask id="path-2-inside-1_2527_20936" fill="white">
+                      <path d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z" />
+                    </mask>
+                    <path
+                      d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z"
+                      stroke="white"
+                      stroke-width="4"
+                      mask="url(#path-2-inside-1_2527_20936)"
+                    />
+                  </svg>
+                </span>
               </button>
-            ) : (
-              <button
-                onClick={applyMemberShip}
-                className="bg-black hover:bg-gray-800"
-              >
-                Apply Membership
-              </button>
-            )}
+              : memberShipStatus ? (
+                <button
+                  onClick={applyMemberShip}
+                  className="bg-red-600 hover:bg-red-500"
+                >
+                  Remove Membership
+                </button>
+              ) : (
+                <button
+                  onClick={applyMemberShip}
+                  className="bg-black hover:bg-gray-800"
+                >
+                  Apply Membership
+                </button>
+              )}
 
             <div className="flex ml-6">
               <h3 className="text-lg font-bold text-black">
@@ -1100,9 +1151,7 @@ const BookAppointment = () => {
         )}
       </div>
 
-      {alertVisible && (
-        <CustomAlert message={alertMessage} onClose={handleAlertClose} />
-      )}
+
     </Layout>
   );
 };
