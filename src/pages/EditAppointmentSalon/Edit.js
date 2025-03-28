@@ -438,7 +438,7 @@ const Edit = () => {
 
 
   return (
-    <Layout>
+    <>
       <div className="my-40">
         {/* Services Table section*/}
         <div
@@ -1037,7 +1037,7 @@ const Edit = () => {
           </button>
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 

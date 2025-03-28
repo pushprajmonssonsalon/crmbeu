@@ -90,7 +90,7 @@ const Revenue = () => {
     "Membership Revenue",
   ];
   return (
-    <Layout>
+    <>
       <div className="mt-32 mb-9 flex items-center justify-center gap-9">
         <CustomSearchInputFeild
           startDate={startDate}
@@ -135,7 +135,7 @@ const Revenue = () => {
           </TableBody>
         </Table>
       </TableContainer>
-    </Layout>
+      </>
   );
 };
 

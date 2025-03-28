@@ -53,7 +53,7 @@ const Notification = () => {
     },
   ];
   return (
-    <Layout>
+    <>
       <div className="mt-48 shadow-md xl:mt-32 w-[95%] mx-auto">
         <div className="flex border border-b-0 border-gray-300/75  bg-gray-300 p-3 rounded-t-lg  text-black items-center gap-3 ">
           <IoIosNotifications size={25} />
@@ -148,7 +148,7 @@ const Notification = () => {
         </div>
         <div className="bg-gray-300 p-4 w-full rounder-b-lg "></div>
       </div>
-    </Layout>
+    </>
   );
 };
 

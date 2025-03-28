@@ -2,34 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* echo ref: refs/heads/main >.git/HEAD */
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Stardos+Stencil:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
-
+body{
+  font-family: "REM", sans-serif;
+}
 .stardos-stencil-bold {
-    font-family: "Stardos Stencil", system-ui;
-    font-weight: 700;
-    font-style: normal;
-  }
+  font-family: "REM", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
 
-  .roboto-regular {
-    font-family: "Roboto", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-  }
-  .rc-time-picker-input{
-    z-index: 1!important;
-  }
-  /* Hide scrollbar for Chrome, Safari and Opera */
+.roboto-regular {
+  font-family: "REM", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+.rc-time-picker-input {
+  z-index: 1 !important;
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
+.custom-btn{
+border-radius: 16px;
+background: #009699;
+  
+}
 /* Hide scrollbar for IE, Edge and Firefox */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
-

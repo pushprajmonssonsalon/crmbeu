@@ -23,14 +23,14 @@ const DashboardCard = ({ heading ,value ,icon}) => {
   return (
     <>
      
-      <div className="border shadow-lg bg-white rounded-xl p-6 flex flex-col gap-4">
-      <h3 className="text-lg font-semibold text-gray-700">{heading}</h3>
-      <div className="flex items-center justify-between">
+      <div className="border shadow-card bg-white rounded-[10px] px-[37px] py-[15px] flex flex-col gap-4">
+      <h3 className="text-sm text-center font-roboto font-bold 2xl:text-md text-heading">{heading}</h3>
+      <div className="flex items-center justify-center">
         {/* Revenue Value */}
-        <span className="text-3xl font-bold text-blue-600"> {value} </span>
+      {icon&&  <span>{React.cloneElement(icon)}</span>}
+        <span className="text-xl font-bold text-customPurple "> {value} </span>
         {/* Percentage Increase with Icon */}
         <div className="flex items-center justify-center ">
-        {React.cloneElement(icon)}
 
         </div>
 

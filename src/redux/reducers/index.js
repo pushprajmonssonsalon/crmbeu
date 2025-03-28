@@ -162,7 +162,7 @@ export const UpadateProductReducer = (state = UpdateproductDataIntialState, acti
 };
 
 const SiderbarReducerIntialState = {
-  open:true,
+  open:false,
   openAccordion:false
 };
 export const SidebarReducer =(state=SiderbarReducerIntialState,action)=>{

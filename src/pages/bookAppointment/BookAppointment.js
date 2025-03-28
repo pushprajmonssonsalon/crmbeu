@@ -15,7 +15,6 @@ import { MdDeleteOutline } from "react-icons/md";
 import TimePicker from "rc-time-picker";
 import { FaSearch } from "react-icons/fa";
 import "rc-time-picker/assets/index.css";
-import Layout from "../../components/Layout";
 import moment from "moment";
 import { useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
@@ -24,6 +23,7 @@ import NormalRadio from "../../components/customInput/NormalRadio";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import AddCustomerModal from "../../components/modals/AddCustomerModal";
+import useDebouncer from "../../utils/hooks/useDebouncer";
 const formatDate = (date) => {
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // January is 0!
@@ -34,6 +34,7 @@ const BookAppointment = () => {
   const [subTotalService, setSubTotalService] = useState(0);
   const [membershipCoin, setMembershipCoin] = useState(0);
   const [loading, setLoading] = useState(false)
+  const { debouncedFunction } = useDebouncer()
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
     phoneNumber: "",
@@ -46,6 +47,12 @@ const BookAppointment = () => {
     dob: '',
     aniversary: '',
   });
+  const [appointmentDetails, setAppointmentDetails] = useState({
+
+    date: formatDate(new Date()),
+    time: ''
+
+  })
   const [visible, setVisible] = useState(false);
   const [isMobileValid, setIsMobileValid] = useState(false);
   const [userData, setUserData] = useState([]);
@@ -76,31 +83,57 @@ const BookAppointment = () => {
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
   const [services, setServices] = useState(x);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     setServices(x);
   }, [x]);
+  const custFields = [
+    "name",
+    'phoneNumber',
+    'email',
+    'gender',
+    'dob-date',
+    'dob-month',
+    'aniversary-date',
+    'aniversary-month',
+    'dob',
+    'aniversary']
+  const appFields = [
+    "date",
+    "time"
 
+  ]
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setCustomerDetails((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (name === "gender") {
-      setServiceSelection({
-        ...serviceSelection,
-        category: "",
-        subCategory: "",
-        miniSubcategory: "",
+    if (appFields.includes(name)) {
 
-
-
-      });
-      setSubService(null);
-      setMiniService(null);
+      setAppointmentDetails((prev) => ({
+        ...prev,
+        [name]: value
+      }))
     }
+    else {
+      setCustomerDetails((prev) => ({
+        ...prev,
+        [name]: name === "phoneNumber" ? value.slice(0, 10) : value,
+      }));
+      if (name === "gender") {
+        setServiceSelection({
+          ...serviceSelection,
+          category: "",
+          subCategory: "",
+          miniSubcategory: "",
+
+
+
+        });
+        setSubService(null);
+        setMiniService(null);
+      }
+    }
+
+
   };
   const membershipPress = (e) => {
     if (e.target.value)
@@ -115,26 +148,19 @@ const BookAppointment = () => {
     const currentTime = moment()._d.toString();
 
     const timeString = currentTime.split(" ")[4];
-    setTime(timeString);
+    setAppointmentDetails((prev) => ({
+      ...prev,
+      time: timeString
+    }))
   }, []);
 
-  const datePart = new Date(date);
-  // Date object for the date part
-
-  // Example time
-  const timePart = new Date(time); // Date object for the time part
-  // Combine date and time
-  const combinedDateTime = new Date(datePart);
-  combinedDateTime.setHours(
-    timePart.getHours(),
-    timePart.getMinutes(),
-    timePart.getSeconds(),
-    timePart.getMilliseconds()
-  );
 
   const handleTimeChange = (selectedTime) => {
     const timeString = selectedTime._d.toString().split(" ")[4];
-    setTime(timeString);
+    setAppointmentDetails((prev) => ({
+      ...prev,
+      time: timeString
+    }))
   };
   const handleAmPmChange = (ampm) => { };
 
@@ -270,10 +296,10 @@ const BookAppointment = () => {
   };
   const handldeBookAppointment = () => {
     const { name,
-    phoneNumber,
-    email,
-    gender
-   } = customerDetails;
+      phoneNumber,
+      email,
+      gender
+    } = customerDetails;
     const data = {
       services: services,
       customer: {
@@ -333,9 +359,14 @@ const BookAppointment = () => {
   // product name on click
 
   const productNameOnclick = (item) => {
-    setSelectedProduct(item);
+    setSelectedProduct({
+      ...item,
+      quantity: 1
+
+    });
     setsearchProduct("");
   };
+  console.log(selectedProduct, "selectedProdcut")
 
   const deleteService = (item) => {
     dispatch(deletItems(item));
@@ -345,11 +376,11 @@ const BookAppointment = () => {
   };
 
   const handleSubmit = () => {
-    const payload ={
+    const payload = {
       ...customerDetails,
       dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
       aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
-  
+
     }
     postApiData(
       "parlor/registerUserForCrm",
@@ -372,12 +403,7 @@ const BookAppointment = () => {
     setModalOpen(false);
   };
 
-  // on search product click
-  const searchProductOnchange = (e) => {
-    setsearchProduct(e.target.value);
-    const data = {
-      name: searchProduct,
-    };
+  const fetchProd = (data) => {
     postApiData(
       "inventory/getSuggestedProductOfSalon",
       data,
@@ -386,6 +412,16 @@ const BookAppointment = () => {
       },
       (error) => { }
     );
+  }
+
+  // on search product click
+  const searchProductOnchange = (e) => {
+    setsearchProduct(e.target.value);
+    const data = {
+      name: searchProduct,
+    };
+    debouncedFunction(fetchProd, 500, data)
+
   };
   const applyDiscount = () => {
     setApplyDiscountPer(discount);
@@ -457,6 +493,23 @@ const BookAppointment = () => {
       (error) => { }
     );
   };
+  const fetchUser = () => {
+
+    setVisible(true);
+    setIsMobileValid(customerDetails?.phoneNumber?.length === 10);
+    const data = {
+      phoneNumber: customerDetails?.phoneNumber,
+    };
+    postApiData(
+      "user/searchUser",
+      data,
+      (resp) => {
+        setUserData(resp);
+      },
+      (error) => { }
+    );
+
+  }
   const onChangeProdutName = (e) => {
     setProductData({
       ...productData,
@@ -464,31 +517,30 @@ const BookAppointment = () => {
     });
   };
   const addproductPress = (
-    item,
-    productQnt,
-    productStaffid,
-    productStaffName
   ) => {
-    if (!productQnt || productQnt === "0") {
+    const { quantity, // Adding quantity key
+      staffId,
+      staffName, price, } = selectedProduct
+    if (!quantity || quantity === "0") {
       toast.error("Please Enter Quantiy");
 
       return;
     }
-    if (!productStaffid || !productStaffName) {
+    if (!staffId || !staffName) {
       toast.error("Please Select Staff");
+
+      return;
+    }
+    if (!price) {
+      toast.error("Please Select Product");
 
       return;
     }
 
     // productQnt,productStaffid
-    const itemWithAdditionalInfo = {
-      ...item, // Copying existing properties of item
-      quantity: +productQnt, // Adding quantity key
-      staffId: productStaffid,
-      staffName: productStaffName, // Adding staffId key
-    };
 
-    dispatch(productAdded(itemWithAdditionalInfo));
+
+    dispatch(productAdded(selectedProduct));
     toast.success("product added succesfully");
   };
 
@@ -501,6 +553,29 @@ const BookAppointment = () => {
     setServices(updatedServices);
     dispatch(newUpdateService(updatedServices));
   };
+  const handleProductChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'staffName') {
+      const splited = value.split("-");
+      const Name = splited[1];
+      const Id = splited[0];
+      setSelectedProduct((prev) => ({
+        ...prev,
+        staffId: Id,
+        staffName: Name,
+      }));
+
+    }
+    else {
+
+      setSelectedProduct((prev) => ({
+        ...prev,
+        [name]: name === "quantity" ? Math.max(1, +value) : value
+      }))
+    }
+
+
+  }
   const handleProductStaff = (e) => {
     const { value } = e.target;
     const splited = value.split("-");
@@ -526,16 +601,28 @@ const BookAppointment = () => {
   const servicesFields = [
     {
       name: "category",
+      label: "Add Service"
     },
     {
       name: "subCategory",
+      label: "Category"
     },
     {
       name: "miniSubcategory",
+      label: "Sub Category"
+
     },
     {
       name: "staff",
+      label: "Select Staff"
     },
+    // {
+    //   name: "product",
+    //   label: "Search Product",
+    //   type: "text",
+    //   placeholder: "Product Name"
+    // },
+
   ];
   const addCustomerFields = [
     {
@@ -611,32 +698,356 @@ const BookAppointment = () => {
     { label: "PRODUCT PRICE", value: productTotalPrice },
     { label: "PAYABLE AMOUNT", value: totalProductServicePayable },
   ];
+  const customerFields = [
+    {
+      name: "phoneNumber",
+      label: "Phone Number",
+      placeholder: "9876543210",
+      value: customerDetails.phoneNumber,
+    },
+    {
+      name: "name",
+      label: "Customer Name",
+      placeholder: "Customer Name",
+      readOnly: true,
+      value: customerDetails.name,
+    },
+    {
+      name: "email",
+      label: "Email Address",
+      value: customerDetails.email,
+      type: "email",
+      readOnly: true,
+      placeholder: "Enter Email Address",
+    },
+    {
+      name: "date",
+      label: "Date",
+      type: 'date',
+      value: appointmentDetails?.date,
+      placeholder: "DD-MM-YYYY"
+
+    },
+    {
+      name: "time",
+      label: "Time",
+      value: appointmentDetails?.time,
+      placeholder: "DD-MM-YYYY"
+
+    }
+  ]
+  const productFields = [
+    {
+      name: "name",
+      label: "Product Name",
+      placeholder: "Product Name",
+      value: selectedProduct?.name,
+    },
+    {
+      name: "price",
+      label: "Price",
+      placeholder: "Price",
+      readOnly: true,
+      value: selectedProduct?.price,
+    },
+    {
+      name: "brand",
+      label: "Brand",
+      value: selectedProduct?.brand,
+      readOnly: true,
+      placeholder: "Brand",
+    },
+    {
+      name: "quantity",
+      label: "Quantity",
+      type: "number",
+      value: selectedProduct?.quantity,
+      placeholder: "Quantity",
+    },
+    {
+      name: "staffName",
+      label: "Select Staff",
+      value: `${selectedProduct?.staffId}-${selectedProduct?.staffName}`,
+      options: staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))
+
+
+    }
+  ]
+
+  useEffect(() => {
+    if (customerDetails?.phoneNumber) {
+      debouncedFunction(fetchUser, 500)
+    }
+  }, [customerDetails?.phoneNumber])
 
   const tableFields = [customerDetailsArray, paymentDetailsArray];
 
   return (
-    <Layout>
-      <div className="mt-52 md:mt-40  w-[90%] mx-auto ">
-        <div className="flex flex-wrap   justify-center items-center gap-5">
-          <h1 className="text-green-600  font-semibold text-lg">
-            Select Gender :{" "}
-          </h1>
-          <div className="flex items-center gap-6 justify-center">
-            {genderFields.map((elm, index) => {
-              return (
-                <NormalRadio
-                  key={index}
-                  onChange={handleChange}
-                  checked={customerDetails.gender === elm.value}
-                  name="gender"
-                  label={elm.name}
-                  value={elm.value}
-                />
-              );
-            })}
+    <>
+      <div className="mx-auto ">
+        <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
+          <div className="flex items-center mb-9 justify-between">
+            <h2 className="font-normal leading-[20px]   text-black text-[24px]">Customer Details</h2>
+            <button
+              onClick={openModal}
+              className="w-[150px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]">Add</button>
+          </div>
+          <div className="flex flex-col mb-9  gap-5">
+            <h1 className="text-black  font-normal text-md">
+              Gender
+            </h1>
+            <div className="flex items-center gap-9">
+              {genderFields.map((elm, index) => {
+                return (
+                  <NormalRadio
+                    key={index}
+                    onChange={handleChange}
+                    checked={customerDetails.gender === elm.value}
+                    name="gender"
+                    label={elm.name}
+                    value={elm.value}
+                  />
+                );
+              })}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
+            {
+              customerFields?.map((customer, index) => {
+                const { name, label, placeholder, value, readOnly, type } = customer
+                return (
+                  <div className="relative">
+                    <div className="flex flex-col gap-1">
+                      {name !== "time" ? <NormalInput
+                        key={index}
+                        name={name}
+                        type={type}
+                        label={label}
+                        disabled={readOnly}
+                        onChange={handleChange}
+                        placeholder={placeholder}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      /> :
+                        <div className="flex time flex-col gap-1">
+                          <p className="text-md mb-1  text-black">Time</p>
+
+                          <TimePicker
+                            placeholder="Select Time"
+                            use12Hours
+                            allowEmpty={false}
+                            showSecond={false}
+                            focusOnOpen={true}
+                            format="hh:mm A"
+                            onChange={handleTimeChange}
+                            inputIcon
+                            className="rounded-[16px] border border-primaryGray text-black py-[12px] px-[27px] text-sm"
+
+                            defaultValue={moment()}
+                            defaultOpenValue={moment()}
+                          />
+
+                        </div>}
+                    </div>
+                    {visible && name === "phoneNumber" && customerDetails?.phoneNumber?.length > 0 && (
+                      <div
+                        className="absolute -bottom-[110px] h-[110px] w-full py-2 overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-[2]"
+                      >
+                        {userData.length > 0 &&
+                          userData?.map((item, index) => {
+                            return (
+                              <div
+                                key={index}
+                                style={{ display: "flex" }}
+                                onClick={() => nameOnclick(item)}
+                                className="flex items-center  px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
+                              >
+                                <p className="mr-2 capitalize font-semibold">{item.name}</p>
+                                <p className="font-semibold">
+                                  {item.phoneNumber}
+                                </p>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    )}
+                  </div>
+                )
+              })
+            }
           </div>
         </div>
+        <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
+          <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
+            {
+              servicesFields?.map((customer, index) => {
+                const { name, label } = customer
 
+                const value = serviceSelection[name];
+                const options = servicesOptions[name]
+                return (
+                  <div key={index} className="relative">
+                    <div className="flex flex-col gap-1">
+
+                      <NormalSelect
+
+                        name={name}
+                        label={label}
+                        options={options}
+                        onChange={handleServiceChange}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      />
+                    </div>
+
+                  </div>
+                )
+              })
+            }
+          </div>
+          <div className="flex justify-end mt-5">
+
+            <button onClick={handldeAddButton}
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
+          </div>
+
+        </div>
+        <div className="rounded-[10px] bg-white shadow-tab border p-5 ">
+          <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Product</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 mb-4 ">
+            <div className="relative w-full flex flex-col gap-1">
+              <NormalInput
+                name="product"
+                label="Search Product"
+                placeholder="Product Name"
+                onChange={searchProductOnchange}
+
+                value={searchProduct}
+                inputStyles={{
+                  'borderRadius': '16px'
+
+                }}
+                lableStyles={{
+                  'fontWeight': '400',
+                  "fontSize": "16px",
+                  'color': '#000000'
+                }}
+
+
+
+              />
+              <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
+              {searchProduct?.length > 0 && (
+                <div
+                  style={{}}
+                  className="absolute top-[80px] w-full p-2 max-h-[200px]  overflow-y-auto bg-white shadow-lg z-[2]"
+                >
+                  {showSearchProduct?.map((item) => {
+                    return (
+                      <div
+                        onClick={() => productNameOnclick(item)}
+                        className="flex bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
+                      >
+                        <p className="mr-2 capitalize font-semibold">{item.name}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
+            {
+              productFields?.map((elm, index) => {
+                const { name, label, placeholder, value, readOnly, type, options } = elm
+                return (
+                  <div key={index}
+                    className="relative">
+                    <div className="flex flex-col gap-1">
+                      {name === "staffName" ? <NormalSelect
+
+                        name={name}
+                        label={label}
+                        options={options}
+                        onChange={handleProductChange}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      /> : <NormalInput
+                        name={name}
+                        type={type}
+                        label={label}
+                        disabled={readOnly}
+                        onChange={handleProductChange}
+                        placeholder={placeholder}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      />}
+                    </div>  </div>
+                )
+
+              })
+
+            }
+
+
+
+          </div>
+          <div className="flex justify-end mt-5">
+
+            <button onClick={addproductPress}
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
+          </div>
+
+        </div>
+
+        <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
+          <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
+        </div>
         <div className="">
           <div className="flex mt-10 justify-between items-center flex-wrap">
             {/* CUSTOMER */}
@@ -1152,7 +1563,7 @@ const BookAppointment = () => {
       </div>
 
 
-    </Layout>
+    </>
   );
 };
 

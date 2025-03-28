@@ -198,7 +198,7 @@ export default function Membership() {
   };
 
   return (
-    <Layout>
+    <>
       <MemComponent
         fields={fields}
         setUserId={setUserId}
@@ -248,6 +248,6 @@ export default function Membership() {
           onClose={onNewClose}
         />
       )}
-    </Layout>
+    </>
   );
 }

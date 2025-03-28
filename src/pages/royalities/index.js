@@ -122,7 +122,7 @@ const Royalities = () => {
   }, [invoices]);
   
   return (
-    <Layout>
+    <>
       <div className="mt-32 flex flex-col w-[90%] mx-auto">
         <div className="flex items-center gap-x-3 mb-10">
           <MonthPicker months={months} month={month} setMonth={setMonth} />
@@ -132,7 +132,7 @@ const Royalities = () => {
           <BasicTable headings={headings} rows={rows} />
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 

@@ -195,7 +195,7 @@ export default function Subscription() {
   
   return (
     <>
-          <Layout>
+         
       <MemComponent
         fields={fields}
         setUserId={setUserId}
@@ -233,8 +233,8 @@ export default function Subscription() {
       </div>
 
      
-    </Layout>
     </>
+   
   )
 }
 

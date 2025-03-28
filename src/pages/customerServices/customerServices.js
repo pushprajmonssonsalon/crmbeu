@@ -316,7 +316,7 @@ export default function CustomerServices() {
   ];
 
   return (
-    <Layout>
+    <>
       <div className="mt-32 w-[90%] mx-auto">
         <ul className="nav-list">
           <li className="mx-6 font-medium inter text-lg text-slate-100 cursor-pointer">
@@ -469,6 +469,6 @@ export default function CustomerServices() {
           />
         )}{" "}
       </div>
-    </Layout>
+    </>
   );
 }

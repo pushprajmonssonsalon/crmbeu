@@ -12,6 +12,9 @@
   width: 100%;
 }
 
+.font-roboto{
+  font-family: 'Roboto',sans-serif;
+}
 
 .poppins-semibold {
   font-family: "Poppins", sans-serif;

@@ -163,7 +163,7 @@ const SalonDeatils = () => {
   
 
   return (
-    <Layout>
+    <>
       <div className='mt-32 w-[90%] my-10 h-auto mx-auto '>
         <div className='p-4 rounded-xl '>
           <div className='flex justify-center font-bold items-center'>
@@ -246,7 +246,7 @@ const SalonDeatils = () => {
         }
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 

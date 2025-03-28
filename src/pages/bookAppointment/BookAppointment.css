@@ -14,7 +14,15 @@ h4 {
 
 /* SalonKartContainer.css */
 
+.time .rc-time-picker-input{
+  border: none!important;
+  outline: none!important;
+  padding: 0!important;
+  height: auto!important;
+  font-size: 14px!important;
+  color: black!important;
 
+}
 
 
 .invoice-container {

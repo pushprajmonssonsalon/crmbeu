@@ -137,7 +137,7 @@ const Employeedetails = () => {
 
   return (
   
-    <Layout>
+    <>
   
       <div className="flex justify-center items-end h-[40px] mt-40 w-[90%] mx-auto"
         
@@ -433,7 +433,7 @@ const Employeedetails = () => {
         </div>
       </Modal>
 
-    </Layout>
+    </>
   );
 };
 

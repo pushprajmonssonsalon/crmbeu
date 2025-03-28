@@ -156,7 +156,7 @@ const Report = () => {
   }, [startDate, endDate])
 
   return (
-    <Layout>
+    <>
       <div className="mt-32 w-[90%] mx-auto mb-20">
         <div>
           <button className="bg-green-500 text-white rounded-xl px-6 h-[50px]" onClick={() => toPDF()}>Download PDF</button>
@@ -444,7 +444,7 @@ const Report = () => {
           <ReportTable data={categoryWiseDistrubution} />
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 

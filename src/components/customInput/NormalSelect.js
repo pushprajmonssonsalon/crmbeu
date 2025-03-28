@@ -4,7 +4,7 @@ const NormalSelect = ({name,value,options=[],onChange,inputStyles={},disabled=fa
    <>
     {label !== "" && (
         <label className="w-fit" htmlFor={name}>
-          <span style={{ ...lableStyles }} className="font-bold text-md">
+          <span style={{ ...lableStyles }} className="text-black text-md">
             {label}
           </span>
         </label>
@@ -16,10 +16,10 @@ const NormalSelect = ({name,value,options=[],onChange,inputStyles={},disabled=fa
     value={value}
     disabled={disabled}
     style={{...inputStyles}}
-    className="bg-gray-50 z-[2] min-w-sm capitalize border border-gray-400 text-gray-900 text-sm rounded-lg   grow p-2.5 "
+    className="bg-gray-50 z-[2] min-w-sm  border border-primaryGray text-black text-sm rounded-lg   grow px-[27px] py-[12px] "
     onChange={onChange}
   >
-    <option value="">Choose a {name}</option>
+    <option className="normal-case" value="">Choose Option</option>
     {options?.map((elm,index)=>(
         <option key={index} value={elm.value}>{elm.name}</option>
     ))}

@@ -14,6 +14,7 @@
     "aws-sdk": "^2.1625.0",
     "axios": "^1.6.5",
     "chart.js": "^4.4.6",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "dotenv": "^16.4.5",
     "html-pdf": "^3.0.1",
     "jspdf": "^2.5.1",

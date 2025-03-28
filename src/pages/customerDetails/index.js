@@ -38,7 +38,7 @@ const CustomerDetails = () => {
     }
    
   return (
-    <Layout>
+    <>
     <div className='mt-32 w-[90%] mx-auto mb-10'>
         <h1 className='text-2xl font-bold text-center text-green-600'>Search Customer Details</h1>    
 
@@ -137,7 +137,7 @@ const CustomerDetails = () => {
   
 
     </div>
-    </Layout>
+    </>
   )
 }
 

@@ -76,7 +76,7 @@ const ActiveMembers = () => {
   return (
     <>
       {" "}
-      <Layout>
+    
         <div className="w-[90%] mx-auto mt-28 overflow-x-auto my-10 py-16">
           <h2 className="font-semibold text-4xl text-black text-center mb-5">
             Active Members
@@ -90,7 +90,7 @@ const ActiveMembers = () => {
             />
           </div>
         </div>
-      </Layout>
+    
     </>
   );
 };

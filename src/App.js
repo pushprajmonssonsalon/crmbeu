@@ -1,7 +1,7 @@
 import "./App.css";
 import Login from "./pages/login/Login";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import BookAppointment from "./pages/bookAppointment/BookAppointment";
+import Appointment from "./pages/Appointment/Appointment";
 import CustomerServices from "./pages/customerServices/customerServices";
 import Inventorydetails from "./pages/Inventorydetails/Inventorydetails";
 import Employeedetails from "./pages/employeeDetails/Employeedetails";
@@ -61,8 +61,8 @@ function App() {
           element={<PrivateRoute Component={Dashboard} />}
         />
         <Route
-          path="/bookappointment"
-          element={<PrivateRoute Component={BookAppointment} />}
+          path="/appointments"
+          element={<PrivateRoute Component={Appointment} />}
         />
         <Route
           path="/customerservices"

@@ -86,7 +86,7 @@ const WeeklyReport = () => {
 
   const headings = ["Week","Tickets","No. Of Services","No. Of Products","Revenue","AvgServicePerBill","AvgTicketSize"]
   return (
-    <Layout>
+    <>
         <div className='mt-32'>
         {/* <CustomInputFeild startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} submitClick={searchClick}/> */}
         <div className='flex justify-center items-center gap-x-5 my-9'>
@@ -124,7 +124,7 @@ const WeeklyReport = () => {
         </TableBody>
       </Table>
     </TableContainer>
-    </Layout>
+    </>
   )
 }
 

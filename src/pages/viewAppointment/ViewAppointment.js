@@ -280,7 +280,7 @@ const ViewAppointment = () => {
     exportToExcel(data, "Appointments", "appointment.xlsx");
   };
   return (
-    <Layout>
+    <>
       <div className="w-[90%] mx-auto mt-28 overflow-x-auto my-10">
         <div className="flex justify-end mt-12">
           <button
@@ -419,7 +419,7 @@ const ViewAppointment = () => {
         {/* Conditionally render the printable version */}
         {printStatus && <InvoiceGenrator />}
       </div>
-    </Layout>
+    </>
   );
 };
 

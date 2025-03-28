@@ -376,7 +376,7 @@ const Inventorydetails = () => {
   }));
 
   return (
-    <Layout>
+    <>
       <nav className="navbar mt-52 md:mt-38 w-[80%] mx-auto ">
         <ul className="nav-list mt-40 ">
           <li
@@ -503,7 +503,7 @@ const Inventorydetails = () => {
           setIsChanged={setIsChanged}
         />
       </nav>
-    </Layout>
+    </>
   );
 };
 

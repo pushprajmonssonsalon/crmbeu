@@ -3,7 +3,7 @@ import axios from "axios";
 import { store } from "../redux/store";
 const BASE_URL = "https://crm.smartsalon.in/";
 // const BASE_URL = "http://192.168.3.36:4002";
-// const BASE_URL = "http://192.168.2.226:4002";
+// const BASE_URL = "http://192.168.2.27:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
@@ -136,4 +136,26 @@ function formatValue(value){
 
   }
 }
-export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear};
+
+const formatDate = (dateStr, ind = false) => {
+  if (!dateStr) return ""
+
+  if (ind) {
+    const date = dateStr.split("-")
+    const dd = date[2]
+    const mm = date[1]
+    const yyyy = date[0]
+    return `${dd}/${mm}/${yyyy}`
+  }
+  else {
+    const date = new Date(dateStr);  // Current date
+    const dd = String(date.getDate()).padStart(2, '0');       // Day with leading zero
+    const mm = String(date.getMonth() + 1).padStart(2, '0');  // Month with leading zero (getMonth() returns 0-11)
+    const yyyy = date.getFullYear();                          // Full year
+
+    const formattedDate = `${yyyy}-${mm}-${dd}`;
+    return formattedDate
+  }
+
+}
+export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear,formatDate};

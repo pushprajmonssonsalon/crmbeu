@@ -568,7 +568,7 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
   const totalAmount = totalService+subProductTotal;
 
   return (
-    <Layout>
+    <>
       <div className="w-[85%] mx-auto mt-32 ">
       <div className="flex justify-between">
         {/* your servic section */}
@@ -1106,7 +1106,7 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
           Book Appointment
         </button>
       </div>
-    </Layout>
+    </>
   );
 };
 

@@ -1,18 +1,106 @@
+import { useLocation } from 'react-router';
 import Navbar from '../navbar/Navbar';
 import VerticalSidebar from '../newSidebar';
-
+import { Link } from 'react-router-dom';
+const routesObject = {
+  appointments: "Appointments",
+  customerservices: "Customer Services",
+  inventory: "Inventory",
+  employee: "Employee",
+  ownerservice: "Owner Service",
+  viewAppointment: "View Appointment",
+  reports: "Reports",
+  invoicewise: "Invoice Wise",
+  categorywise: "Category Wise",
+  complitedAppointment: "Completed Appointments",
+  membership: "Membership",
+  advance: "Advance",
+  activeMembers: "Active Members",
+  subscription: "Subscription",
+  invoicegenerator: "Invoice Generator",
+  membershipinvoice: "Membership Invoice",
+  advanceinvoice: "Advance Invoice",
+  orderinvoice: "Order Invoice",
+  "viewAppointment/:id": "View Appointment Details",
+  orders: "Orders",
+  details: "Details",
+  test: "Test Page",
+  revenue: "Revenue",
+  weeklyreport: "Weekly Report",
+  inventoryreport: "Inventory Report",
+  "salon-details": "Salon Details",
+  royalities: "Royalties",
+  notifications: "Notifications",
+  "notifications/:id": "Notification Details"
+};
 const Layout = ({ children }) => {
-
+  const {pathname} = useLocation();
+  const path = pathname.split("/").filter(x=>x)[0];
+  
   return (
-    <div className="min-w-full bg-[#E9EAEC] container roboto-regular flex flex-col ">
-        {/* <Toaster /> */}
-      <Navbar />
-      <div className="content flex bg-[f7f9f9] ">
+    <div className="min-w-full   roboto-regular flex ">
+      {/* <Toaster /> */}
         {/* <Sidebar /> */}
         <VerticalSidebar />
-        <main style={{maxWidth:'100%'}} className='w-full mx-auto overflow-x-auto'>{children}</main>
+        <div className='flex w-full flex-col'>
+
+          <Navbar />
+          <div className='px-6 py-9'>
+            <Breadcrumbs/>
+
+          <main style={{ maxWidth: '100%' }} className='w-full mx-auto overflow-x-auto'>{children}</main>
+          </div>
       </div>
     </div>
+  );
+};
+
+
+
+const Breadcrumbs = () => {
+  const {pathname} = useLocation();
+  const path = pathname.split("/").filter(x=>x)[0]
+  console.log(path, "path")
+ 
+ 
+  
+  
+
+  return (
+    <nav className="flex mb-5" aria-label="Breadcrumb">
+      <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+        <li className="inline-flex items-center">
+          <Link to="/" className="inline-flex items-center text-sm  text-gray-700 hover:text-blue-600">
+           
+            Home
+          </Link>
+        </li>
+        <li className="inline-flex items-center">
+          
+           
+        {routesObject[path] ? <div className="flex items-center">
+            <svg
+              className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
+              aria-hidden="true"
+              xmlns="XXXXXXXXXXXXXXXXXXXXXXXXXX"
+              fill="none"
+              viewBox="0 0 6 10"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m1 9 4-4-4-4"
+              />
+            </svg>
+            <span className="ms-1 text-sm  text-gray-500 md:ms-2 ">{routesObject[path]}</span>
+          </div> : null}
+       
+        </li>
+      
+      </ol>
+    </nav>
   );
 };
 

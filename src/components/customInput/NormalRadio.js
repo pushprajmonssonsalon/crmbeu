@@ -3,7 +3,7 @@ const NormalRadio = ({checked,onChange,name,value,label}) => {
     <>
     
    
-          <div className="flex items-center ">
+          <div className="flex gap-3 items-center ">
             <input
               id={label}
               type="radio"
@@ -11,11 +11,11 @@ const NormalRadio = ({checked,onChange,name,value,label}) => {
               onChange={onChange}
               value={value}
               name={name}
-              className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-300 "
+              className="w-6 h-6 mr-2 text-ternary accent-ternary border-2 bg-gray-100 border-primaryGray "
             />
             <label
               htmlFor={label}
-              className=" text-xl my-auto font-bold text-gray-900 "
+              className=" text-sm font-normal text-black my-auto  "
             >
              {label}
             </label>

@@ -141,7 +141,7 @@ const InventoryReport = () => {
   }, [newMyProducts, inventorySnap]);
   return (
     <>
-      <Layout>
+    
         <div className="mt-32 max-w-[95%] mx-auto">
           <div className="mt-5 flex items-start ">
             <button
@@ -169,7 +169,7 @@ const InventoryReport = () => {
             <CustomTable columns={columns} rows={inventoryData} />
           </div>
         </div>
-      </Layout>
+    
     </>
   );
 };

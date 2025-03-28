@@ -293,7 +293,7 @@ const Advances = () => {
     }, [])
 
     return (
-        <Layout>
+        <>
             <div className="mt-52 md:mt-32 w-[90%] mx-auto ">
                 <div className="my-6 flex items-center justify-center">
                     <span className="font-bold my-9 text-[30px] text-green-600 ">
@@ -449,7 +449,7 @@ const Advances = () => {
                 heading={"Add Customer"}
             />}
 
-        </Layout>
+        </>
 
     )
 }

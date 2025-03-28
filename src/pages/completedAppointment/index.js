@@ -10,10 +10,10 @@ export default function CompletedAppointment() {
   ];
 
   return (
-    <Layout>
+    <>
     <div className='mt-32'>
       <CSVLink data={csvData}>Download me</CSVLink>
     </div>
-    </Layout>
+    </>
   );
 }

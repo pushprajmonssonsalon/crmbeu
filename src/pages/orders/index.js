@@ -61,7 +61,7 @@ const Orders = () => {
     setIsUpload(true);
   };
   return (
-    <Layout>
+    <>
       <div>
         <h1 className="text-center text-green-600 font-bold text-5xl mt-32">
           Your Orders
@@ -169,7 +169,7 @@ const Orders = () => {
         onClose={onUploadClose}
         orderId={orderId}
       />
-    </Layout>
+    </>
   );
 };
 

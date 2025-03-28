@@ -74,7 +74,7 @@ const subserviceClick=(item)=>{
   }, [subservice]);
 
   return (
-    <Layout>
+    <>
     <div className="mt-32 flex">
       <div style={{ background: "white", }} className="mt-32"
     >
@@ -135,6 +135,6 @@ const subserviceClick=(item)=>{
         ))}
       </div>
     </div>
-    </Layout>
+    </>
   );
 }

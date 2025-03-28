@@ -22,6 +22,8 @@ const AddCustomerModal = ({
           content: {
 
             height: "fit-content",
+            maxHeight:'calc(100% - 200px)',
+            overflowY:"auto",
 
             border: "1px solid #ccc",
             borderRadius: "8px",
@@ -35,8 +37,8 @@ const AddCustomerModal = ({
         }}
       >
         <div className="my-3">
-          <h1 className="font-bold text-black text-xl">{heading}</h1>
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2  gap-2">
+          <h1 className="font-medium text-black text-xl">{heading}</h1>
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-2  gap-2">
             {addCustomerFields.map((input, index) => {
               const { name, placeholder, label, value, options ,value1,value2} = input;
               return (
@@ -59,6 +61,15 @@ const AddCustomerModal = ({
                       name={name}
                       value={value}
                       onChange={handleChange}
+                      inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
                     />
                       :
                       <NormalSelect
@@ -67,6 +78,15 @@ const AddCustomerModal = ({
                         value={value}
                         options={options}
                         onChange={handleChange}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
                       />}
                 </div>
               );
@@ -79,11 +99,8 @@ const AddCustomerModal = ({
           <button
             style={{
               background: "green",
-              height: "40px",
-              borderRadius: "3px",
-              width: "150px",
             }}
-            className="flex hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
+            className="flex w-[150px] h-[40px] rounded-[16px] hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
             onClick={handleSubmit}
           >
             <span className="font-medium text-white">Add</span>
@@ -91,12 +108,10 @@ const AddCustomerModal = ({
           <button
             style={{
               background: "red",
-              height: "40px",
-              borderRadius: "3px",
-              width: "150px",
+              
             }}
             onClick={closeModal}
-            className="flex hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
+            className="flex w-[150px] h-[40px] rounded-[16px] hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
           >
             <span className="font-medium text-white">Cancel</span>
           </button>
