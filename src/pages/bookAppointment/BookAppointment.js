@@ -136,8 +136,12 @@ const BookAppointment = () => {
 
   };
   const membershipPress = (e) => {
-    if (e.target.value)
+    if (e.target.value){
       setActiveMemberShip(activemember?.find((elm) => elm._id === e.target.value));
+    }
+    else{
+      setActiveMemberShip({})
+    }
   };
 
   useEffect(() => {
@@ -300,6 +304,7 @@ const BookAppointment = () => {
       email,
       gender
     } = customerDetails;
+
     const data = {
       services: services,
       customer: {
@@ -313,10 +318,11 @@ const BookAppointment = () => {
       subTotal: subtotalPrice,
       // total: subtotalPrice,
       total: totalProductServicePayable,
-      appointmentDate: date + "T" + time + ".000Z",
+      appointmentDate: appointmentDetails?.date + "T" + appointmentDetails?.time,
       membershipUsed: memberShipStatus,
+      isMembershipApplied:memberShipStatus,
       // membershipCreditUsed: +memberShip,
-      membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
+      membershipCreditUsed: memberShipStatus ? Math.min(activeMembership?.creditsLeft||0,subtotalPrice - countdiscount) : 0,
       products: productDataReducer,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
@@ -366,7 +372,7 @@ const BookAppointment = () => {
     });
     setsearchProduct("");
   };
-  console.log(selectedProduct, "selectedProdcut")
+  console.log(activeMembership, "selectedProdcut")
 
   const deleteService = (item) => {
     dispatch(deletItems(item));
@@ -518,6 +524,8 @@ const BookAppointment = () => {
   };
   const addproductPress = (
   ) => {
+    if(!selectedProduct)return toast.error("Please Select Product");
+
     const { quantity, // Adding quantity key
       staffId,
       staffName, price, } = selectedProduct
@@ -588,6 +596,24 @@ const BookAppointment = () => {
       satffName: Name,
     });
   };
+  const handleApplyDiscount = () => {
+
+    if (discount) {
+      applyDiscount()
+    }
+    const data = {
+      creditsUsed: Math.min(activeMembership?.creditsLeft||0,subtotalPrice - countdiscount),
+      userId: userId,
+      memId: activeMembership?._id,
+      isMembershipUsed: !memberShipStatus,
+    };
+    console.log(data)
+    if(activeMembership?.creditsLeft>0){
+      setMemberShipStatus(true)
+    }
+
+
+  }
   const genderFields = [
     {
       name: "Male",
@@ -773,6 +799,33 @@ const BookAppointment = () => {
 
     }
   ]
+  const discounFields = [
+    {
+      label: "Discount Percentage",
+      name: "discount",
+      placeholder: "Discount %",
+      value: discount,
+      type:"number",
+      onChange: (e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))
+    },
+    {
+      label: "Membership",
+      name: "membership",
+      value: activeMembership?._id,
+      options: activemember?.map((item) => ({
+        name: `${item.name}-${item.creditsLeft}`,
+        value: item._id,
+      })),
+      onChange: membershipPress,
+      readOnly: memberShipStatus,
+    },
+    {
+      label: "Membership Balance",
+      name: "membershipBalance",
+      value: activeMembership?.creditsLeft||0,
+      readOnly: true
+    }
+  ]
 
   useEffect(() => {
     if (customerDetails?.phoneNumber) {
@@ -785,6 +838,7 @@ const BookAppointment = () => {
   return (
     <>
       <div className="mx-auto ">
+        {/* customer details */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
           <div className="flex items-center mb-9 justify-between">
             <h2 className="font-normal leading-[20px]   text-black text-[24px]">Customer Details</h2>
@@ -888,6 +942,7 @@ const BookAppointment = () => {
             }
           </div>
         </div>
+        {/* service select */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
@@ -935,7 +990,8 @@ const BookAppointment = () => {
           </div>
 
         </div>
-        <div className="rounded-[10px] bg-white shadow-tab border p-5 ">
+        {/* product select */}
+        <div className="rounded-[10px] mb-9 bg-white border p-5 ">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Product</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 mb-4 ">
             <div className="relative w-full flex flex-col gap-1">
@@ -1044,9 +1100,202 @@ const BookAppointment = () => {
           </div>
 
         </div>
+        {/* product Detail  */}
+        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+          <div className="flex items-center gap-6  mb-9 ">
+            <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Product Detail</h2>
+            <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{productDataReducer?.length > 9 ? '9+' : productDataReducer?.length + "+"}</span>
 
+          </div>
+
+          {productDataReducer?.length > 0 && (
+            <div className="w-full">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">#</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Name</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Price</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Brand</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Quantity</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Staff</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productDataReducer?.map((item, index) => (
+                    <tr key={index}>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{index + 1}</td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{item?.name}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.price}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.brand}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.quantity}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.staffName}</td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
+                        {" "}
+                        <MdDeleteOutline
+                          onClick={() => deleteProduct(index)}
+                          className="text-xl text-red-600 font-bold cursor-pointer"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+        </div>
+        {/* service Detail */}
+        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+
+          <div className="flex items-center gap-6  mb-9 ">
+            <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Service Detail</h2>
+            <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{x?.length > 9 ? '9+' : x?.length + "+"}</span>
+          </div>
+
+          {x.length > 0 && (
+            <div className="w-full">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">#</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Name</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Category</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Sub Category</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Price</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Staff</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {x?.map((item, index) => (
+                    <tr key={index}>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{index + 1}</td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{item?.miniSubcategory}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.category}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.subCategory}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.price}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.satffName}</td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
+                        {" "}
+                        <MdDeleteOutline
+                          onClick={() => deleteService(index)}
+                          className="text-xl text-red-600 font-bold cursor-pointer"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+
+        </div>
+        {/* Apply Discount */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
-          <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
+
+          <h2 className="font-normal text-start leading-[20px] mb-9 text-black text-[24px]">Apply Discount</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
+            {
+              discounFields?.map((elm, index) => {
+                const { name, label, placeholder, value, readOnly, type, options, onChange } = elm
+                return (
+                  <div key={index}
+                    className="relative">
+                    <div className="flex flex-col gap-1">
+                      {name === "membership" ? <NormalSelect
+
+                        name={name}
+                        label={label}
+                        options={options}
+                        onChange={onChange}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      /> : <NormalInput
+                        name={name}
+                        type={type}
+                        label={label}
+                        disabled={readOnly}
+                        onChange={onChange}
+                        placeholder={placeholder}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      />}
+                    </div>  </div>
+                )
+
+              })
+
+            }
+
+
+
+          </div>
+          <div className="flex justify-end mt-12">
+
+            <button onClick={handleApplyDiscount}
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
+          </div>
+
+
+        </div>
+        {/* book appointment */}
+        {customerDetails?.phoneNumber && (<div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+          <h2 className="font-normal text-start leading-[20px] mb-9 text-black text-[24px]">Booking Detail</h2>
+
+
+          <div className="p-2 w-full   flex justify-between  items-center">
+            {tableFields.map((elm, idx) => {
+              return (
+                <div key={idx} className="w-[40%] mb-auto ">
+                  <table className="table-auto  w-full">
+                    <thead></thead>
+                    <tbody>
+                      {elm?.map((item, index) => (
+                        <tr key={index}>
+                          <td className="font-normal text-black text-sm  2xl:text-md border-none px-4 py-2">
+                            {item.label}
+                          </td>
+                          <td className=" font-normal   text-sm 2xl:text-md border-none px-4 py-2 text-green-800">
+                            {formatValue(item.value)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>)}
+        {/*  */}
+        <div>
         </div>
         <div className="">
           <div className="flex mt-10 justify-between items-center flex-wrap">

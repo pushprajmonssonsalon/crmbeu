@@ -9,8 +9,10 @@ module.exports = {
         customGray: 'rgb(203, 213, 225)',
         primaryGray :'#B1B1B1',
         primary:'#FAFBFC' ,
+        secondaryGray:'#F4F4F4',
         secondary:'#555555',
         gray2:'#333333',
+        ternaryGray:'#979797',
         ternary:'#009699',
         customPurple:'#5F57FF',
         heading:'#2D2D2D'
