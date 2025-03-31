@@ -511,10 +511,7 @@ const Dashboard = () => {
       },
     },
   }
-  useEffect(() => {
-    console.log(selectedEvent, "selectedEvent")
-  }, [selectedEvent])
-  console.log(selectedEvent, "selectedEvent")
+ 
   return (
     <>
         <div className="">

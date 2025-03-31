@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { postApiData } from "../../utils/services";
 import Modal from "react-modal";
-import Layout from "../../components/Layout";
 import Popup from "../../components/popup";
 import { toast } from "react-hot-toast";
 import ServiceTable from "../../components/Table/ServiceTable";
@@ -10,6 +9,7 @@ import MyServiceTable from "../../components/Table/MyService";
 import GridRows from "../../components/pagination/gridRows";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
+import { AiOutlineSearch } from "react-icons/ai";
 
 export default function CustomerServices() {
   const [customerServiceData, setCustomerServiceData] = useState([]);
@@ -142,7 +142,7 @@ export default function CustomerServices() {
   };
   const handleFiltersChange = (e) => {
     const { name, value } = e.target;
-    if (tab == 1) {
+    if (tab === 0) {
       setAllServiceFilters((prev) => ({
         ...prev,
         [name]: value,
@@ -317,8 +317,77 @@ export default function CustomerServices() {
 
   return (
     <>
-      <div className="mt-32 w-[90%] mx-auto">
-        <ul className="nav-list">
+      <div className="">
+         <div className="flex items-center mb-6 justify-between">
+                <div className="flex items-center gap-5">
+      
+                  <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">{tab===0?"All":"My"} Services</h2>
+                  <span className="rounded-[16px] text-xs px-6 border border-gray2">{tab === 0 ? total || 0 : total1 || 0} Products</span>
+                </div>
+      
+                  <div className="relative flex items-center">
+                    <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
+                    <NormalInput
+                      name="name"
+                      inputStyles={{
+                        'width': "280px",
+                        borderRadius: "16px",
+                        padding: "5px 40px",
+                        fontSize: "14px",
+                        borderColor: "#D9D9D9"
+                      }}
+                      value={tab == 1 ? allServiceFilters["name"] : myServiceFilters["name"]}
+                      placeholder="Search by Product Name"
+                      onChange={handleChange}
+                    />
+                  </div>
+                 
+              
+              </div>
+              <div className="flex gap-6 items-center mb-9 ">
+                {allServicesItemFields.map((item, index) => {
+                  const { name, label, placeholder } = item;
+                  const value =
+                  tab === 0? allServiceFilters[name] : myServiceFilters[name];
+      
+                  return  (
+                   <div className="flex flex-col gap-1">
+                   
+                    <NormalSelect
+                      key={index}
+                      label={label}
+                      value={value}
+                      inputStyles={{
+                        'width': "280px",
+                        borderRadius: "16px",
+                        padding: "5px 40px",
+                        fontSize: "14px",
+                        borderColor: "#D9D9D9"
+                      }}
+                      onChange={handleChange}
+                      options={name === "category" ? categoryOptions : genderOptions}
+                      name={name}
+                    />
+                    </div>
+                  )
+                 
+                })}
+                <button
+                  className="h-[36px] mt-4 w-[100px] bg-black rounded-[16px] flex items-center justify-center text-white text-sm"
+                  onClick={clearService}
+                >
+                  clear
+                </button>
+                {tab === 1 && (
+                  <button
+                  className="h-[36px] mt-4 w-[100px] bg-ternary rounded-[16px] flex items-center justify-center text-white text-sm"
+                  onClick={()=>{}}
+                  >
+                    Export All
+                  </button>
+                )}
+              </div>
+        <ul className="">
           <li className="mx-6 font-medium inter text-lg text-slate-100 cursor-pointer">
             <button
               className="  py-2 px-4 rounded-lg text-white flex justify-center items-center bg-black "
@@ -350,7 +419,7 @@ export default function CustomerServices() {
           {allServicesItemFields.map((item, index) => {
             const { name, label, placeholder } = item;
             const value =
-              tab == 1 ? allServiceFilters[name] : myServiceFilters[name];
+              tab === 0 ? allServiceFilters[name] : myServiceFilters[name];
 
             const isTypeSelect = placeholder ? true : false;
             return isTypeSelect ? (
@@ -382,7 +451,7 @@ export default function CustomerServices() {
         </div>
         {/* <div className="h-[700px] overflow-y-auto mt-3">
       <div className="table-container"> */}
-        {tab == 1 ? (
+        {tab ===0 ? (
           <ServiceTable
             data={customerServiceData}
             startIndex={startIndex}
@@ -397,15 +466,15 @@ export default function CustomerServices() {
         )}
         <div className="my-3">
           <GridRows
-            itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
-            handleRowschange={tab === 1 ? handleRowschange : handleRows1change}
+            itemsPerPage={tab === 0 ? itemsPerPage : itemsPerPage1}
+            handleRowschange={tab === 0 ? handleRowschange : handleRows1change}
           />
         </div>
         <Pagination
-          totalItems={tab == 1 ? total : total1}
-          itemsPerPage={tab == 1 ? itemsPerPage : itemsPerPage1}
-          currentPage={tab == 1 ? currentPage : currentPage1}
-          onPageChange={tab == 1 ? handlePageChange : handlePageChange1}
+          totalItems={tab == 0 ? total : total1}
+          itemsPerPage={tab == 0 ? itemsPerPage : itemsPerPage1}
+          currentPage={tab == 0 ? currentPage : currentPage1}
+          onPageChange={tab == 0 ? handlePageChange : handlePageChange1}
         />
         {/* </div>
       </div> */}

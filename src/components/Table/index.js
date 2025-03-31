@@ -5,33 +5,33 @@ const Table = ({ header, data, orderClick, handleInventryOpen }) => {
   return (
     <>
       <table
-        className="styled-table w-[90%] overflow-x-auto mx-auto"
+        className=" w-full overflow-x-auto mx-auto"
         style={{ height: "40px" }}
       >
         <thead>
           <tr>
-            <th>{header.name}</th>
-            <th>{header.mrp}</th>
-            <th>{header.sp}</th>
-            <th>{header.type}</th>
-            <th>{header.size}</th>
-            <th>{header.brand}</th>
-            <th>{header.add}</th>
-            <th>{header.order}</th>
+            <th className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm">{header.name}</th>
+            <th className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm">{header.mrp}</th>
+            <th className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm">{header.sp}</th>
+            <th className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm">{header.type}</th>
+            <th className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm">{header.size}</th>
+            <th className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm">{header.brand}</th>
+            <th className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm">{header.add}</th>
+            <th className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm">{header.order}</th>
           </tr>
         </thead>
         <tbody>
           {data.map((item, index) => (
             <tr key={index}>
-              <td>{item.name}</td>
-              <td>{item.mrp}</td>
-              <td>{item.price}</td>
-              <td>{item.type}</td>
-              <td>
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm" >{item.name}</td>
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >{item.mrp}</td>
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >{item.price}</td>
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >{item.type}</td>
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >
                 {item.size} {item.unit}
               </td>
-              <td>{item.brand}</td>
-              <td>
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >{item.brand}</td>
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >
                 <div
                   style={{
                     background: "transparent",
@@ -51,13 +51,13 @@ const Table = ({ header, data, orderClick, handleInventryOpen }) => {
                     }}
                   >
                     <BiSolidAddToQueue
-                      className="text-xl font-bold text-black"
+                      className="text-xl font-bold text-ternaryGray"
                       onClick={() => handleInventryOpen(item._id)}
                     />
                   </p>
                 </div>
               </td>
-              <td>
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >
                 {item?.stock>0 ? (
                   <div
                     style={{
@@ -78,7 +78,7 @@ const Table = ({ header, data, orderClick, handleInventryOpen }) => {
                         fontWeight: "500",
                       }}
                     >
-                      <MdOutlineAddShoppingCart className="text-xl font-bold text-black" />
+                      <MdOutlineAddShoppingCart className="text-xl font-bold text-ternaryGray" />
                     </p>
                   </div>
                 ) : (

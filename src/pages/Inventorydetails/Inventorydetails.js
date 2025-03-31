@@ -2,12 +2,10 @@ import { useEffect, useState } from "react";
 import "./inventorydetails.css";
 import { getApiCall, postApiData } from "../../utils/services";
 import Pagination from "../../components/pagination";
-import Layout from "../../components/Layout";
 import { toast } from "react-hot-toast";
 import Table from "../../components/Table";
 import MyProductTable from "../../components/Table/myProduct";
 import OrderPopup from "../../components/popup/OrderPopup";
-import { AiOutlineShoppingCart } from "react-icons/ai";
 import MyProductPopup from "../../components/popup/MyProductPopup";
 import InventoryModel from "../../components/inventoryProductAdd/InventoryModel";
 import * as XLSX from "xlsx";
@@ -15,6 +13,8 @@ import GridRows from "../../components/pagination/gridRows";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import Loader from "../../components/loader/Loader";
+import { AiOutlineSearch } from "react-icons/ai";
+import { FaShoppingCart } from "react-icons/fa";
 const allProductHeading = {
   name: "NAME",
   mrp: "MRP",
@@ -52,9 +52,8 @@ const DropdownRow = ({ label, options, value, onChange }) => {
   );
 };
 
-const Inventorydetails = () => {
+const Inventorydetails = ({ tab }) => {
   const [count, setCount] = useState(0);
-  const [tab, setTab] = useState(2);
   const [loading, setLoading] = useState(false);
   const [allProductFilters, setAllProductFilters] = useState({
     name: "",
@@ -68,6 +67,7 @@ const Inventorydetails = () => {
   });
   const [newMyProducts, setNewMyProducts] = useState([]);
   const [totalMyProducts, setTotalMyProducts] = useState(0);
+  const [totalAllProducts, setTotalAllProducts] = useState(0);
   const [cart, setCart] = useState([]);
 
   const [getSalonProducts, setgetSalonProducts] = useState([]);
@@ -86,15 +86,15 @@ const Inventorydetails = () => {
   // my products states
 
   const inputFields = [
-    {
-      name: "name",
-      placeholder: "Search by Product Name",
-    },
+  
     {
       name: "brand",
+      label:"Select Brand"
     },
     {
       name: "type",
+      label:"Select Type"
+
     },
   ];
 
@@ -124,7 +124,7 @@ const Inventorydetails = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (tab === 2) {
+    if (tab === 0) {
       setAllProductFilters((prev) => ({
         ...prev,
         [name]: value,
@@ -201,7 +201,7 @@ const Inventorydetails = () => {
   // my product clear button
 
   const clearClick = () => {
-    if (tab === 2) {
+    if (tab === 0) {
       setAllProductFilters({
         brand: "",
         type: "",
@@ -263,7 +263,7 @@ const Inventorydetails = () => {
       (resp) => {
         setLoading(false);
         setgetSalonProducts(resp.products);
-        setTotalProducts(resp?.total);
+        setTotalAllProducts(resp?.total);
       },
       (error) => {
         setLoading(false);
@@ -273,7 +273,7 @@ const Inventorydetails = () => {
   // All products
   useEffect(() => {
     // Debounce function for API call
-    if (tab === 2) {
+    if (tab === 0) {
       let timeoutId;
       const debouncedFetchData = () => {
         timeoutId = setTimeout(() => {
@@ -335,9 +335,7 @@ const Inventorydetails = () => {
     setAllProductId(id);
     setShowInventryModel(true);
   };
-  const handleTab = (num) => {
-    setTab(num);
-  };
+
 
   const handleOpen = (id) => {
     setMyProductId(id);
@@ -377,68 +375,78 @@ const Inventorydetails = () => {
 
   return (
     <>
-      <nav className="navbar mt-52 md:mt-38 w-[80%] mx-auto ">
-        <ul className="nav-list mt-40 ">
-          <li
-            className=" hover:scale-110 px-6 bg-[#191919] text-white font-semibold py-4 rounded-lg cursor-pointer"
-            onClick={() => handleTab(2)}
-          >
-            All PRODUCTS
-          </li>
-          <li
-            className="hover:scale-110 px-6 bg-[#191919] text-white font-semibold py-4 rounded-lg cursor-pointer"
-            onClick={() => handleTab(1)}
-          >
-            My Products
-          </li>
-          <li onClick={shopKartClick}
-            className="relative cursor-pointer">
-            <AiOutlineShoppingCart
-              className="text-[2.8rem] font-bold  text-black hover:text-green-700"
-            />
-            <span className="absolute flex items-center text-sm justify-center h-7 w-7 rounded-full -top-1 -right-1 bottom-4 bg-red-700 text-white font-bold">
-              {cart?.length > 9 ? "9+" : cart?.length}
-            </span>
-          </li>
-        </ul>
-        <div className="flex flex-wrap gap-3 justify-between items-center mt-6">
+      <div className=" rounded-[16px] border border-primaryGray p-5  ">
+        <div className="flex items-center mb-6 justify-between">
+          <div className="flex items-center gap-5">
+
+            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">{tab===0?"All":"My"} Products</h2>
+            <span className="rounded-[16px] text-xs px-6 border border-gray2">{tab === 0 ? totalAllProducts || 0 : totalMyProducts || 0} Products</span>
+          </div>
+          <div className="flex items-center gap-3">
+
+            <div className="relative flex items-center">
+              <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
+              <NormalInput
+                name="name"
+                inputStyles={{
+                  'width': "280px",
+                  borderRadius: "16px",
+                  padding: "5px 40px",
+                  fontSize: "14px",
+                  borderColor: "#D9D9D9"
+                }}
+                value={tab == 1 ? myProductFilters["name"] : allProductFilters["name"]}
+                placeholder="Search by Product Name"
+                onChange={handleChange}
+              />
+            </div>
+            <div onClick={() => setShowOrderPopup(true)} className="relative cursor-pointer ">
+              <FaShoppingCart className="text-xl" />
+              {cart?.length>0 && <span className="w-5 h-5 absolute -top-3 -right-2 rounded-full text-[10px] flex items-center justify-center bg-green-600 text-white"> {cart?.length > 9 ? "9" : cart?.length}</span>}
+
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-6 items-center mb-9 ">
           {inputFields.map((item, index) => {
             const { name, label, placeholder } = item;
             const value =
               tab == 1 ? myProductFilters[name] : allProductFilters[name];
 
-            const isTypeSelect = placeholder ? true : false;
-            return isTypeSelect ? (
-              <NormalInput
-                key={index}
-                name={name}
-                label={label}
-                value={value}
-                placeholder={placeholder}
-                onChange={handleChange}
-              />
-            ) : (
+            return  (
+             <div className="flex flex-col gap-1">
+             
               <NormalSelect
                 key={index}
+                label={label}
                 value={value}
+                inputStyles={{
+                  'width': "280px",
+                  borderRadius: "16px",
+                  padding: "5px 40px",
+                  fontSize: "14px",
+                  borderColor: "#D9D9D9"
+                }}
                 onChange={handleChange}
                 options={name === "brand" ? brandOptions : typeOptions}
                 name={name}
               />
-            );
+              </div>
+            )
+           
           })}
           <button
-            className="px-3 py-2 bg-black roounded-lg text-white font-semibold"
+            className="h-[36px] mt-4 w-[100px] bg-black rounded-[16px] flex items-center justify-center text-white text-sm"
             onClick={clearClick}
           >
             clear
           </button>
           {tab === 1 && (
             <button
-              className="px-3 py-2 bg-green-700 hover:bg-green-600 transition-all duration-150 ease-in-out roounded-lg text-white font-semibold"
-              onClick={handleExport}
+            className="h-[36px] mt-4 w-[100px] bg-ternary rounded-[16px] flex items-center justify-center text-white text-sm"
+            onClick={handleExport}
             >
-              export to excel
+              Export All
             </button>
           )}
         </div>
@@ -447,8 +455,7 @@ const Inventorydetails = () => {
             <Loader />
           </div>
         ) : tab === 1 ? (
-          <div className="flex ">
-            <div className="inventory-container-main">
+            <div className="w-full">
               <MyProductTable
                 data={newMyProducts}
                 isChanged={isDelete}
@@ -456,9 +463,9 @@ const Inventorydetails = () => {
                 handleOpen={handleOpen}
               />
             </div>
-          </div>
+       
         ) : (
-          <div>
+          <div className="w-full">
             <Table
               header={allProductHeading}
               data={getSalonProducts}
@@ -468,17 +475,21 @@ const Inventorydetails = () => {
             />
           </div>
         )}
+     
+        <div className="flex justify-between mt-4 items-center">
         <GridRows
+          totalItems={tab === 1 ? totalMyProducts : totalAllProducts}
           itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
           handleRowschange={tab === 1 ? handleRowschange : handleRows1change}
         />
-
         <Pagination
-          totalItems={tab === 1 ? totalMyProducts : totalProducts}
+          totalItems={tab === 1 ? totalMyProducts : totalAllProducts}
           itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
           currentPage={tab === 1 ? currentPage : currentPage1}
           onPageChange={tab === 1 ? handlePageChange : handlePageChange1}
         />
+        </div>
+
         <InventoryModel
           data={getSalonProducts.find((item) => item._id === allProductId)}
           isVisible={showInventryModel}
@@ -502,7 +513,7 @@ const Inventorydetails = () => {
           isChanged={isChanged}
           setIsChanged={setIsChanged}
         />
-      </nav>
+      </div>
     </>
   );
 };

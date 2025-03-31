@@ -1,25 +1,37 @@
-import Tabs from '../../components/tabs/Tabs'
-import ViewAppointment from '../viewAppointment/ViewAppointment'
-import BookAppointment from '../bookAppointment/BookAppointment'
+import Tabs from '../../components/tabs/Tabs';
+import ViewAppointment from '../viewAppointment/ViewAppointment';
+import BookAppointment from '../bookAppointment/BookAppointment';
+import { useState } from 'react';
 
 const Appointment = () => {
+  const [activeTab, setActiveTab] = useState(0);
+  
+  
+  const handleTabChange = (id) => {
+    setActiveTab(id)
+    
+    
+  }
   const tabs=[
     {
-      id:"book",
+     
       name:'Booking',
-      component:<BookAppointment/>
+      component:<BookAppointment onTabChange={handleTabChange}/>
     },
     {
-      id:"view",
+     
       name:'View',
       component:<ViewAppointment/>
 
     }
   ]
+
+ 
+   
   return (
     <>
       <div>
-      <Tabs tabs={tabs}/>
+      <Tabs tabs={tabs} activeTab={activeTab}  handleTabChange={handleTabChange}/>
       </div>
     </>
   )

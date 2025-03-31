@@ -23,29 +23,29 @@ const MyProductTable = ({data,handleOpen,setIsChanged,isChanged}) => {
   }
     return (
         <>
-            <table className="styled-table w-[95%] mx-auto overflow-x-auto" style={{ height: "40px" }}>
+            <table className="w-full mx-auto overflow-x-auto" style={{ height: "40px" }}>
                   <thead>
                     <tr>
-                      <th>NAME</th>
-                      <th>QUANTITY</th>
-                      <th>TOTAL SIZE</th>
-                      <th>PRICE</th>
-                      <th>BRAND</th>
-                      <th>ACTION</th>
+                      <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>NAME</th>
+                      <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>QUANTITY</th>
+                      <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>TOTAL SIZE</th>
+                      <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>PRICE</th>
+                      <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>BRAND</th>
+                      <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>ACTION</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.map((item, index) => (
                       <tr key={index} >
-                      <td>{item.products.name}</td>
-                        <td>{item.products.stockQuantity}</td>
-                        <td>{item.products.totalSize} {" "} {item.products.unit}</td>
-                        <td>{item.products.price}</td>
-                        <td>{item.products.brand}</td>
-                        <td>
+                      <td className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>{item.products.name}</td>
+                        <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.products.stockQuantity}</td>
+                        <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.products.totalSize} {" "} {item.products.unit}</td>
+                        <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.products.price}</td>
+                        <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.products.brand}</td>
+                        <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>
                           <div className='flex justify-between items-center'>
                           <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={()=>handleDelete(item.products._id)}/>
-                          <BiSolidAddToQueue className="text-xl font-bold text-black cursor-pointer hover:text-red-600" onClick={()=>handleOpen(item.products._id)}/>
+                          <BiSolidAddToQueue className="text-xl font-bold text-gray2 cursor-pointer hover:text-red-600" onClick={()=>handleOpen(item.products._id)}/>
                           </div>
                         </td>
                       </tr>

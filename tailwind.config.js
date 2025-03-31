@@ -13,6 +13,7 @@ module.exports = {
         secondary:'#555555',
         gray2:'#333333',
         ternaryGray:'#979797',
+        lightGray:"#D9D9D9",
         ternary:'#009699',
         customPurple:'#5F57FF',
         heading:'#2D2D2D'

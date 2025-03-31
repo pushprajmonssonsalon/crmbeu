@@ -3,7 +3,6 @@ import { MdDashboard, MdEditSquare, MdRememberMe } from "react-icons/md";
 import { RiAccountPinBoxFill } from "react-icons/ri";
 import { MdCardMembership } from "react-icons/md";
 import { FaBookOpen, FaWallet } from "react-icons/fa";
-import { LuView } from "react-icons/lu";
 import { FaTableList } from "react-icons/fa6";
 import { RiShoppingCartFill } from "react-icons/ri";
 import { GiRoyalLove } from "react-icons/gi";
@@ -20,12 +19,7 @@ const VerticalSidebar = () => {
   const menus = [
     { name: "Dashboard", link: `/`, icon: MdDashboard, num: 1 },
     { name: "Appointments", link: `/appointments`, icon: FaBookOpen, num: 2 },
-    {
-      name: "View Appointment",
-      link: `/viewAppointment`,
-      icon: LuView,
-      num: 2,
-    },
+   
     { name: "Inventory", link: `/inventory`, icon: FaTableList, num: 3 },
     {
       name: "Reports",
@@ -116,7 +110,7 @@ const VerticalSidebar = () => {
         </button>
         </div>
         <div
-          className={` flex flex-col gap-4 h-[calc(100vh-127px)] overflow-auto   hide-scrollbar }`}
+          className={` flex flex-col gap-4 h-[calc(100%-127px)] overflow-auto   hide-scrollbar }`}
         >
           {menus?.map((menu, i) => (
             <React.Fragment key={i}>

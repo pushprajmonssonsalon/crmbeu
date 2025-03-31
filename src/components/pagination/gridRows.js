@@ -1,13 +1,11 @@
-import React from 'react'
-
-const GridRows = ({itemsPerPage,handleRowschange}) => {
+const GridRows = ({itemsPerPage,handleRowschange,totalItems}) => {
   return (
     <>
           <div className="flex gap-3 items-center">
-            <div className=" font-medium">showing</div>
+            <div className="text-sm text-ternaryGray flex items-center gap-2">showing <span>{itemsPerPage||0} results</span><span>of</span> <span>{totalItems||0}</span> </div>
             <select
                 
-                className="border max-w-md border-gray-300 focus:ring-2 outline-none p-2 rounded-md  text-sm text-gray-900   focus:ring-blue-400  "
+                className=" max-w-md bg-none  focus:ring-2 outline-none border-none p-0  text-sm text-gray-900   focus:ring-blue-400  "
                 name="limit"
                 value={itemsPerPage}
                 onChange={handleRowschange}

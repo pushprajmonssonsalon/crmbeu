@@ -4,7 +4,7 @@ import VerticalSidebar from '../newSidebar';
 import { Link } from 'react-router-dom';
 const routesObject = {
   appointments: "Appointments",
-  customerservices: "Customer Services",
+  customerservices: "Services",
   inventory: "Inventory",
   employee: "Employee",
   ownerservice: "Owner Service",

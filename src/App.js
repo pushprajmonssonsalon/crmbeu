@@ -34,6 +34,8 @@ import activeMembers from "./pages/activeMembers/ActiveMembers";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import InventoryReport from "./pages/inventoryReport/InventoryReport";
 import AdvanceInvoice from "./components/customInovice/Advances";
+import Inventory from "./components/inventory/Inventory";
+import Services from "./pages/customerServices/Services";
 
 function App() {
   useEffect(() => {
@@ -66,11 +68,11 @@ function App() {
         />
         <Route
           path="/customerservices"
-          element={<PrivateRoute Component={CustomerServices} />}
+          element={<PrivateRoute Component={Services} />}
         />
         <Route
           path="/inventory"
-          element={<PrivateRoute Component={Inventorydetails} />}
+          element={<PrivateRoute Component={Inventory} />}
         />
         <Route
           path="/employee"

@@ -3,22 +3,14 @@ import "./BookAppointment.css";
 import { formatDateWOYear, formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  deleteProducts,
-  newUpdateService,
-  productAdded,
-  removeAppointmentProductsData,
-  serviceAdded,
-} from "../../redux/actions";
+import { deleteProducts, productAdded, removeAppointmentProductsData, serviceAdded } from "../../redux/actions";
 import { deletItems } from "../../redux/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import TimePicker from "rc-time-picker";
 import { FaSearch } from "react-icons/fa";
 import "rc-time-picker/assets/index.css";
 import moment from "moment";
-import { useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
-import { IoMdPersonAdd } from "react-icons/io";
 import NormalRadio from "../../components/customInput/NormalRadio";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
@@ -28,12 +20,10 @@ const formatDate = (date) => {
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // January is 0!
   const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
+  return `${year}-${month}-${day}`;
 };
-const BookAppointment = () => {
-  const [subTotalService, setSubTotalService] = useState(0);
-  const [membershipCoin, setMembershipCoin] = useState(0);
-  const [loading, setLoading] = useState(false)
+const BookAppointment = ({onTabChange}) => {
+  
   const { debouncedFunction } = useDebouncer()
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
@@ -54,19 +44,13 @@ const BookAppointment = () => {
 
   })
   const [visible, setVisible] = useState(false);
-  const [isMobileValid, setIsMobileValid] = useState(false);
   const [userData, setUserData] = useState([]);
-  const [date, setDate] = useState(formatDate(new Date()));
 
   const [service, setService] = useState([]);
   const [subservice, setSubService] = useState([]);
   const [miniservice, setMiniService] = useState([]);
   const [staffData, setStaffData] = useState([]);
-  const [productStaff, setProductStaff] = useState({
-    staffId: "",
-    satffName: "",
-  });
-  const [time, setTime] = useState("");
+ 
   const [discount, setDiscount] = useState(0);
   const [membershipitem, setMemberShipItem] = useState(null);
   const [userId, setUserId] = useState("");
@@ -76,28 +60,16 @@ const BookAppointment = () => {
   const activemember = membershipitem?.activeMembership;
 
   const [applyDisountPer, setApplyDiscountPer] = useState(0);
-  const [productQnt, setProductQnt] = useState(1);
   const [searchProduct, setsearchProduct] = useState("");
   const [showSearchProduct, setShowSearchProduct] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
   const [services, setServices] = useState(x);
-  const navigate = useNavigate();
 
   useEffect(() => {
     setServices(x);
   }, [x]);
-  const custFields = [
-    "name",
-    'phoneNumber',
-    'email',
-    'gender',
-    'dob-date',
-    'dob-month',
-    'aniversary-date',
-    'aniversary-month',
-    'dob',
-    'aniversary']
+ 
   const appFields = [
     "date",
     "time"
@@ -136,25 +108,23 @@ const BookAppointment = () => {
 
   };
   const membershipPress = (e) => {
-    if (e.target.value){
+    if (e.target.value) {
       setActiveMemberShip(activemember?.find((elm) => elm._id === e.target.value));
     }
-    else{
+    else {
       setActiveMemberShip({})
     }
   };
 
-  useEffect(() => {
-    const currentDate = new Date().toISOString().split("T")[0];
-    setDate(currentDate);
-  }, []);
+ 
   useEffect(() => {
     const currentTime = moment()._d.toString();
 
     const timeString = currentTime.split(" ")[4];
     setAppointmentDetails((prev) => ({
       ...prev,
-      time: timeString
+      time: timeString,
+      date: formatDate(new Date())
     }))
   }, []);
 
@@ -166,7 +136,6 @@ const BookAppointment = () => {
       time: timeString
     }))
   };
-  const handleAmPmChange = (ampm) => { };
 
   const productDataReducer = useSelector(
     (store) => store.ProductAddReducer.ProductData
@@ -193,13 +162,7 @@ const BookAppointment = () => {
     price: 0,
     satffName: "",
   });
-  const [productData, setProductData] = useState({
-    name: "",
-    itemId: "",
-    price: 0,
-    staffId: "",
-  });
-
+ 
 
   useEffect(() => {
     getApiCall(
@@ -318,11 +281,13 @@ const BookAppointment = () => {
       subTotal: subtotalPrice,
       // total: subtotalPrice,
       total: totalProductServicePayable,
-      appointmentDate: appointmentDetails?.date + "T" + appointmentDetails?.time,
+      // appointmentDate: date + "T" + time + ".000Z",
+      appointmentDate: appointmentDetails?.date + "T" + appointmentDetails?.time + ".000Z",
       membershipUsed: memberShipStatus,
-      isMembershipApplied:memberShipStatus,
+      isMembershipApplied: memberShipStatus,
       // membershipCreditUsed: +memberShip,
-      membershipCreditUsed: memberShipStatus ? Math.min(activeMembership?.creditsLeft||0,subtotalPrice - countdiscount) : 0,
+      // membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
+      membershipCreditUsed: memberShipStatus ? Math.min(activeMembership?.creditsLeft || 0, subtotalPrice - countdiscount) : 0,
       products: productDataReducer,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
@@ -337,7 +302,8 @@ const BookAppointment = () => {
           // alert("Appointment Booked Sucessfully");
           toast.success("Appointment Booked Sucessfully");
           dispatch(removeAppointmentProductsData());
-          navigate("/viewAppointment");
+          onTabChange(1)
+          
         }
       },
       (error) => {
@@ -388,6 +354,14 @@ const BookAppointment = () => {
       aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
 
     }
+    if(!payload?.phoneNumber||payload.phoneNumber?.length!==10){
+
+      return toast.error("Enter Valid Phone Number") 
+    }
+    if(!payload?.name){
+
+      return toast.error("Enter Valid Customer Name") 
+    }
     postApiData(
       "parlor/registerUserForCrm",
       payload,
@@ -435,74 +409,11 @@ const BookAppointment = () => {
     toast.success("Discount Added Successfully");
   };
 
-  const applyMemberShip = () => {
-
-    const data = {
-      creditsUsed: memberShipStatus
-        ? subTotalService
-        : subtotalPrice - countdiscount,
-      userId: userId,
-      memId: activeMembership?._id,
-      isMembershipUsed: !memberShipStatus,
-    };
-    setLoading(true)
-    toast.dismiss();
-    postApiData(
-      "membership/applyMembership",
-      data,
-      (resp) => {
-        if (resp) {
-          if (memberShipStatus) {
-            setMembershipCoin(resp?.creditsLeft);
-            setMemberShipStatus(false);
-            // setMemberShip(-memberShip)
-            // setSubTotalService(subtotalPrice)
-            setSubTotalService(resp.creditsUsed - resp.remainingAmount);
-            toast.error("MemberShip Removed sucessfully");
-          } else {
-            // alert("MemberShip Applied sucessfully");
-            toast.success("MemberShip Applied sucessfully");
-            setMembershipCoin(resp?.creditsLeft);
-            setSubTotalService(resp.creditsUsed - resp.remainingAmount);
-            setMemberShipStatus(true);
-            // setMemberShip(-memberShip)
-          }
-          setLoading(false)
-        }
-      },
-      (error) => {
-        setLoading(false)
-
-        // alert("Select Correct Options");
-        toast.error("Select Correct Options !");
-      }
-    );
-  };
-  const handleMobileChange = (event) => {
-    const enteredMobileNumber = event.target.value;
-    setCustomerDetails((prev) => ({
-      ...prev,
-      phoneNumber: enteredMobileNumber,
-    }));
-    setVisible(true);
-    // Check if the entered mobile number has 10 digits
-    setIsMobileValid(enteredMobileNumber.length === 10);
-    const data = {
-      phoneNumber: enteredMobileNumber,
-    };
-    postApiData(
-      "user/searchUser",
-      data,
-      (resp) => {
-        setUserData(resp);
-      },
-      (error) => { }
-    );
-  };
+  
+  
   const fetchUser = () => {
 
     setVisible(true);
-    setIsMobileValid(customerDetails?.phoneNumber?.length === 10);
     const data = {
       phoneNumber: customerDetails?.phoneNumber,
     };
@@ -516,15 +427,10 @@ const BookAppointment = () => {
     );
 
   }
-  const onChangeProdutName = (e) => {
-    setProductData({
-      ...productData,
-      name: e.target.value,
-    });
-  };
+  
   const addproductPress = (
   ) => {
-    if(!selectedProduct)return toast.error("Please Select Product");
+    if (!selectedProduct) return toast.error("Please Select Product");
 
     const { quantity, // Adding quantity key
       staffId,
@@ -554,13 +460,7 @@ const BookAppointment = () => {
 
 
 
-  const handlePriceChange = (index, newPrice) => {
-    const updatedServices = services.map((item, i) =>
-      i === index ? { ...item, price: +newPrice } : item
-    );
-    setServices(updatedServices);
-    dispatch(newUpdateService(updatedServices));
-  };
+ 
   const handleProductChange = (e) => {
     const { name, value } = e.target;
     if (name === 'staffName') {
@@ -584,32 +484,16 @@ const BookAppointment = () => {
 
 
   }
-  const handleProductStaff = (e) => {
-    const { value } = e.target;
-    const splited = value.split("-");
-    const Name = splited[1];
-    const Id = splited[0];
-
-    setProductStaff({
-      ...serviceSelection,
-      staffId: Id,
-      satffName: Name,
-    });
-  };
+ 
   const handleApplyDiscount = () => {
 
     if (discount) {
       applyDiscount()
     }
-    const data = {
-      creditsUsed: Math.min(activeMembership?.creditsLeft||0,subtotalPrice - countdiscount),
-      userId: userId,
-      memId: activeMembership?._id,
-      isMembershipUsed: !memberShipStatus,
-    };
-    console.log(data)
-    if(activeMembership?.creditsLeft>0){
+   
+    if (activeMembership?.creditsLeft > 0) {
       setMemberShipStatus(true)
+      toast.success("membership Applied")
     }
 
 
@@ -805,7 +689,7 @@ const BookAppointment = () => {
       name: "discount",
       placeholder: "Discount %",
       value: discount,
-      type:"number",
+      type: "number",
       onChange: (e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))
     },
     {
@@ -822,10 +706,12 @@ const BookAppointment = () => {
     {
       label: "Membership Balance",
       name: "membershipBalance",
-      value: activeMembership?.creditsLeft||0,
+      value: activeMembership?.creditsLeft || 0,
       readOnly: true
     }
   ]
+
+  console.log(appointmentDetails, "app")
 
   useEffect(() => {
     if (customerDetails?.phoneNumber) {
@@ -1292,523 +1178,24 @@ const BookAppointment = () => {
               );
             })}
           </div>
+          <div className="flex justify-end mt-12">
 
+            <button onClick={handldeBookAppointment}
+              className="bg-black text-white rounded-[16px] w-[250px] text-sm font-normal ">Book Appointment</button>
+          </div>
         </div>)}
         {/*  */}
-        <div>
-        </div>
-        <div className="">
-          <div className="flex mt-10 justify-between items-center flex-wrap">
-            {/* CUSTOMER */}
-            <div className="flex flex-col  p-4 rounded-lg bg-[#fffffe] mr-2 shadow-xl w-full">
-              <div className="flex justify-between flex-wrap items-center">
-                <div className="relative ">
-                  <div className="flex flex-col gap-4">
-                    <NormalInput
-                      placeholder="Enter your Number"
-                      value={customerDetails.phoneNumber}
-                      label="Customer"
-                      name="phoneNumber"
-                      onChange={handleMobileChange}
-                      lableStyles={{
-                        color: "#000000",
-                        fontSize: "20px",
-                      }}
-                      inputStyles={{
-                        width: "250px",
-                        border: "1px solid grey",
-                        borderRadius: "11px",
-                      }}
-                    />
-                  </div>
-
-                  {visible && customerDetails.phoneNumber?.length > 0 && (
-                    <div
-                      style={{}}
-                      className="absolute top-[100px] h-[104px] w-[283px] overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-[2]"
-                    >
-                      {userData.length > 0 &&
-                        userData?.map((item, index) => {
-                          return (
-                            <div
-                              key={index}
-                              style={{ display: "flex" }}
-                              onClick={() => nameOnclick(item)}
-                              className="flex items-center px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
-                            >
-                              <p className="mr-2 font-semibold">{item.name}</p>
-                              <p className="font-semibold">
-                                {item.phoneNumber}
-                              </p>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  className={`mx-4 rounded-md px-3 py-1 text-white ${isMobileValid ? "add-customer-btn" : "disabled-btn"
-                    }`}
-                  onClick={isMobileValid ? openModal : null}
-                  disabled={!isMobileValid}
-                >
-                  <IoMdPersonAdd />
-                </button>
-
-                <AddCustomerModal
-                  isModalOpen={isModalOpen}
-                  closeModal={closeModal}
-                  addCustomerFields={addCustomerFields}
-                  handleChange={handleChange}
-                  handleSubmit={handleSubmit}
-                  heading={"Add Customer Appointment"}
-                />
+        <AddCustomerModal
+          isModalOpen={isModalOpen}
+          closeModal={closeModal}
+          addCustomerFields={addCustomerFields}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          heading={"Add Customer Appointment"}
+        />
 
 
-                <div className="">
-                  <div className="flex flex-col gap-3">
-                    <NormalInput
-                      type="date"
-                      name="date"
-                      label="Date"
-                      lableStyles={{
-                        color: "#000000",
-                        fontSize: "20px",
-                      }}
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      inputStyles={{
-                        height: "40px",
-                        border: "1px solid grey",
-                        width: "270px",
-                        borderRadius: "11px",
-                        paddingRight: "30px",
-                        outline: "none",
-                        cursor: "pointer", // Add space for the eye icon
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="w-[150px] ml-4">
-                  <p className="text-xl font-bold text-black">Time Picker </p>
-                  <TimePicker
-                    placeholder="Select Time"
-                    use12Hours
-                    showSecond={false}
-                    focusOnOpen={true}
-                    format="hh:mm A"
-                    onChange={handleTimeChange}
-                    inputIcon
-                    className=" mt-5"
-                    defaultValue={moment()}
-                    defaultOpenValue={moment()}
-                    onAmPmChange={handleAmPmChange}
-                  />
-                </div>
-              </div>
 
-              {/* ADD SERVICE SECTION */}
-
-              <h1 className="text-4xl font-bold block ml-3 mt-20 poppins-semibold text-green-600">
-                {" "}
-                SERVICES{" "}
-              </h1>
-              <div className="flex items-center justify-between flex-wrap gap-6 mt-9 p-3">
-                {servicesFields.map((item, elm) => {
-                  const { name } = item;
-                  const value = serviceSelection[name];
-                  const options = servicesOptions[name];
-                  return (
-                    <NormalSelect
-                      inputStyles={{ background: "#cbd5e1" }}
-                      name={name}
-                      value={value}
-                      options={options}
-                      onChange={handleServiceChange}
-                    />
-                  );
-                })}
-
-                <button
-                  style={{
-                    height: "40px",
-                    borderRadius: "20px solid grey",
-                    width: "150px",
-                    backgroundColor: "black",
-                    cursor: "pointer",
-                    color: "white",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                  }}
-                  onClick={handldeAddButton}
-                >
-                  Add Service
-                </button>
-              </div>
-              {/* COPIED Service TABLE */}
-
-              {x.length > 0 && (
-                <div className="table-container w-[90%] overflow-x-scroll">
-                  <table className="styled-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th> Sub Category</th>
-                        <th>Staff</th>
-                        <th>Price</th>
-                        <th>Action</th>
-
-                        {/* <th>Brand</th> */}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {x?.map((item, index) => (
-                        <tr key={index} className="bg-white">
-                          <td>{item?.miniSubcategory}</td>
-                          <td>{item?.category}</td>
-                          <td>{item?.subCategory}</td>
-                          <td>
-                            {staffData
-                              ?.filter((staff) => staff._id === item.staffId)
-                              ?.map((data) => (
-                                <span>{data.name}</span>
-                              ))}
-                          </td>
-                          {/* <td>{item?.price}</td> */}
-                          <td>
-                            <input
-                              type="number"
-                              defaultValue={item?.price}
-                              className="p-2.5"
-                              onChange={(e) =>
-                                handlePriceChange(index, e.target.value)
-                              }
-                            />
-                          </td>
-                          <td>
-                            <MdDeleteOutline
-                              onClick={() => deleteService(index)}
-                              className="text-xl text-red-600 font-bold cursor-pointer"
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className=" p-4 rounded-lg bg-[#fffffe] w-full mx-auto mt-12 shadow-xl">
-          <h1 className="text-4xl text-center  font-bold block mb-10 mt-10 poppins-bold text-green-600">
-            ADD PRODUCTS
-          </h1>
-          {productDataReducer.length > 0 && (
-            <div className="table-container">
-              <table className="styled-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Brand</th>
-                    <th>Quantity</th>
-                    <th>Staff</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productDataReducer?.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item?.name}</td>
-                      <td>{item?.price}</td>
-                      <td>{item?.brand}</td>
-                      <td>{item?.quantity}</td>
-                      <td>{item?.staffName}</td>
-                      <td>
-                        {" "}
-                        <MdDeleteOutline
-                          onClick={() => deleteProduct(index)}
-                          className="text-xl text-red-600 font-bold cursor-pointer"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Search Table */}
-          <div className="search-container">
-            <div className="flex flex-row relative mb-10 ">
-              {/* <h1 className="text-lg font-semibold">Search Product</h1> */}
-              <div className="flex relative w-[70%] xl:w-[40%] mx-auto  bg-white h-[50px]  rounded-lg">
-                <NormalInput
-                  value={searchProduct}
-                  name="searchProduct"
-                  inputStyles={{ paddingRight: "60px" }}
-                  placeholder="search product by name "
-                  onChange={searchProductOnchange}
-                />
-
-                <FaSearch className="absolute right-6 text-xl ml-3 mt-[15px]" />
-                {searchProduct?.length > 0 && (
-                  <div
-                    style={{}}
-                    className="absolute top-16 w-full p-2 max-h-[200px]  overflow-y-auto bg-white shadow-lg "
-                  >
-                    {showSearchProduct?.map((item) => {
-                      return (
-                        <div
-                          onClick={() => productNameOnclick(item.itemId)}
-                          className="flex bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
-                        >
-                          <p className="mr-2 font-semibold">{item.name}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {selectedProduct && (
-              <div className="table-container">
-                <table className="styled-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Staff</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {showSearchProduct
-                      ?.filter((item) => item.itemId === selectedProduct)
-                      ?.map((item, index) => (
-                        <tr key={index}>
-                          <td>
-                            <input
-                              value={item.name}
-                              placeholder="product Quantity "
-                              disabled
-                              onChange={onChangeProdutName}
-                            />
-                          </td>
-                          <td>{item?.price}</td>
-                          <td>
-                            <input
-                              value={productQnt}
-                              placeholder="product Quantity "
-                              onChange={(e) => setProductQnt(e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            {" "}
-                            <select
-                              style={{
-                                // border: "1px solid green",
-
-                                borderRadius: "8px",
-                              }}
-                              onChange={handleProductStaff}
-                              value={`${productStaff.staffId}-${productStaff.satffName}`}
-                            >
-                              <option value="">Select Staff</option>
-                              {staffData?.map((item) => (
-                                <option
-                                  key={item._id}
-                                  value={`${item._id}-${item.name}`}
-                                  style={{ width: "300px" }}
-                                >
-                                  {item.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-
-                          <td>
-                            <button
-                              className="flex items-center justify-center"
-                              style={{
-                                font: "white",
-                                fontWeight: "500",
-                                font: "14px",
-
-                                height: "40px",
-                                borderRadius: "20px solid grey",
-                                width: "150px",
-                                backgroundColor: "black",
-                              }}
-                              onClick={() =>
-                                addproductPress(
-                                  item,
-                                  productQnt,
-                                  productStaff.staffId,
-                                  productStaff.satffName
-                                )
-                              }
-                            >
-                              <span className="">Add Product</span>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* BOOK APPOINTMENT */}
-
-        <div className="  p-4 rounded-lg bg-[#fffffe] my-12 flex flex-col shadow-lg">
-          <h1 className="text-4xl font-bold mb-10 mt-10 text-center text-green-600">
-            BOOK APPOINTMENT
-          </h1>
-
-          <div className="flex flex-wrap justify-start gap-3 items-center">
-            <div className="flex items-center">
-              <NormalInput
-                type="number"
-                value={discount}
-
-                lableStyles={{
-                  display: "flex",
-                  width: "150px",
-                  color: "#535b61",
-                  fontWeight: "medium",
-                  fontSize: "1.15rem",
-                }}
-                inputStyles={{
-                  width: "200px",
-                }}
-                label="Apply Discount"
-                onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
-              />
-            </div>
-            <button onClick={applyDiscount} className="bg-black">
-              Apply Discount
-            </button>
-          </div>
-
-          <div className="flex gap-3 flex-wrap mt-6 justify-start items-center mb-3">
-            <div className="flex  items-center justify-center">
-              <h1 className="text-[1.15rem] w-[150px] font-semibold">
-                Membership
-              </h1>
-              <NormalSelect
-                inputStyles={{
-                  width: "300px",
-                }}
-                name="membership"
-                value={activeMembership?._id}
-                onChange={membershipPress}
-                options={activemember?.map((item) => ({
-                  name: `${item.name}-${item.creditsLeft}`,
-                  value: item._id,
-                }))}
-                disabled={memberShipStatus ? true : false}
-              />
-            </div>
-
-            {loading ?
-              <button
-                className="w-[136px] flex items-center justify-center bg-black "
-              >
-                <span>
-                  <svg
-                    className="animate-spin"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      opacity="0.5"
-                      cx="10"
-                      cy="10"
-                      r="9"
-                      stroke="white"
-                      stroke-width="2"
-                    />
-                    <mask id="path-2-inside-1_2527_20936" fill="white">
-                      <path d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z" />
-                    </mask>
-                    <path
-                      d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z"
-                      stroke="white"
-                      stroke-width="4"
-                      mask="url(#path-2-inside-1_2527_20936)"
-                    />
-                  </svg>
-                </span>
-              </button>
-              : memberShipStatus ? (
-                <button
-                  onClick={applyMemberShip}
-                  className="bg-red-600 hover:bg-red-500"
-                >
-                  Remove Membership
-                </button>
-              ) : (
-                <button
-                  onClick={applyMemberShip}
-                  className="bg-black hover:bg-gray-800"
-                >
-                  Apply Membership
-                </button>
-              )}
-
-            <div className="flex ml-6">
-              <h3 className="text-lg font-bold text-black">
-                BALANCE :{" "}
-                <span className="text-green-600 font-bold">
-                  {membershipCoin}
-                </span>
-              </h3>
-            </div>
-          </div>
-
-          <button
-            className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black"
-            onClick={handldeBookAppointment}
-          >
-            Book Appointment
-          </button>
-        </div>
-        {customerDetails?.phoneNumber && (
-          <div className="  bg-[#ffc232] rounded-lg px-3 py-5 w-full shadow-xl mb-10 flex justify-between  items-center">
-            {tableFields.map((elm, idx) => {
-              return (
-                <div key={idx} className="w-[40%] mb-auto ">
-                  <table className="table-auto  w-full">
-                    <thead></thead>
-                    <tbody>
-                      {elm?.map((item, index) => (
-                        <tr key={index}>
-                          <td className="font-bold text-black  text-lg border-none px-4 py-2">
-                            {item.label}
-                          </td>
-                          <td className=" font-bold   text-lg border-none px-4 py-2 text-green-800">
-                            {formatValue(item.value)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
 
 

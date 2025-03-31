@@ -19,33 +19,33 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
   };
 
   return (
-    <div className="flex justify-center items-center mb-6 ">
+    <div className="flex justify-center items-center ">
       <button
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={` rounded-[100%] w-[40px] h-[40px] flex items-center justify-center  hover:bg-gray-300 text-white  `}
+        className={` flex items-center justify-center   text-white  `}
       >
         <FcPrevious
-          className="text-2xl"
+          className="text-md text-ternaryGray"
         />
       </button>
       {pages.map((page) => (
         <button
           key={page}
           onClick={() => handlePageChange(page)}
-          className={`${currentPage === page ? 'bg-black  text-white' : 'bg-gray-600'} mx-1 p-2 rounded-lg hover:bg-black`}
+          className={` ${currentPage === page ? 'text-black' : 'text-ternaryGray'} `}
         >
           {page}
         </button>
       ))}
       <button
-        className={` rounded-[100%] w-[40px] h-[40px] flex items-center justify-center  hover:bg-gray-300 text-white  `}
+        className={` rounded-[100%] w-[40px] h-[40px] flex items-center justify-center   text-white  `}
         onClick={() => handlePageChange(currentPage + 1)}
 
         disabled={currentPage === totalPages}
       >
         <FcNext
-          className="text-2xl"
+          className="text-md text-ternaryGray"
 
         />
       </button>
