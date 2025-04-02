@@ -268,6 +268,8 @@ const BookAppointment = ({onTabChange}) => {
       gender
     } = customerDetails;
 
+    if(!name)return toast.error("Please Add Customer")
+
     const data = {
       services: services,
       customer: {
@@ -338,7 +340,6 @@ const BookAppointment = ({onTabChange}) => {
     });
     setsearchProduct("");
   };
-  console.log(activeMembership, "selectedProdcut")
 
   const deleteService = (item) => {
     dispatch(deletItems(item));
@@ -711,7 +712,6 @@ const BookAppointment = ({onTabChange}) => {
     }
   ]
 
-  console.log(appointmentDetails, "app")
 
   useEffect(() => {
     if (customerDetails?.phoneNumber) {
@@ -730,7 +730,7 @@ const BookAppointment = ({onTabChange}) => {
             <h2 className="font-normal leading-[20px]   text-black text-[24px]">Customer Details</h2>
             <button
               onClick={openModal}
-              className="w-[150px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]">Add</button>
+              className="w-[190px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]">Add New Customer</button>
           </div>
           <div className="flex flex-col mb-9  gap-5">
             <h1 className="text-black  font-normal text-md">
@@ -800,7 +800,7 @@ const BookAppointment = ({onTabChange}) => {
 
                         </div>}
                     </div>
-                    {visible && name === "phoneNumber" && customerDetails?.phoneNumber?.length > 0 && (
+                    {visible && name === "phoneNumber" &&userData.length > 0 && (
                       <div
                         className="absolute -bottom-[110px] h-[110px] w-full py-2 overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-[2]"
                       >

@@ -439,7 +439,7 @@ const Edit = () => {
 
   return (
     <>
-      <div className="my-40">
+      <div className="">
         {/* Services Table section*/}
         <div
           className=""

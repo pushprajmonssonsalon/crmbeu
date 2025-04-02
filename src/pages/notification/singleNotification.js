@@ -24,7 +24,7 @@ const SingleNotification = () => {
   return (
     <>
      
-        <div className="p-8 md:p-16 mt-48 mb-9 border rounded-lg border-gray-300/75 overflow-y-auto bg-white shadow-sm xl:mt-32 w-[95%] mx-auto">
+        <div className="border rounded-lg border-gray-300/75 overflow-y-auto bg-white shadow-sm w-full mx-auto">
           <div className="flex flex-wrap justify-between items-center gap-3">
             <div className="flex items-center gap-3">
               <AiFillNotification

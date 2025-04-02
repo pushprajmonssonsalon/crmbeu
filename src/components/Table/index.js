@@ -31,7 +31,7 @@ const Table = ({ header, data, orderClick, handleInventryOpen }) => {
                 {item.size} {item.unit}
               </td>
               <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >{item.brand}</td>
-              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-black text-sm" >
                 <div
                   style={{
                     background: "transparent",
@@ -51,13 +51,13 @@ const Table = ({ header, data, orderClick, handleInventryOpen }) => {
                     }}
                   >
                     <BiSolidAddToQueue
-                      className="text-xl font-bold text-ternaryGray"
+                      className="text-xl font-bold text-black"
                       onClick={() => handleInventryOpen(item._id)}
                     />
                   </p>
                 </div>
               </td>
-              <td className="border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm" >
+              <td className="border-0 border-b bg-white border-lightGray font-normal text-black text-sm" >
                 {item?.stock>0 ? (
                   <div
                     style={{
@@ -78,7 +78,7 @@ const Table = ({ header, data, orderClick, handleInventryOpen }) => {
                         fontWeight: "500",
                       }}
                     >
-                      <MdOutlineAddShoppingCart className="text-xl font-bold text-ternaryGray" />
+                      <MdOutlineAddShoppingCart className="text-xl font-bold text-black" />
                     </p>
                   </div>
                 ) : (

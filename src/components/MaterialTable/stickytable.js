@@ -293,7 +293,7 @@ export default function StickyHeadTable({
                           item?.paymentMethod
                             .filter((item) => item.amount !== 0)
                             .map((item) => item.name)
-                            .join("\n")}
+                            .join("\n") +  `${item?.comment?` (${item?.comment})`:''}`}
                       </TableCell>
                     </TableRow>
                   );

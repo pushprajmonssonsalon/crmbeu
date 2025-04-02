@@ -10,16 +10,17 @@ const CustomDatePicker = ({
     onSubmit,
     loading
 }) => {
-    const [_,setSearchParams]=useSearchParams();
+    const [searchParams,setSearchParams]=useSearchParams();
     
 
    
 
     const handleSubmit=()=>{
-        setSearchParams({
-            start:startDate,
-            end:endDate
-        })
+      const updatedParams = new URLSearchParams(searchParams);
+      updatedParams.set('start', startDate);
+      updatedParams.set('end', endDate);
+      setSearchParams(updatedParams);
+       
        onSubmit(startDate,endDate)
       
 

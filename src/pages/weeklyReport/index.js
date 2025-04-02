@@ -87,7 +87,7 @@ const WeeklyReport = () => {
   const headings = ["Week","Tickets","No. Of Services","No. Of Products","Revenue","AvgServicePerBill","AvgTicketSize"]
   return (
     <>
-        <div className='mt-32'>
+        <div className=''>
         {/* <CustomInputFeild startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} submitClick={searchClick}/> */}
         <div className='flex justify-center items-center gap-x-5 my-9'>
         <MonthPicker months={months} month={month} setMonth={setMonth}/>

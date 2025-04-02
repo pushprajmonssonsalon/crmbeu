@@ -115,8 +115,7 @@ const InvoiceWise = () => {
 
   }, [location.pathname])
   return (
-    <Layout>
-      <div className="mt-52 w-[90%] mx-auto md:mt-32 flex flex-col">
+      <div className="w-full flex flex-col">
         <h1 className="text-center text-3xl font-bold  text-black mb-4">
           Invoice wise collection
         </h1>
@@ -190,7 +189,7 @@ const InvoiceWise = () => {
           </table>
         </div>
       </div>
-    </Layout>
+    
   );
 };
 

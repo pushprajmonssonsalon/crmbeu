@@ -11,8 +11,9 @@ import { formatDateToFull } from '../../utils/services';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
+    backgroundColor: theme.palette.common.white,
+    color: '#333333',
+    borderBottom: '1px solid #D9D9D9', // Ensures only bottom border
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
@@ -31,47 +32,47 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 
-export default function CustomizedTables({headings,data,handlePrint}) {
+export default function CustomizedTables({ headings, data, handlePrint }) {
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700,maxWidth:"100%" ,overflowY:"auto"}} aria-label="customized table">
-        <TableHead>
-                <TableRow >
-        {
-            headings.map((item,index)=>(
-                    <StyledTableCell>{item}</StyledTableCell>
-            ))
-        }
-                </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((row,index) => (
-            <StyledTableRow key={index}>
-              <StyledTableCell scope="row">
-                {row.customerName}
-              </StyledTableCell>
-              <StyledTableCell >{row?.customerPhoneNumber}</StyledTableCell>
-              {/* <StyledTableCell >{row?.employees?.name}</StyledTableCell> */}
-              <StyledTableCell>
-                {
-                  row?.employees?.map((item)=>(
-                    <div>{item.name}</div>
-                  ))
-                }
-              </StyledTableCell>
-              <StyledTableCell >{row?.name}</StyledTableCell>
-              <StyledTableCell >{row?.price}</StyledTableCell>
-              <StyledTableCell >{row?.credits}</StyledTableCell>
-              <StyledTableCell >{formatDateToFull(row?.createdAt,false)}</StyledTableCell>
-              <StyledTableCell >{formatDateToFull(row?.expiryDate,false)||row?.expiry}</StyledTableCell>
-              <StyledTableCell align="right">
-              <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={()=>handlePrint(row)}/>
-              </StyledTableCell>
-            </StyledTableRow>
+
+    <>
+      <table className="w-full mx-auto overflow-x-auto" style={{ height: "40px" }}>
+        <thead>
+          <tr>
+            {
+              headings.map((item, index) => (
+                <th key={index} className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>{item}</th>
+              ))
+            }
+
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index} >
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>{item.customerName}</td>
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.customerPhoneNumber}</td>
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'> {
+                    item?.employees?.map((elm) => (
+                      <div>{elm.name}</div>
+                    ))
+                  }</td>
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.name}</td>
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.price}</td>
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.credits}</td>
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{formatDateToFull(item?.createdAt, false)}</td>
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{formatDateToFull(item?.expiryDate, false) || item?.expiry}</td>
+              <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>
+              <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={() => handlePrint(item)} />
+
+              </td>
+            </tr>
           ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+        </tbody>
+      </table>
+
+     
+    </>
   );
 }

@@ -77,7 +77,7 @@ const ActiveMembers = () => {
     <>
       {" "}
     
-        <div className="w-[90%] mx-auto mt-28 overflow-x-auto my-10 py-16">
+        <div className="w-full">
           <h2 className="font-semibold text-4xl text-black text-center mb-5">
             Active Members
           </h2>

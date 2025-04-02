@@ -91,7 +91,7 @@ const Revenue = () => {
   ];
   return (
     <>
-      <div className="mt-32 mb-9 flex items-center justify-center gap-9">
+      <div className="w-full mb-9 flex items-center justify-center gap-9">
         <CustomSearchInputFeild
           startDate={startDate}
           setStartDate={setStartDate}

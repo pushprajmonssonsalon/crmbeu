@@ -164,7 +164,7 @@ const SalonDeatils = () => {
 
   return (
     <>
-      <div className='mt-32 w-[90%] my-10 h-auto mx-auto '>
+      <div className='w-full'>
         <div className='p-4 rounded-xl '>
           <div className='flex justify-center font-bold items-center'>
             <h1 className={`text-black text-xl font-bold mb-10 text-center font-serif`}>Edit your salon details</h1>

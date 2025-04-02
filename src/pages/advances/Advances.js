@@ -1,30 +1,33 @@
 import { useEffect, useMemo, useState } from 'react';
-import Layout from '../../components/Layout';
 import useDebouncer from '../../utils/hooks/useDebouncer';
-import { formatDateToFull, formatDateWOYear, postApiData } from '../../utils/services';
+import { formatDate, formatDateToFull, formatDateWOYear, postApiData } from '../../utils/services';
 import OrderPaymentPopup from '../../components/popup/OrderPayment';
 import toast from 'react-hot-toast';
-import { IoMdPersonAdd, IoMdPrint } from 'react-icons/io';
+import { IoMdPrint } from 'react-icons/io';
 import AddCustomerModal from '../../components/modals/AddCustomerModal';
-import CustomSearchInputFeild from '../../components/customInput';
-import { FaFileExcel } from 'react-icons/fa';
+import { FaAngleDown, FaCalendarAlt } from 'react-icons/fa';
 import exportToExcel from '../../utils/exportToExcel';
 import CustomTable from '../../components/Table/CustomTable';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import NormalInput from '../../components/customInput/NormalInput';
+import CustomDatePicker from '../../components/customInput/CustomDatePicker';
 
 const Advances = () => {
     const [advances, setAdvances] = useState([]);
     const [userData, setUserData] = useState([]);
     const { debouncedFunction } = useDebouncer();
-    const [params] = useSearchParams();
-    const sd = params.get('start')
-    const ed = params.get('end')
-    const defaultStartDate = new Date();
     const navigate = useNavigate();
-    const [startDate, setStartDate] = useState(sd ? new Date(sd) : defaultStartDate);
-    const [endDate, setEndDate] = useState(ed ? new Date(ed) : defaultStartDate);
+    const defaultStartDate = formatDate(new Date());
+    const [searchParams] = useSearchParams();
+    const start = searchParams.get("start");
+    const end = searchParams.get("end")
+    const [showDate, setShowDate] = useState(false)
+    const [startDate, setStartDate] = useState(start ? start : defaultStartDate);
+    const [endDate, setEndDate] = useState(end ? end : defaultStartDate);
     const [visible, setVisible] = useState(false);
+    const [loading,setLoading]=useState(false);
+
     const [isVisible, setIsVisible] = useState(false);
     const [isModalOpen, setModalOpen] = useState(false);
     const [customerDetails, setCustomerDetails] = useState({
@@ -46,6 +49,15 @@ const Advances = () => {
         balance: 0,
         paymentMethods: [],
     });
+    const handleDateChange = (e) => {
+        const { id, value } = e.target;
+        if (id === "startDate") {
+          setStartDate(value)
+        } else {
+          setEndDate(value)
+        }
+    
+      }
 
     const nameOnclick = (item) => {
         setAdvanceData((prev) => ({ ...prev, name: item.name, phoneNumber: item.phoneNumber, userId: item._id }));
@@ -95,7 +107,7 @@ const Advances = () => {
             gender: customerDetails.gender,
             dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
             aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
-        
+
         };
 
         postApiData(
@@ -111,7 +123,7 @@ const Advances = () => {
                     dob: new Date(),
                     aniversary: new Date()
                 });
-                toast.success("User has been created! Please select the user");
+                toast.success("User has been created");
             },
             (error) => {
 
@@ -119,33 +131,7 @@ const Advances = () => {
         );
 
     };
-    const handleAdd = () => {
-        const data = {
-            userId: advanceData.userId,
-            amount: advanceData.balance,
-            paymentMethods: advanceData.paymentMethods,
-        };
-        postApiData(
-            "advance/addAdvance",
-            data,
-            (resp) => {
-                if (resp) {
-                    toast.success("Advance Added ");
-                    setAdvanceData((prev) => ({
-                        name: "",
-                        phoneNumber: "",
-                        userId: "",
-                        balance: 0,
-                        expiryDate: '',
-                        paymentMethods: [],
-                    }));
-                }
-                console.log(resp);
-            },
-            (error) => {
-                toast.error("Advance not Added ");
-            })
-    }
+  
     const addCustomerFields = [
         {
             name: "name",
@@ -187,14 +173,14 @@ const Advances = () => {
             value1: customerDetails["dob-date"],
             value2: customerDetails["dob-month"],
             placeholder: "Enter Aniversary",
-          },
-          {
+        },
+        {
             name: "aniversary",
             label: "Aniversary",
             value1: customerDetails["aniversary-date"],
             value2: customerDetails["aniversary-month"],
             placeholder: "Enter Aniversary",
-          },
+        },
     ];
     const headings = [
         {
@@ -266,7 +252,7 @@ const Advances = () => {
                     const data = resp.map((elm) => {
                         return {
                             ...elm,
-                            paymentMethod:elm?.paymentMethod?.filter(el=>el.amount>0).map((item) => item.name).join(" , ")||"",
+                            paymentMethod: elm?.paymentMethod?.filter(el => el.amount > 0).map((item) => item.name).join(" , ") || "",
                             createdAt: formatDateToFull(elm?.createdAt),
                             action: <div className="flex items-center">
                                 <button className="bg-green-600 text-white text-xl px-3 py-1 rounded-md" onClick={() => handlePrint(elm)}><IoMdPrint />
@@ -283,8 +269,36 @@ const Advances = () => {
             (error) => { }
         );
     };
+
     const handleUpdatePayment = (paymentMethods) => {
         setAdvanceData((prev) => ({ ...prev, paymentMethods }));
+        const isEveryEmpty = paymentMethods.every((elm) => !elm.amount)
+        if (isEveryEmpty) return toast.error("Enter Valid Amount")
+        if (!advanceData.userId) return toast.error("Select UserDetails")
+        const data = {
+            userId: advanceData.userId,
+            amount: advanceData.balance,
+            paymentMethods,
+        };
+        postApiData(
+            "advance/addAdvance",
+            data,
+            (resp) => {
+                if (resp) {
+                    toast.success("Advance Added ");
+                    setAdvanceData((prev) => ({
+                        name: "",
+                        phoneNumber: "",
+                        userId: "",
+                        balance: 0,
+                        expiryDate: '',
+                        paymentMethods: [],
+                    }));
+                }
+            },
+            (error) => {
+                toast.error("Advance not Added ");
+            })
     };
 
 
@@ -294,45 +308,44 @@ const Advances = () => {
 
     return (
         <>
-            <div className="mt-52 md:mt-32 w-[90%] mx-auto ">
-                <div className="my-6 flex items-center justify-center">
-                    <span className="font-bold my-9 text-[30px] text-green-600 ">
-                        Advance Payment
-                    </span>
-                </div>
-                <div>
-                    <div className="my-6 flex items-center justify-start">
+            <div className=" rounded-[16px] border border-primaryGray p-5  ">
 
-                        <div className="flex  justify-start items-center">
-                            <h4 className="text-lg font-semibold text-black">
-                                Add new Customer
-                            </h4>
-                            <button
-                                // className={`mx-4 ${isMobileValid ? 'bg-black text-white font-semibold px-3 py-2 cursor-pointer' : 'bg-gray-500 text-white font-semibold px-3 py-2 cursor-not-allowed'}`}
-                                className={`mx-4 bg-black text-white font-semibold px-3 py-2 cursor-pointer`}
-                                onClick={() => setModalOpen(true)}
-                            >
-                                <IoMdPersonAdd />
-                            </button>
-                        </div>
+                <div className="flex items-center mb-6 justify-between">
+
+                    <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Advance</h2>
+                    <div className="flex items-center gap-2">
+
+                        <button onClick={() => setModalOpen(true)}
+                            className="rounded-[16px] text-sm text-white bg-ternary py-1 px-5">
+                            Add new Customer
+                        </button>
 
                     </div>
+
                 </div>
-                <div className="flex flex-wrap justify-between  gap-5 items-center shadow-lg px-4 py-4 rounded-lg bg-[#fffffe] mt-4">
-                    <div className="relative ">
-                        <input
-                            className=" py-3 w-[240px] rouded-[10px] outline-none border-2 border-gray-400"
-                            type="text"
-                            name='phoneNumber'
+                {/* tab */}
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-x-12 xl:gap-x-20 gap-y-3 xl:gap-y-6">
+                    <div className="flex relative flex-col gap-1">
+                        <NormalInput
                             placeholder="Search by Mobile"
                             onChange={onChange('phoneNumber')}
                             value={advanceData?.phoneNumber}
+                            label="Phone Number"
+                            inputStyles={{
+                                'borderRadius': '16px'
+
+                            }}
+                            lableStyles={{
+                                'fontWeight': '400',
+                                "fontSize": "16px",
+                                'color': '#000000'
+                            }}
+
 
                         />
-
                         {visible && advanceData?.phoneNumber?.length > 0 && (
-                            <div className="absolute top-[70px] h-[104px] w-[283px] overflow-auto bg-white p-3 shadow-xl rounded-lg z-[3]">
-                                {userData?.length > 0 &&
+                            <div className="absolute top-[80px] h-[104px] w-[283px] overflow-auto bg-white shadow-xl rounded-lg z-3">
+                                {userData.length > 0 &&
                                     userData?.map((item) => {
                                         return (
                                             <div
@@ -346,92 +359,103 @@ const Advances = () => {
                                     })}
                             </div>
                         )}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <NormalInput
+                            label="Amount"
+                            placeholder="Enter Amount"
+                            onChange={onChange('balance')}
+                            value={advanceData?.balance}
+                            inputStyles={{
+                                'borderRadius': '16px'
 
+                            }}
+                            lableStyles={{
+                                'fontWeight': '400',
+                                "fontSize": "16px",
+                                'color': '#000000'
+                            }}
+                        />
 
                     </div>
 
-                    <input
-                        className=" py-3 w-[240px] rouded-[10px] outline-none border-2 border-gray-400"
-                        name='balance'
-                        type="Number"
-                        placeholder="Enter Amount"
-                        onChange={onChange('balance')}
-                        value={advanceData?.balance}
-
-                    />
-
-
-                    <button
-                        disabled={advanceData?.balance === 0}
-                        className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105"
-                        onClick={() => setIsVisible(true)}
-                    >
-                        PAY
-                    </button>
-                    {/* <button
-                        className="text-xl font-semibold text-white bg-green-600 px-6 py-1 rounded-lg hover:bg-green-800 hover:scale-105"
-                        onClick={() => setIsVisible(true)}
-                    >
-                        PAY
-                    </button> */}
-
-                    <button
-                        className="h-[40px] w-[100px] bg-black flex items-center justify-center border border-grey-200  px-[35px] ronded-[11px] cursor-pointer"
-                        onClick={handleAdd}
-                    >
-                        <span
-                            className="text-white font-medium text-[15px]"
-                        // onClick={onClickBuyNow}
-                        >
-                            ADD
-                        </span>
-                    </button>
                 </div>
-                <div className="flex justify-start items-center gap-4">
+                <div className="flex justify-end mt-12">
+
+                    <button
+                        disabled={!advanceData?.balance}
+                        onClick={() => setIsVisible(true)}
+
+                        className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Pay Now</button>
+                </div>
+                {/*           banners */}
+
+            </div>
+            <div className=" ">
+
+
+                <div className="flex justify-start items-center my-6 gap-4">
                     {banners.map((elm, index) => {
                         return (
-                            <div className="gradient-container">
+                            <div className="bg-white rounded-[10px] border shadow-card py-[15px] px-[37px]">
                                 <div
                                     key={index}
                                     className="flex  flex-col text-[20px] font-normal items-center"
                                 >
-                                    <span className="totalContainer">{elm.name}</span>
-                                    <span className="text-orange-600 font-semibold">
-                                        {elm.value}
+                                    <span className="text-center font-bold text-[16px] text-heading font-roboto">{elm.name}</span>
+                                    <span className="text-customPurple text-[20px] font-bold">{index === 1 &&
+                                        <span className="text-[16px]">₹</span>}
+                                        {elm.value || 0}
                                     </span>
                                 </div>
                             </div>
                         );
                     })}
                 </div>
-                <div className="flex gap-9 my-6 items-start justify-center">
-                    <CustomSearchInputFeild
-                        startDate={startDate}
-                        setStartDate={setStartDate}
-                        endDate={endDate}
-                        setEndDate={setEndDate}
-                        submitClick={searchClick}
-                    />
-                    <button
-                        onClick={handleExport}
-                        className="bg-green-600 text-sm mt-auto mb-1 flex items-center justify-center gap-1 font-semibold hover:bg-green-500 text-white rounded-md w-[80px] active:scale-105 transition-all ease-in duration-100"
-                    >
-                        <span>Export</span>
-                        <FaFileExcel />
-                    </button>{" "}
-                </div>
-                {advances?.length > 0 && <div className="my-10 w-[95%] mx-auto ">
 
-                    <CustomTable
-                        rows={advances}
-                        columns={headings}
-                        handlePrint={handlePrint}
-                    />
 
-                </div>}
             </div>
+            <div className='flex items-center justify-between'>
+
+                <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
+                    <div className="flex items-center  gap-6">
+                        <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+                            <FaCalendarAlt className="text-customPurple text-sm" />
+                            <span className="text-secondary text-sm">Year-to-date </span>
+                            <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
+
+                        </button>
+                        <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+                            <span>{formatDate(startDate, true)}</span>
+                            <span>~</span>
+                            <span>{formatDate(endDate, true)}</span>
+                        </div>
+                    </div>
+                    {showDate && <div className=" flex items-center my-4  gap-3">
+                        <CustomDatePicker
+                            startDate={startDate}
+                            endDate={endDate}
+                            loading={loading}
+                            className="bg-white gap-2 rounded-[5px] py-[10px] px-[15px] "
+                            onSubmit={searchClick}
+                            onChange={handleDateChange}
 
 
+                        />
+                    </div>}
+
+                </div>
+                {advances?.length > 0 && <button onClick={handleExport} className='bg-ternary text-white rounded-[16px] w-[110px] text-sm font-normal '>Export All</button>}
+            </div>
+            {advances?.length > 0 && <div className="w-full">
+
+                <CustomTable
+                    rows={advances}
+                    columns={headings}
+                    handlePrint={handlePrint}
+                />
+
+            </div>}
             {isVisible && (
                 <OrderPaymentPopup
                     isVisible={isVisible}

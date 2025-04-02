@@ -131,8 +131,17 @@
 
 .styled-table th,
 .styled-table td {
-  border: 1px solid #dddddd;
-  padding: 8px;
+  border-width: 0; 
+  border-bottom-width: 1px; 
+  border-color: #D9D9D9;
+  font-size: 0.875rem;
+  line-height: 1.25rem; 
+  color: #333333;
+  font-weight: 400; 
+  background-color: #ffffff;   
+}
+.styled-table td:not(:first-child){
+  color:#979797
 }
 
 
@@ -140,7 +149,7 @@
 .styled-table th {
   background-color: #f2f2f2;
 } */
-
+/* 
 .styled-table tr {
   border-bottom: 1px solid #dddddd;
   background-color: white;
@@ -148,4 +157,4 @@
 
 .styled-table tr:last-child {
   border-bottom: none;
-}
+} */

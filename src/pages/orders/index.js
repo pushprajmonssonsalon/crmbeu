@@ -63,14 +63,13 @@ const Orders = () => {
   return (
     <>
       <div>
-        <h1 className="text-center text-green-600 font-bold text-5xl mt-32">
+        <h1 className="text-center text-green-600 font-bold text-5xl ">
           Your Orders
         </h1>
 
         {/* Table of Recent Orders */}
         <table
           className="styled-table"
-          style={{ height: "40px", marginTop: "60px" ,width:"95%",margin:"40px auto"}}
         >
           <thead>
             <tr>

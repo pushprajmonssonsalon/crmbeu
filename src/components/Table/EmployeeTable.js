@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import SwitchExample from '../switch';
 
@@ -14,6 +14,7 @@ const EmployeeTable = ({data,startIndex,endIndex,isBool,setIsBool}) => {
         <table className="styled-table" style={{ height: "40px" }}>
                   <thead>
                     <tr>
+                    <th>#</th>
                     <th>NAME</th>
                     <th>MOBILE NO.</th>
                     <th>POISTION</th>
@@ -23,6 +24,7 @@ const EmployeeTable = ({data,startIndex,endIndex,isBool,setIsBool}) => {
                   <tbody>
                     {data.slice(startIndex, endIndex).map((item, index) => (
                       <tr key={index}>
+                      <td>{index+1}</td>
                       <td>{item.name}</td>
                       <td>{item.phoneNumber}</td>
                       <td>{item.role}</td>

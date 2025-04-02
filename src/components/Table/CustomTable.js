@@ -3,8 +3,7 @@ const CustomTable = ({ columns, rows }) => {
   return (
     <>
       {" "}
-      <div className=" w-full max-w-full overflow-x-scroll">
-        <table className="">
+        <table className="styled-table">
           <thead>
             <tr>
               {columns.map((column, index) => (
@@ -24,7 +23,6 @@ const CustomTable = ({ columns, rows }) => {
             ))}
           </tbody>
         </table>
-      </div>
     </>
   );
 };

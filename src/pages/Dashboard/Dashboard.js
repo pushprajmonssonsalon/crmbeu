@@ -515,6 +515,7 @@ const Dashboard = () => {
   return (
     <>
         <div className="">
+        
           <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
             <div className="flex items-center  gap-6">
               <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">

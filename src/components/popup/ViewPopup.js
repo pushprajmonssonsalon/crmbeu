@@ -1,6 +1,7 @@
 import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from "../../utils/services";
 import { useEffect, useState } from "react";
+import { FaCommentAlt } from "react-icons/fa";
 
 const ViewPopup = ({
   isVisible,
@@ -11,6 +12,8 @@ const ViewPopup = ({
   onUpdate,
   modal,
   setModal,
+  comment = null,
+  setComment = () => { }
 }) => {
   const { total, paymentMethod, membershipCreditUsed, _id, customer } = activeAppointment;
   const [advance, setAdvance] = useState({});
@@ -112,7 +115,7 @@ const ViewPopup = ({
 
   return (
     <div
-      className=" overflow-y-hidden overflow-x-hidden flex items-center justify-center bg-black bg-opacity-50 fixed top-0 right-0 left-0 ma z-50  w-full md:inset-0 h-full"
+      className=" ofullverflow-y-hidden overflow-x-hidden flex items-center justify-center bg-black bg-opacity-50 fixed top-0 right-0 left-0 ma z-50  w-full md:inset-0 h-"
     >
       <div
         className=" z-40  h-[80%]  md:h-[80%] my-auto"
@@ -164,7 +167,7 @@ const ViewPopup = ({
 
 
           </div>
-          <div className="max-h-[calc(100%-110px)] overflow-y-auto">
+          <div className="max-h-[calc(100%-110px)] overflow-y-auto overflow-x-hidden">
 
             <table className="styled-table">
               <thead>
@@ -175,24 +178,42 @@ const ViewPopup = ({
               </thead>
               <tbody>
                 {paymentMethod?.map((item, index) => (
-                  <tr key={index}>
+                  <tr key={index} className="relative">
                     <td className="font-bold capitalize text-lg">{item?.name}</td>
-                    <td>
-                      <input
-                        disabled={isPaid}
-                        name={item.name}
-                        type="number"
-                        min={0}
-                        max={payTotal}
-                        className="w-[250px] outline-none "
-                        value={item?.amount}
-                        onChange={handleChange}
-                      />
+                    <td className="">
+                      <div className="flex flex-col gap-2">
+                        <input
+                          disabled={isPaid}
+                          name={item.name}
+                          type="number"
+                          min={0}
+                          max={payTotal}
+                          className="w-[250px] outline-none "
+                          value={item?.amount}
+                          onChange={handleChange}
+                        />
+                        {item.name === "Online" && <>   
+                         <input
+                          value={comment}
+                          placeholder="Enter Comment"
+                          onChange={(e)=>setComment(e.target.value)}
+                          type="text"
+                          className="py-1 px-2 rounded-[10px] "
+                        />
+
+                        </>
+                        }
+                        
+                      </div>
+                   
+
                     </td>
+
                   </tr>
                 ))}
               </tbody>
             </table>
+
 
             {!isPaid && (
               <button

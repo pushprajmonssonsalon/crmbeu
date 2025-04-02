@@ -93,9 +93,9 @@ const OrderPaymentPopup = ({
     <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
       <div className="absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto">
         <div className="bg-white p-4 rounded-xl ">
-          <div className="flex justify-around font-bold items-center">
-            <h1 className={`text-blue-500 text-lg font-bold `}>
-              PAY : {membership}
+          <div className="flex justify-between  items-center">
+            <h1 className={`text-gray2 text-lg  `}>
+              PAY : ₹{membership}
             </h1>
             <button
               className="text-3xl font-bold  text-red-600 hover:text-red-900 bg-transparent "
@@ -132,7 +132,7 @@ const OrderPaymentPopup = ({
             </tbody>
           </table>
           <button
-            className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
+            className='bg-black text-white rounded-[16px] w-[100px] text-sm font-normal '
             onClick={hnadleUpdate}
           >
             Update

@@ -24,18 +24,7 @@ const Inventory = () => {
    
        },
      
-       {
-        
-         name:'All Services',
-         component:<Inventorydetails onTabChange={handleTabChange}/>
-   
-       },
-       {
-         id:"myServ",
-         name:'My Services',
-         component:<Inventorydetails onTabChange={handleTabChange}/>
-   
-       },
+       
      ]
    
    

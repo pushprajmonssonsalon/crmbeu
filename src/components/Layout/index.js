@@ -48,7 +48,7 @@ const Layout = ({ children }) => {
           <div className='px-6 py-9'>
             <Breadcrumbs/>
 
-          <main style={{ maxWidth: '100%' }} className='w-full mx-auto overflow-x-auto'>{children}</main>
+          <main style={{ maxWidth: '100%' }} className='w-full '>{children}</main>
           </div>
       </div>
     </div>

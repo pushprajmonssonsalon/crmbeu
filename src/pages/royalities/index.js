@@ -123,7 +123,7 @@ const Royalities = () => {
   
   return (
     <>
-      <div className="mt-32 flex flex-col w-[90%] mx-auto">
+      <div className="flex flex-col w-full mx-auto">
         <div className="flex items-center gap-x-3 mb-10">
           <MonthPicker months={months} month={month} setMonth={setMonth} />
           <YearPicker years={years} year={year} setYear={setYear} />

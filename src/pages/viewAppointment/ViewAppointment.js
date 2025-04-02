@@ -16,6 +16,7 @@ import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 const ViewAppointment = () => {
   const [params] = useSearchParams();
   const [loading, setLoading] = useState(false)
+  const [comment,setComment]=useState("")
   const [showDate, setShowDate] = useState(false)
   const start = params.get("start");
   const end = params.get("end");
@@ -25,7 +26,6 @@ const ViewAppointment = () => {
   const [tab, setTab] = useState("crm");
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
   const [activeAppointment, setActiveAppointment] = useState({});
-
   const [modal, setModal] = useState(false);
   const [printStatus, setPrintStatus] = useState(false);
   // show popup
@@ -83,7 +83,7 @@ const ViewAppointment = () => {
       const data = {
         status: 3,
         id: item._id,
-
+        comment,
         ...((advanceUsed && userId) && { advanceUsed, userId }),
         paymentMethod: activeAppointment?.paymentMethod,
       };
@@ -126,6 +126,7 @@ const ViewAppointment = () => {
     const data = {
       status: 2,
       id: item._id,
+      comment,
       paymentMethod: viewAppointmentDetails?.paymentMethods,
     };
 
@@ -152,6 +153,8 @@ const ViewAppointment = () => {
     const data = {
       status: 2,
       id: item._id,
+      comment,
+
       paymentMethod: viewAppointmentDetails?.paymentMethods,
     };
 
@@ -426,6 +429,8 @@ const ViewAppointment = () => {
           )}
         </div>
         <ViewPopup
+        comment={comment}
+        setComment={setComment}
           isVisible={showPopup}
           onClose={() => setShowPopup(false)}
           modal={modal}

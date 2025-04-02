@@ -2,14 +2,11 @@ import "./App.css";
 import Login from "./pages/login/Login";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Appointment from "./pages/Appointment/Appointment";
-import CustomerServices from "./pages/customerServices/customerServices";
-import Inventorydetails from "./pages/Inventorydetails/Inventorydetails";
 import Employeedetails from "./pages/employeeDetails/Employeedetails";
 import OwnerService from "./pages/ownerServices";
 import ViewAppointment from "./pages/viewAppointment/ViewAppointment";
 import Report from "./pages/reports/Report";
 import CompltedAppointMent from "./pages/completedAppointment";
-import Membership from "./pages/memberShip";
 import PrivateRoute from "./components/privateRoute";
 import Edit from "./pages/EditAppointmentSalon/Edit";
 import Orders from "./pages/orders";
@@ -36,6 +33,7 @@ import InventoryReport from "./pages/inventoryReport/InventoryReport";
 import AdvanceInvoice from "./components/customInovice/Advances";
 import Inventory from "./components/inventory/Inventory";
 import Services from "./pages/customerServices/Services";
+import Members from "./pages/memberShip/Members";
 
 function App() {
   useEffect(() => {
@@ -101,7 +99,7 @@ function App() {
         />
         <Route
           path="/membership"
-          element={<PrivateRoute Component={Membership} />}
+          element={<PrivateRoute Component={Members} />}
         />
         <Route
           path="/advance"

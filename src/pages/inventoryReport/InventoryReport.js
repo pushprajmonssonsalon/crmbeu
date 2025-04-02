@@ -142,7 +142,7 @@ const InventoryReport = () => {
   return (
     <>
     
-        <div className="mt-32 max-w-[95%] mx-auto">
+        <div className="w-full">
           <div className="mt-5 flex items-start ">
             <button
               onClick={handleExport}

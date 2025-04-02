@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import "./membership.css";
-import CustomInputFeild from "../../components/customInput";
-import { getApiCall, postApiData } from "../../utils/services";
-import Layout from "../../components/Layout";
+import { formatDate, getApiCall, postApiData } from "../../utils/services";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { IoMdPersonAdd } from "react-icons/io";
@@ -10,8 +8,10 @@ import { MdCardMembership } from "react-icons/md";
 import NewMembershipModal from "../../components/popup/NewMembershipPopup";
 import CustomizedTables from "../../components/MaterialTable";
 import MemComponent from "../../components/membership/MemComponent";
-import { FaFileExcel } from "react-icons/fa";
+import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import exportToExcel from "../../utils/exportToExcel";
+import { useSearchParams } from "react-router-dom";
+import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 export default function Membership() {
   const [isNewMembershipModal, setIsNewMembershipModal] = useState(false);
   const [add, setAdd] = useState(true);
@@ -24,9 +24,15 @@ export default function Membership() {
   const [buyNowclick, setBuyClickNow] = useState(false);
   const [todayMembership, setTodayMembership] = useState([]);
   //date
-  const defaultStartDate = new Date();
-  const [startDate, setStartDate] = useState(defaultStartDate);
-  const [endDate, setEndDate] = useState(defaultStartDate);
+  const defaultStartDate = formatDate(new Date());
+ 
+  const [searchParams] = useSearchParams();
+  const start = searchParams.get("start");
+  const end = searchParams.get("end")
+  const [showDate,setShowDate]=useState(false)
+  const [startDate, setStartDate] = useState(start ? start : defaultStartDate);
+  const [endDate, setEndDate] = useState(end ? end : defaultStartDate);
+  const [loading,setLoading]=useState(false)
   const [membershipName, setMembershipName] = useState("");
   const [isPayed, setIsPayed] = useState(false);
   const navigate = useNavigate();
@@ -37,7 +43,7 @@ export default function Membership() {
       (resp) => {
         setmemeberShipDetails(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [buyNowclick]);
   // today' membership buy api
@@ -52,7 +58,7 @@ export default function Membership() {
       (resp) => {
         setTodayMembership(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [add]);
 
@@ -62,7 +68,7 @@ export default function Membership() {
       (resp) => {
         setMembershipType(resp.membershipList);
       },
-      (error) => {}
+      (error) => { }
     );
   }, [isNewMembershipModal]);
   const membershipPress = (e) => {
@@ -75,6 +81,15 @@ export default function Membership() {
     setMembershipName(filteredStaffData[0]?.name);
     setMemberShip(filteredStaffData[0]?.price);
   };
+  const handleDateChange = (e) => {
+    const { id, value } = e.target;
+    if (id === "startDate") {
+      setStartDate(value)
+    } else {
+      setEndDate(value)
+    }
+
+  }
 
   const onClickBuyNow = (item) => {
     const { selectedStaff, paymentMethods, phoneNumber } = item;
@@ -90,7 +105,6 @@ export default function Membership() {
       phoneNumber !== "" &&
       selectedStaff.length > 0 &&
       memberShipdata !== null &&
-      isPayed === true &&
       membershipName !== ""
     ) {
       postApiData(
@@ -143,7 +157,7 @@ export default function Membership() {
       (resp) => {
         setTodayMembership(resp);
       },
-      (error) => {}
+      (error) => { }
     );
   };
 
@@ -168,7 +182,7 @@ export default function Membership() {
       {
         heading: "Add new customer",
         button: {
-          onClick: () => {},
+          onClick: () => { },
           icon: <IoMdPersonAdd />,
         },
       },
@@ -199,6 +213,8 @@ export default function Membership() {
 
   return (
     <>
+    <div className="w-full mx-auto">
+     
       <MemComponent
         fields={fields}
         setUserId={setUserId}
@@ -214,7 +230,7 @@ export default function Membership() {
         onClickBuyNow={onClickBuyNow}
       />
 
-      <div className="flex gap-9 my-6 items-start justify-center">
+      {/* <div className="flex gap-9 my-6 items-start justify-center">
         <CustomInputFeild
           startDate={startDate}
           setStartDate={setStartDate}
@@ -229,10 +245,42 @@ export default function Membership() {
           <span>Export</span>
           <FaFileExcel />
         </button>{" "}
-      </div>
+      </div> */}
+      <div className="flex items-center justify-between">
 
+      <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
+        <div className="flex items-center  gap-6">
+          <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+            <FaCalendarAlt className="text-customPurple text-sm" />
+            <span className="text-secondary text-sm">Year-to-date </span>
+            <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
+
+          </button>
+          <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+            <span>{formatDate(startDate, true)}</span>
+            <span>~</span>
+            <span>{formatDate(endDate, true)}</span>
+          </div>
+        </div>
+        {showDate && <div className=" flex items-center my-4  gap-3">
+          <CustomDatePicker
+            startDate={startDate}
+            endDate={endDate}
+            loading={loading}
+            className="bg-white gap-2 rounded-[5px] py-[10px] px-[15px] "
+            onSubmit={searchClick}
+            onChange={handleDateChange}
+
+
+          />
+        </div>}
+
+      </div>
+      {todayMembership?.length > 0 && <button onClick={handleExport} className='bg-ternary text-white rounded-[16px] w-[110px] text-sm font-normal '>Export All</button>}
+
+      </div>
       {/* MEMBERSHIP TABLE */}
-      <div className="mb-10 w-[95%] mx-auto ">
+      <div className="w-full">
         {todayMembership.length > 0 && (
           <CustomizedTables
             headings={headings}
@@ -248,6 +296,7 @@ export default function Membership() {
           onClose={onNewClose}
         />
       )}
+      </div>
     </>
   );
 }

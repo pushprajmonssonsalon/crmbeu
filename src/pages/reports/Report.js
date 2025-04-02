@@ -4,7 +4,6 @@ import "./report.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { postApiData, formatValue } from "../../utils/services";
 import { usePDF } from 'react-to-pdf';
-import Layout from "../../components/Layout";
 import ReportTable from "../../components/Table/ReportTable";
 import { MdPeopleAlt } from "react-icons/md";
 import CustomSearchInputFeild from "../../components/customInput";
@@ -157,7 +156,7 @@ const Report = () => {
 
   return (
     <>
-      <div className="mt-32 w-[90%] mx-auto mb-20">
+      <div className="">
         <div>
           <button className="bg-green-500 text-white rounded-xl px-6 h-[50px]" onClick={() => toPDF()}>Download PDF</button>
         </div>

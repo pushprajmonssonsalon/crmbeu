@@ -39,7 +39,7 @@ const CustomerDetails = () => {
    
   return (
     <>
-    <div className='mt-32 w-[90%] mx-auto mb-10'>
+    <div className='w-full'>
         <h1 className='text-2xl font-bold text-center text-green-600'>Search Customer Details</h1>    
 
 

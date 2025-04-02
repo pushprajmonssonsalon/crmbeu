@@ -75,7 +75,7 @@ const subserviceClick=(item)=>{
 
   return (
     <>
-    <div className="mt-32 flex">
+    <div className="flex">
       <div style={{ background: "white", }} className="mt-32"
     >
         {service.map((item,index) => (
