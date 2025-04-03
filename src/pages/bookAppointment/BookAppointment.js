@@ -22,8 +22,8 @@ const formatDate = (date) => {
   const year = date.getFullYear();
   return `${year}-${month}-${day}`;
 };
-const BookAppointment = ({onTabChange}) => {
-  
+const BookAppointment = ({ onTabChange }) => {
+
   const { debouncedFunction } = useDebouncer()
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
@@ -50,7 +50,7 @@ const BookAppointment = ({onTabChange}) => {
   const [subservice, setSubService] = useState([]);
   const [miniservice, setMiniService] = useState([]);
   const [staffData, setStaffData] = useState([]);
- 
+
   const [discount, setDiscount] = useState(0);
   const [membershipitem, setMemberShipItem] = useState(null);
   const [userId, setUserId] = useState("");
@@ -69,7 +69,7 @@ const BookAppointment = ({onTabChange}) => {
   useEffect(() => {
     setServices(x);
   }, [x]);
- 
+
   const appFields = [
     "date",
     "time"
@@ -116,7 +116,7 @@ const BookAppointment = ({onTabChange}) => {
     }
   };
 
- 
+
   useEffect(() => {
     const currentTime = moment()._d.toString();
 
@@ -162,7 +162,7 @@ const BookAppointment = ({onTabChange}) => {
     price: 0,
     satffName: "",
   });
- 
+
 
   useEffect(() => {
     getApiCall(
@@ -268,7 +268,7 @@ const BookAppointment = ({onTabChange}) => {
       gender
     } = customerDetails;
 
-    if(!name)return toast.error("Please Add Customer")
+    if (!name) return toast.error("Please Add Customer")
 
     const data = {
       services: services,
@@ -305,7 +305,7 @@ const BookAppointment = ({onTabChange}) => {
           toast.success("Appointment Booked Sucessfully");
           dispatch(removeAppointmentProductsData());
           onTabChange(1)
-          
+
         }
       },
       (error) => {
@@ -355,13 +355,13 @@ const BookAppointment = ({onTabChange}) => {
       aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
 
     }
-    if(!payload?.phoneNumber||payload.phoneNumber?.length!==10){
+    if (!payload?.phoneNumber || payload.phoneNumber?.length !== 10) {
 
-      return toast.error("Enter Valid Phone Number") 
+      return toast.error("Enter Valid Phone Number")
     }
-    if(!payload?.name){
+    if (!payload?.name) {
 
-      return toast.error("Enter Valid Customer Name") 
+      return toast.error("Enter Valid Customer Name")
     }
     postApiData(
       "parlor/registerUserForCrm",
@@ -410,8 +410,8 @@ const BookAppointment = ({onTabChange}) => {
     toast.success("Discount Added Successfully");
   };
 
-  
-  
+
+
   const fetchUser = () => {
 
     setVisible(true);
@@ -428,7 +428,7 @@ const BookAppointment = ({onTabChange}) => {
     );
 
   }
-  
+
   const addproductPress = (
   ) => {
     if (!selectedProduct) return toast.error("Please Select Product");
@@ -438,6 +438,11 @@ const BookAppointment = ({onTabChange}) => {
       staffName, price, } = selectedProduct
     if (!quantity || quantity === "0") {
       toast.error("Please Enter Quantiy");
+
+      return;
+    }
+    if (!price || price === "0") {
+      toast.error("Please Enter Price");
 
       return;
     }
@@ -461,7 +466,7 @@ const BookAppointment = ({onTabChange}) => {
 
 
 
- 
+
   const handleProductChange = (e) => {
     const { name, value } = e.target;
     if (name === 'staffName') {
@@ -485,13 +490,13 @@ const BookAppointment = ({onTabChange}) => {
 
 
   }
- 
+
   const handleApplyDiscount = () => {
 
     if (discount) {
       applyDiscount()
     }
-   
+
     if (activeMembership?.creditsLeft > 0) {
       setMemberShipStatus(true)
       toast.success("membership Applied")
@@ -521,6 +526,12 @@ const BookAppointment = ({onTabChange}) => {
     {
       name: "miniSubcategory",
       label: "Sub Category"
+
+    },
+    {
+      name: "price",
+      label: "Price",
+      placeholder:"Enter Price"
 
     },
     {
@@ -657,8 +668,8 @@ const BookAppointment = ({onTabChange}) => {
     {
       name: "price",
       label: "Price",
+      type:"Number",
       placeholder: "Price",
-      readOnly: true,
       value: selectedProduct?.price,
     },
     {
@@ -800,7 +811,7 @@ const BookAppointment = ({onTabChange}) => {
 
                         </div>}
                     </div>
-                    {visible && name === "phoneNumber" &&userData.length > 0 && (
+                    {visible && name === "phoneNumber" && userData.length > 0 && (
                       <div
                         className="absolute -bottom-[110px] h-[110px] w-full py-2 overflow-auto border-2 border-gray-200 bg-white shadow-xl rounded-lg z-[2]"
                       >
@@ -834,7 +845,7 @@ const BookAppointment = ({onTabChange}) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
             {
               servicesFields?.map((customer, index) => {
-                const { name, label } = customer
+                const { name, label,placeholder } = customer
 
                 const value = serviceSelection[name];
                 const options = servicesOptions[name]
@@ -842,26 +853,47 @@ const BookAppointment = ({onTabChange}) => {
                   <div key={index} className="relative">
                     <div className="flex flex-col gap-1">
 
-                      <NormalSelect
+                      {name === "price" ?
 
-                        name={name}
-                        label={label}
-                        options={options}
-                        onChange={handleServiceChange}
-                        value={value}
-                        inputStyles={{
-                          'borderRadius': '16px'
+                        <NormalInput
+                          name={name}
+                          label={label}
+                          onChange={handleServiceChange}
+                          placeholder={placeholder}
+                          value={value}
+                          inputStyles={{
+                            'borderRadius': '16px'
 
-                        }}
-                        lableStyles={{
-                          'fontWeight': '400',
-                          "fontSize": "16px",
-                          'color': '#000000'
-                        }}
+                          }}
+                          lableStyles={{
+                            'fontWeight': '400',
+                            "fontSize": "16px",
+                            'color': '#000000'
+                          }}
 
 
 
-                      />
+                        />
+                        : <NormalSelect
+
+                          name={name}
+                          label={label}
+                          options={options}
+                          onChange={handleServiceChange}
+                          value={value}
+                          inputStyles={{
+                            'borderRadius': '16px'
+
+                          }}
+                          lableStyles={{
+                            'fontWeight': '400',
+                            "fontSize": "16px",
+                            'color': '#000000'
+                          }}
+
+
+
+                        />}
                     </div>
 
                   </div>
