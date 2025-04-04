@@ -72,7 +72,6 @@ const BookAppointment = ({ onTabChange }) => {
   const appFields = [
     "date",
     "time"
-
   ]
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -284,7 +283,7 @@ const BookAppointment = ({ onTabChange }) => {
     } else {
       setServiceSelection((prev) => ({
         ...prev,
-        [name]: value,
+        [name]:name==="price"?+value: value,
       }));
     }
   };
@@ -305,6 +304,7 @@ const BookAppointment = ({ onTabChange }) => {
     // alert("All service added")
     toast.success("All Service Added!!");
   };
+
   const handldeBookAppointment = () => {
     const { name,
       phoneNumber,
@@ -575,6 +575,7 @@ const BookAppointment = ({ onTabChange }) => {
     {
       name: "price",
       label: "Price",
+      type:"number",
       placeholder: "Enter Price"
 
     },
@@ -953,7 +954,7 @@ const BookAppointment = ({ onTabChange }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
             {
               servicesFields?.map((customer, index) => {
-                const { name, label, placeholder } = customer
+                const { name, label, placeholder,type } = customer
 
                 const value = serviceSelection[name];
                 const options = servicesOptions[name]
@@ -966,6 +967,7 @@ const BookAppointment = ({ onTabChange }) => {
                         <NormalInput
                           name={name}
                           label={label}
+                          type={type}
                           onChange={handleServiceChange}
                           placeholder={placeholder}
                           value={value}
