@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import "./Navbar.css";
 import { useState } from "react";
 import { getApiCall } from "../../utils/services";
@@ -13,9 +13,23 @@ const Navbar = () => {
   const [unReadMsg, setUnReadMsg] = useState(false);
   const [parlorDetails, setParlorDetails] = useState({});
   const navigate = useNavigate();
+  const modalRef = useRef(null);
   const adminPress = () => {
     setAdmin(!admin);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setAdmin(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   useEffect(() => {
     getApiCall(
       "parlor/getParlorDetail",
@@ -39,6 +53,9 @@ const Navbar = () => {
       }
     );
   }, []);
+  useEffect(() => {
+
+  }, [])
   const signoutPress = () => {
     localStorage.removeItem("token");
     toast.success("Logout Successful");
@@ -79,52 +96,53 @@ const Navbar = () => {
                 </p>
               </div>}
             </li>
-            <li className="mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer">
+            <li className="mx-6 font-medium  inter text-xs xl:text-lg text-slate-100 cursor-pointer">
               <button onClick={adminPress}
-                className=" bg-white  py-2 px-4 rounded-lg text-black flex justify-center gap-4 items-center">
+                className=" bg-white hover:bg-secondaryGray   py-2 px-4 rounded-[16px] text-black flex justify-center gap-4 items-center">
                 <div className="flex items-center justify-center gap-2 ">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M28 16C28 18.4759 27.2501 20.7767 25.9652 22.6876C23.8107 25.8919 20.1515 28 16 28C11.8485 28 8.18936 25.8919 6.03479 22.6876C4.74983 20.7767 4 18.4759 4 16C4 9.37259 9.37259 4 16 4C22.6275 4 28 9.37259 28 16Z" stroke="#636060" stroke-width="2.5" />
-                  <path d="M16.9998 12C16.9998 12.5523 16.5521 13 15.9998 13V16.3333C18.393 16.3333 20.3332 14.3932 20.3332 12H16.9998ZM15.9998 13C15.4476 13 14.9998 12.5523 14.9998 12H11.6665C11.6665 14.3932 13.6066 16.3333 15.9998 16.3333V13ZM14.9998 12C14.9998 11.4477 15.4476 11 15.9998 11V7.66667C13.6066 7.66667 11.6665 9.60676 11.6665 12H14.9998ZM15.9998 11C16.5521 11 16.9998 11.4477 16.9998 12H20.3332C20.3332 9.60676 18.393 7.66667 15.9998 7.66667V11Z" fill="#636060" />
-                  <path d="M6.88797 23.8085L5.29064 23.3328L5.03125 24.2039L5.62292 24.8936L6.88797 23.8085ZM25.1123 23.8085L26.3774 24.8936L26.9691 24.2039L26.7097 23.3328L25.1123 23.8085ZM12.0002 21.6667H20.0002V18.3333H12.0002V21.6667ZM12.0002 18.3333C8.82713 18.3333 6.15124 20.4432 5.29064 23.3328L8.4853 24.2843C8.93664 22.7688 10.3419 21.6667 12.0002 21.6667V18.3333ZM16.0002 26.3333C12.8614 26.3333 10.0507 24.9359 8.15304 22.7235L5.62292 24.8936C8.12686 27.8129 11.8479 29.6667 16.0002 29.6667V26.3333ZM20.0002 21.6667C21.6585 21.6667 23.0637 22.7688 23.515 24.2843L26.7097 23.3328C25.8491 20.4432 23.1731 18.3333 20.0002 18.3333V21.6667ZM23.8473 22.7235C21.9497 24.9359 19.139 26.3333 16.0002 26.3333V29.6667C20.1525 29.6667 23.8735 27.8129 26.3774 24.8936L23.8473 22.7235Z" fill="#636060" />
-                </svg>
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M28 16C28 18.4759 27.2501 20.7767 25.9652 22.6876C23.8107 25.8919 20.1515 28 16 28C11.8485 28 8.18936 25.8919 6.03479 22.6876C4.74983 20.7767 4 18.4759 4 16C4 9.37259 9.37259 4 16 4C22.6275 4 28 9.37259 28 16Z" stroke="#636060" stroke-width="2.5" />
+                    <path d="M16.9998 12C16.9998 12.5523 16.5521 13 15.9998 13V16.3333C18.393 16.3333 20.3332 14.3932 20.3332 12H16.9998ZM15.9998 13C15.4476 13 14.9998 12.5523 14.9998 12H11.6665C11.6665 14.3932 13.6066 16.3333 15.9998 16.3333V13ZM14.9998 12C14.9998 11.4477 15.4476 11 15.9998 11V7.66667C13.6066 7.66667 11.6665 9.60676 11.6665 12H14.9998ZM15.9998 11C16.5521 11 16.9998 11.4477 16.9998 12H20.3332C20.3332 9.60676 18.393 7.66667 15.9998 7.66667V11Z" fill="#636060" />
+                    <path d="M6.88797 23.8085L5.29064 23.3328L5.03125 24.2039L5.62292 24.8936L6.88797 23.8085ZM25.1123 23.8085L26.3774 24.8936L26.9691 24.2039L26.7097 23.3328L25.1123 23.8085ZM12.0002 21.6667H20.0002V18.3333H12.0002V21.6667ZM12.0002 18.3333C8.82713 18.3333 6.15124 20.4432 5.29064 23.3328L8.4853 24.2843C8.93664 22.7688 10.3419 21.6667 12.0002 21.6667V18.3333ZM16.0002 26.3333C12.8614 26.3333 10.0507 24.9359 8.15304 22.7235L5.62292 24.8936C8.12686 27.8129 11.8479 29.6667 16.0002 29.6667V26.3333ZM20.0002 21.6667C21.6585 21.6667 23.0637 22.7688 23.515 24.2843L26.7097 23.3328C25.8491 20.4432 23.1731 18.3333 20.0002 18.3333V21.6667ZM23.8473 22.7235C21.9497 24.9359 19.139 26.3333 16.0002 26.3333V29.6667C20.1525 29.6667 23.8735 27.8129 26.3774 24.8936L23.8473 22.7235Z" fill="#636060" />
+                  </svg>
 
-                Admin
+                  Admin
                 </div>
                 <div>
-                <FaAngleDown />
+                  <FaAngleDown />
 
                 </div>
 
 
-               
+
               </button>
             </li>
           </ul>
         </div>
         {admin && (
           <div
-            style={{
-              display: "flex",
-              paddingRight: "10px",
-              position: "absolute",
-              flexDirection: "row-reverse",
-              right: "0px",
-              top: "80px",
-            }}
+            className="absolute right-[40px] top-[91px] flex"
+             ref={modalRef}
           >
-            <div className="signOut cursor-pointer p-3 text-center">
-              <span className="cursor-pointer manageProfile hover:bg-gray-200 rounded-lg px-2 py-1 w-full font-medium ">
+            <div       // Prevent closing when clicking inside
+              className="bg-white text-start rounded-[16px] border shadow flex flex-col cursor-pointer p-3 ">
+              <span className="cursor-pointer hover:bg-gray-50 p-2 text-black font-medium" onClick={() => {
+                setAdmin(false)
+                navigate("/salon-details")
+              }}>
                 Manage Profile
               </span>
               <span
-                onClick={() => setShowModal(true)}
-                className="cursor-pointer manageProfile hover:bg-gray-200 rounded-lg px-2 py-1 w-full font-medium "
+                onClick={() => {
+                  setShowModal(true)
+                  setAdmin(false)
+                }}
+                className="cursor-pointer hover:bg-gray-50 border-b  p-2 text-black font-medium"
               >
                 Change Password
               </span>
               <span
-                className=" cursor-pointer manageProfile hover:bg-gray-200 rounded-lg px-2 py-1 w-full font-medium"
+                className=" cursor-pointer hover:bg-gray-50  p-2"
                 onClick={signoutPress}
               >
                 Sign Out

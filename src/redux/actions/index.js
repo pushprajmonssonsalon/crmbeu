@@ -51,6 +51,12 @@ export const EditproductAdded=(item)=>{
     }
 
 }
+export const updateProducts=(item)=>{
+    
+    return(dispatch,getState)=>{
+        dispatch({type:'UPDATE_PRODUCT',payload:item})
+    }
+}
 export const deleteProducts=(id)=>{
     
     return(dispatch,getState)=>{

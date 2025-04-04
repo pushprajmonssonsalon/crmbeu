@@ -3,7 +3,7 @@ import "./BookAppointment.css";
 import { formatDateWOYear, formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteProducts, productAdded, removeAppointmentProductsData, serviceAdded } from "../../redux/actions";
+import { deleteProducts, newUpdateService, productAdded, removeAppointmentProductsData, serviceAdded, updateProducts } from "../../redux/actions";
 import { deletItems } from "../../redux/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import TimePicker from "rc-time-picker";
@@ -64,11 +64,10 @@ const BookAppointment = ({ onTabChange }) => {
   const [showSearchProduct, setShowSearchProduct] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
-  const [services, setServices] = useState(x);
 
-  useEffect(() => {
-    setServices(x);
-  }, [x]);
+  // useEffect(() => {
+  //   setServices(x);
+  // }, [x]);
 
   const appFields = [
     "date",
@@ -115,7 +114,52 @@ const BookAppointment = ({ onTabChange }) => {
       setActiveMemberShip({})
     }
   };
+  const handleChangeServices = (e, index, type) => {
+    const { name, value } = e.target;
+    if (type === "services") {
+      const newServices = [...x];
+      if (name === "staff") {
+        const splited = value.split("-");
+        const Name = splited[1];
+        const Id = splited[0];
+        newServices[index] = {
+          ...newServices[index],
+          staffId: Id,
+          satffName: Name,
+        };
 
+      }
+      else {
+        newServices[index] = {
+          ...newServices[index],
+          [name]: (name==="price")?+value:value
+        };
+      }
+      dispatch(newUpdateService(newServices))
+    }
+    else {
+      const newProducts = [...productDataReducer];
+      if (name === "staff") {
+        const splited = value.split("-");
+        const Name = splited[1];
+        const Id = splited[0];
+        newProducts[index] = {
+          ...newProducts[index],
+          staffId: Id,
+          staffName: Name,
+        };
+        
+      }
+      else {
+        newProducts[index] = {
+          ...newProducts[index],
+          [name]: (name==="price"||name==="quantity")?+value:value
+        };
+      }
+      dispatch(updateProducts(newProducts))
+    }
+    
+  }
 
   useEffect(() => {
     const currentTime = moment()._d.toString();
@@ -141,7 +185,7 @@ const BookAppointment = ({ onTabChange }) => {
     (store) => store.ProductAddReducer.ProductData
   );
 
-  const subtotalPrice = services.reduce((accumulator, currentItem) => {
+  const subtotalPrice = x.reduce((accumulator, currentItem) => {
     return accumulator + Number(currentItem.price);
   }, 0);
   const productTotalPrice = productDataReducer.reduce(
@@ -271,7 +315,7 @@ const BookAppointment = ({ onTabChange }) => {
     if (!name) return toast.error("Please Add Customer")
 
     const data = {
-      services: services,
+      services: x,
       customer: {
         name,
         phoneNumber,
@@ -340,14 +384,14 @@ const BookAppointment = ({ onTabChange }) => {
     });
     setsearchProduct("");
   };
-
+  
   const deleteService = (item) => {
     dispatch(deletItems(item));
   };
   const deleteProduct = (id) => {
     dispatch(deleteProducts(id));
   };
-
+ 
   const handleSubmit = () => {
     const payload = {
       ...customerDetails,
@@ -484,7 +528,7 @@ const BookAppointment = ({ onTabChange }) => {
 
       setSelectedProduct((prev) => ({
         ...prev,
-        [name]: name === "quantity" ? Math.max(1, +value) : value
+        [name]: name==="price"?+value:name === "quantity" ? Math.max(1, +value) : value
       }))
     }
 
@@ -531,7 +575,7 @@ const BookAppointment = ({ onTabChange }) => {
     {
       name: "price",
       label: "Price",
-      placeholder:"Enter Price"
+      placeholder: "Enter Price"
 
     },
     {
@@ -668,7 +712,7 @@ const BookAppointment = ({ onTabChange }) => {
     {
       name: "price",
       label: "Price",
-      type:"Number",
+      type: "Number",
       placeholder: "Price",
       value: selectedProduct?.price,
     },
@@ -731,7 +775,6 @@ const BookAppointment = ({ onTabChange }) => {
   }, [customerDetails?.phoneNumber])
 
   const tableFields = [customerDetailsArray, paymentDetailsArray];
-
   return (
     <>
       <div className="mx-auto ">
@@ -839,13 +882,78 @@ const BookAppointment = ({ onTabChange }) => {
             }
           </div>
         </div>
+
+        {/* service Detail */}
+        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+
+          <div className="flex items-center gap-6  mb-9 ">
+            <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Service Detail</h2>
+            <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{x?.length > 9 ? '9+' : x?.length + "+"}</span>
+          </div>
+
+          {x.length > 0 && (
+            <div className="w-full">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">#</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Name</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Category</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Sub Category</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Price</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Staff</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {x?.map((item, index) => (
+                    <tr key={index}>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{index + 1}</td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{item?.miniSubcategory}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.category}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.subCategory}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"><NormalInput
+                        name="price"
+                        type="number"
+                        value={item?.price}
+                        onChange={(e)=>handleChangeServices(e,index,"services")}
+                        inputStyles={{ width: "120px", padding: "5px 10px" }}
+                      /></td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">
+                        <NormalSelect
+                          name="staff"
+                          label={""}
+                          options={staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))}
+                          inputStyles={{ width: "150px", padding: "5px 10px" }}
+
+                          onChange={(e)=>handleChangeServices(e,index,"services")}
+                          value={`${item.staffId}-${item.satffName}`}
+
+                        />
+                      </td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
+                        {" "}
+                        <MdDeleteOutline
+                          onClick={() => deleteService(index)}
+                          className="text-xl text-red-600 font-bold cursor-pointer"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+
+        </div>
         {/* service select */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
             {
               servicesFields?.map((customer, index) => {
-                const { name, label,placeholder } = customer
+                const { name, label, placeholder } = customer
 
                 const value = serviceSelection[name];
                 const options = servicesOptions[name]
@@ -906,6 +1014,73 @@ const BookAppointment = ({ onTabChange }) => {
             <button onClick={handldeAddButton}
               className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
           </div>
+
+        </div>
+        {/* product Detail  */}
+        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+          <div className="flex items-center gap-6  mb-9 ">
+            <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Product Detail</h2>
+            <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{productDataReducer?.length > 9 ? '9+' : productDataReducer?.length + "+"}</span>
+
+          </div>
+
+          {productDataReducer?.length > 0 && (
+            <div className="w-full">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">#</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Name</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Price</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Brand</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Quantity</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Staff</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productDataReducer?.map((item, index) => (
+                    <tr key={index}>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{index + 1}</td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{item?.name}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"><NormalInput
+                        name="price"
+                        type="number"
+                        value={item?.price}
+                        onChange={(e)=>handleChangeServices(e,index,"products")}
+                        inputStyles={{ width: "120px", padding: "5px 10px" }}
+                      /></td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.brand}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"><NormalInput
+                        name="quantity"
+                        type="number"
+                        value={item?.quantity}
+                        onChange={(e)=>handleChangeServices(e,index,"products")}
+                        inputStyles={{ width: "120px", padding: "5px 10px" }}
+                      /></td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"> <NormalSelect
+                          name="staff"
+                          label={""}
+                          options={staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))}
+                          inputStyles={{ width: "150px", padding: "5px 10px" }}
+
+                          onChange={(e)=>handleChangeServices(e,index,"products")}
+                          value={`${item.staffId}-${item.staffName}`}
+
+                        /></td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
+                        {" "}
+                        <MdDeleteOutline
+                          onClick={() => deleteProduct(index)}
+                          className="text-xl text-red-600 font-bold cursor-pointer"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
         </div>
         {/* product select */}
@@ -1018,99 +1193,7 @@ const BookAppointment = ({ onTabChange }) => {
           </div>
 
         </div>
-        {/* product Detail  */}
-        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
-          <div className="flex items-center gap-6  mb-9 ">
-            <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Product Detail</h2>
-            <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{productDataReducer?.length > 9 ? '9+' : productDataReducer?.length + "+"}</span>
-
-          </div>
-
-          {productDataReducer?.length > 0 && (
-            <div className="w-full">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">#</th>
-                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Name</th>
-                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Price</th>
-                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Brand</th>
-                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Quantity</th>
-                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Staff</th>
-                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productDataReducer?.map((item, index) => (
-                    <tr key={index}>
-                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{index + 1}</td>
-                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{item?.name}</td>
-                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.price}</td>
-                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.brand}</td>
-                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.quantity}</td>
-                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.staffName}</td>
-                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
-                        {" "}
-                        <MdDeleteOutline
-                          onClick={() => deleteProduct(index)}
-                          className="text-xl text-red-600 font-bold cursor-pointer"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-        </div>
-        {/* service Detail */}
-        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
-
-          <div className="flex items-center gap-6  mb-9 ">
-            <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Service Detail</h2>
-            <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{x?.length > 9 ? '9+' : x?.length + "+"}</span>
-          </div>
-
-          {x.length > 0 && (
-            <div className="w-full">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">#</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Name</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Category</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Sub Category</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Price</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Staff</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {x?.map((item, index) => (
-                    <tr key={index}>
-                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{index + 1}</td>
-                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{item?.miniSubcategory}</td>
-                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.category}</td>
-                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.subCategory}</td>
-                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.price}</td>
-                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.satffName}</td>
-                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
-                        {" "}
-                        <MdDeleteOutline
-                          onClick={() => deleteService(index)}
-                          className="text-xl text-red-600 font-bold cursor-pointer"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-
-        </div>
+    
         {/* Apply Discount */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
 

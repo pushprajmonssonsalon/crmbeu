@@ -63,6 +63,13 @@ export const ProductAddReducer = (state = productDataIntialState, action) => {
             ProductData: [...state.ProductData, payload],
           };
         }
+      case 'UPDATE_PRODUCT':
+      
+          return {
+            ...state,
+            ProductData: payload,
+          };
+        
        
        
         case "DELETE_ITEM _PRODUCT":
@@ -116,6 +123,7 @@ export const UpdateServices = (state = updateServiceIntialState, action) => {
 
   switch (type) {
     case "UPDATE_SERVICE":
+      
       return {
         ...state,
         EditService: [...state.EditService, payload],

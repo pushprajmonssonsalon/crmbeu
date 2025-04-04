@@ -21,7 +21,7 @@ const routesObject = {
   membershipinvoice: "Membership Invoice",
   advanceinvoice: "Advance Invoice",
   orderinvoice: "Order Invoice",
-  "viewAppointment/:id": "View Appointment Details",
+  "viewappoinment": "Edit Appointment Details",
   orders: "Orders",
   details: "Details",
   test: "Test Page",

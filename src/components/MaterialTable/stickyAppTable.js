@@ -289,7 +289,7 @@ export default function StickyAppHeadTable({
                       <TableCell>
                         <div className="flex justify-between items-center gap-x-2">
                           {item.status === 1 && (
-                            <Link to={`/viewAppoinment/${item._id}`}>
+                            <Link to={`/viewappoinment/${item._id}`}>
                               <FaEdit className="text-black text-xl cursor-pointer" />
                             </Link>
                           )}

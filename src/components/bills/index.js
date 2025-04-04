@@ -56,12 +56,12 @@ const AppointmentBills = () => {
   const formattedDate = currentDate.toDateString();
 
   const serviceTotal = data.services.reduce((accumulator, { price }) => {
-    return accumulator + price;
+    return accumulator + parseFloat(price);
   }, 0);
 
 
   const serviceDiscount = data.discount;
-  const serviceTaxable = serviceTotal - serviceDiscount;
+  const serviceTaxable = serviceTotal - parseFloat(serviceDiscount);
   const serviceFinalTax = Math.ceil(serviceTaxable / 1.18);
   const CGST = ((serviceFinalTax * 9) / 100).toFixed(2);
   const SGST = ((serviceFinalTax * 9) / 100).toFixed(2);
@@ -70,7 +70,7 @@ const AppointmentBills = () => {
   // const productSubtotalAmount=data.products;
   const productTotalPrice = data.products.reduce(
     (accumulator, { price, quantity }) => {
-      return accumulator + quantity * price;
+      return accumulator + parseInt(quantity) * parseFloat(price);
     },
     0
   );
@@ -292,7 +292,7 @@ const AppointmentBills = () => {
           </table>
 
           <div className="grid grid-cols-2 gap-3 mt-2">
-            <div className="text-black font-medium ">Serive Total:</div>
+            <div className="text-black font-medium ">Service Total:</div>
             <div className="text-black font-medium text-right">
               Rs.{serviceTotal}
             </div>
@@ -373,7 +373,7 @@ const AppointmentBills = () => {
                 PRODUCT DISCOUNT
               </h1>
               <div className="grid grid-cols-2 gap-3">
-                <div className="text-black font-medium">Taxable Service:</div>
+                <div className="text-black font-medium">Taxable Products:</div>
                 <div className="text-black font-medium text-right">
                   Rs {productTotalTaxtable}
                 </div>
