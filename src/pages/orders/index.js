@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
+import { useEffect, useState } from "react";
 import { getApiCall } from "../../utils/services";
 import { FaEdit } from "react-icons/fa";
 import ProductOrderPopup from "../../components/popup/ProductOrderPopup";
@@ -8,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { MdDriveFolderUpload } from "react-icons/md";
 import InvoiceUpload from "../../components/popup/InvoiceUpload";
 import { LuFileImage } from "react-icons/lu";
+import { AiOutlineSearch } from "react-icons/ai";
+import NormalInput from "../../components/customInput/NormalInput";
 
 const Orders = () => {
   const [ordersList, setOrdersList] = useState([]);
@@ -16,7 +17,7 @@ const Orders = () => {
   const [isUpload, setIsUpload] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [bool, setBool] = useState(false);
-
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const onClose = () => {
     setIsVisible(false);
@@ -28,15 +29,15 @@ const Orders = () => {
     getApiCall(
       "purchaseorder/getPurchaseOrders",
       (res) => {
-        
+
         setOrdersList(res);
       },
       (error) => {
-        
+
       }
     );
   }, [bool]);
-  
+
 
   function FormatDate(date) {
     const dates = new Date(date);
@@ -56,24 +57,53 @@ const Orders = () => {
   const handleInvoice = (item) => {
     navigate("/orderinvoice", { state: item });
   };
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    // const filteredOrders = ordersList.filter((order) =>
+    //   order.poId.toLowerCase().includes(e.target.value.toLowerCase())
+    // );
+    // setOrdersList(filteredOrders);
+  }
   const handleUpload = (item) => {
     setOrderId(item._id);
     setIsUpload(true);
   };
   return (
     <>
-      <div>
-        <h1 className="text-center text-green-600 font-bold text-5xl ">
-          Your Orders
-        </h1>
+      <div className=" rounded-[16px] border border-primaryGray p-5  ">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-5">
+            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Purchase Orders</h2>
+            <span className="rounded-[16px] text-xs px-6 border border-gray2">{ordersList?.length} Orders</span>
+
+
+          </div>
+          <div className="relative flex items-center">
+              <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
+              <NormalInput
+                name="name"
+                inputStyles={{
+                  'width': "280px",
+                  borderRadius: "16px",
+                  padding: "5px 40px",
+                  fontSize: "14px",
+                  borderColor: "#D9D9D9"
+                }}
+                value={search}
+                placeholder="Search by PO Id"
+                onChange={handleSearchChange}
+              />
+            </div>
+        </div>
+
 
         {/* Table of Recent Orders */}
         <table
-          className="styled-table"
+          className="styled-table order-table"
         >
           <thead>
             <tr>
-            <th>Po id</th>
+              <th>Po id</th>
               <th>Order Date</th>
               <th>Receive Date</th>
               <th>Category</th>
@@ -87,23 +117,22 @@ const Orders = () => {
           <tbody>
             {ordersList.map((item, index) => (
               <tr key={index}>
-                     <td>{item?.poId}</td>
-                <td>{FormatDate(item.createdAt)}</td>
-                <td>{FormatDate(item?.updatedAt)}</td>
-                <td>
+                <td className="py-5">{item?.poId}</td>
+                <td className="py-5">{FormatDate(item.createdAt)}</td>
+                <td className="py-5">{FormatDate(item?.updatedAt)}</td>
+                <td className="py-5">
                   {item.brand}- {item.type}
                 </td>
-                <td>{item.products.length}</td>
-           
-                <td>
+                <td className="py-5">{item.products.length}</td>
+
+                <td className="py-5">
                   <div className="flex gap-4">
                     {item.status === 1 ? (
                       <FaEdit
-                        className={`text-black text-xl ${
-                          item.status === 1
-                            ? "cursor-pointer"
-                            : "cursor-not-allowed"
-                        } hover:text-gray-500`}
+                        className={`text-black text-xl ${item.status === 1
+                          ? "cursor-pointer"
+                          : "cursor-not-allowed"
+                          } hover:text-gray-500`}
                         onClick={() => handleProductsPopup(item)}
                       />
                     ) : (
@@ -115,18 +144,17 @@ const Orders = () => {
                   </div>
                 </td>
                 <td
-                  className={`font-semibold text-sm ${
-                    item.status === 1 ? "text-red-500" : "text-green-600"
-                  } `}
+                  className={`font-semibold text-sm ${item.status === 1 ? "text-red-500" : "text-green-600"
+                    } `}
                 >
                   {item.status === 1 ? "Pending" : "Received"}
                 </td>
                 {item?.poInvoiceUrl ? (
-                  <td>
+                  <td className="py-5">
                     <MdDriveFolderUpload className="text-xl text-center w-full text-green-700 cursor-not-allowed" />
                   </td>
                 ) : (
-                  <td>
+                  <td className="py-5">
                     <MdDriveFolderUpload
                       className="text-xl text-center w-full text-blue-500 cursor-pointer"
                       onClick={() => handleUpload(item)}

@@ -43,6 +43,7 @@ const BookAppointment = ({ onTabChange }) => {
     time: ''
 
   })
+  console.log(appointmentDetails,"app")
   const [visible, setVisible] = useState(false);
   const [userData, setUserData] = useState([]);
 
@@ -131,7 +132,7 @@ const BookAppointment = ({ onTabChange }) => {
       else {
         newServices[index] = {
           ...newServices[index],
-          [name]: (name==="price")?+value:value
+          [name]: (name==="price")?Math.max(0,+value):value
         };
       }
       dispatch(newUpdateService(newServices))
@@ -152,7 +153,7 @@ const BookAppointment = ({ onTabChange }) => {
       else {
         newProducts[index] = {
           ...newProducts[index],
-          [name]: (name==="price"||name==="quantity")?+value:value
+          [name]: (name==="price"||name==="quantity")?Math.max(0,+value):value
         };
       }
       dispatch(updateProducts(newProducts))
@@ -283,7 +284,7 @@ const BookAppointment = ({ onTabChange }) => {
     } else {
       setServiceSelection((prev) => ({
         ...prev,
-        [name]:name==="price"?+value: value,
+        [name]:name==="price"?Math.max(0,+value): value,
       }));
     }
   };
@@ -333,7 +334,7 @@ const BookAppointment = ({ onTabChange }) => {
       isMembershipApplied: memberShipStatus,
       // membershipCreditUsed: +memberShip,
       // membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
-      membershipCreditUsed: memberShipStatus ? Math.min(activeMembership?.creditsLeft || 0, subtotalPrice - countdiscount) : 0,
+      membershipCreditUsed: memberShipStatus ? Math.max(0,Math.min(activeMembership?.creditsLeft || 0, subtotalPrice - countdiscount) ): 0,
       products: productDataReducer,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
@@ -528,7 +529,7 @@ const BookAppointment = ({ onTabChange }) => {
 
       setSelectedProduct((prev) => ({
         ...prev,
-        [name]: name==="price"?+value:name === "quantity" ? Math.max(1, +value) : value
+        [name]: (name==="price"||name === "quantity") ? Math.max(0, +value) : value
       }))
     }
 
@@ -537,9 +538,8 @@ const BookAppointment = ({ onTabChange }) => {
 
   const handleApplyDiscount = () => {
 
-    if (discount) {
       applyDiscount()
-    }
+ 
 
     if (activeMembership?.creditsLeft > 0) {
       setMemberShipStatus(true)
@@ -668,25 +668,11 @@ const BookAppointment = ({ onTabChange }) => {
   const customerFields = [
     {
       name: "phoneNumber",
-      label: "Phone Number",
+      label: "Search by Phone or Name",
       placeholder: "9876543210",
       value: customerDetails.phoneNumber,
     },
-    {
-      name: "name",
-      label: "Customer Name",
-      placeholder: "Customer Name",
-      readOnly: true,
-      value: customerDetails.name,
-    },
-    {
-      name: "email",
-      label: "Email Address",
-      value: customerDetails.email,
-      type: "email",
-      readOnly: true,
-      placeholder: "Enter Email Address",
-    },
+  
     {
       name: "date",
       label: "Date",

@@ -1,9 +1,9 @@
 import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
-const BASE_URL = "https://crm.smartsalon.in/";
+// const BASE_URL = "https://crm.smartsalon.in/";
 // const BASE_URL = "http://192.168.3.36:4002";
-// const BASE_URL = "http://192.168.2.217:4002";
+const BASE_URL = "http://192.168.2.217:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
@@ -158,4 +158,20 @@ const formatDate = (dateStr, ind = false) => {
   }
 
 }
-export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear,formatDate};
+const getStatusColor = (status) => {
+
+  switch (status) {
+    case 1:
+      return "bg-primaryYellow text-secondaryYellow";
+    case 2:
+      return "bg-primaryRed text-secondaryRed";
+    case 3:
+      return "bg-primaryGreen text-secondaryGreen";
+    case 4:
+      return "bg-primaryYellow text-secondaryYellow";
+    default:
+      // Handle other cases if needed
+      return 'bg-primaryYellow text-secondaryYellow'; // or 'N/A'
+  }
+}
+export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear,formatDate,getStatusColor};

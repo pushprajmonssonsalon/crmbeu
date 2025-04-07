@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Inventorydetails from '../../pages/Inventorydetails/Inventorydetails';
 import Tabs from '../tabs/Tabs';
+import Orders from '../../pages/orders';
 
 const Inventory = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -21,6 +22,12 @@ const Inventory = () => {
        
          name:'My Products',
          component:<Inventorydetails onTabChange={handleTabChange} tab={activeTab}/>
+   
+       },
+       {
+       
+         name:'Purchase Orders',
+         component:<Orders />
    
        },
      

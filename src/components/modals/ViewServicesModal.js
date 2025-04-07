@@ -1,20 +1,20 @@
 import Modal from "../modal/Modal";
 import CustomTable from "../Table/CustomTable";
 
-const ViewServicesModal = ({ show, setShow, data }) => {
+const ViewServicesModal = ({ show, setShow, data, showQuantityModal = null }) => {
   return (
     <>
       {" "}
       <Modal show={show} setShow={setShow}>
-        <ChildComponent data={data} />
+        <ChildComponent data={data} showQuantityModal={showQuantityModal} />
       </Modal>
     </>
   );
 };
 
-const ChildComponent = ({ closeModal, data,modalRef }) => {
+const ChildComponent = ({ closeModal, data, modalRef, showQuantityModal = null }) => {
   const cols = [
-    { name: "Name", id: data?.appointmentType==="crm"? "miniSubcategory" :"name"},
+    { name: "Name", id: data?.appointmentType === "crm" ? "miniSubcategory" : "name" },
     { name: "Category", id: "category" },
     { name: "Sub Category", id: "subCategory" },
     { name: "Staff", id: "satffName" }, // Special case for staff data
@@ -34,20 +34,22 @@ const ChildComponent = ({ closeModal, data,modalRef }) => {
     { name: "Size", id: "sizeUsed" },
     { name: "Unit", id: "unit" },
     { name: "Item Id", id: "itemId" },
-    
+
   ];
 
-  
+
   const tablesFields = [
     { heading: "Services", rows: data?.services, cols: cols },
     { heading: "Products", rows: data?.products, cols: prodCols },
     { heading: "Product Used", rows: data?.productUsed, cols: prodQuanCols },
   ];
+
   return (
     <div className="relative top-[15%] bottom-[20%] m-auto p-4 w-[80%] mx-auto h-full my-auto  max-h-full">
       {/* Modal content */}
       <div ref={modalRef} className="slide-in-top relative h-fit max-h-full w-full  my-auto bg-white rounded-lg shadow ">
         {/* Modal header */}
+
         <div className="flex w-full items-center justify-between p-4 md:p-5 border-b rounded-t ">
           <h3 className="text-lg font-semibold text-gray-900 ">
             Services / Product
@@ -77,20 +79,24 @@ const ChildComponent = ({ closeModal, data,modalRef }) => {
           </button>
         </div>
         {/* Modal body */}
+
         <div className="p-4 max-h-[60vh] flex flex-col gap-2 overflow-y-auto md:p-5">
+          {showQuantityModal && <div className="text-xl flex items-center justify-end">
+            <button onClick={() => showQuantityModal(data?._id, data?.productUsed)} className="text-sm bg-ternary rounded-[16px] px-[27px] py-1 ">Edit Quantity Used</button>
+          </div>}
           {tablesFields.map((elm, idx) => {
             const { cols, rows, heading } = elm;
-           
+
             return (
-              rows?.length>0?   <div key={idx}>
+              rows?.length > 0 ? <div key={idx}>
                 <div className="font-medium my-2 text-black text-2xl">
                   {heading}
                 </div>
                 <CustomTable columns={cols} rows={rows} />
-              </div>:null
+              </div> : null
             )
           })}
-         
+
         </div>
       </div>
     </div>

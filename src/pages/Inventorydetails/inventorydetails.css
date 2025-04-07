@@ -140,6 +140,9 @@
   font-weight: 400; 
   background-color: #ffffff;   
 }
+.order-table td ,.order-table th{
+  padding :15px
+}
 .styled-table td:not(:first-child){
   color:#979797
 }

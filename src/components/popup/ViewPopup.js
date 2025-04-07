@@ -1,7 +1,6 @@
 import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from "../../utils/services";
 import { useEffect, useState } from "react";
-import { FaCommentAlt } from "react-icons/fa";
 
 const ViewPopup = ({
   isVisible,
@@ -97,7 +96,6 @@ const ViewPopup = ({
       };
     });
   }
-  console.log(advanceSelected)
 
 
   const hnadleUpdate = () => {
@@ -220,7 +218,7 @@ const ViewPopup = ({
                 className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
                 onClick={hnadleUpdate}
               >
-                Update
+                Submit
               </button>
             )}
           </div>

@@ -16,7 +16,17 @@ module.exports = {
         lightGray:"#D9D9D9",
         ternary:'#009699',
         customPurple:'#5F57FF',
-        heading:'#2D2D2D'
+        heading:'#2D2D2D',
+        primaryGreen:' #4AB58E',
+        primaryPurple:"#A657D6",
+        primaryYellow:'#FFCE384F',
+        secondaryYellow:'#F3B800',
+        ternaryYellow:'#F6A000',
+        secondaryGreen:'#4AB58E',
+        primaryGreen:'#0BB7834A',
+        primaryRed:'rgba(250, 124, 124, 0.47)',
+        secondaryRed:'rgba(250, 124, 124, 1)',
+        
 
       },
       boxShadow: {

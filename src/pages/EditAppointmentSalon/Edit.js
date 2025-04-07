@@ -1,23 +1,34 @@
 import { useEffect, useState } from "react";
 import { formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useNavigate, useParams } from "react-router";
-import Layout from "../../components/Layout";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
+import NormalRadio from "../../components/customInput/NormalRadio";
 
 const Edit = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   //Staff data fiktering
+  const navigate = useNavigate();
   const [staffData, setStaffData] = useState([]);
-  const [loading,setLoading]=useState(false)
+  const [activeMembership, setActiveMemberShip] = useState({});
 
   const [appointementProducts, setAppointmentProducts] = useState([]);
   const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
-
+  const [customerDetails, setCustomerDetails] = useState({
+    name: "",
+    phoneNumber: "",
+    email: "",
+    gender: "F",
+    'dob-date': "",
+    'dob-month': "",
+    'aniversary-date': "",
+    'aniversary-month': "",
+    dob: '',
+    aniversary: '',
+  });
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
     subCategory: "",
@@ -26,58 +37,47 @@ const Edit = () => {
     price: 0,
     satffName: "",
   });
-  const [productData, setProductData] = useState({});
-  const [userId, setUserId] = useState("");
 
   // services getting state
   const [service, setService] = useState([]);
   const [subservice, setSubService] = useState([]);
   const [miniservice, setMiniService] = useState([]);
-  const [gender, setGender] = useState("F");
   const [searchProduct, setsearchProduct] = useState("");
   const [showSearchProduct, setShowSearchProduct] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [productQnt, setProductQnt] = useState(0);
-  const [productStaff, setProductStaff] = useState({
-    staffId: "",
-    staffName: "",
-
-  });
+  
   const [discount, setDiscount] = useState(0);
+  const [applyDisountPer, setApplyDiscountPer] = useState(0);
+
   // membership details
   const [membershipDetails, setMembershipDetails] = useState([]);
   const [memberShipStatus, setMemberShipStatus] = useState(false);
-  const [membershipCoin, setMembershipCoin] = useState(0);
-  const [filterMembershipId, setFilterMembershipId] = useState("");
-  const [memberShipId, setMemberShipId] = useState("");
-  const [creditUsed, setCreditUsed] = useState(0);
+  const [isMembershipApplied, setIsMembershipApplied] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [subServiceTotal, setSubServiceTotal] = useState(0);
 
 
+  const applyDiscount = () => {
+    setApplyDiscountPer(discount);
+    // alert("Discount Added sucessfully");
+    toast.success("Discount Added Successfully");
+  };
 
 
-  // api call for getting service category
   useEffect(() => {
-    // const data = {
-    //     gender: gender,
-    //   };
     getApiCall(
       "salonService/getServiceCategory",
 
       (resp) => {
-
         setService(resp);
       },
-      (error) => {
-
-      }
+      (error) => { }
     );
-  }, [gender]);
+  }, [customerDetails?.gender]);
   // api call for getting subcategory
   const categorydata = {
     categoryName: serviceSelection.category,
-    gender: gender,
+    gender: customerDetails.gender,
   };
   useEffect(() => {
     postApiData(
@@ -86,27 +86,22 @@ const Edit = () => {
       (resp) => {
         setSubService(resp);
       },
-      (error) => {
-
-      }
+      (error) => { }
     );
   }, [serviceSelection.category]);
-  // mini category get api
   const minicatgdata = {
     category: serviceSelection.category,
-    gender: gender,
+    gender: customerDetails.gender,
     subCategory: serviceSelection.subCategory,
   };
   useEffect(() => {
     postApiData(
-      "salonService/getServices",
+      "salonService/getSuggestedSalonServices",
       minicatgdata,
       (resp) => {
-        setMiniService(resp);
+        setMiniService(resp[0]);
       },
-      (error) => {
-
-      }
+      (error) => { }
     );
   }, [serviceSelection.subCategory]);
 
@@ -117,15 +112,16 @@ const Edit = () => {
       (resp) => {
 
         setDiscount(resp?.discountPercentage || 0);
+        setApplyDiscountPer(resp?.discountPercentage || 0);
         setAddedAppointmentDetails(
           resp.services.map((item) => ({ ...item, staffId: item?.staffId || "", satffName: item?.satffName || "" }))
         );
+        setIsMembershipApplied(parseInt(resp?.membershipCreditUsed) > 0 ? true : false);
         setAppointmentProducts(resp.products);
         // setMembershipDetails(resp.customer.activeMembership)
         setMemberShipStatus(resp.membershipUsed);
-        setFilterMembershipId(resp.membershipId);
+        setActiveMemberShip(resp.userMembership)
         // setUserId(resp.customer._id);
-        setMemberShipId(resp.membershipId);
         setSubServiceTotal(resp.membershipCreditUsed);
         setPhoneNumber(resp.customer.phoneNumber);
 
@@ -160,7 +156,6 @@ const Edit = () => {
           if (resp) {
             // 
             setMembershipDetails(resp[0]?.activeMembership)
-            setUserId(resp[0]?._id)
 
           }
         },
@@ -172,63 +167,88 @@ const Edit = () => {
 
   // handle buttons for add service
   const serviceAddpress = () => {
-    const isAnyEmpty = Object.values(serviceSelection).some(elm => !elm)
-    if (isAnyEmpty) {
-      return toast.error("Please Select All Fields")
+    const { miniSub, miniSubcategory, ...rest } = serviceSelection;
+
+    const selected = {
+
+      ...rest,
+      miniSubcategory: miniSub,
+    };
+    const isEveryEmpty = Object.values(selected).some((elm) => !elm || elm === "0" || elm.toString().trim() === "");
+    if (isEveryEmpty) {
+      return toast.error("Please Select All Fields");
     }
     setAddedAppointmentDetails([...addedAppointmentDetails, serviceSelection]);
 
   };
 
   const handleServiceChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "miniSubcategory") {
+      const splited = value.split("---");
+      const price = splited[0];
+      const val = splited[1];
+      setServiceSelection({
+        ...serviceSelection,
+        miniSubcategory: value,
+        price: +price,
+        miniSub: val,
+      });
+    } else if (name === "staff") {
+      const splited = value.split("-");
+      const Name = splited[1];
+      const Id = splited[0];
 
-    setServiceSelection({
-      ...serviceSelection,
-      category: e.target.value,
-      subCategory: "",
-    });
-  };
-  const handleSubCategoryChange = (e) => {
-
-    setServiceSelection({
-      ...serviceSelection,
-      subCategory: e.target.value,
-      miniSubcategory: "",
-    });
-  };
-
-  const handleminiChange = (event) => {
-    // 
-    const selectedOption = event.target.options[event.target.selectedIndex];
-    const selectedPrice = selectedOption.getAttribute("data-price");
-
-    // Now you have the selected price, you can use it as needed
-    setServiceSelection({
-      ...serviceSelection,
-      miniSubcategory: event.target.value,
-      price: +selectedPrice,
-    });
-  };
-  const handlestaffChange = (e, index, newService) => {
-    let splited = e.target.value.split("-");
-    let Name = splited[1];
-    let Id = splited[0];
-
-
-    if (newService) {
       setServiceSelection({
         ...serviceSelection,
         staffId: Id,
         satffName: Name,
       });
     } else {
-      setAddedAppointmentDetails((prev) =>
+      setServiceSelection((prev) => ({
+        ...prev,
+        [name]: name === "price" ? Math.max(0, +value) : value,
+      }));
+    }
+  };
+
+  
+  
+  const handlestaffChange = (e, index, newService, type = "service") => {
+    let splited = e.target.value.split("-");
+    let Name = splited[1];
+    let Id = splited[0];
+
+    if (type === "service") {
+      if (newService) {
+        setServiceSelection({
+          ...serviceSelection,
+          staffId: Id,
+          satffName: Name,
+        });
+      } else {
+        setAddedAppointmentDetails((prev) =>
+          prev.map((item, idx) => {
+            if (index === idx) {
+              return {
+                ...item,
+                staffId: Id,
+                satffName: Name,
+              };
+            }
+            return item;
+          })
+        );
+      }
+    }
+    else {
+      setAppointmentProducts((prev) =>
         prev.map((item, idx) => {
           if (index === idx) {
             return {
               ...item,
               staffId: Id,
-              satffName: Name,
+              staffName: Name,
             };
           }
           return item;
@@ -259,155 +279,113 @@ const Edit = () => {
     );
   };
   const productNameOnclick = (item) => {
-    setSelectedProduct(item);
+    setSelectedProduct({
+      ...item,
+      quantity: 1
+
+    });
     setsearchProduct("");
   };
-  const onChangeProdutName = (e) => {
-    setProductData({
-      ...productData,
-      name: e.target.value,
-    });
-  };
-  const addproductPress = (item, productQnt) => {
 
-    if (productQnt === 0 || !productQnt) {
 
-      toast.error("Please Select  Quantity")
+  const addproductPress = (
+  ) => {
+    if (!selectedProduct) return toast.error("Please Select Product");
+
+    const { quantity, // Adding quantity key
+      staffId,
+      staffName, price, } = selectedProduct
+    if (!quantity || quantity === "0") {
+      toast.error("Please Enter Quantiy");
+
       return;
-
     }
-    if (!productStaff.staffId || !productStaff.staffName) {
+    if (!price || price === "0") {
+      toast.error("Please Enter Price");
 
-      toast.error("Please Select Staff")
       return;
+    }
+    if (!staffId || !staffName) {
+      toast.error("Please Select Staff");
 
+      return;
+    }
+    if (!price) {
+      toast.error("Please Select Product");
+
+      return;
     }
     // productQnt,productStaffid
-    const itemWithAdditionalInfo = {
-      ...item, // Copying existing properties of item
-      quantity: +productQnt, // Adding quantity key
-      staffId: productStaff.staffId,
-      staffName: productStaff.staffName,
-    }; // Adding staffId key
+
 
 
     setAppointmentProducts((prev) => {
-      const index = prev.findIndex((elm) => elm._id === item._id);
+      const index = prev.findIndex((elm) => elm._id === selectedProduct._id);
 
       if (index !== -1) {
         return prev.map((elm, i) =>
-          i === index ? itemWithAdditionalInfo : elm
+          i === index ? selectedProduct : elm
         );
       } else {
-        return [...prev, itemWithAdditionalInfo];
+        return [...prev, selectedProduct];
       }
     });
+    toast.success("Product Added Successfully");
 
     // dispatch(EditproductAdded(itemWithAdditionalInfo));
     // setProductData(itemWithAdditionalInfo)
   };
 
-  const deleteEditService = (indexId) => {
-    // const updatedDetails = [addedAppointmentDetails]
-    const updatedDetails = addedAppointmentDetails.filter(
-      (_, index) => index !== indexId
-    );
-    setAddedAppointmentDetails(updatedDetails);
-  };
-  const deleteEditProduct = (indexId) => {
-    const updatedDetails = appointementProducts.filter(
-      (_, index) => index !== indexId
-    );
-    // updatedDetails.splice(index, 1);
-    setAppointmentProducts(updatedDetails);
-  };
-  const handleGenderChange = (selectedGender) => {
-    setGender(selectedGender);
-    setServiceSelection({
-      category: "",
-    });
-    setSubService(null);
-    setMiniService(null);
-    setStaffData(null);
-  };
+ 
+  const handleGenderChange = (e) => {
+    const { name, value } = e.target;
 
-  // handle book appointment
-  const handleBookAppointment = () => {
+    setCustomerDetails((prev) => ({
+      ...prev,
+      [name]: name === "phoneNumber" ? value.slice(0, 10) : value,
+    }));
+    if (name === "gender") {
+      setServiceSelection({
+        ...serviceSelection,
+        category: "",
+        subCategory: "",
+        miniSubcategory: "",
+        price: 0
 
 
-    const data = {
-      services: addedAppointmentDetails,
 
-      subTotal: subTotalServices,
-      total: totalAmount,
-
-      membershipUsed: memberShipStatus,
-      membershipId: memberShipStatus ? memberShipId : "",
-      // membershipCreditUsed: (memberShipStatus)? (+subTotalServices):0,
-      membershipCreditUsed: memberShipStatus ? +creditUsed : 0,
-      products: appointementProducts,
-      discount: serviceDiscount,
-      discountPercentage: discount,
+      });
+      setSubService(null);
+      setMiniService(null);
     };
+  }
 
-    postApiData(
-      `appointment/editAppointmentBookedFromCrm?id=${id}`,
-      data,
-      (resp) => {
-        if (resp) {
-          toast.success("Appointment Booked SuccessFully");
+  
+  const handleProductChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'staffName') {
+      const splited = value.split("-");
+      const Name = splited[1];
+      const Id = splited[0];
+      setSelectedProduct((prev) => ({
+        ...prev,
+        staffId: Id,
+        staffName: Name,
+      }));
 
-          navigate(-1);
-        }
-      },
-      (error) => {
+    }
+    else {
 
-      }
-    );
-  };
-  const applyMemberShip = () => {
-    const data = {
-      //   creditsUsed:5000,
-      creditsUsed: memberShipStatus ? subServiceTotal : totalService,
-      // creditsUsed: totalSubServices,
-      userId,
-      memId: memberShipId,
-      isMembershipUsed: !memberShipStatus,
-    };
-    // 
-   setLoading(true)
+      setSelectedProduct((prev) => ({
+        ...prev,
+        [name]: name === "quantity" ? Math.max(0, +value) : value
+      }))
+    }
 
-    postApiData(
-      "membership/applyMembership",
-      data,
-      (resp) => {
-        if (resp) {
 
-          if (memberShipStatus) {
-            setMembershipCoin(resp?.creditsLeft);
-            setMemberShipStatus(false);
-            setCreditUsed(resp.creditsUsed - resp.remainingAmount);
-            toast.error("MemberShip Removed sucessfully");
-          } else {
-            toast.success("MemberShip Applied sucessfully");
-            setMembershipCoin(resp.creditsLeft);
-            setSubServiceTotal(resp.creditsUsed - resp.remainingAmount);
-            setCreditUsed(resp.creditsUsed - resp.remainingAmount);
-            setMemberShipStatus(true);
-          }
-        }
-        setLoading(false)
-      },
-      (error) => {
-        setLoading(false)
-        alert("Select Correct Options");
-      }
-    );
-  };
-  const arr = membershipDetails?.filter(
-    (item) => item?._id === filterMembershipId
-  );
-
+  }
+  
+ 
 
   const subTotalServices = addedAppointmentDetails.reduce(
     (acc, item) => acc + +item?.price,
@@ -419,624 +397,706 @@ const Edit = () => {
     ?.map((item) => item.price * item.quantity)
     ?.reduce((acc, val) => acc + val, 0);
 
-  const serviceDiscount = subTotalServices * (discount / 100);
+  const serviceDiscount = subTotalServices * (applyDisountPer / 100);
 
   const totalService = subTotalServices - serviceDiscount;
 
   const totalAmount = totalService + subProductTotal;
   const membershipPress = (e) => {
-    const selectedMembership = e.target.value;
-    setMemberShipId(e.target.value);
+    if (e.target.value) {
+      setActiveMemberShip(membershipDetails?.find((elm) => elm._id === e.target.value));
+    }
+    else {
+      setActiveMemberShip({})
+    }
   };
 
+  const handleChange = (e, index, type) => {
+    const { name, value } = e.target;
 
-  const handlePriceChange = (index, newPrice) => {
-    const updatedAppointments = [...addedAppointmentDetails];
-    updatedAppointments[index].price = + newPrice;
-    setAddedAppointmentDetails(updatedAppointments);
+    if (type === "service") {
+      const updatedAppointments = [...addedAppointmentDetails];
+      updatedAppointments[index][name] = name === "price" ? Math.max(0, +value) : value;
+      setAddedAppointmentDetails(updatedAppointments);
+    }
+    else {
+      const updatedAppointmentsProds = [...appointementProducts];
+      updatedAppointmentsProds[index][name] = (name === "price" && name === "quantity") ? Math.max(0, +value) : value;
+      setAppointmentProducts(updatedAppointmentsProds);
+    }
+
   };
+  const deleteProduct = (idx) => {
+    setAppointmentProducts((prev) => prev.filter((elm, index) => index !== idx))
+  }
+  const deleteService = (idx) => {
+    setAddedAppointmentDetails((prev) => prev.filter((elm, index) => index !== idx))
+  }
+  const genderFields = [
+    {
+      name: "Male",
+      value: "M",
+    },
+    {
+      name: "Female",
+      value: "F",
+    },
+  ];
 
 
+  const servicesFields = [
+    {
+      name: "category",
+      label: "Add Service",
+      options: service
+
+    },
+    {
+      name: "subCategory",
+      label: "Category",
+      options: subservice
+    },
+    {
+      name: "miniSubcategory",
+      label: "Sub Category",
+      options: miniservice?.services?.map((elm) => ({
+        name: elm.name,
+        value: `${elm.price}---${elm.name}`,
+      })),
+    },
+    {
+      name: "price",
+      label: "Price",
+      type: "number",
+      placeholder: "Enter Price",
+
+
+    },
+    {
+      name: "staff",
+      label: "Select Staff",
+      options: staffData?.map((elm) => ({
+        name: elm.name,
+        value: `${elm._id}-${elm.name}`,
+      })),
+    },
+    // {
+    //   name: "product",
+    //   label: "Search Product",
+    //   type: "text",
+    //   placeholder: "Product Name"
+    // },
+
+  ];
+
+  const productFields = [
+    {
+      name: "name",
+      label: "Product Name",
+      placeholder: "Product Name",
+      value: selectedProduct?.name,
+    },
+    {
+      name: "price",
+      label: "Price",
+      type: "Number",
+      placeholder: "Price",
+      value: selectedProduct?.price,
+    },
+    {
+      name: "brand",
+      label: "Brand",
+      value: selectedProduct?.brand,
+      readOnly: true,
+      placeholder: "Brand",
+    },
+    {
+      name: "quantity",
+      label: "Quantity",
+      type: "number",
+      value: selectedProduct?.quantity,
+      placeholder: "Quantity",
+    },
+    {
+      name: "staffName",
+      label: "Select Staff",
+      value: `${selectedProduct?.staffId}-${selectedProduct?.staffName}`,
+      options: staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))
+
+
+    }
+  ]
+  const discounFields = [
+    {
+      label: "Discount Percentage",
+      name: "discount",
+      placeholder: "Discount %",
+      value: discount,
+      type: "number",
+      onChange: (e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))
+    },
+    {
+      label: "Membership",
+      name: "membership",
+      value: activeMembership?._id,
+      options: membershipDetails?.map((item) => ({
+        name: `${item.name}-${item.creditsLeft}`,
+        value: item._id,
+      })),
+      onChange: membershipPress,
+      readOnly: memberShipStatus,
+    },
+    {
+      label: "Membership Balance",
+      name: "membershipBalance",
+      value: activeMembership?.creditsLeft || 0,
+      readOnly: true
+    }
+  ]
+  const handleApplyDiscount = () => {
+
+      applyDiscount()
+  
+    if (!isMembershipApplied) {
+
+      if (activeMembership?.creditsLeft > 0) {
+        setMemberShipStatus(true)
+        toast.success("membership Applied")
+      }
+    }
+
+
+  }
+
+  const customerDetailsArray = [
+    {
+      label: "MEMBERSHIP",
+      value: activeMembership?.name
+    },
+    {
+      label: "CREDIT LEFT",
+      value: formatValue(activeMembership?.creditsLeft)
+    },
+    {
+      label: "AMOUNT",
+      value: formatValue(activeMembership?.amount)
+    },
+
+  ];
+  const paymentDetailsArray = [
+    { label: "SERVICES SUBTOTAL", value: formatValue(subTotalServices) },
+    { label: "PRODUCT SUBTOTAL", value: formatValue(subProductTotal) },
+    { label: "DISCOUNT", value: formatValue(serviceDiscount) },
+    { label: "TOTAL SERVICES", value: formatValue(totalService) },
+    { label: "TOTAL PRODUCTS", value: formatValue(subProductTotal) },
+    { label: "PAYABLE AMOUNT", value: formatValue(totalAmount) },
+  ];
+  const tableFields = [customerDetailsArray, paymentDetailsArray];
+  // handle book appointment
+  const handleBookAppointment = () => {
+
+
+    const data = {
+      services: addedAppointmentDetails,
+
+      subTotal: subTotalServices,
+      total: totalAmount,
+
+      membershipUsed: memberShipStatus,
+      membershipId: memberShipStatus ? activeMembership?._id : "",
+      isMembershipApplied: memberShipStatus,
+
+      // membershipCreditUsed: (memberShipStatus)? (+subTotalServices):0,
+      membershipCreditUsed: isMembershipApplied ? +subServiceTotal: memberShipStatus? Math.max(0,Math.min(activeMembership?.creditsLeft || 0, totalService)) : 0,
+      products: appointementProducts,
+      discount: serviceDiscount,
+      discountPercentage: applyDisountPer,
+    };
+
+    postApiData(
+      `appointment/editAppointmentBookedFromCrm?id=${id}`,
+      data,
+      (resp) => {
+        if (resp) {
+          toast.success("Appointment Booked SuccessFully");
+
+         navigate(`/appointments?tab=${1}`);
+        }
+      },
+      (error) => {
+
+      }
+    );
+  };
   return (
     <>
-      <div className="">
-        {/* Services Table section*/}
-        <div
-          className=""
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <label style={{ width: "70px" }}>
-            <input
-              type="radio"
-              name="gender"
-              value="Male"
-              checked={gender === "M"}
-              onChange={() => handleGenderChange("M")}
-            />
-            <span
-              style={{
-                marginLeft: "8px",
-                fontSize: "20px",
-                fontWeight: "500",
-                color: "black",
-              }}
-            >
-              Male
-            </span>
-          </label>
+      <div className="mx-auto ">
+        {/* customer details */}
+        <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
+          <div className="flex items-center mb-9 justify-between">
+            <h2 className="font-normal leading-[20px]   text-black text-[24px]">Customer Details</h2>
 
-          <label style={{ marginLeft: "20px" }}>
-            <input
-              type="radio"
-              name="gender"
-              value="Female"
-              checked={gender === "F"}
-              onChange={() => handleGenderChange("F")}
-            />
-            <span
-              style={{
-                marginLeft: "8px",
-                fontSize: "20px",
-                fontWeight: "500",
-                color: "black",
-              }}
-            >
-              Female
-            </span>
-          </label>
+          </div>
+          <div className="flex flex-col mb-9  gap-5">
+            <h1 className="text-black  font-normal text-md">
+              Gender
+            </h1>
+            <div className="flex items-center gap-9">
+              {genderFields.map((elm, index) => {
+                return (
+                  <NormalRadio
+                    key={index}
+                    onChange={handleGenderChange}
+                    checked={customerDetails.gender === elm.value}
+                    name="gender"
+                    label={elm.name}
+                    value={elm.value}
+                  />
+                );
+              })}
+            </div>
+          </div>
 
-          {/* <div>
-        Selected Gender: {gender && <strong>{gender}</strong>}
-      </div> */}
-        </div>
-        <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl  border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
-          <h1 className="text-4xl font-bold text-black mt-2 ml-2">
-            Your Services
-          </h1>
-          <div className="w-full overflow-x-auto my-4">
-            <div className="table-container">
-              <table className="styled-table">
+        </div>  {/* service Detail */}
+        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+
+          <div className="flex items-center gap-6  mb-9 ">
+            <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Service Detail</h2>
+            <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{addedAppointmentDetails?.length > 9 ? '9+' : addedAppointmentDetails?.length + "+"}</span>
+          </div>
+
+          {addedAppointmentDetails.length > 0 && (
+            <div className="w-full">
+              <table className="w-full">
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th> Sub Category</th>
-                    <th>Staff</th>
-                    <th>Price</th>
-                    <th>Action</th>
-
-                    {/* <th>Brand</th> */}
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">#</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Name</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Category</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Sub Category</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Price</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Staff</th>
+                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {addedAppointmentDetails?.length > 0
-                    ? addedAppointmentDetails.map((item, index) => (
-                      <tr key={index} className="bg-white">
-                        <td>{item?.miniSubcategory || item?.name}</td>
-                        <td>{item?.category}</td>
-                        <td>{item?.subCategory}</td>
-                        <td>
+                  {addedAppointmentDetails?.map((item, index) => (
+                    <tr key={index}>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{index + 1}</td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{item?.miniSubcategory}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.category}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.subCategory}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">
+                        <NormalInput
+                          type="price"
+                          name="price"
+                          value={item.price}
+                          inputStyles={{ width: "120px", padding: "5px 10px" }}
 
+                          onChange={(e) => handleChange(e, index, "service")
+                          } />
+                      </td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">
+                        <NormalSelect
+                          options={staffData?.map((elm) => ({
+                            value: `${elm._id}-${elm.name}`,
+                            name: elm.name
+                          }))}
+                          onChange={(e) =>
+                            handlestaffChange(e, index, false)
+                          }
+                          inputStyles={{ width: "150px", padding: "5px 10px" }}
 
-                          <select
-                            className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-                            onChange={(e) =>
-                              handlestaffChange(e, index, false)
-                            }
-                            // value={item.staffId}
-                            value={`${item.staffId}-${item.satffName}`}
-                          >
-                            <option className="bg-white">Select Staff</option>
-                            {staffData?.map((elm) => (
-                              <option
-                                key={elm._id}
-                                value={`${elm._id}-${elm.name}`}
-                                //  value={`${item._id}`}
-                                className="border-none shadow-lg rounded-lg bg-white "
-                              >
-                                {elm.name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        {/* <td>{item?.price}</td> */}
-                        <td>
-                          <input
-                            type="number"
-                            value={item.price}
-                            onChange={(e) =>
-                              handlePriceChange(index, e.target.value)
-                            }
-                          />
-                        </td>
-                        <td>
-                          <MdDeleteOutline
-                            onClick={() => deleteEditService(index)}
-                            className="text-xl text-red-600 font-bold cursor-pointer"
-                          />
-                        </td>
-                      </tr>
-                    ))
-                    : ""}
+                          // value={item.staffId}
+                          value={`${item.staffId}-${item.satffName}`}
+
+                        /></td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
+                        {" "}
+                        <MdDeleteOutline
+                          onClick={() => deleteService(index)}
+                          className="text-xl text-red-600 font-bold cursor-pointer"
+                        />
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-          </div>
+          )}
+
+
         </div>
 
-        {/*ADD Services Selection section */}
-        <div className="mx-auto my-14 rounded-lg bg-[#fffffe] shadow-xl border-2 border-gray-300 w-[95%]  overflow-y-auto">
-          <h1 className="text-4xl font-bold text-black mt-2 ml-2">
-            ADD Services
-          </h1>
 
-          <div
-            style={{
-              border: "",
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "10px",
-              paddingBottom: "30px",
-              marginTop: "20px",
-            }}
-          >
-            <select
-              className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={handleServiceChange}
-              value={serviceSelection.category} // Use 'value' for controlled components
-            >
-              <option value={service}>Select Category</option>
-              {service?.map((item, index) => (
-                <option
-                  key={item?.id}
-                  value={item?.value}
-                  style={{ width: "700px" }}
-                >
-                  {item?.name}
-                </option>
-              ))}
-            </select>
+        {/* service select */}
+        <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
+          <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
+            {
+              servicesFields?.map((customer, index) => {
+                const { name, label, placeholder, options, type } = customer
 
-            <select
-              className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={handleSubCategoryChange}
-              value={serviceSelection.subCategory} // Use 'value' for controlled components
-            >
-              <option value={subservice}>Select SubCategory</option>
-              {subservice?.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.value}
-                  style={{ width: "300px" }}
-                >
-                  {item.name}
-                </option>
-              ))}
-            </select>
-            <select
-              className="px-3 py-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={handleminiChange}
-              value={serviceSelection.miniSubcategory}
-            >
-              <option value={miniservice}>Select MiniCategory</option>
-              {miniservice?.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.value}
-                  style={{ width: "300px" }}
-                  data-price={item.price}
-                >
-                  {item.name}
-                </option>
-              ))}
-            </select>
+                const value = serviceSelection[name];
+                return (
+                  <div key={index} className="relative">
+                    <div className="flex flex-col gap-1">
 
-            <select
-              className="px-2 py-2 mx-2 text-md font-medium bg-slate-300 rounded-lg outline-none"
-              onChange={(e) => handlestaffChange(e, 0, true)}
-              value={`${serviceSelection.staffId}-${serviceSelection.satffName}`}
-            >
-              <option className="bg-white">Select Staff</option>
-              {staffData?.map((item) => (
-                <option
-                  key={item._id}
-                  value={`${item._id}-${item.name}`}
-                  //  value={`${item._id}`}
-                  className="border-none shadow-lg rounded-lg bg-white "
-                >
-                  {item.name}
-                </option>
-              ))}
-            </select>
+                      {name === "price" ?
 
-            <button
-              style={{
-                height: "40px",
-                borderRadius: "20px solid grey",
-                width: "150px",
-                backgroundColor: "red",
-                cursor: "pointer",
-              }}
-              onClick={serviceAddpress}
-            >
-              <label
-                style={{ color: "white", fontSize: "14px", fontWeight: "500" }}
-              >
-                Add Service
-              </label>
-            </button>
+                        <NormalInput
+                          name={name}
+                          type={type}
+                          label={label}
+                          onChange={handleServiceChange}
+                          placeholder={placeholder}
+                          value={value}
+                          inputStyles={{
+                            'borderRadius': '16px'
+
+                          }}
+                          lableStyles={{
+                            'fontWeight': '400',
+                            "fontSize": "16px",
+                            'color': '#000000'
+                          }}
+
+
+
+                        />
+                        : <NormalSelect
+
+                          name={name}
+                          label={label}
+                          options={options}
+                          onChange={handleServiceChange}
+                          value={value}
+                          inputStyles={{
+                            'borderRadius': '16px'
+
+                          }}
+                          lableStyles={{
+                            'fontWeight': '400',
+                            "fontSize": "16px",
+                            'color': '#000000'
+                          }}
+
+
+
+                        />}
+                    </div>
+
+                  </div>
+                )
+              })
+            }
           </div>
+          <div className="flex justify-end mt-5">
+
+            <button onClick={serviceAddpress}
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
+          </div>
+
         </div>
+        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+          <div className="flex items-center gap-6  mb-9 ">
+            <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Product Detail</h2>
+            <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{appointementProducts?.length > 9 ? '9+' : appointementProducts?.length + "+"}</span>
 
-        {/* Product Table section */}
-        {appointementProducts?.length > 0 && (
-          <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl  border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
-            <h1 className="text-4xl font-bold text-black mt-2 ml-2">
-              Your Products
-            </h1>
+          </div>
 
-            <div className="w-full overflow-x-auto my-4">
-              <div className="table-container">
-                <table className="styled-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Brand</th>
-                      <th>Quantity</th>
-                      <th>Staff Name</th>
+          {appointementProducts?.length > 0 && (
+            <div className="w-full">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">#</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Name</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Price</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Brand</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Quantity</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Staff</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appointementProducts?.map((item, index) => (
+                    <tr key={index}>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{index + 1}</td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">{item?.name}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"> <NormalInput
+                        type="price"
+                        name="price"
+                        value={item.price}
+                        inputStyles={{ width: "120px", padding: "5px 10px" }}
 
-                      <th>Action</th>
+                        onChange={(e) =>
+                          handleChange(e, index, "product")
+                        } /></td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.brand}</td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">
+                        <NormalInput
+                          type="number"
+                          name="quantity"
+                          value={item.quantity}
+                          inputStyles={{ width: "120px", padding: "5px 10px" }}
+
+                          onChange={(e) =>
+                            handleChange(e, index, "product")
+                          } /></td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"> <NormalSelect
+                        options={staffData?.map((elm) => ({
+                          value: `${elm._id}-${elm.name}`,
+                          name: elm.name
+                        }))}
+                        inputStyles={{ width: "150px", padding: "5px 10px" }}
+
+                        onChange={(e) =>
+                          handlestaffChange(e, index, false, "product")
+                        }
+                        // value={item.staffId}
+                        value={`${item.staffId}-${item.staffName}`}
+
+                      /></td>
+                      <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
+                        {" "}
+                        <MdDeleteOutline
+                          onClick={() => deleteProduct(index)}
+                          className="text-xl text-red-600 font-bold cursor-pointer"
+                        />
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {appointementProducts?.map((item, index) => (
-                      <tr key={index} className="bg-white">
-                        <td>{item?.name}</td>
-                        <td>{item?.price}</td>
-                        <td>{item?.brand}</td>
-                        <td>{item?.quantity}</td>
-                        <td>{item?.staffName}</td>
-                        <td>
-                          {" "}
-                          <MdDeleteOutline
-                            onClick={() => deleteEditProduct(index)}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* ADD PRODUTS SECTION */}
-        <div className="mx-auto my-2 rounded-lg bg-[#fffffe] shadow-xl   border-2 border-gray-300 w-[95%] h-80 overflow-y-auto mt-10">
-          <h1 className="text-4xl font-bold text-black mt-2 ml-2">
-            ADD Products
-          </h1>
-          {/* Search Table */}
-          <div className="search-container h-auto  ">
-            <div className="flex w-fit mx-auto flex-row relative mb-10 ">
-              {/* <h1 className="text-lg font-semibold">Search Product</h1> */}
-              <div className="flex w-full min-w-[350px] md:min-w-[450px] relative mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
-                <input
-                  value={searchProduct}
-                  placeholder="search product By Name "
-                  onChange={searchProductOnchange}
-                  className="border-none outline-none w-full text-lg"
-                />
-                <FaSearch className="absolute right-6 text-xl ml-3 mt-3" />
-              </div>
+        </div>
+        {/* product select */}
+        <div className="rounded-[10px] mb-9 bg-white border p-5 ">
+          <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Product</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 mb-4 ">
+            <div className="relative w-full flex flex-col gap-1">
+              <NormalInput
+                name="product"
+                label="Search Product"
+                placeholder="Product Name"
+                onChange={searchProductOnchange}
+
+                value={searchProduct}
+                inputStyles={{
+                  'borderRadius': '16px'
+
+                }}
+                lableStyles={{
+                  'fontWeight': '400',
+                  "fontSize": "16px",
+                  'color': '#000000'
+                }}
+
+
+
+              />
+              <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
               {searchProduct?.length > 0 && (
                 <div
                   style={{}}
-                  className="absolute  shadow-xl bg-white top-16 h-[104px] w-[450px] overflow-auto"
+                  className="absolute top-[80px] w-full p-2 max-h-[200px]  overflow-y-auto bg-white shadow-lg z-[2]"
                 >
                   {showSearchProduct?.map((item) => {
-
                     return (
                       <div
-                        style={{ display: "flex" }}
-                        onClick={() => productNameOnclick(item.itemId)}
-                        className="flex items-center px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
+                        onClick={() => productNameOnclick(item)}
+                        className="flex bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
                       >
-                        <p className="mr-2 font-semibold">{item.name}</p>
+                        <p className="mr-2 capitalize font-semibold">{item.name}</p>
                       </div>
                     );
                   })}
                 </div>
               )}
             </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
+            {
+              productFields?.map((elm, index) => {
+                const { name, label, placeholder, value, readOnly, type, options } = elm
+                return (
+                  <div key={index}
+                    className="relative">
+                    <div className="flex flex-col gap-1">
+                      {name === "staffName" ? <NormalSelect
 
-            {selectedProduct && (
-              <div className="table-container">
-                <table className="styled-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Quantity</th>
-                      <th>Staff</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {showSearchProduct
-                      ?.filter((item) => item.itemId === selectedProduct)
-                      ?.map((item, index) => (
+                        name={name}
+                        label={label}
+                        options={options}
+                        onChange={handleProductChange}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      /> : <NormalInput
+                        name={name}
+                        type={type}
+                        label={label}
+                        disabled={readOnly}
+                        onChange={handleProductChange}
+                        placeholder={placeholder}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      />}
+                    </div>  </div>
+                )
+
+              })
+
+            }
+
+
+
+          </div>
+          <div className="flex justify-end mt-5">
+
+            <button onClick={addproductPress}
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
+          </div>
+
+        </div>
+
+        {/* Apply Discount */}
+        <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
+
+          <h2 className="font-normal text-start leading-[20px] mb-9 text-black text-[24px]">Apply Discount</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
+            {
+              discounFields?.map((elm, index) => {
+                const { name, label, placeholder, value, readOnly, type, options, onChange } = elm
+                return (
+                  <div key={index}
+                    className="relative">
+                    <div className="flex flex-col gap-1">
+                      {name === "membership" ? <NormalSelect
+
+                        name={name}
+                        label={label}
+                        options={options}
+                        onChange={onChange}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        disabled={isMembershipApplied}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      /> : <NormalInput
+                        name={name}
+                        type={type}
+                        label={label}
+                        disabled={readOnly}
+                        onChange={onChange}
+                        placeholder={placeholder}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      />}
+                    </div>  </div>
+                )
+
+              })
+
+            }
+
+
+
+          </div>
+          <div className="flex justify-end mt-12">
+
+            <button onClick={handleApplyDiscount}
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Apply</button>
+          </div>
+
+
+        </div>
+        {/* book appointment */}
+        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+          <h2 className="font-normal text-start leading-[20px] mb-9 text-black text-[24px]">Booking Detail</h2>
+
+
+          <div className="p-2 w-full   flex justify-between  items-center">
+            {tableFields.map((elm, idx) => {
+              return (
+                <div key={idx} className="w-[40%] mb-auto ">
+                  <table className="table-auto  w-full">
+                    <thead></thead>
+                    <tbody>
+                      {elm?.map((item, index) => (
                         <tr key={index}>
-                          <td>
-                            <input
-                              value={item.name}
-                              placeholder="product Quantity "
-                              disabled
-                              onChange={onChangeProdutName}
-                            />
+                          <td className="font-normal text-black text-sm  2xl:text-md border-none px-4 py-2">
+                            {item.label}
                           </td>
-                          <td>{item?.price}</td>
-                          <td>
-                            <input
-                              value={productQnt}
-                              placeholder="product Quantity "
-                              onChange={(e) => setProductQnt(e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            {" "}
-                            <select
-
-                              onChange={(e) =>
-                                setProductStaff({
-                                  staffId: e.target.value.split("-")[0],
-                                  staffName: e.target.value.split("-")[1],
-                                })
-                              }
-                              value={`${productStaff.staffId}-${productStaff.staffName}`}
-                            >
-                              <option >
-                                Select Staff
-                              </option>
-                              {staffData?.map((item) => (
-                                <option
-                                  key={item._id}
-                                  value={`${item._id}-${item.name}`}
-                                  style={{ width: "300px" }}
-
-                                >
-                                  {item.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-
-                          <td>
-                            <button
-                              style={{
-                                height: "40px",
-                                borderRadius: "20px solid grey",
-                                width: "150px",
-                                backgroundColor: "black",
-                                cursor: "pointer",
-                              }}
-                              onClick={() =>
-                                addproductPress(item, productQnt)
-                              }
-                            >
-                              <label
-                                style={{
-                                  color: "white",
-                                  fontSize: "14px",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Add Product
-                              </label>
-                            </button>
+                          <td className=" font-normal   text-sm 2xl:text-md border-none px-4 py-2 text-green-800">
+                            {formatValue(item?.value) || 0}
                           </td>
                         </tr>
                       ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-end mt-12">
+
+            <button onClick={handleBookAppointment}
+              className="bg-black text-white rounded-[16px] w-[250px] text-sm font-normal ">Update Appointment</button>
           </div>
         </div>
+        {/*  */}
 
-        {/* Book Appointment Section */}
-        <div className="border-2 border-gray-300 p-4 rounded-lg bg-[#fffffe] shadow-xl  my-12 flex flex-col w-[95%] mx-auto">
-          <h1 className="text-4xl font-bold mb-10 mt-10 text-center text-black">
-            BOOK APPOINTMENT
-          </h1>
 
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col">
-              <div className="flex justify-start gap-3 items-center">
-                <div className="flex items-center">
-                  <NormalInput
-                    type="number"
-                    value={discount}
 
-                    lableStyles={{
-                      display: "flex",
-                      width: "150px",
-                      color: "#535b61",
-                      fontWeight: "medium",
-                      fontSize: "1.15rem",
-                    }}
-                    inputStyles={{
-                      width: "200px",
-                    }}
-                    label="Apply Discount"
-                    onChange={(e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))}
-                  />
-                </div>
 
-                <button
-                  //    onClick={applyDiscount}
-                  className="bg-black"
-                >
-                  Apply Discount
-                </button>
-              </div>
-              <div className="flex mt-6 justify-start gap-3 items-center mb-3">
-                {/* MEMBERSHIP STATUS */}
-                <div className="flex items-center gap-3 justify-center">
-                  <h1 className="text-lg font-semibold">Membership</h1>
-                  <NormalSelect
-                    inputStyles={{
-                      width: "300px",
-                    }}
-                    name="membership"
-                    onChange={membershipPress}
-                    options={membershipDetails?.map((item) => ({
-                      name: `${item.name}-${item.creditsLeft}`,
-                      value: item._id,
-                    }))}
-                    disabled={memberShipStatus ? true : false}
-                  />
-
-                </div>
-
-                {/* Membership Button */}
-
-                {loading ?
-                  <button
-                    className="w-[136px] flex items-center justify-center bg-black "
-                  >
-                    <span>
-                      <svg
-                        className="animate-spin"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <circle
-                          opacity="0.5"
-                          cx="10"
-                          cy="10"
-                          r="9"
-                          stroke="white"
-                          stroke-width="2"
-                        />
-                        <mask id="path-2-inside-1_2527_20936" fill="white">
-                          <path d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z" />
-                        </mask>
-                        <path
-                          d="M18.4713 13.0345C18.9921 13.221 19.5707 12.9508 19.7043 12.414C20.0052 11.2042 20.078 9.94582 19.9156 8.70384C19.7099 7.12996 19.1325 5.62766 18.2311 4.32117C17.3297 3.01467 16.1303 1.94151 14.7319 1.19042C13.6285 0.597723 12.4262 0.219019 11.1884 0.0708647C10.6392 0.00512742 10.1811 0.450137 10.1706 1.00319C10.1601 1.55625 10.6018 2.00666 11.1492 2.08616C12.0689 2.21971 12.9609 2.51295 13.7841 2.95511C14.9023 3.55575 15.8615 4.41394 16.5823 5.45872C17.3031 6.50351 17.7649 7.70487 17.9294 8.96348C18.0505 9.89002 18.008 10.828 17.8063 11.7352C17.6863 12.2751 17.9506 12.848 18.4713 13.0345Z"
-                          stroke="white"
-                          stroke-width="4"
-                          mask="url(#path-2-inside-1_2527_20936)"
-                        />
-                      </svg>
-                    </span>
-                  </button>
-                  : memberShipStatus ? (
-                    <button
-                      onClick={applyMemberShip}
-                      className="bg-red-600 hover:bg-red-500"
-                    >
-                      Remove Membership
-                    </button>
-                  ) : (
-                    <button
-                      onClick={applyMemberShip}
-                      className="bg-black hover:bg-gray-800"
-                    >
-                      Apply Membership
-                    </button>
-                  )}
-
-                <div className="flex ml-6">
-                  <h3 className="text-lg font-bold text-black">
-                    BALANCE :{" "}
-                    <span className="text-green-600 font-bold">
-                      {formatValue(membershipCoin)}
-                    </span>
-                  </h3>
-                </div>
-              </div>
-            </div>
-            <div>
-              {arr?.length > 0 && (
-                <div className="flex flex-col">
-                  <p className=" text-lg font-bold text-black">
-                    MEMBERSHIP:{" "}
-                    <span className="text-md font-medium ml-1 text-green-600">
-                      {arr[0]?.name}
-                    </span>
-                  </p>
-                  <p className=" text-lg font-bold text-black">
-                    CREDITS LEFT:
-                    <span className="text-md font-medium ml-1 text-green-600">
-                      {formatValue(arr[0]?.creditsLeft)}
-                    </span>
-                  </p>
-                  <p className=" text-lg font-bold text-black">
-                    AMOUNT:
-                    <span className="text-md font-medium ml-1 text-green-600">
-                      {formatValue(arr[0]?.amount)}
-                    </span>
-                  </p>
-                </div>
-              )}
-              <p className=" text-lg font-bold text-black">
-                SubTotal Services:
-                <span className="text-md font-medium ml-1 text-green-600">
-                  {formatValue(subTotalServices)}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                SubTotal Products:
-                <span className="text-md font-medium ml-1 text-green-600">
-                  {formatValue(subProductTotal)}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                DISCOUNT:
-                <span className="text-md font-medium ml-1 text-green-600">
-                  {formatValue(serviceDiscount)}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                Total Services:
-                <span className="text-md font-medium ml-1 text-green-600">
-                  {formatValue(totalService)}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                Total Products:
-                <span className="text-md font-medium ml-1 text-green-600">
-                  {formatValue(subProductTotal)}
-                </span>
-              </p>
-              <p className=" text-lg font-bold text-black">
-                Total Payable:
-                <span className="text-md font-medium ml-1 text-green-600">
-                  {formatValue(totalAmount)}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          <button
-            className="mt-3 w-[50%] py-4 text-lg font-semibold mx-auto bg-black"
-            onClick={handleBookAppointment}
-          >
-            Update Appointment
-          </button>
-        </div>
       </div>
+   
     </>
   );
 };

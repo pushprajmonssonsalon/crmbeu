@@ -16,7 +16,7 @@ import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 const ViewAppointment = () => {
   const [params] = useSearchParams();
   const [loading, setLoading] = useState(false)
-  const [comment,setComment]=useState("")
+  const [comment, setComment] = useState("")
   const [showDate, setShowDate] = useState(false)
   const start = params.get("start");
   const end = params.get("end");
@@ -78,14 +78,14 @@ const ViewAppointment = () => {
     const activeAppointment = viewAppointmentDetails.find(
       (elm) => elm._id === item._id
     );
-    const { userId, advanceUsed } = activeAppointment;
+    const { userId, advanceUsed } = item;
     if (activeAppointment) {
       const data = {
         status: 3,
         id: item._id,
         comment,
         ...((advanceUsed && userId) && { advanceUsed, userId }),
-        paymentMethod: activeAppointment?.paymentMethod,
+        paymentMethod: item?.paymentMethod,
       };
       setLoadingStates((prevLoadingStates) => ({
         ...prevLoadingStates,
@@ -118,6 +118,7 @@ const ViewAppointment = () => {
     } else {
       toast.error("Appointment not found!");
     }
+    setComment("");
   };
   const cancelPress = (item) => {
     if (item.status === 3) {
@@ -198,6 +199,7 @@ const ViewAppointment = () => {
     if (status === 1 || status === 4) {
       setActiveAppointment(appointment);
       setShowPopup(true);
+
     }
   };
 
@@ -273,14 +275,17 @@ const ViewAppointment = () => {
 
 
   const updatePaymentMethod = (elm) => {
+    const updatedItem = {...activeAppointment, ...elm };
     setViewAppointmentDetails((prev) =>
       prev.map((item) => {
         if (item._id === activeAppointment._id) {
-          return { ...activeAppointment, ...elm };
+          return updatedItem;
         }
         return item;
       })
     );
+
+    submitPress(updatedItem);
     setShowPopup(false);
   };
   const handleExport = () => {
@@ -334,7 +339,27 @@ const ViewAppointment = () => {
         <div className="flex justify-end ">
 
         </div>
-        <div className="">
+        <div className=" rounded-[16px] border border-primaryGray p-5  ">
+
+          <div className="flex border border-primaryGray rounded-[16px] w-fit mx-auto justify-center items-center ">
+            <button
+              className={`w-[150px] text-sm ${tab === "crm" ? "bg-ternary text-white" : "bg-transparent text-ternary"
+                } px-4 py-2 rounded-[16px] transition-all ease-in duration-100`}
+              onClick={handleCrmTab}
+            >
+              CRM
+            </button>
+            <button
+              className={`w-[150px] text-sm ${tab === "app" ? "bg-ternary" : "bg-transparent text-ternary"
+                } px-4 py-2 rounded-[16px] transition-all ease-in duration-100`}
+              onClick={handleAppTab}
+            >
+              APP
+            </button>
+          </div>
+          <h2 className="text-black text-start my-6  font-normal text-[22px] leading-[28px]">Appointment Booked</h2>
+
+
           {/* <div className=" flex mb-12 justify-center items-center">
             <CustomInputFeild
               startDate={startDate}
@@ -348,26 +373,11 @@ const ViewAppointment = () => {
 
           {/* Tab content */}
 
-          <div className="flex justify-evenly items-center my-5 ">
-            <button
-              className={`${tab === "crm" ? "bg-green-600" : "bg-black"
-                } px-4 py-2 rounded-lg  text-white font-bold`}
-              onClick={handleCrmTab}
-            >
-              CRM
-            </button>
-            <button
-              className={`${tab === "app" ? "bg-green-600" : "bg-black"
-                } px-4 py-2 rounded-lg text-white font-bold`}
-              onClick={handleAppTab}
-            >
-              APP
-            </button>
-          </div>
+
 
           {/* Table */}
           {tab === "crm" ? (
-            <div className="">
+            <div className="w-full mt-6">
               {viewAppointmentDetails?.length > 0 ? (
                 <StickyHeadTable
                   data={viewAppointmentDetails}
@@ -384,23 +394,16 @@ const ViewAppointment = () => {
                 />
               ) : (
                 <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "100%",
-                  }}
+                  className="flex items-center justify-center h-[30vh]"
                 >
-                  <img
-                    style={{ height: "275px" }}
-                    src="https://res.cloudinary.com/dkvmvyvnx/image/upload/v1706507725/appointment_blank.519e76cd_bjiip7.png"
-                    alt="img"
-                  />
+                  <div >
+                    No Appointment Found
+                  </div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="table-containerValue w-full overflow-x-scroll">
+            <div className="w-full mt-6">
               {viewAppointmentDetails?.length > 0 ? (
                 <StickyAppHeadTable
                   data={viewAppointmentDetails}
@@ -411,26 +414,19 @@ const ViewAppointment = () => {
                 />
               ) : (
                 <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "100%",
-                  }}
+                  className="flex items-center justify-center h-[30vh]"
                 >
-                  <img
-                    style={{ height: "275px" }}
-                    src="https://res.cloudinary.com/dkvmvyvnx/image/upload/v1706507725/appointment_blank.519e76cd_bjiip7.png"
-                    alt="img"
-                  />
+                  <div >
+                    No Appointment Found
+                  </div>
                 </div>
               )}
             </div>
           )}
         </div>
         <ViewPopup
-        comment={comment}
-        setComment={setComment}
+          comment={comment}
+          setComment={setComment}
           isVisible={showPopup}
           onClose={() => setShowPopup(false)}
           modal={modal}

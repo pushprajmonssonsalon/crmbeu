@@ -90,7 +90,7 @@ const Advances = () => {
         }
 
         else {
-            setAdvanceData((prev) => ({ ...prev, [name]: name === "balance" ? parseFloat(value) : value }));
+            setAdvanceData((prev) => ({ ...prev, [name]: name === "balance" ? parseFloat(+value) : value }));
         }
 
     };
@@ -363,6 +363,7 @@ const Advances = () => {
                     <div className="flex flex-col gap-1">
                         <NormalInput
                             label="Amount"
+                            type='number'
                             placeholder="Enter Amount"
                             onChange={onChange('balance')}
                             value={advanceData?.balance}
