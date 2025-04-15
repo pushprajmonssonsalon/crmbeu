@@ -3,7 +3,7 @@ import Pagination from "../pagination";
 import GridRows from "../pagination/gridRows";
 
 const CustomTable = ({ columns, rows }) => {
- const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const paginatedData = rows.slice(
     (page - 1) * rowsPerPage,
@@ -17,14 +17,15 @@ const CustomTable = ({ columns, rows }) => {
     setRowsPerPage(+event.target.value);
     setPage(1);
   };
- 
+
   return (
     <>
       {" "}
       <table className="styled-table">
         <thead>
           <tr>
-            {columns.map((column, index) => (
+            <th className="bg-black text-white px-3 py-2">#</th>
+            {columns?.map((column, index) => (
               <th key={index} className="bg-black text-white px-3 py-2">{column.name}</th>
             ))}
           </tr>
@@ -32,6 +33,7 @@ const CustomTable = ({ columns, rows }) => {
         <tbody>
           {paginatedData?.map((row, index) => (
             <tr key={index} className="bg-white">
+              <td>{index + 1}</td>
               {columns?.map((column, index) => {
 
                 const { id } = column;

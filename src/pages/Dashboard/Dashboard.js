@@ -12,6 +12,7 @@ import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 import { useSearchParams } from "react-router-dom";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import useDebouncer from "../../utils/hooks/useDebouncer";
+import CustomTable from "../../components/Table/CustomTable";
 const backgroundColors = [
   "rgba(255, 99, 132, 0.8)",  // Red
   "rgba(54, 162, 235, 0.8)",  // Blue
@@ -478,7 +479,7 @@ const Dashboard = () => {
   const fetchInActiveUser = (days) => {
     getApiCall(`reports/getDataOfUsersNotVisitedFromDays?count=${days}`,
       (res) => {
-        if(res?.length > 0)setInActiveUser(res)
+        if (res?.length > 0) setInActiveUser(res)
         else setInActiveUser([])
       }, () => { })
   }
@@ -533,6 +534,37 @@ const Dashboard = () => {
     { name: "365 Days", value: 365 },
 
   ]
+  //   <tr>
+  //   <th className="bg-black text-white px-3 py-2">Customer Name</th>
+  //   <th className="bg-black text-white px-3 py-2">Contact Number</th>
+  //   <th className="bg-black text-white px-3 py-2">Last Visited</th>
+  // </tr>
+  // </thead>
+  // <tbody>
+  // {inActiveUser?.map((item, index) => (
+  //   <tr key={index}>
+  //     <td>{item.name}</td>
+  //     <td>{item.phoneNumber}</td>
+  //     <td>{formatDate(item?.visited)}</td>
+  //     {/* <td>{formatDate(item.eventDate)}</td> */}
+  //   </tr>
+  // ))}
+
+  const InActiveCols = [{
+    name: "Customer Name",
+    id: "name",
+  }, {
+    name: "Contact Number",
+    id: 'phoneNumber',
+  }, {
+    name: "Last Visited",
+    id: 'visited'
+  }]
+  const InActiveRows = inActiveUser?.map((item, index) => ({
+    name: item.name,
+    phoneNumber: item.phoneNumber,
+    visited: formatDate(item?.visited),
+  }))
 
   return (
     <>
@@ -625,25 +657,10 @@ const Dashboard = () => {
                   onChange={(e) => setDays(e.target.value)}
                 />
               </div>
-             {inActiveUser?.length>0? <table className="styled-table">
-                <thead>
-                  <tr>
-                    <th className="bg-black text-white px-3 py-2">Customer Name</th>
-                    <th className="bg-black text-white px-3 py-2">Contact Number</th>
-                    <th className="bg-black text-white px-3 py-2">Last Visited</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {inActiveUser?.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.name}</td>
-                      <td>{item.phoneNumber}</td>
-                      <td>{formatDate(item?.visited)}</td>
-                      {/* <td>{formatDate(item.eventDate)}</td> */}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>:<div className="h-[20vh] flex items-center justify-center">
+              {inActiveUser?.length > 0 ? <CustomTable
+                columns={InActiveCols}
+                rows={InActiveRows}
+              /> : <div className="h-[20vh] flex items-center justify-center">
                 <h2 className="text-gray2  text-md  mb-5">No InActive Customers Found</h2>
               </div>}
             </div>
