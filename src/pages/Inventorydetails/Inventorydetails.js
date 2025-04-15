@@ -104,8 +104,6 @@ const Inventorydetails = ({ tab }) => {
 
   const [currentPage1, setCurrentPage1] = useState(1);
   const [itemsPerPage1, setItemsPerPage1] = useState(10);
-  const startIndex1 = (currentPage1 - 1) * itemsPerPage1;
-  const endIndex1 = currentPage1 * itemsPerPage1;
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -287,7 +285,7 @@ const Inventorydetails = ({ tab }) => {
       // Cleanup function to clear timeout on component unmount
       return () => clearTimeout(timeoutId);
     }
-  }, [isModalOpen, allProductFilters, currentPage1, itemsPerPage1]);
+  }, [isModalOpen, allProductFilters, currentPage1, itemsPerPage1,tab]);
 
   useEffect(() => {
     getApiCall(
@@ -402,7 +400,7 @@ const Inventorydetails = ({ tab }) => {
             </div>
             <div onClick={() => setShowOrderPopup(true)} className="relative cursor-pointer ">
               <FaShoppingCart className="text-xl" />
-              {cart?.length>0 && <span className="w-5 h-5 absolute -top-3 -right-2 rounded-full text-[10px] flex items-center justify-center bg-green-600 text-white"> {cart?.length > 9 ? "9" : cart?.length}</span>}
+              {cart?.length>0 && <span className="w-5 h-5 absolute -top-3 -right-2 rounded-full text-[10px] flex items-center justify-center bg-green-600 text-white"> {cart?.length > 9 ? "9+" : cart?.length}</span>}
 
             </div>
           </div>

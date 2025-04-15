@@ -4,23 +4,25 @@ import Modal from "react-modal";
 import { getApiCall, postApiData } from "../../utils/services";
 import EmployeeTable from "../../components/Table/EmployeeTable";
 import Pagination from "../../components/pagination";
+import NormalInput from "../../components/customInput/NormalInput";
+import NormalSelect from "../../components/customInput/NormalSelect";
+import toast from "react-hot-toast";
 
 const titles = [
-  " Admin",
-  " Art Director",
-  "Artist",
-  "    Assistant",
-  " Assistant Manager",
-  "  Barber",
-  "   Beautician",
-  "    Beauty Expert",
-  "   Beauty Therapist",
-
-  "Hair Artist",
-  "  Hair Dresser",
-  " Hair Expert",
-  "    Hair Stylist",
-];
+  { name: ' Admin', value: 'Admin' },
+  { name: ' Art Director', value: 'Art Director' },
+  { name: 'Artist', value: 'Artist' },
+  { name: '    Assistant', value: 'Assistant' },
+  { name: ' Assistant Manager', value: ' Assistant Manager' },
+  { name: '  Barber', value: 'Barber' },
+  { name: '   Beautician', value: 'Beautician' },
+  { name: '    Beauty Expert', value: 'Beauty Expert' },
+  { name: '   Beauty Therapist', value: 'Beauty Therapist' },
+  { name: 'Hair Artist', value: 'Hair Artist' },
+  { name: '  Hair Dresser', value: 'Hair Dresser' },
+  { name: ' Hair Expert', value: 'Hair Expert' },
+  { name: '    Hair Stylist', value: 'Hair Stylist' }
+]
 const Employeedetails = () => {
   const [ismodalOpen, setismodalOpen] = useState(false);
 
@@ -88,7 +90,15 @@ const Employeedetails = () => {
       staff: title,
       emergencyNumber: emergencyNumber,
     };
-
+    const isEveryEmpty = Object.values(staffData).every((value) => value === ""||!value|| value.toString().trim() === "");
+     if(isEveryEmpty){
+      toast.error("Please fill all the fields");
+      return;
+     }
+     if(mobileNumber.length!==10){
+      toast.error("Please enter a valid phone number");
+      return;
+     }
     postApiData(
       "/owner/addStaff",
       staffData,
@@ -96,6 +106,7 @@ const Employeedetails = () => {
 
         if (resp) {
           setStaffStaus(true)
+          toast.success("Staff added successfully");
 
         }
       },
@@ -125,15 +136,107 @@ const Employeedetails = () => {
   // const handleGenderChange = (e) => {
   //     setGender(e.target.value);
   // };
-  const modalStyle = {
-    content: {
-      width: "51vw",
-      marginLeft: "380px",
-      overflow: "auto",
+  
 
+  const formFields = [
+    {
+      label: "Name",
+      placeholder: "Enter your name",
+      type: "text",
+      value: name,
+      onChange: (e) => setName(e.target.value),
+      id: "name",
     },
-  };
-
+    {
+      label: "Mobile Number",
+      placeholder: "Enter your mobile number",
+      type: "Number",
+      value: mobileNumber,
+      onChange: (e) => setMobileNumber(e.target.value),
+      id: "mobileNumber",
+    },
+    {
+      label: "Email",
+      placeholder: "Enter your email",
+      type: "text",
+      value: email,
+      onChange: (e) => setEmail(e.target.value),
+      id: "email",
+    },
+    {
+      label: "Employee Code",
+      placeholder: "Enter your mobile number",
+      type: "text",
+      value: employeeCode,
+      onChange: (e) => setEmployeeCode(e.target.value),
+      id: "employeeCode",
+    },
+    {
+      label: "Gender",
+      type: "select",
+      value: gender,
+      onChange: (e) => setGender(e.target.value),
+      id: "gender",
+      options: [{ name: "Male", value: "male" }, { name: "Female", value: "female" }, { name: "Others", value: "others" }],
+    },
+    {
+      label: "DOB",
+      placeholder: "Enter your mobile number",
+      type: "date",
+      value: dob,
+      onChange: (e) => setDob(e.target.value),
+      id: "dob",
+    },
+    {
+      label: "Start Date",
+      placeholder: "Enter start date",
+      type: "date",
+      value: startDate,
+      onChange: (e) => setStartDate(e.target.value),
+      id: "startDate",
+    },
+    {
+      label: "End Date",
+      placeholder: "Enter end date",
+      type: "date",
+      value: endDate,
+      onChange: (e) => setEndDate(e.target.value),
+      id: "endDate",
+    },
+    // Uncomment if needed
+    // {
+    //   label: "Current Address",
+    //   placeholder: "Enter current address",
+    //   type: "text",
+    //   value: currentAddress,
+    //   onChange: (e) => setCurrentAddress(e.target.value),
+    //   id: "currentAddress",
+    // },
+    // {
+    //   label: "Permanent Address",
+    //   placeholder: "Enter permanent address",
+    //   type: "text",
+    //   value: permanentAddress,
+    //   onChange: (e) => setPermanentAddress(e.target.value),
+    //   id: "permanentAddress",
+    // },
+    {
+      label: "Title",
+      type: "select",
+      value: title,
+      onChange: (e) => setTitle(e.target.value),
+      id: "title",
+      options: titles, // this is your dynamic list
+    },
+    {
+      label: "Emergency Number",
+      placeholder: "Enter your emergency number",
+      type: "text",
+      value: emergencyNumber,
+      onChange: (e) => setEmergencyNumber(e.target.value),
+      id: "emergencyNumber",
+    },
+  ];
   return (
 
     <>
@@ -175,7 +278,7 @@ const Employeedetails = () => {
         <Modal
           isOpen={ismodalOpen}
           onRequestClose={closeModal}
-          className="w-[70%] lg:w-[50%] relative top-[10%] bottom-[10%]  z-30  mx-auto"
+          className=" w-[80%] sm:w-[70%]  relative top-[10%] bottom-[10%]  z-30  mx-auto"
 
           contentLabel="Add Staff Modal"
           style={{
@@ -195,194 +298,80 @@ const Employeedetails = () => {
               backgroundColor: "rgba(0, 0, 0, 0.3)", // Set the overlay background color
             },
           }}        >
-          <h1 className="2xl:text-xl text-sm  text-black mb-4  text-start ">Add Staff</h1>
+          <h1 className=" text-2xl  text-black mb-4  text-start ">Add New Employee</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 mb-4">
+            {
+              formFields?.map((customer, index) => {
+                const { name, label, placeholder, type, value, options, onChange } = customer
+                return (
+                  <div key={index} className="relative">
+                    <div className="flex flex-col gap-1">
 
-          <div className="text-input-container">
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="name">Name:</label>
-              <input
-                type="text"
-                id="name"
-                style={{ width: "19vw", height: "35px" }}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
-              />
-            </div>
+                      {!options ?
 
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="mobileNumber">Mobile Number:</label>
-              <input
-                type="text"
-                id="mobileNumber"
-                style={{ width: "19vw", height: "35px" }}
-                value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-                placeholder="Enter your mobile number"
-              />
-            </div>
-          </div>
+                        <NormalInput
+                          name={name}
+                          label={label}
+                          type={type}
+                          onChange={onChange}
+                          placeholder={placeholder}
+                          value={value}
+                          inputStyles={{
+                            'borderRadius': '10px',
+                            padding: "10px 15px",
 
-          <div className="text-input-container">
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="name">Email:</label>
-              <input
-                type="text"
-                id="email"
-                style={{ width: "19vw", height: "35px" }}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-              />
-            </div>
+                          }}
+                          lableStyles={{
+                            'fontWeight': '400',
+                            "fontSize": "14px",
+                            'color': '#000000'
+                          }}
 
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="mobileNumber">Employee Code:</label>
-              <input
-                type="text"
-                id="mobileNumber"
-                style={{ width: "19vw", height: "35px" }}
-                value={employeeCode}
-                onChange={(e) => setEmployeeCode(e.target.value)}
-                placeholder="Enter your mobile number"
-              />
-            </div>
-          </div>
 
-          <div className="text-input-container">
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="gender">Gender:</label>
-              <select
-                id="gender"
-                style={{ width: "19vw", height: "35px" }}
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="others">Others</option>
-              </select>
-            </div>
 
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="mobileNumber">DOB:</label>
-              <input
-                type="date"
-                id="mobileNumber"
-                style={{ width: "19vw", height: "35px" }}
-                value={dob}
-                onChange={(e) => setDob(e.target.value)}
-                placeholder="Enter your mobile number"
-              />
-            </div>
-          </div>
-
-          <div className="text-input-container">
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="name">Start Date:</label>
-              <input
-                type="date"
-                id="startdate"
-                style={{ width: "19vw", height: "35px" }}
-                //value={mobileNumber}
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Enter start date"
-              />
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="mobileNumber">End Date:</label>
-              <input
-                type="date"
-                id="enddate"
-                style={{ width: "19vw", height: "35px" }}
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="Enter end date"
-              />
-            </div>
-          </div>
-
-          {/* <div className='text-input-container'>
-
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                        <label htmlFor="name">Current Address:</label>
-                        <input
-                            type="text"
-                            id="currentaddress"
-                            style={{ width: "19vw", height: "35px" }}
-                            value={currentAddress}
-                            onChange={(e) => setCurrentAddress(e.target.value)}
-                            placeholder="Enter current address"
                         />
+                        : <NormalSelect
+
+                          name={name}
+                          label={label}
+                          options={options}
+                          onChange={onChange}
+                          value={value}
+                          inputStyles={{
+                            'borderRadius': '10px',
+                            padding: "10px 15px",
+
+                          }}
+                          lableStyles={{
+                            'fontWeight': '400',
+                            "fontSize": "14px",
+                            'color': '#000000'
+                          }}
+
+
+
+                        />}
                     </div>
 
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                        <label htmlFor="mobileNumber">Parmanent Address:</label>
-                        <input
-                            type="text"
-                            id="parmanentaddress"
-                            style={{ width: "19vw", height: "35px" }}
-                            value={permanentAddress}
-                            onChange={(e) => setPermanentAddress(e.target.value)}
-
-                            placeholder="Enter parmanent address"
-                        />
-                    </div>
-                </div> */}
-
-          <div className="text-input-container">
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="name">Title:</label>
-              <select
-                id="title"
-                style={{
-                  width: "19vw",
-                  height: "35px",
-                  maxHeight: "150px",
-                  overflow: "auto",
-                }}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              >
-                <option value="" disabled>
-                  Select title
-                </option>
-                {titles.map((title, index) => (
-                  <option key={index} value={title}>
-                    {title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="mobileNumber">Emergency Number:</label>
-              <input
-                type="text"
-                id="emergencynumber"
-                style={{ width: "19vw", height: "35px" }}
-                value={emergencyNumber}
-                onChange={(e) => setEmergencyNumber(e.target.value)}
-                placeholder="Enter your emergency number"
-              />
-            </div>
+                  </div>
+                )
+              })
+            }
           </div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
+
+          <div className="flex items-center justify-end gap-4 mt-4">
             <button
-              style={{ width: "100px", height: "50px", marginTop: "20px", background: '#000000' }}
+              className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
               onClick={closeModal}
             >
-              Close
+              Cancel
             </button>
             <button
-              style={{ width: "100px", height: "50px", marginTop: "20px", background: '#000000' }}
+              className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
               onClick={handleSubmit}
             >
-              Submit
+              ADD
             </button>
           </div>
         </Modal>

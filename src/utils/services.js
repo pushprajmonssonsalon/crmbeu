@@ -1,9 +1,9 @@
 import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
-// const BASE_URL = "https://crm.smartsalon.in/";
+const BASE_URL = "https://crm.smartsalon.in/";
 // const BASE_URL = "http://192.168.3.36:4002";
-const BASE_URL = "http://192.168.2.217:4002";
+// const BASE_URL = "http://192.168.2.203:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
@@ -137,7 +137,7 @@ function formatValue(value){
   }
 }
 
-const formatDate = (dateStr, ind = false) => {
+const formatDate = (dateStr, ind = false,month=false) => {
   if (!dateStr) return ""
 
   if (ind) {
@@ -146,6 +146,20 @@ const formatDate = (dateStr, ind = false) => {
     const mm = date[1]
     const yyyy = date[0]
     return `${dd}/${mm}/${yyyy}`
+  }
+   if (month){
+                      // Full year
+    const date = new Date(dateStr);  // Current date
+
+
+    // Convert month from "08" to "Aug" or any other short form
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${month} ${year}`;
   }
   else {
     const date = new Date(dateStr);  // Current date

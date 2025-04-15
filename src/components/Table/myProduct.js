@@ -43,7 +43,7 @@ const MyProductTable = ({data,handleOpen,setIsChanged,isChanged}) => {
                         <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.products.price}</td>
                         <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{item.products.brand}</td>
                         <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>
-                          <div className='flex justify-between items-center'>
+                          <div className='flex gap-2 items-center'>
                           <GiCancel className="text-red-600 text-xl cursor-pointer" onClick={()=>handleDelete(item.products._id)}/>
                           <BiSolidAddToQueue className="text-xl font-bold text-gray2 cursor-pointer hover:text-red-600" onClick={()=>handleOpen(item.products._id)}/>
                           </div>

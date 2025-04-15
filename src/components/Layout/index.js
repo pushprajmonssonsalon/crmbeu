@@ -3,15 +3,15 @@ import Navbar from '../navbar/Navbar';
 import VerticalSidebar from '../newSidebar';
 import { Link } from 'react-router-dom';
 const routesObject = {
-  appointments: "Appointments",
+  dashboard: "Dashboard",
   customerservices: "Services",
   inventory: "Inventory",
-  employee: "Employee",
   ownerservice: "Owner Service",
   viewAppointment: "View Appointment",
   reports: "Reports",
   invoicewise: "Invoice Wise",
   categorywise: "Category Wise",
+  contacts: "Contacts",
   complitedAppointment: "Completed Appointments",
   membership: "Membership",
   advance: "Advance",
@@ -60,7 +60,6 @@ const Layout = ({ children }) => {
 const Breadcrumbs = () => {
   const {pathname} = useLocation();
   const path = pathname.split("/").filter(x=>x)[0]
-  console.log(path, "path")
  
  
   

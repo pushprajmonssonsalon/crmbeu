@@ -48,12 +48,12 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
   }, [cartData])
 
   useEffect(() => {
-    if (brands.length > 0) setActiveBrand(brands[0])
+    if (brands.length > 0) if (!brands.includes(activeBrand)) setActiveBrand(brands[0])
   }, [brands])
   const [bool, setBool] = useState(false);
   const handleQuantityChange = (idx, value) => {
-    const updatedCart = cartData.map((elm)=>{
-      if(elm.itemId===idx){
+    const updatedCart = cartData.map((elm) => {
+      if (elm.itemId === idx) {
         return {
           ...elm,
           orderedQuantity: value,
@@ -64,7 +64,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
     });
 
     // Update the specific item's quantity
-    
+
     setCartData(updatedCart)
 
   };
@@ -75,7 +75,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
 
 
   const handleSubmitOrder = () => {
-   
+
     setShowConfirmModal(true)
 
   };
@@ -113,20 +113,16 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
 
   return (
     <>
-      <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center ">
-        <div className="absolute z-40 mx-3 w-1/2 my-10 h-[70%] overflow-y-auto">
-          <div className="bg-white p-4 rounded-xl ">
-            <div className="flex mb-3 justify-between font-bold items-center">
-              <h1 className={`text-blue-500 text-lg font-bold  `}>
-                Place your order
-              </h1>
-              <div
-                className="text-3xl font-bold  text-red-600 hover:text-red-900 bg-transparent"
-                onClick={() => onClose()}
-              >
-                <MdOutlineClose />
-              </div>
+      <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
+        <div className='w-[80%] md:w-[60%] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+
+          <div className=" ">
+            <div className='flex justify-between items-center mb-6'>
+              <h1 className={`text-2xl text-black `}>Place Your Order</h1>
+              <button className='text-black text-xl' onClick={() => onClose()}><MdOutlineClose /></button>
+
             </div>
+
             {cartData?.length > 0 && <div className="my-3 ">
               <span className="text-xs text-black font-medium leading-6">Filter Brands</span>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-4 bg-gray-50 p-2 border rounded-sm">
@@ -134,7 +130,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
                   brands?.map((brand, idx) => (
                     <div
                       onClick={() => handleBrandChange(brand)}
-                      className={`active:scale-105 flex gap-1 items-center justify-center active:outline active:outline-neutral-50  ${activeBrand === brand ? "bg-blue-500 text-white" : " border text-black"} transition-all w-auto lg:min-w-[150px] ease-in duration-100  p-2 text-center  rounded-md font-semibold text-black cursor-pointer`}
+                      className={`active:scale-105 flex gap-1 items-center justify-center active:outline active:outline-neutral-50  ${activeBrand === brand ? "bg-ternary text-white" : " border text-black"} transition-all w-auto lg:min-w-[150px] ease-in duration-100  p-2 text-center  rounded-md  text-black cursor-pointer`}
                       key={idx}
                     >
                       <span>{brand}</span>
@@ -162,11 +158,11 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
                         <td>{item?.size}</td>
                         <td>
                           <input
-                          type="number"
+                            type="number"
                             className="w-full h-full"
                             value={item?.orderedQuantity}
                             min={0}
-                            
+
                             onChange={(e) =>
                               handleQuantityChange(item?.itemId, e.target.value)
                             }
@@ -185,13 +181,21 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
                   </tbody>
                 </table>
                 <div className="flex items-center justify-between">
-
-                  <button
-                    className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500  rounded-xl`}
-                    onClick={handleSubmitOrder}
-                  >
-                    Submit
-                  </button>
+                  <div className="flex items-center justify-start gap-4 mt-6">
+                    <button
+                      className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
+                      onClick={onClose}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
+                      onClick={handleSubmitOrder}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                
                   <div
                     className="flex gap-1"
                   >

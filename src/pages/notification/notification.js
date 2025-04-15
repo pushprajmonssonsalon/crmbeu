@@ -1,7 +1,6 @@
 import { FiMessageSquare } from "react-icons/fi";
 import { IoIosMail, IoIosMailOpen, IoIosNotifications } from "react-icons/io";
 import { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
 import NormalPagination from "../../components/pagination/normalPagination";
 import { formatDateToFull, getApiCall } from "../../utils/services";
 import { useNavigate } from "react-router";
@@ -25,7 +24,7 @@ const Notification = () => {
           settotalItems(res.total);
         },
         (err) => {
-          
+
         }
       );
     })();
@@ -55,13 +54,13 @@ const Notification = () => {
   return (
     <>
       <div className="shadow-md w-full mx-auto">
-        <div className="flex border border-b-0 border-gray-300/75  bg-gray-300 p-3 rounded-t-lg  text-black items-center gap-3 ">
+        <div className="flex border border-b-0 border-gray-300/75  bg-white p-3 rounded-t-lg  text-black items-center gap-3 ">
           <IoIosNotifications size={25} />
 
           <h2 className="font-medium  text-2xl">Notifications</h2>
         </div>
         {notifications.length > 0 && (
-          <div className="border border-gray-300/75 bg-gray-200 ">
+          <div className="border border-gray-300/75 bg-white ">
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-6 md:flex-row items-center justify-between w-full py-6 border border-b-gray-300/75   px-3">
                 <div className="flex text-black font-semibold gap-1 justify-center">
@@ -111,17 +110,18 @@ const Notification = () => {
                 <div
                   key={index}
                   onClick={() => navigate(item._id)}
-                  className={` ${
-                    item.read
-                      ? "text-black/40 bg-gray-300/70 "
-                      : "text-black/70"
-                  } flex justify-around cursor-pointer  items-center p-3 border border-neutral-400/30 hover:border-neutral-400/60 hover:shadow-md border-b-0 last:border-b  transition-colors duration-100`}
+                  className={` ${item.read
+                      ? "text-black/40 bg-white "
+                      : "text-black/70 bg-gray-50"
+                    } flex justify-between cursor-pointer  items-center p-3 border border-neutral-400/30 hover:border-neutral-400/60 hover:shadow-md border-b-0 last:border-b  transition-colors duration-100`}
                 >
-                  <div className="flex gap-6">
-                    <FiMessageSquare className=" w-[50px]" size={20} />
-                  </div>
-                  <div className=" font-medium text-sm w-full max-w-[calc(100%-380px)] overflow-hidden text-ellipsis whitespace-nowrap">
-                    {item.message}
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-6">
+                      <FiMessageSquare className=" w-[50px]" size={20} />
+                    </div>
+                    <div className=" font-medium text-sm w-full max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">
+                      {item.message}
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-9">
@@ -146,7 +146,7 @@ const Notification = () => {
               );
             })}
         </div>
-        <div className="bg-gray-300 p-4 w-full rounder-b-lg "></div>
+        <div className=" p-4 w-full rounder-b-lg "></div>
       </div>
     </>
   );

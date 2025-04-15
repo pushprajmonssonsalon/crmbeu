@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import BarChart from "../../components/charts/BarChart";
 import DonutChart from "../../components/charts/DonutChart";
-import Layout from "../../components/Layout";
 import { formatDate, formatValue, getApiCall, postApiData } from "../../utils/services";
 import DashboardCard from "../../components/charts/DashboardCards";
 import { MdCurrencyRupee } from "react-icons/md";
@@ -11,6 +10,8 @@ import { FaAngleDown } from "react-icons/fa6";
 import EventModal from "../../components/modals/EventModal";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 import { useSearchParams } from "react-router-dom";
+import NormalSelect from "../../components/customInput/NormalSelect";
+import useDebouncer from "../../utils/hooks/useDebouncer";
 const backgroundColors = [
   "rgba(255, 99, 132, 0.8)",  // Red
   "rgba(54, 162, 235, 0.8)",  // Blue
@@ -56,14 +57,16 @@ const salesOrder = ["Cash", "Card", "Online", "Upi", "Pending"];
 const Dashboard = () => {
   const [showEventModal, setShowEventModal] = useState(false);
   const stDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-01T00:00:00.000Z`;
-  const [loading,setLoading]=useState(false);
+  const [loading, setLoading] = useState(false);
   const customDate = formatDate(new Date());
+  const { debouncedFunction } = useDebouncer();
   const [searchParams] = useSearchParams();
   const start = searchParams.get("start");
   const end = searchParams.get("end")
   const [startDate, setStartDate] = useState(start ? start : formatDate(stDate));
   const [endDate, setEndDate] = useState(end ? end : customDate);
   const [showDate, setShowDate] = useState(false)
+  const [days, setDays] = useState(30);
   const [events, setEvents] = useState([]);
   const [wishes, setWishes] = useState({
 
@@ -80,6 +83,7 @@ const Dashboard = () => {
 
   })
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [inActiveUser, setInActiveUser] = useState([]);
   const [salonDetails, setSalonDetails] = useState({
     sales: [0, 0, 0, 0],
     appointments: [0, 0],
@@ -238,7 +242,7 @@ const Dashboard = () => {
         borderRadius: 4,
         barThickness: 30,
         borderWidth: 2,
-        borderRadius: { topLeft: 0, topRight: 100, bottomLeft: 0, bottomRight: 100 }, // Top corners rounded only
+        borderRadius: 100, // Top corners rounded only
         borderSkipped: false,
 
 
@@ -313,7 +317,6 @@ const Dashboard = () => {
   const options = {
 
     onClick: (event, elements) => handleBarClick(event, elements), // Attach click event
-    indexAxis: 'y'
   };
   const fetchData = (start, end) => {
 
@@ -321,7 +324,7 @@ const Dashboard = () => {
       startDate: start ? start : startDate, // First day of the current month at 00:00:00
       endDate: end ? end : endDate, // Current date and time
     };
-   setLoading(true)
+    setLoading(true)
     postApiData(
       "reports/salonDailyReport",
       data,
@@ -417,8 +420,8 @@ const Dashboard = () => {
         });
         setLoading(false)
       },
-      
-      () => { 
+
+      () => {
         setLoading(false)
 
       }
@@ -467,10 +470,21 @@ const Dashboard = () => {
 
 
       }, () => { })
+
   }
   useEffect(() => {
     fetchData()
   }, []);
+  const fetchInActiveUser = (days) => {
+    getApiCall(`reports/getDataOfUsersNotVisitedFromDays?count=${days}`,
+      (res) => {
+        if(res?.length > 0)setInActiveUser(res)
+        else setInActiveUser([])
+      }, () => { })
+  }
+  useEffect(() => {
+    debouncedFunction(fetchInActiveUser, 500, days)
+  }, [days]);
   const compAppointment = salonDetails?.appointments[0];
   const dashboardData = [
     {
@@ -511,92 +525,145 @@ const Dashboard = () => {
       },
     },
   }
- 
+  const daysOptions = [
+    { name: "30 Days", value: 30 },
+    { name: "60 Days", value: 60 },
+    { name: "90 Days", value: 90 },
+    { name: "180 Days", value: 180 },
+    { name: "365 Days", value: 365 },
+
+  ]
+
   return (
     <>
-        <div className="">
-        
-          <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
-            <div className="flex items-center  gap-6">
-              <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
-                <FaCalendarAlt className="text-customPurple text-sm" />
-                <span className="text-secondary text-sm">Year-to-date </span>
-                <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
+      <div className="">
 
-              </button>
-              <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
-                <span>{formatDate(startDate, true)}</span>
-                <span>~</span>
-                <span>{formatDate(endDate, true)}</span>
-              </div>
+        <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
+          <div className="flex items-center  gap-6">
+            <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+              <FaCalendarAlt className="text-customPurple text-sm" />
+              <span className="text-secondary text-sm">Year-to-date </span>
+              <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
+
+            </button>
+            <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+              <span>{formatDate(startDate, true)}</span>
+              <span>~</span>
+              <span>{formatDate(endDate, true)}</span>
             </div>
-            {showDate && <div className=" flex items-center my-4  gap-3">
-              <CustomDatePicker
-                startDate={startDate}
-                endDate={endDate}
-                loading={loading}
-                className="bg-white gap-2 rounded-[5px] py-[10px] px-[15px] "
-                onSubmit={fetchData}
-                onChange={handleDateChange}
+          </div>
+          {showDate && <div className=" flex items-center my-4  gap-3">
+            <CustomDatePicker
+              startDate={startDate}
+              endDate={endDate}
+              loading={loading}
+              className="bg-white gap-2 rounded-[5px] py-[10px] px-[15px] "
+              onSubmit={fetchData}
+              onChange={handleDateChange}
 
 
-              />
-            </div>}
+            />
+          </div>}
+
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 2xl:grid-cols-5 gap-5 mb-6">
+
+          {dashboardData.map((item, index) => (
+            <div key={index} className="w-full">
+              <DashboardCard heading={item.heading} value={item.value} icon={item.icon} />
+            </div>
+          ))}
+
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-5 lg:gap-9 mb-9 ">
+          <div className=" h-full  border shadow-graph bg-white rounded-[16px] p-5">
+            <BarChart data={salesData} heading={"Total Sales"} />
 
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 2xl:grid-cols-5 gap-5 mb-6">
-
-            {dashboardData.map((item, index) => (
-              <div key={index} className="w-full">
-                <DashboardCard heading={item.heading} value={item.value} icon={item.icon} />
-              </div>
-            ))}
-
+          <div className=" h-full  border shadow-graph bg-white rounded-[16px] p-5">
+            <DonutChart heading={"Appointments"} data={appointments} />
+          </div>
+          <div className="col-span-1 lg:col-span-1 h-full  border shadow-graph bg-white rounded-[16px] p-5">
+            <BarChart data={serviceData} heading={"Service Distribution"} />
+          </div>
+          <div className="col-span-1 lg:col-span-1 h-full  border shadow-graph bg-white rounded-[16px] p-5">
+            <BarChart data={prodData} heading={"Product Distribution"} />
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-5 lg:gap-9 mb-9 ">
-            <div className=" h-full  border shadow-graph bg-white rounded-[16px] p-5">
-              <BarChart data={salesData} heading={"Total Sales"} />
+          <div className="col-span-full h-full  border shadow-graph bg-white rounded-[16px] p-5">
+            <BarChart
+              data={salonDetails?.employees}
+              options={empOptions}
+              heading={"Employee Distribution"}
+            />
+          </div>
+          <div className="col-span-full h-full  border shadow-graph bg-white rounded-[16px] p-5">
+            <BarChart
+              options={options}
+              data={wishes}
+              heading={"Birthdays & Anniversarys"}
+            />
+          </div>
+          <div className="col-span-full h-full  border shadow-graph bg-white rounded-[16px] p-5">
+            <div>
+              <h2 className="text-black  text-start text-xl 2xl:text-2xl leading-[28px] font-normal mb-5">InActive Customers Report</h2>
+              <div className="flex flex-col gap-1 ">
+                <NormalSelect
+                  label="Select Days"
+                  options={daysOptions}
+                  placeholder="Select Days"
+                  value={days}
+                  lableStyles={{
+                    'fontWeight': '400',
+                    "fontSize": "16px",
+                    'color': '#000000'
+                  }}
+                  inputStyles={{
+                    width: "250px"
+                  }}
+                  onChange={(e) => setDays(e.target.value)}
+                />
+              </div>
+             {inActiveUser?.length>0? <table className="styled-table">
+                <thead>
+                  <tr>
+                    <th className="bg-black text-white px-3 py-2">Customer Name</th>
+                    <th className="bg-black text-white px-3 py-2">Contact Number</th>
+                    <th className="bg-black text-white px-3 py-2">Last Visited</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inActiveUser?.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.name}</td>
+                      <td>{item.phoneNumber}</td>
+                      <td>{formatDate(item?.visited)}</td>
+                      {/* <td>{formatDate(item.eventDate)}</td> */}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>:<div className="h-[20vh] flex items-center justify-center">
+                <h2 className="text-gray2  text-md  mb-5">No InActive Customers Found</h2>
+              </div>}
+            </div>
 
-            </div>
-            <div className=" h-full  border shadow-graph bg-white rounded-[16px] p-5">
-              <DonutChart heading={"Appointments"} data={appointments} />
-            </div>
-            <div className="col-span-1 lg:col-span-1 h-full  border shadow-graph bg-white rounded-[16px] p-5">
-              <BarChart data={serviceData} heading={"Service Distribution"} options={{ indexAxis: 'y' }} />
-            </div>
-            <div className="col-span-1 lg:col-span-1 h-full  border shadow-graph bg-white rounded-[16px] p-5">
-              <BarChart data={prodData} heading={"Product Distribution"} options={{ indexAxis: 'y' }} />
-            </div>
-
-            <div className="col-span-full h-full  border shadow-graph bg-white rounded-[16px] p-5">
-              <BarChart
-                data={salonDetails?.employees}
-                options={empOptions}
-                heading={"Employee Distribution"}
-              />
-            </div>
-            <div className="col-span-full h-full  border shadow-graph bg-white rounded-[16px] p-5">
-              <BarChart
-                options={options}
-                data={wishes}
-                heading={"Birthdays & Anniversarys"}
-              />
-            </div>
 
           </div>
 
         </div>
 
-        <EventModal
-          show={showEventModal}
-          setShow={setShowEventModal}
-          data={selectedEvent}
+      </div>
+
+      <EventModal
+        show={showEventModal}
+        setShow={setShowEventModal}
+        data={selectedEvent}
 
 
-        />
+      />
 
-     
+
     </>
   );
 };

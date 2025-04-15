@@ -26,7 +26,7 @@ const Advances = () => {
     const [startDate, setStartDate] = useState(start ? start : defaultStartDate);
     const [endDate, setEndDate] = useState(end ? end : defaultStartDate);
     const [visible, setVisible] = useState(false);
-    const [loading,setLoading]=useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [isVisible, setIsVisible] = useState(false);
     const [isModalOpen, setModalOpen] = useState(false);
@@ -52,12 +52,12 @@ const Advances = () => {
     const handleDateChange = (e) => {
         const { id, value } = e.target;
         if (id === "startDate") {
-          setStartDate(value)
+            setStartDate(value)
         } else {
-          setEndDate(value)
+            setEndDate(value)
         }
-    
-      }
+
+    }
 
     const nameOnclick = (item) => {
         setAdvanceData((prev) => ({ ...prev, name: item.name, phoneNumber: item.phoneNumber, userId: item._id }));
@@ -131,7 +131,7 @@ const Advances = () => {
         );
 
     };
-  
+
     const addCustomerFields = [
         {
             name: "name",
@@ -418,19 +418,23 @@ const Advances = () => {
             </div>
             <div className='flex items-center justify-between'>
 
-                <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
-                    <div className="flex items-center  gap-6">
-                        <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
-                            <FaCalendarAlt className="text-customPurple text-sm" />
-                            <span className="text-secondary text-sm">Year-to-date </span>
-                            <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
+                <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
+                    <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center  gap-6">
+                            <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+                                <FaCalendarAlt className="text-customPurple text-sm" />
+                                <span className="text-secondary text-sm">Year-to-date </span>
+                                <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
 
-                        </button>
-                        <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
-                            <span>{formatDate(startDate, true)}</span>
-                            <span>~</span>
-                            <span>{formatDate(endDate, true)}</span>
+                            </button>
+                            <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+                                <span>{formatDate(startDate, true)}</span>
+                                <span>~</span>
+                                <span>{formatDate(endDate, true)}</span>
+                            </div>
                         </div>
+                        {advances?.length > 0 && <button onClick={handleExport} className='bg-ternary text-white rounded-[16px] w-[110px] text-sm font-normal '>Export All</button>}
+
                     </div>
                     {showDate && <div className=" flex items-center my-4  gap-3">
                         <CustomDatePicker
@@ -446,7 +450,6 @@ const Advances = () => {
                     </div>}
 
                 </div>
-                {advances?.length > 0 && <button onClick={handleExport} className='bg-ternary text-white rounded-[16px] w-[110px] text-sm font-normal '>Export All</button>}
             </div>
             {advances?.length > 0 && <div className="w-full">
 

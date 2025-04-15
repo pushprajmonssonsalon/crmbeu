@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from '../../utils/services';
 import toast from 'react-hot-toast';
+import NormalInput from '../customInput/NormalInput';
+import NormalSelect from '../customInput/NormalSelect';
 const NewMembershipModal = ({ isVisible, onClose }) => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState(null);
@@ -24,8 +26,8 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
             credits: +coins,
             expiry: +expiry
         }
-        const isEveryEmpty =Object.values(data).some(elm=>!elm||elm==="")
-        if(isEveryEmpty){
+        const isEveryEmpty = Object.values(data).some(elm => !elm || elm === "")
+        if (isEveryEmpty) {
             return toast.error("Please Fill All Fields")
         }
         postApiData("parlor/createMembershipForParlor",
@@ -45,48 +47,128 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
             }
         )
     }
+    const formFields = [
+        {
+            name: "name",
+            type: "text",
+            value: name,
+            label: "Name",
+            placeholder: "Membership Name",
+            onChange: (e) => setName(e.target.value),
+        },
+        {
+            name: "price",
+            type: "number",
+            value: price,
+            label: "Price",
+            placeholder: "Price",
+            onChange: (e) => setPrice(e.target.value),
+        },
+        {
+            name: "coins",
+            type: "number",
+            value: coins,
+            label: "Coins",
+            placeholder: "Coins",
+            onChange: (e) => setCoins(e.target.value),
+        },
+        {
+            name: "expiry",
+            type: "select",
+            value: expiry,
+            label: "Expiry",
+            onChange: handleExpiryChange,
+            options: [3, 6, 9, 12].map((val) => ({
+                name: `${val} Months`,
+                value: val,
+            })),
+            unitSelect: {
+                name: "expiryUnit",
+                defaultValue: "months",
+                options: [
+                    {
+                        name: "Months",
+                        value: "months",
+                    },
+                ],
+            },
+        },
+    ];
 
     return (
-        <div className='fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center'>
-            <div className='absolute z-40 mx-3 w-1/3 my-10 overflow-y-auto'>
+        <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
+            <div className=' w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
 
-                <div className='bg-white p-4 rounded-xl '>
-                    <div className='flex justify-between font-bold items-center'>
-                        <h1 className={`text-blue-500 text-lg font-bold mb-4 `}>Add your Memberships</h1>
-                        <button className='text-3xl font-bold mt-4 text-red-600 hover:text-red-900 bg-transparent' onClick={() => onClose()}><MdOutlineClose /></button>
+                <div className=' '>
+                    <div className='flex justify-between items-center mb-6'>
+                        <h1 className={`text-2xl text-black `}>Add your Memberships</h1>
+                        <button className='text-black text-xl' onClick={() => onClose()}><MdOutlineClose /></button>
 
                     </div>
+                    <div className=''>
+                        {/* {popupService?.map((item,index)=>( */}
+                        <div className="grid grid-cols-1 gap-y-3 mb-4">
+                            {formFields.map((input, index) => {
+                                const { name, placeholder, label, type, value, options, onChange } = input;
+                                return (
+                                    <div key={index} className="grid grid-cols-2 ">
+                                        {
+                                            !options ? <NormalInput
+                                                placeholder={placeholder}
+                                                label={label}
+                                                name={name}
+                                                value={value}
+                                                type={type}
+                                                onChange={onChange}
+                                                inputStyles={{
+                                                    'borderRadius': '10px',
+                                                    padding: "10px 15px",
 
-                    {/* {popupService?.map((item,index)=>( */}
-                    <div className="grid gap-1 w-full items-center">
-                        <label htmlFor="name"><span className='font-bold text-md'>Name :</span></label>
-                        <input type="text" placeholder='Membership Name' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={name} onChange={(e) => setName(e.target.value)} />
-                        <label htmlFor="name"><span className='font-bold text-md'>Price :</span></label>
-                        <input type="number" placeholder='Price' className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={price} onChange={(e) => setPrice(e.target.value)} />
-                        <label htmlFor="email"><span className='font-bold text-md'>Coins :</span></label>
-                        <input type="number" placeholder='Coins' id="email" className='rounded-lg border-none bg-gray-300 placeholder:font-semibold' value={coins} onChange={(e) => setCoins(e.target.value)} />
-                        <label htmlFor="number"><span className='font-bold text-md'>Expiry:</span></label>
-                        <div className="flex w-full gap-x-2 items-center">
-                            <select className='rounded-lg border-none bg-gray-300 placeholder:font-semibold w-[90%] gap-x-2'
-                            value={expiry}
-                                onChange={handleExpiryChange}
-                            >
+                                                }}
+                                                lableStyles={{
+                                                    'fontWeight': '400',
+                                                    "fontSize": "14px",
+                                                    'color': '#000000'
+                                                }}
+                                            />
+                                                :
+                                                <NormalSelect
+                                                    label={label}
+                                                    name={name}
+                                                    value={value}
+                                                    options={options}
+                                                    onChange={onChange}
+                                                    inputStyles={{
+                                                        'borderRadius': '10px',
+                                                        padding: "10px 15px",
 
-                                {[3, 6, 9, 12]?.map((elm) => {
-                                    return (
-                                        <option value={elm}>{elm}</option>)
-                                })}
-                            </select>
-
-                            <select className="rounded-lg border-none bg-gray-300 h-[40px] -mt-2" defaultValue="months" >
-
-                                <option value="months">Months</option>
-                            </select>
+                                                    }}
+                                                    lableStyles={{
+                                                        'fontWeight': '400',
+                                                        "fontSize": "14px",
+                                                        'color': '#000000'
+                                                    }}
+                                                />}
+                                    </div>
+                                );
+                            })}
                         </div>
+                        <div className="flex items-center justify-end gap-4 mt-6">
+                            <button
+                                className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
+                                onClick={onClose}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
+                                onClick={handleAddMembership}
+                            >
+                                ADD
+                            </button>
+                        </div>
+                        {/* ))} */}
                     </div>
-                    {/* ))} */}
-                    <button className={`bg-blue-400 text-white font-bold p-3 my-5 hover:text-gray-500 rounded-xl `} onClick={handleAddMembership}>Submit</button>
-
 
 
                 </div>

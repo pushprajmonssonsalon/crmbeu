@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import Layout from "../Layout";
-import CustomSearchInputFeild from "../customInput";
-import { useLocation } from "react-router";
-import { postApiData } from "../../utils/services";
+import { formatDate, postApiData } from "../../utils/services";
 import CategoryTable from "./CategoryTable";
+import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
+import CustomDatePicker from "../customInput/CustomDatePicker";
+import { useSearchParams } from "react-router-dom";
 
 const categoryHeadings = [
   {
@@ -35,15 +35,32 @@ const subCategoryHeadings = [
   },
 ];
 const Categorywise = () => {
-  const [loading,setLoading]=useState(false)
-  const defaultStartDate = new Date();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
+  const [loading, setLoading] = useState(false)
   const [subCateogries, setSubCategories] = useState([]);
   const [miniSubCategories, setMiniSubCategories] = useState([]);
+  const [params] = useSearchParams();
+  const [showDate, setShowDate] = useState(false)
+  const start = params.get("start");
+  const end = params.get("end");
+ 
 
-  const [startDate, setStartDate] = useState(defaultStartDate);
-  const [endDate, setEndDate] = useState(defaultStartDate);
+  //date
+  const defaultStartDate = formatDate(new Date());
+  const [startDate, setStartDate] = useState(
+    start ? start : defaultStartDate
+  );
+  const [endDate, setEndDate] = useState(
+    end ? end : defaultStartDate
+  );
+  const handleDateChange = (e) => {
+    const { id, value } = e.target;
+    if (id === "startDate") {
+      setStartDate(value)
+    } else {
+      setEndDate(value)
+    }
+
+  }
 
   const searchClick = () => {
     const data = {
@@ -56,7 +73,7 @@ const Categorywise = () => {
       "reports/minisubCategoryWiseRevenue",
       data,
       (resp) => {
-        
+
         if (resp[0]) {
           setLoading(false)
 
@@ -71,14 +88,6 @@ const Categorywise = () => {
     );
   };
 
-  useEffect(() => {
-    const stDate = queryParams.get("start");
-    const edDate = queryParams.get("end");
-    if (stDate && edDate) {
-      setStartDate(new Date(stDate));
-      setEndDate(new Date(edDate));
-    }
-  }, [location.pathname]);
 
   const SubCatRevenue = useMemo(() => {
     if (subCateogries?.length > 0) {
@@ -104,7 +113,7 @@ const Categorywise = () => {
     return (
       <>
         <tr>
-          <td className="text-black font-bold">Total</td>
+          <td className="text-black font-bold"><span className="font-bold">Total</span></td>
           <td className=""></td>
           <td className="text-black font-bold">{value}</td>
         </tr>
@@ -126,42 +135,61 @@ const Categorywise = () => {
       row: getSubCatRow(minSubCatRevenue),
     },
   ];
+  useEffect(() => { 
+    if(startDate && endDate)
+    searchClick()
+  },[])
   return (
     <>
       {" "}
-    
-        <div className="w-full flex flex-col">
-          <h1 className="text-center text-3xl font-bold  text-black mb-4">
-            Category Wise Collection
-          </h1>
+      <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
+        <div className="flex items-center  gap-6">
+          <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+            <FaCalendarAlt className="text-customPurple text-sm" />
+            <span className="text-secondary text-sm">Year-to-date </span>
+            <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
 
-          <CustomSearchInputFeild
-            startDate={startDate}
-            setStartDate={setStartDate}
-            endDate={endDate}
-            setEndDate={setEndDate}
-            loading={loading}
-            submitClick={searchClick}
-          />
-
-          {tableFields?.map((item, index) => {
-            const { heading, cols, rows, row } = item;
-            return (
-              <div
-                key={index}
-                className="  my-3   overflow-auto"
-              >
-                <h2 className="text-2xl text-black font-bold my-6">
-                  {heading}
-                </h2>
-              <div className="shadow-md max-h-[500px] overflow-y-auto">
-                <CategoryTable rows={rows} cols={cols} row={row} />
-                </div>
-              </div>
-            );
-          })}
+          </button>
+          <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+            <span>{formatDate(startDate, true)}</span>
+            <span>~</span>
+            <span>{formatDate(endDate, true)}</span>
+          </div>
         </div>
+        {showDate && <div className=" flex items-center my-4  gap-3">
+          <CustomDatePicker
+            startDate={startDate}
+            endDate={endDate}
+            loading={loading}
+            className="bg-white gap-2 rounded-[5px] py-[10px] px-[15px] "
+            onSubmit={searchClick}
+            onChange={handleDateChange}
+
+
+          />
+        </div>}
+
+      </div>
+
+
+
+
+
+        {tableFields?.map((item, index) => {
+          const { heading, cols, rows, row } = item;
+          return (
+            <div className=" rounded-[16px] border border-primaryGray p-5  mb-9 last:mb-0">
+            
+              <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">{heading}</h2>
+
+              <div className="mb-5 last:mb-0">
+                <CategoryTable rows={rows} cols={cols} row={row} />
+              </div>
+            </div>
+          );
+        })}
      
+
     </>
   );
 };

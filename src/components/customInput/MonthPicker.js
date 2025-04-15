@@ -12,36 +12,21 @@ const MonthPicker = ({ loading, date, setDate, onSubmit }) => {
     return (
         <>
             <div
-                className="flex items-center flex-wrap justify-center"
+                className="flex items-center flex-wrap gap-3  justify-center"
 
             >
-                <div
 
+                <DatePicker
+                    selected={date}
+                    onChange={(dt) => setDate(dt)}
+                    dateFormat="MM/yyyy" // Display format
+                    showMonthYearPicker // Enables month and year selection
+                    showFullMonthYearPicker // Full month and year selection view
+                    className="bg-white gap-2 rounded-[5px] py-[10px] px-[15px] "
 
-                    style={{
-
-                        flexDirection: "column",
-                        display: "flex",
-                    }}
-                >
-                    <label className="font-medium text-sm">Select Month</label>
-
-                    <DatePicker
-                        selected={date}
-                        onChange={(dt) => setDate(dt)}
-                        dateFormat="MM/yyyy" // Display format
-                        showMonthYearPicker // Enables month and year selection
-                        showFullMonthYearPicker // Full month and year selection view
-
-                    />
-                </div>
+                />
                 {loading ?
-
-                    <button
-
-                        type="button"
-                        className="px-3 min-w-[69px] flex items-center justify-center py-2 grow md:grow-0 rounded-lg bg-black text-white font-bold mt-6 ml-4"
-                    >
+                    <button className="px-[15px] flex items-center justify-center py-[10px] w-[100px] bg-ternary text-sm font-[400] rounded-2xl">
                         <span>
                             <svg
                                 className="animate-spin"
@@ -71,13 +56,9 @@ const MonthPicker = ({ loading, date, setDate, onSubmit }) => {
                             </svg>
                         </span>
                     </button>
+                    :
+                    <button onClick={handleClick} className="px-[15px] py-[10px] w-[100px] bg-ternary text-sm font-[400] rounded-2xl">Submit</button>}
 
-                    : <button
-                        className="px-3 py-2 grow md:grow-0 rounded-lg bg-black text-white font-bold mb-1 mt-auto ml-4"
-                        onClick={handleClick}
-                    >
-                        Submit
-                    </button>}
             </div>
         </>
     )

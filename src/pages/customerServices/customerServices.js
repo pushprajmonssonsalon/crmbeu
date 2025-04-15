@@ -11,11 +11,13 @@ import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import { AiOutlineSearch } from "react-icons/ai";
 import Loader from "../../components/loader/Loader";
+import exportToExcel from "../../utils/exportToExcel";
+import { MdOutlineClose } from "react-icons/md";
 
-export default function CustomerServices({tab}) {
+export default function CustomerServices({ tab }) {
   const [customerServiceData, setCustomerServiceData] = useState([]);
   const [total, setTotal] = useState(0);
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
   const [addproductModal, setAddProductModal] = useState(false);
   const [serviceItem, setServiceItem] = useState({
     mrp: 0,
@@ -317,7 +319,21 @@ export default function CustomerServices({tab}) {
       value: "M",
     },
   ];
+  const handleExport = () => {
+    if (myServiceData) {
+      const formattedData = myServiceData.map((item) => {
+        const { services } = item;
+        return {
+          ...services,
+          category: services.category,
+          subCategory: services.subCategory,
+          serviceId: services.serviceId,
+        };
+      });
+      exportToExcel(formattedData, "Services", "Services.xlsx");
+    }
 
+  };
   return (
     <>
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
@@ -384,49 +400,49 @@ export default function CustomerServices({tab}) {
           {tab === 1 && (
             <button
               className="h-[36px] mt-4 w-[100px] bg-ternary rounded-[16px] flex items-center justify-center text-white text-sm"
-              onClick={() => { }}
+              onClick={handleExport}
             >
               Export All
             </button>
           )}
         </div>
-      
-    
+
+
         {/* <div className="h-[700px] overflow-y-auto mt-3">
       <div className="table-container"> */}
-        { loading ? (
+        {loading ? (
           <div className="flex items-center justify-center h-[60vh]">
             <Loader />
           </div>
         ) :
-          
+
           tab === 0 ? (
-          <ServiceTable
-            data={customerServiceData}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            addclick={addclick}
-          />
-        ) : (
-          <MyServiceTable
-            data={myServiceData}
-            handleEditService={handleEditService}
-          />
-        )}
+            <ServiceTable
+              data={customerServiceData}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              addclick={addclick}
+            />
+          ) : (
+            <MyServiceTable
+              data={myServiceData}
+              handleEditService={handleEditService}
+            />
+          )}
         <div className="flex justify-between mt-4 items-center">
           <GridRows
-           totalItems={tab === 0 ? total : total1}
+            totalItems={tab === 0 ? total : total1}
             itemsPerPage={tab === 0 ? itemsPerPage : itemsPerPage1}
             handleRowschange={tab === 0 ? handleRowschange : handleRows1change}
           />
-      
-        <Pagination
-          totalItems={tab == 0 ? total : total1}
-          itemsPerPage={tab == 0 ? itemsPerPage : itemsPerPage1}
-          currentPage={tab == 0 ? currentPage : currentPage1}
-          onPageChange={tab == 0 ? handlePageChange : handlePageChange1}
-        />
-          </div>
+
+          <Pagination
+            totalItems={tab == 0 ? total : total1}
+            itemsPerPage={tab == 0 ? itemsPerPage : itemsPerPage1}
+            currentPage={tab == 0 ? currentPage : currentPage1}
+            onPageChange={tab == 0 ? handlePageChange : handlePageChange1}
+          />
+        </div>
         {/* </div>
       </div> */}
         {/* <Pagination
@@ -441,41 +457,61 @@ export default function CustomerServices({tab}) {
             isOpen={addproductModal}
             //   onAfterOpen={afterOpenModal}
             onRequestClose={closeModal}
-            style={customStyles}
+            overlayClassName={'inset-0 bg-black/20 top-0 left-0 '}
+            className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '
             contentLabel="Example Modal"
           >
-            <div className="flex w-[400px] bg-transparent gap-3 flex-col items-center justify-start">
+            <div className=' w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
               {/* Category Name */}
+              <div className='flex justify-between items-center mb-6'>
+                <h1 className={`text-2xl text-black `}>Edit your response</h1>
+                <button className='text-black text-xl' onClick={closeModal}><MdOutlineClose /></button>
 
-              <div className="grid gap-1 w-full items-center">
+              </div>
+              <div className="grid grid-cols-1 gap-y-3 mb-4">
                 {serviceItemFields.map((input, index) => {
                   const { name, placeholder, label, disabled } = input;
                   const value = serviceItem[name];
 
 
                   return (
-                    <div key={index} className="flex flex-col gap-1">
+                    <div key={index} className="grid grid-cols-2 ">
                       <NormalInput
                         name={name}
                         value={value}
                         label={label}
                         disabled={disabled}
 
-                        inputStyles={{ background: "#d1d5db" }}
-                        placeholder={placeholder}
+                        inputStyles={{
+                          'borderRadius': '10px',
+                          padding: "10px 15px",
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "14px",
+                          'color': '#000000'
+                        }} placeholder={placeholder}
                         onChange={handleChange}
                       />
                     </div>
                   );
                 })}
               </div>
-
-              <button
-                className={`bg-blue-400 mt-3 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
-                onClick={onclickService}
-              >
-                Submit
-              </button>
+              <div className="flex items-center justify-end gap-4 mt-6">
+                <button
+                  className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
+                  onClick={onclickService}
+                >
+                  Submit
+                </button>
+              </div>
 
             </div>
           </Modal>

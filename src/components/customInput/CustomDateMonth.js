@@ -53,14 +53,14 @@ const CustomDateMonth = ({ name, label, placeholder, value1,value2, onChange }) 
 
 
     return (
-        <div className="flex flex-col gap-2">
-            <label id={name} className="text-[16px] text-black">{label}</label>
+        <div className="flex flex-col gap-1">
+            <label id={name} className="text-[14px] text-black">{label}</label>
             <div className="flex gap-2">
                 <select
                     name={`${name}-date`}
                     value={value1}
                     onChange={onChange}
-                    className="bg-gray-50  capitalize border border-primaryGray text-black text-sm rounded-[16px]    py-[12px] px-[27px] "
+                    className="bg-gray-50 w-1/2   border border-primaryGray text-black text-sm rounded-[10px]    py-[10px] px-[15px] "
 
                 >
                     <option value="">Date</option>
@@ -75,7 +75,7 @@ const CustomDateMonth = ({ name, label, placeholder, value1,value2, onChange }) 
                     name={`${name}-month`}
                     value={value2}
                     onChange={onChange}
-                    className="bg-gray-50  capitalize border border-primaryGray text-black text-sm rounded-[16px]    py-[12px] px-[27px] "
+                    className="bg-gray-50 w-1/2  capitalize border border-primaryGray text-black text-sm rounded-[10px]    py-[12px] px-[15px] "
 
                 >
                     <option value="">Month</option>

@@ -12,14 +12,12 @@ const Appointments = ({ appointments }) => {
 
          
         const dateStr = `${year}-${month}-${day}T${timePart.slice(0,timePart.indexOf("."))}`;
-        console.log(dateStr)
         // Create a date object using the adjusted date string
         const start = moment.tz(dateStr, "Asia/Kolkata").toDate();
 
         const end = new Date(start.getTime() + 60 * 60 * 1000);
         // 1-hour duration
-        console.log(start, "startDate", appointment?.appointmentDate)
-        console.log(end, "startDate")
+       
         return {
             id: appointment.id,
             title: `${appointment?.customer?.name}`, // Show employee name as title

@@ -4,7 +4,7 @@ import { postApiData } from "../../utils/services";
 import NormalInput from "../customInput/NormalInput";
 import toast from "react-hot-toast";
 
-const Popup = ({ onClose, editItem,onUpdate }) => {
+const Popup = ({ onClose, editItem, onUpdate }) => {
   const disabledInputs = ["name", "category", "subCategory"];
   const inputs = [
     {
@@ -44,9 +44,9 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
     },
   ];
   const [serviceDetails, setServiceDetails] = useState({
-   
+
   });
-  
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,14 +57,14 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
   };
 
   const handleEditServiceApi = () => {
-    const {price,appMrp,appPrice,mrp,uniqueCode}=serviceDetails;
+    const { price, appMrp, appPrice, mrp, uniqueCode } = serviceDetails;
     const data = {
-      uniqueCode:uniqueCode,
+      uniqueCode: uniqueCode,
       price: price == 0 ? editItem.price : price,
       mrp: mrp == 0 ? editItem.mrp : mrp,
       appPrice: appPrice == 0 ? editItem.appPrice : appPrice,
       appMrp: appMrp == 0 ? editItem.appMrp : appMrp,
-      
+
     };
     postApiData(
       "salonService/editServiceInParlor",
@@ -74,11 +74,11 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
           onUpdate(serviceDetails);
           toast.success("Chnages Applied Succesfully");
 
-        } 
+        }
       },
       (error) => {
 
-        
+
 
         toast.error("service already Added");
       }
@@ -89,21 +89,17 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
   }, [editItem]);
 
   return (
-    <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
-      <div className="absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-scroll">
-        <div className="bg-white p-4 rounded-xl ">
-          <div className="flex justify-between font-bold items-center">
-            <h1 className={`text-blue-500 text-lg font-bold mb-4 `}>
-              Edit your response
-            </h1>
-            <button
-              className="text-3xl font-bold mt-4 text-red-600 hover:text-red-900 bg-transparent"
-              onClick={() => onClose()}
-            >
-              <MdOutlineClose />
-            </button>
+    <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
+      <div className=' w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+
+        <div className=" ">
+          <div className='flex justify-between items-center mb-6'>
+            <h1 className={`text-2xl text-black `}>Edit your response</h1>
+            <button className='text-black text-xl' onClick={onClose}><MdOutlineClose /></button>
+
           </div>
-          <div className="grid mb-3 w-full items-center">
+
+          <div className="grid grid-cols-1 gap-y-3 mb-4">
             {serviceDetails && inputs?.map((key, index) => {
               const id = key?.name;
               const label = key?.label;
@@ -111,27 +107,45 @@ const Popup = ({ onClose, editItem,onUpdate }) => {
               const placeholder = key?.placeholder;
 
               return (
-                <NormalInput
-                  label={label}
-                  name={id}
-                  type={typeof value === "number" ? "number" : "text"}
-                  onChange={handleChange}
-                  value={value}
-                  inputStyles={{
-                    background:"#d1d5db"
-                  }}
-                  placeholder={placeholder}
-                  disabled={disabledInputs.includes(id)}
-                />
+                <div key={index} className="grid grid-cols-2 ">
+                  <NormalInput
+                    label={label}
+                    name={id}
+                    type={typeof value === "number" ? "number" : "text"}
+                    onChange={handleChange}
+                    value={value}
+                    inputStyles={{
+                      'borderRadius': '10px',
+                      padding: "10px 15px",
+
+                    }}
+                    lableStyles={{
+                      'fontWeight': '400',
+                      "fontSize": "14px",
+                      'color': '#000000'
+                    }}
+                    placeholder={placeholder}
+                    disabled={disabledInputs.includes(id)}
+                  />
+                </div>
               );
             })}
           </div>
-          <button
-            className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
-            onClick={handleEditServiceApi}
-          >
-            Submit
-          </button>
+          <div className="flex items-center justify-end gap-4 mt-6">
+            <button
+              className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <button
+              className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
+              onClick={handleEditServiceApi}
+            >
+              Submit
+            </button>
+          </div>
+
         </div>
       </div>
     </div>

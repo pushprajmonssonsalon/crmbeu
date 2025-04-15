@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Inventorydetails from '../../pages/Inventorydetails/Inventorydetails';
 import Tabs from '../tabs/Tabs';
 import Orders from '../../pages/orders';
+import InventoryReport from '../../pages/inventoryReport/InventoryReport';
 
 const Inventory = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -28,6 +29,12 @@ const Inventory = () => {
        
          name:'Purchase Orders',
          component:<Orders />
+   
+       },
+       {
+       
+         name:'Inventory Report',
+         component:<InventoryReport />
    
        },
      

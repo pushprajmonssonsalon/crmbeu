@@ -7,12 +7,12 @@ import NormalInput from "../customInput/NormalInput";
 const InventoryModel = ({ data, isVisible, onClose }) => {
 
   const [productDetails, setProductDetails] = useState({
-   
-   
+
+
     quantity: 0,
     price: 0,
   });
- 
+
 
   const onclickProdut = () => {
     const payload = {
@@ -26,7 +26,7 @@ const InventoryModel = ({ data, isVisible, onClose }) => {
       "inventory/addProductToSalons",
       payload,
       (resp) => {
-        
+
         // alert("product Added Succesfully")
         toast.success("Product Added Successfully!!");
       },
@@ -44,83 +44,99 @@ const InventoryModel = ({ data, isVisible, onClose }) => {
       [name]: value,
     }));
   };
- 
+
   const inputFields = [
     {
       name: "name",
       label: "Name :",
-      disabled:true,
+      disabled: true,
     },
     {
       name: "brand",
       label: "Brand :",
-      disabled:true,
+      disabled: true,
     },
     {
       name: "quantity",
       label: "Quantity :",
+      type: "number",
       placeholder: "Quantity",
-      disabled:false,
+      disabled: false,
     },
     {
       name: "price",
       label: "Price :",
+      type: "number",
       placeholder: "Price",
-      disabled:false,
+      disabled: false,
     },
   ];
-  useEffect(()=>{
-   setProductDetails({
-    price:data?.price,
-    quantity:1
-   })
-  },[data])
+  useEffect(() => {
+    setProductDetails({
+      price: data?.price,
+      quantity: 1
+    })
+  }, [data])
 
-  
+
   if (!isVisible) return null;
 
   return (
-    <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
-      <div className="absolute z-40 mx-3 w-1/2 md:w-1/3 my-10">
-        <div className="bg-white p-4 rounded-xl ">
-          <div className="flex justify-between font-bold items-center">
-            <h1 className={`text-blue-500 text-lg font-bold mb-4 `}>
-              Add Your Products
-            </h1>
-            <button
-              className="text-3xl font-bold mt-4 text-red-600 hover:text-red-900 bg-transparent"
-              onClick={onClose}
-            >
-              <MdOutlineClose />
-            </button>
+    <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
+      <div className='w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+
+        <div className=" ">
+          <div className='flex justify-between items-center mb-6'>
+            <h1 className={`text-2xl text-black `}>Add Your Product</h1>
+            <button className='text-black text-xl' onClick={() => onClose()}><MdOutlineClose /></button>
+
           </div>
-          <div className="grid gap-1 w-full items-center">
+
+          <div className="grid grid-cols-1 gap-y-3 mb-4">
             {inputFields.map((input, index) => {
-              const { name, placeholder, label,disabled } = input;
-              const value = disabled?data[name]:productDetails[name];
+              const { name, placeholder, label, type, disabled } = input;
+              const value = disabled ? data[name] : productDetails[name];
 
               return (
-                <div key={index} className="flex flex-col gap-1">
+                <div key={index} className="grid grid-cols-2 ">
                   <NormalInput
                     name={name}
                     value={value}
+                    type={type}
                     disabled={disabled}
                     label={label}
-                    inputStyles={{ background: "#d1d5db" }}
                     placeholder={placeholder}
+                    inputStyles={{
+                      'borderRadius': '10px',
+                      padding: "10px 15px",
+
+                    }}
+                    lableStyles={{
+                      'fontWeight': '400',
+                      "fontSize": "14px",
+                      'color': '#000000'
+                    }}
                     onChange={handleChange}
                   />
                 </div>
               );
             })}
           </div>
-
-          <button
-            className={`bg-blue-400 mt-3 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
-            onClick={onclickProdut}
-          >
-            Submit
-          </button>
+          <div className="flex items-center justify-end gap-4 mt-6">
+            <button
+              className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <button
+              className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
+              onClick={onclickProdut}
+            >
+              ADD
+            </button>
+          </div>
+       
         </div>
       </div>
     </div>

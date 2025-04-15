@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
 import CustomTable from "../../components/Table/CustomTable";
-import { getApiCall, postApiData } from "../../utils/services";
-import { FaFileExcel } from "react-icons/fa";
+import { formatDate, getApiCall, postApiData } from "../../utils/services";
 import exportToExcel from "../../utils/exportToExcel";
 import MonthPicker from "../../components/customInput/MonthPicker";
 import { useSearchParams } from "react-router-dom";
+import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 
 const InventoryReport = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [newMyProducts, setNewMyProducts] = useState([]);
   const [inventorySnap, setInventorySnap] = useState(null);
   const defaultStartDate = new Date();
+  const [params] = useSearchParams();
   const [loading, setLoading] = useState(false)
-  const [searchParams] = useSearchParams();
-  const date = searchParams.get("date");
+  const [showDate, setShowDate] = useState(false)
+  const date = params.get("date");
   const [selectDate, setSelectDate] = useState(date ? new Date(date) : defaultStartDate);
   const fetchInventorySnap = () => {
     setLoading(true)
@@ -141,22 +141,30 @@ const InventoryReport = () => {
   }, [newMyProducts, inventorySnap]);
   return (
     <>
-    
-        <div className="w-full">
-          <div className="mt-5 flex items-start ">
+      <div className="flex items-center justify-between">
+        <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center  gap-6">
+              <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+                <FaCalendarAlt className="text-customPurple text-sm" />
+                <span className="text-secondary text-sm">Year-to-Month </span>
+                <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
+
+              </button>
+              <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+                <span>{formatDate(selectDate, false, true)}</span>
+
+              </div>
+            </div>
             <button
+              className="w-[150px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
               onClick={handleExport}
-              className="bg-green-600 px-3 h-[40px] flex items-center justify-center gap-1 font-semibold hover:bg-green-500 text-white rounded-md w-[100px] active:scale-105 transition-all ease-in duration-100"
             >
-              <span>Export</span>
-              <FaFileExcel />
+              Export All
             </button>
           </div>
-          <h2 className="text-4xl my-9 text-center font-medium">
-            Inventory Report
-          </h2>
-          <div className=" flex my-9 justify-center items-center">
 
+          <div className=" flex items-center my-4  gap-3">
             <MonthPicker
               date={selectDate}
               setDate={setSelectDate}
@@ -165,11 +173,22 @@ const InventoryReport = () => {
 
             />
           </div>
-          <div className="mb-9 border rounded-lg max-w-full overflow-x-auto shadow-md">
-            <CustomTable columns={columns} rows={inventoryData} />
-          </div>
+
         </div>
-    
+
+      </div>
+      <div className=" rounded-[16px] border border-primaryGray p-5  ">
+        <div className="flex items-center gap-5 ">
+
+          <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Inventory Report</h2>
+          <span className="rounded-[16px] text-xs px-6 border border-gray2">{inventoryData?.length} Products</span>
+        </div>
+
+        <div className="w-full">
+          <CustomTable columns={columns} rows={inventoryData} />
+        </div>
+      </div>
+
     </>
   );
 };

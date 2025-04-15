@@ -1,53 +1,71 @@
 import { useState } from 'react';
-import Layout from '../../components/Layout';
 import { postApiData } from '../../utils/services';
 
 import CustomizedCustomerTables from '../../components/MaterialTable/customerDetailTable';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
+import { AiOutlineSearch } from 'react-icons/ai';
+import NormalInput from '../../components/customInput/NormalInput';
 
 
 
 const CustomerDetails = () => {
-    const[loading,setLoading]=useState(false)
-    const [searchParams] =useSearchParams()
-    const phone= searchParams.get("phone")
-    const [phoneNumber,setPhoneNumber] = useState(phone?phone:"");
-    const navigate=useNavigate();
-    const [clientsAppointment,setClientsAppointment] = useState([])
-    const headings = ["Name","Phone Number","Date","Services","Products","Total Price","Status","Credit Used","Action"];
+  const [loading, setLoading] = useState(false)
+  const [searchParams] = useSearchParams()
 
-    const handleSearchCustomerdetails = ()=>{
-        const data = {
-            phoneNumber: phoneNumber
-        };
-        setLoading(true)
+  const phone = searchParams.get("phone")
+  const [phoneNumber, setPhoneNumber] = useState(phone ? phone : "");
+  const navigate = useNavigate();
+  const [clientsAppointment, setClientsAppointment] = useState([])
+  const headings = ["Name", "Phone Number", "Date", "Services", "Products", "Total Price", "Status", "Credit Used", "Action"];
 
-         navigate(`?phone=${phoneNumber}`)
-        postApiData('user/getCustomerDetails',
-        data,
-        (res)=>{
-            setLoading(false)
-            setClientsAppointment(res)
-        },
-        (err)=>{
-            setLoading(false)
+  const handleSearchCustomerdetails = () => {
+    const data = {
+      phoneNumber: phoneNumber
+    };
+    setLoading(true)
 
-        }
-        )
-    }
-   
+    navigate(`?phone=${phoneNumber}`)
+    postApiData('user/getCustomerDetails',
+      data,
+      (res) => {
+        setLoading(false)
+        setClientsAppointment(res)
+      },
+      (err) => {
+        setLoading(false)
+
+      }
+    )
+  }
+ 
+
   return (
     <>
-    <div className='w-full'>
-        <h1 className='text-2xl font-bold text-center text-green-600'>Search Customer Details</h1>    
+      <div className=" rounded-[16px] border border-primaryGray p-5  ">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-5">
+            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Customer Details</h2>
+            <span className="rounded-[16px] text-xs px-6 border border-gray2">{clientsAppointment?.length} Transaction</span>
 
 
-        <div className=' w-1/2 mb-5 mx-auto flex justify-between items-center mt-14 '>
-        <input type='text' value={phoneNumber} placeholder="Enter Phone Number" className='outline-none w-2/3 border-black placeholder:text-black' onChange={(e)=>setPhoneNumber(e.target.value)}/>
-    
-{loading?
-    <button className='bg-black min-w-[75px] flex items-center justify-center text-white font-semibold px-4 py-2 rounded-xl ' > <span>
+          </div>
+          <div className='flex items-center  gap-3'>
+            <div className="relative flex items-center">
+              <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
+              <NormalInput
+                inputStyles={{
+                  'width': "280px",
+                  borderRadius: "16px",
+                  padding: "5px 40px",
+                  fontSize: "14px",
+                  borderColor: "#D9D9D9"
+                }}
+                value={phoneNumber}
+                placeholder="Search by Phone Number"
+                onChange={(e) => setPhoneNumber(e.target.value)} />
+            </div>
+            {loading ? <button className='rounded-[16px] w-[109px] h-[29px] flex items-center justify-center  py-1 bg-black text-white'> <span>
               <svg
                 className="animate-spin"
                 width="20"
@@ -74,69 +92,11 @@ const CustomerDetails = () => {
                   mask="url(#path-2-inside-1_2527_20936)"
                 />
               </svg>
-            </span></button>
-
-:
-        <button className='bg-black text-white font-semibold px-4 py-2 rounded-xl 
-        hover:bg-gray-700' onClick={handleSearchCustomerdetails}>Search</button>
-}        </div>
-
-    <CustomizedCustomerTables headings={headings} data={clientsAppointment} />
-
-
-       
-        {/* <div className="table-container w-[90%] overflow-x-scroll">
-
-       
-<table className="styled-table">
-  <thead>
-    <tr >
-      <th>Name</th>
-      <th>Phone Number</th>
-      <th>Date</th>
-      <th>Services</th>
-      <th>Products</th>
-      <th>Total Price</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-   {
-    clientsAppointment?.map((item,index)=>(
-        <tr key={index}>
-            <td>{item?.customer.name}</td>
-            <td>{item?.customer.phoneNumber}</td>
-            <td>{FormatDate(item?.createdAt)}</td>
-            <td>
-            {
-                item.services.map((data,dataIndex)=>(
-                    <div key={dataIndex}>
-                   {data.miniSubcategory}
-                    </div>
-                ))
-            }
-            </td>
-            <td>
-            {
-                item.products.map((data,dataIndex)=>(
-                    <div key={dataIndex}>
-                   {data.name}
-                    </div>
-                ))
-            }
-            </td>
-            <td>{item.total}</td>
-            <td className={`font-semibold text-sm ${item.status === 1 ? 'text-blue-500' : item.status === 2 ? 'text-red-500' : 'text-green-600'}`}>{item.status ==1 ? "pending" : item.status == 2? "cancelled" : "completed"}</td>
-        </tr>
-    ))
-   }
-  </tbody>
-</table>
-
-</div> */}
-  
-
-    </div>
+            </span></button> : <button  onClick={handleSearchCustomerdetails} className='rounded-[16px] w-[109px] h-[29px] flex items-center justify-center  py-1 bg-black text-white'>Search</button>}
+          </div>
+        </div>
+        <CustomizedCustomerTables headings={headings} data={clientsAppointment} />
+      </div>
     </>
   )
 }

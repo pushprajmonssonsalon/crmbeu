@@ -1,29 +1,61 @@
+import { useState } from "react";
+import Pagination from "../pagination";
+import GridRows from "../pagination/gridRows";
+
 const CustomTable = ({ columns, rows }) => {
-    
+ const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const paginatedData = rows.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+  const handleChangePage = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(1);
+  };
+ 
   return (
     <>
       {" "}
-        <table className="styled-table">
-          <thead>
-            <tr>
-              {columns.map((column, index) => (
-                <th key={index} className="bg-black text-white px-3 py-2">{column.name}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows?.map((row, index) => (
-              <tr key={index} className="bg-white">
-                {columns?.map((column, index) => {
-
-                  const { id } = column;
-                  return <td>{row[id]}</td>;
-                })}
-              </tr>
+      <table className="styled-table">
+        <thead>
+          <tr>
+            {columns.map((column, index) => (
+              <th key={index} className="bg-black text-white px-3 py-2">{column.name}</th>
             ))}
-          </tbody>
-        </table>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedData?.map((row, index) => (
+            <tr key={index} className="bg-white">
+              {columns?.map((column, index) => {
+
+                const { id } = column;
+                return <td>{row[id]}</td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="flex justify-between mt-4 items-center">
+        <GridRows
+          totalItems={rows?.length}
+          itemsPerPage={rowsPerPage}
+          handleRowschange={handleChangeRowsPerPage}
+        />
+        <Pagination
+          totalItems={rows?.length}
+          itemsPerPage={rowsPerPage}
+          currentPage={page}
+          onPageChange={handleChangePage}
+        />
+      </div>
     </>
+
   );
 };
 

@@ -2,15 +2,12 @@ import "./App.css";
 import Login from "./pages/login/Login";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Appointment from "./pages/Appointment/Appointment";
-import Employeedetails from "./pages/employeeDetails/Employeedetails";
 import OwnerService from "./pages/ownerServices";
 import ViewAppointment from "./pages/viewAppointment/ViewAppointment";
-import Report from "./pages/reports/Report";
 import CompltedAppointMent from "./pages/completedAppointment";
 import PrivateRoute from "./components/privateRoute";
 import Edit from "./pages/EditAppointmentSalon/Edit";
 import Orders from "./pages/orders";
-import CustomerDetails from "./pages/customerDetails";
 import AppointmentBills from "./components/bills";
 import MembershipBill from "./components/bills/MembershipBill";
 import OrderBill from "./components/bills/OrderInvoice";
@@ -29,11 +26,12 @@ import Subscription from "./pages/subscription/Subscription";
 import Advances from "./pages/advances/Advances";
 import activeMembers from "./pages/activeMembers/ActiveMembers";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import InventoryReport from "./pages/inventoryReport/InventoryReport";
 import AdvanceInvoice from "./components/customInovice/Advances";
 import Inventory from "./components/inventory/Inventory";
 import Services from "./pages/customerServices/Services";
 import Members from "./pages/memberShip/Members";
+import Contacts from "./pages/Contacts/Contacts";
+import AllReport from "./pages/reports/AllReport";
 
 function App() {
   useEffect(() => {
@@ -58,11 +56,11 @@ function App() {
 
         <Route
           path="/"
-          element={<PrivateRoute Component={Dashboard} />}
+          element={<PrivateRoute Component={Appointment} />}
         />
         <Route
-          path="/appointments"
-          element={<PrivateRoute Component={Appointment} />}
+          path="/dashboard"
+          element={<PrivateRoute Component={Dashboard} />}
         />
         <Route
           path="/customerservices"
@@ -73,9 +71,10 @@ function App() {
           element={<PrivateRoute Component={Inventory} />}
         />
         <Route
-          path="/employee"
-          element={<PrivateRoute Component={Employeedetails} />}
+          path="/contacts"
+          element={<PrivateRoute Component={Contacts} />}
         />
+      
         <Route
           path="/ownerservice"
           element={<PrivateRoute Component={OwnerService} />}
@@ -84,7 +83,7 @@ function App() {
           path="/viewAppointment"
           element={<PrivateRoute Component={ViewAppointment} />}
         />
-        <Route path="/reports" element={<PrivateRoute Component={Report} />} />
+        <Route path="/reports" element={<PrivateRoute Component={AllReport} />} />
         <Route
           path="/invoicewise"
           element={<PrivateRoute Component={InvoiceWise} />}
@@ -137,20 +136,14 @@ function App() {
           element={<PrivateRoute Component={Edit} />}
         />
         <Route path="/orders" element={<PrivateRoute Component={Orders} />} />
-        <Route
-          path="/details"
-          element={<PrivateRoute Component={CustomerDetails} />}
-        />
+       
         <Route path="/test" element={<PrivateRoute Component={TestExcel} />} />
         <Route path="/revenue" element={<PrivateRoute Component={Revenue} />} />
         <Route
           path="/weeklyreport"
           element={<PrivateRoute Component={WeeklyReport} />}
         />
-        <Route
-          path="/inventoryreport"
-          element={<PrivateRoute Component={InventoryReport} />}
-        />
+      
         <Route
           path="/salon-details"
           element={<PrivateRoute Component={SalonDeatils} />}

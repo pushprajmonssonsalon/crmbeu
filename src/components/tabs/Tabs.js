@@ -21,7 +21,7 @@ export default function Tabs({ tabs, activeTab, handleTabChange }) {
     <div className="w-full ">
       {/* Tabs */}
       <div className="w-full border-b border-gray-300">
-        <div className="relative w-full flex ">
+        <div className="relative w-full grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {tabs.map((tab, index) => (
             <button
               key={index}

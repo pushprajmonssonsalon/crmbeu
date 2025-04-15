@@ -15,7 +15,6 @@ export default function CheckBox({ staffData,selectedStaff, setSelectedStaff,exp
 
   const handleCheckboxChange = (event) => {
     const checkedId = event.target.value;
-    console.log(checkedId,"checked")
     const staffName = staffData.find((item) => item._id === checkedId)?.name;
     if (event.target.checked) {
       // Check if the employeeId is already in selectedStaff

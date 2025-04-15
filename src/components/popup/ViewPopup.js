@@ -112,25 +112,17 @@ const ViewPopup = ({
 
 
   return (
-    <div
-      className=" ofullverflow-y-hidden overflow-x-hidden flex items-center justify-center bg-black bg-opacity-50 fixed top-0 right-0 left-0 ma z-50  w-full md:inset-0 h-"
-    >
-      <div
-        className=" z-40  h-[80%]  md:h-[80%] my-auto"
-      >
-        <div className="bg-white h-full  p-4 rounded-xl  shadow">
-          <div className="flex justify-between mb-3 font-bold items-center">
-            <h1 className={`text-blue-500 text-lg font-bold `}>
-              PAY : {payTotal}
-            </h1>
-            <button
-              style={{ background: "#f5f5f5", borderRadius: "100%", }}
-              className="text-2xl font-bold  text-red-600 hover:text-red-900 bg-transparent "
-              onClick={() => onClose()}
-            >
-              <MdOutlineClose />
-            </button>
+    <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
+      <div className=' w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+
+        <div className="">
+          <div className='flex justify-between items-center mb-6'>
+            <h1 className={`text-2xl text-black `}> PAY : {payTotal}</h1>
+            <button className='text-black text-xl' onClick={onClose}><MdOutlineClose /></button>
+
           </div>
+
+
           <div className="bg-gray-200  p-3  flex items-center justify-between gap-3 ">
 
 
@@ -156,7 +148,7 @@ const ViewPopup = ({
 
             </label>
             <div className="flex items-center gap-4 ">
-              <h1 className="font-bold whitespace-nowrap text-black text-lg">Rs {advance?.balance || 0} </h1>
+              <h1 className=" whitespace-nowrap text-black text-lg">Rs {advance?.balance || 0} </h1>
 
             </div>
 
@@ -190,20 +182,20 @@ const ViewPopup = ({
                           value={item?.amount}
                           onChange={handleChange}
                         />
-                        {item.name === "Online" && <>   
-                         <input
-                          value={comment}
-                          placeholder="Enter Comment"
-                          onChange={(e)=>setComment(e.target.value)}
-                          type="text"
-                          className="py-1 px-2 rounded-[10px] "
-                        />
+                        {item.name === "Online" && <>
+                          <input
+                            value={comment}
+                            placeholder="Enter Comment"
+                            onChange={(e) => setComment(e.target.value)}
+                            type="text"
+                            className="py-1 px-2 rounded-[10px] "
+                          />
 
                         </>
                         }
-                        
+
                       </div>
-                   
+
 
                     </td>
 
@@ -212,15 +204,22 @@ const ViewPopup = ({
               </tbody>
             </table>
 
-
-            {!isPaid && (
+            {!isPaid && <div className="flex items-center justify-end gap-4 mt-6">
               <button
-                className={`bg-blue-400 text-white font-bold p-3 hover:text-gray-500 rounded-xl `}
+                className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
                 onClick={hnadleUpdate}
               >
                 Submit
               </button>
-            )}
+            </div>}
+
+           
           </div>
         </div>
       </div>

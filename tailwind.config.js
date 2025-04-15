@@ -24,7 +24,9 @@ module.exports = {
         ternaryYellow:'#F6A000',
         secondaryGreen:'#4AB58E',
         primaryGreen:'#0BB7834A',
+        primaryGreen2:'rgba(11, 183, 131, 0.48)',
         primaryRed:'rgba(250, 124, 124, 0.47)',
+        primaryRed2:'rgba(246, 78, 96, 0.63)',
         secondaryRed:'rgba(250, 124, 124, 1)',
         
 

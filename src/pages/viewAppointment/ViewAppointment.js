@@ -275,7 +275,7 @@ const ViewAppointment = () => {
 
 
   const updatePaymentMethod = (elm) => {
-    const updatedItem = {...activeAppointment, ...elm };
+    const updatedItem = { ...activeAppointment, ...elm };
     setViewAppointmentDetails((prev) =>
       prev.map((item) => {
         if (item._id === activeAppointment._id) {
@@ -300,20 +300,29 @@ const ViewAppointment = () => {
     <>
       <div className="">
         <div className="flex items-center justify-between">
-          <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
-            <div className="flex items-center  gap-6">
-              <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
-                <FaCalendarAlt className="text-customPurple text-sm" />
-                <span className="text-secondary text-sm">Year-to-date </span>
-                <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
+          <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center  gap-6">
+                <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+                  <FaCalendarAlt className="text-customPurple text-sm" />
+                  <span className="text-secondary text-sm">Year-to-date </span>
+                  <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
 
-              </button>
-              <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
-                <span>{formatDate(startDate, true)}</span>
-                <span>~</span>
-                <span>{formatDate(endDate, true)}</span>
+                </button>
+                <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+                  <span>{formatDate(startDate, true)}</span>
+                  <span>~</span>
+                  <span>{formatDate(endDate, true)}</span>
+                </div>
               </div>
+              <button
+                className="w-[150px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
+                onClick={handleExport}
+              >
+                Export All
+              </button>
             </div>
+
             {showDate && <div className=" flex items-center my-4  gap-3">
               <CustomDatePicker
                 startDate={startDate}
@@ -328,12 +337,7 @@ const ViewAppointment = () => {
             </div>}
 
           </div>
-          <button
-            className="w-[150px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
-            onClick={handleExport}
-          >
-            Export All
-          </button>
+
         </div>
 
         <div className="flex justify-end ">

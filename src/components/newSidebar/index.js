@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { MdDashboard, MdEditSquare, MdRememberMe } from "react-icons/md";
-import { RiAccountPinBoxFill } from "react-icons/ri";
-import { MdCardMembership } from "react-icons/md";
-import { FaBookOpen } from "react-icons/fa";
-import { FaAngleDown, FaTableList } from "react-icons/fa6";
-import { RiShoppingCartFill } from "react-icons/ri";
+import {
+  MdEditSquare,
+  MdOutlineContacts,
+  MdOutlineFireHydrantAlt,
+  MdOutlineInventory2,
+  MdRememberMe,
+} from "react-icons/md";
+import { FaAngleDown, FaRegStar } from "react-icons/fa6";
 import { GiRoyalLove } from "react-icons/gi";
+import { LiaChartBarSolid } from "react-icons/lia";
+
 import { BiMessageAltDetail } from "react-icons/bi";
 import { useLocation, useNavigate } from "react-router-dom";
-import { IoPeopleSharp } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import logo3 from "../../images/logo3.png";
+import { GoHome } from "react-icons/go";
+import { IoFileTrayFullOutline, IoSettingsOutline } from "react-icons/io5";
+
 import { IoIosArrowBack } from "react-icons/io";
+import { FiLayers } from "react-icons/fi";
 const VerticalSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,36 +29,27 @@ const VerticalSidebar = () => {
   };
   const { pathname } = location;
   const menus = [
-    { name: "Dashboard", link: `/`, icon: MdDashboard, num: 1 },
-    { name: "Appointments", link: `/appointments`, icon: FaBookOpen, num: 2 },
+    { name: "Appointment", link: `/`, icon: GoHome, num: 1 },
+    { name: "Dashboard", link: `/dashboard`, icon: MdOutlineFireHydrantAlt, num: 2 },
 
-    { name: "Inventory", link: `/inventory`, icon: FaTableList, num: 3 },
+    { name: "Inventory", link: `/inventory`, icon: MdOutlineInventory2, num: 3 },
     {
       name: "Reports",
       link: `/reports`,
-      icon: MdEditSquare,
+      icon: IoFileTrayFullOutline,
       num: 4,
-      submenus: [
-        { name: "Report", link: "/reports" },
-        { name: "Invoice wise collection", link: "/invoicewise" },
-        { name: "Category wise collection", link: "/categorywise" },
-        { name: "Revenue", link: "/revenue" },
-        { name: "Weekly Report", link: "/weeklyreport" },
-        { name: "Inventory Report", link: "/inventoryreport" },
-      ],
+      
     },
-    { name: "Employee", link: `/employee`, icon: RiAccountPinBoxFill, num: 5 },
-    { name: "Services", link: `/customerservices`, icon: MdRememberMe, num: 6 },
-    { name: "Membership", link: `/membership`, icon: MdCardMembership, num: 7 },
-    { name: "Recent PO", link: `/orders`, icon: RiShoppingCartFill, num: 8 },
-    { name: "Customer Details", link: `/details`, icon: IoPeopleSharp, num: 9 },
+    { name: "Contacts", link: `/contacts`, icon: MdOutlineContacts, num: 5 },
+    { name: "Services", link: `/customerservices`, icon: FiLayers, num: 6 },
+    { name: "Membership", link: `/membership`, icon: LiaChartBarSolid, num: 7 },
     {
       name: "Salon Details",
       link: `/salon-details`,
-      icon: BiMessageAltDetail,
+      icon: IoSettingsOutline,
       num: 10,
     },
-    { name: "Royality", link: `/royalities`, icon: GiRoyalLove, num: 10 },
+    { name: "Royality", link: `/royalities`, icon: FaRegStar, num: 10 },
   ];
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("/")
@@ -116,7 +114,10 @@ const VerticalSidebar = () => {
           <div className="flex flex-col">
             <button
               onClick={() =>
-                menu.submenus ? toggleSubMenu(menu.num) : navigate(menu.link)
+                menu.submenus ? open? toggleSubMenu(menu.num):(()=>{
+                  handleOpen()
+                  toggleSubMenu(menu.num)
+                })() : navigate(menu.link)
               }
               className={`flex whitespace-nowrap items-center gap-6 text-[#636060] ${
                 open ? "w-[190px]" : "w-[42px] overflow-hidden"

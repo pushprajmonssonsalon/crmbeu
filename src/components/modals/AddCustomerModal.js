@@ -17,7 +17,7 @@ const AddCustomerModal = ({
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
-        className="w-[70%] lg:w-[50%] relative top-[10%] bottom-[10%]  z-30  mx-auto"
+        className="w-[80%] lg:w-[70%] relative top-[10%] bottom-[10%]  z-30  mx-auto"
         style={{
           content: {
 
@@ -36,13 +36,12 @@ const AddCustomerModal = ({
           },
         }}
       >
-        <div className="my-3">
-          <h1 className="font-medium text-black text-xl">{heading}</h1>
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-2  gap-2">
+          <h1 className=" text-black text-2xl mb-6">{heading}</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 mb-4">
             {addCustomerFields.map((input, index) => {
               const { name, placeholder, label, value, options ,value1,value2} = input;
               return (
-                <div key={index} className="flex  flex-col gap-2">
+                <div key={index} className="flex  flex-col gap-1">
                   {(name === "dob" || name === "aniversary") ?
                     <CustomDateMonth
                         placeholder={placeholder}
@@ -62,14 +61,15 @@ const AddCustomerModal = ({
                       value={value}
                       onChange={handleChange}
                       inputStyles={{
-                          'borderRadius': '16px'
+                            'borderRadius': '10px',
+                            padding: "10px 15px",
 
-                        }}
-                        lableStyles={{
-                          'fontWeight': '400',
-                          "fontSize": "16px",
-                          'color': '#000000'
-                        }}
+                          }}
+                          lableStyles={{
+                            'fontWeight': '400',
+                            "fontSize": "14px",
+                            'color': '#000000'
+                          }}
                     />
                       :
                       <NormalSelect
@@ -79,43 +79,38 @@ const AddCustomerModal = ({
                         options={options}
                         onChange={handleChange}
                         inputStyles={{
-                          'borderRadius': '16px'
+                            'borderRadius': '10px',
+                            padding: "10px 15px",
 
-                        }}
-                        lableStyles={{
-                          'fontWeight': '400',
-                          "fontSize": "16px",
-                          'color': '#000000'
-                        }}
+                          }}
+                          lableStyles={{
+                            'fontWeight': '400',
+                            "fontSize": "14px",
+                            'color': '#000000'
+                          }}
                       />}
                 </div>
               );
             })}
           </div>
-        </div>
+     
 
         {/* </div> */}
-        <div className="my-6 flex gap-6">
-          <button
-            style={{
-              background: "green",
-            }}
-            className="flex w-[150px] h-[40px] rounded-[16px] hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
-            onClick={handleSubmit}
-          >
-            <span className="font-medium text-white">Add</span>
-          </button>
-          <button
-            style={{
-              background: "red",
-              
-            }}
-            onClick={closeModal}
-            className="flex w-[150px] h-[40px] rounded-[16px] hover:bg-opacity-65 hover:scale-105 transition-all ease-in duration-100 form-btn items-center justify-center "
-          >
-            <span className="font-medium text-white">Cancel</span>
-          </button>
-        </div>
+        <div className="flex items-center justify-end gap-4 mt-4">
+            <button
+              className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
+              onClick={closeModal}
+            >
+              Cancel
+            </button>
+            <button
+              className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
+              onClick={handleSubmit}
+              >
+              ADD
+            </button>
+          </div>
+     
       </Modal>
     </>
   );

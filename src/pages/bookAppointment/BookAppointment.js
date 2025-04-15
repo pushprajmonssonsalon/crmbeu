@@ -43,7 +43,6 @@ const BookAppointment = ({ onTabChange }) => {
     time: ''
 
   })
-  console.log(appointmentDetails,"app")
   const [visible, setVisible] = useState(false);
   const [userData, setUserData] = useState([]);
 
@@ -1294,7 +1293,7 @@ const BookAppointment = ({ onTabChange }) => {
           addCustomerFields={addCustomerFields}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
-          heading={"Add Customer Appointment"}
+          heading={"Add New Customer"}
         />
 
 

@@ -1,25 +1,56 @@
 import { useEffect, useRef, useState } from "react";
-import Layout from "../Layout";
-import { formatDateToFull, formatValue, postApiData } from "../../utils/services";
+import { formatDate, formatDateToFull, formatValue, postApiData } from "../../utils/services";
 import CustomInputFeild from "../../components/customInput";
 import { useDownloadExcel } from "react-export-table-to-excel";
 import { FaFilePdf } from "react-icons/fa6";
 import { useLocation } from "react-router";
+import CustomDatePicker from "../customInput/CustomDatePicker";
+import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
+import { useSearchParams } from "react-router-dom";
+import exportToExcel from "../../utils/exportToExcel";
+import GridRows from "../pagination/gridRows";
+import Pagination from "../pagination";
 const InvoiceWise = () => {
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
-  const location = useLocation();
   const [loading, setLoading] = useState(false)
   // Use URLSearchParams to parse query parameters
-  const queryParams = new URLSearchParams(location.search);
-
+  const [params] = useSearchParams();
+  const [showDate, setShowDate] = useState(false)
+  const start = params.get("start");
+  const end = params.get("end");
+   const [page, setPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+  
+    const handleChangePage = (newPage) => {
+      setPage(newPage);
+    };
+  
+    const handleChangeRowsPerPage = (event) => {
+      setRowsPerPage(+event.target.value);
+      setPage(1);
+    };
+  
   // Access a specific query parameter
 
   const tableRef = useRef(null);
 
   //date
-  const defaultStartDate = new Date();
-  const [startDate, setStartDate] = useState(defaultStartDate);
-  const [endDate, setEndDate] = useState(defaultStartDate);
+  const defaultStartDate = formatDate(new Date());
+  const [startDate, setStartDate] = useState(
+    start ? formatDate(start) : defaultStartDate
+  );
+  const [endDate, setEndDate] = useState(
+    end ? formatDate(end) : defaultStartDate
+  );
+  const handleDateChange = (e) => {
+    const { id, value } = e.target;
+    if (id === "startDate") {
+      setStartDate(value)
+    } else {
+      setEndDate(value)
+    }
+
+  }
   useEffect(() => {
     const data = {
       type: "crm",
@@ -105,38 +136,67 @@ const InvoiceWise = () => {
     window.open(url, "_blank");
   };
 
-  useEffect(() => {
-    const stDate = queryParams.get('start');
-    const edDate = queryParams.get('end');
-    if (stDate && edDate) {
-      setStartDate(new Date(stDate))
-      setEndDate(new Date(edDate))
-    }
-
-  }, [location.pathname])
+  
+  const filteredData = viewAppointmentDetails?.filter((item) => item.status === 3);
+  const paginatedData = filteredData?.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
   return (
-      <div className="w-full flex flex-col">
-        <h1 className="text-center text-3xl font-bold  text-black mb-4">
-          Invoice wise collection
-        </h1>
-        <div className="flex justify-end items-start mr-5">
-          <button onClick={onDownload} className="bg-green-500 text-white rounded-xl px-6 h-[50px]">
-            {" "}
-            Export excel{" "}
-          </button>
-        </div>
+    <>
+      <div className="flex items-center justify-between">
+        <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center  gap-6">
+            <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+              <FaCalendarAlt className="text-customPurple text-sm" />
+              <span className="text-secondary text-sm">Year-to-date </span>
+              <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
 
-        <CustomInputFeild
+            </button>
+            <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+              <span>{formatDate(startDate, true)}</span>
+              <span>~</span>
+              <span>{formatDate(endDate, true)}</span>
+            </div>
+          </div>
+          <button
+          className="w-[150px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
+          onClick={onDownload}
+        >
+          Export All
+        </button>
+          </div>
+          {showDate && <div className=" flex items-center my-4  gap-3">
+            <CustomDatePicker
+              startDate={startDate}
+              endDate={endDate}
+              loading={loading}
+              className="bg-white gap-2 rounded-[5px] py-[10px] px-[15px] "
+              onSubmit={searchClick}
+              onChange={handleDateChange}
+
+
+            />
+          </div>}
+
+        </div>
+      
+      </div>
+       
+
+        {/* <CustomInputFeild
           startDate={startDate}
           setStartDate={setStartDate}
           endDate={endDate}
           setEndDate={setEndDate}
           submitClick={searchClick}
           loading={loading}
-        />
+        /> */}
         {/* <CustomizedInvoiceWiseTables headings={headings} data={viewAppointmentDetails}  ref={tableRef}/> */}
-        <div className="max-w-[100%] max-h-[calc(100vh-200px)]   my-9 shadow-md  overflow-auto">
-          <table className="relative " ref={tableRef}>
+        <div className=" rounded-[16px] border border-primaryGray p-5  ">
+        <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">Weekly Report</h2>
+          <table className="styled-table " ref={tableRef}>
             <thead className="sticky  top-0 z-2">
               <tr>
                 {headings?.map((item, index) => (
@@ -145,8 +205,7 @@ const InvoiceWise = () => {
               </tr>
             </thead>
             <tbody>
-              {viewAppointmentDetails
-                ?.filter((item) => item.status === 3)
+              {paginatedData
                 ?.map((row, index) => (
                   <tr key={index}>
                     {headings.map((heading, idx) => (
@@ -187,9 +246,22 @@ const InvoiceWise = () => {
                 ))}
             </tbody>
           </table>
+          <div className="flex justify-between mt-4 items-center">
+          <GridRows
+            totalItems={filteredData?.length}
+            itemsPerPage={rowsPerPage}
+            handleRowschange={handleChangeRowsPerPage}
+          />
+          <Pagination
+            totalItems={filteredData?.length}
+            itemsPerPage={rowsPerPage}
+            currentPage={page}
+            onPageChange={handleChangePage}
+          />
         </div>
-      </div>
-    
+        </div>
+     
+    </>
   );
 };
 

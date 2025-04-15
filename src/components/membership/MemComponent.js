@@ -193,7 +193,6 @@ const MemComponent = ({
     const checkedId = event.target.value;
     const staffName = staffData.find((item) => item._id === checkedId)?.name;
     if (event.target.checked) {
-      console.log("change", checkedId)
 
       // Check if the employeeId is already in selectedStaff
       if (!selectedStaff.some((staff) => staff.employeeId === checkedId)) {
