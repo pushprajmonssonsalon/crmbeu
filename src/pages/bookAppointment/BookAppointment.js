@@ -999,7 +999,7 @@ const BookAppointment = ({ onTabChange }) => {
           <div className="flex justify-end mt-5">
 
             <button onClick={handldeAddButton}
-              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Add Service</button>
           </div>
 
         </div>
@@ -1176,7 +1176,7 @@ const BookAppointment = ({ onTabChange }) => {
           <div className="flex justify-end mt-5">
 
             <button onClick={addproductPress}
-              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Add Product</button>
           </div>
 
         </div>
@@ -1247,7 +1247,7 @@ const BookAppointment = ({ onTabChange }) => {
           <div className="flex justify-end mt-12">
 
             <button onClick={handleApplyDiscount}
-              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
+              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Apply</button>
           </div>
 
 
