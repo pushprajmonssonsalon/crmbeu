@@ -144,6 +144,8 @@ const Dashboard = () => {
 
     membership: 0
   });
+  // const [peekProdTime, setPeekProdTime] = useState([]);
+  const [peekTime, setPeekTime] = useState([]);
 
   const salesData = {
     labels: salesOrder,
@@ -319,6 +321,18 @@ const Dashboard = () => {
 
     onClick: (event, elements) => handleBarClick(event, elements), // Attach click event
   };
+  // let fetchProdTime = (startDate, endDate) => {
+  //   getApiCall(`reports/getMostSalesTiming?startDate=${startDate}&endDate=${endDate}&showProdSales=${true}`,
+  //     (res) => {
+  //       if (res) setPeekProdTime(res)
+  //     }, () => { })
+  // }
+  let fetchServiceTime = (startDate, endDate) => {
+    getApiCall(`reports/getMostSalesTiming?startDate=${startDate}&endDate=${endDate}`,
+      (res) => {
+        if (res) setPeekTime(res)
+      }, () => { })
+  }
   const fetchData = (start, end) => {
 
     const data = {
@@ -472,9 +486,13 @@ const Dashboard = () => {
 
       }, () => { })
 
+    // fetchProdTime(data.startDate, data.endDate)
+    fetchServiceTime(data.startDate, data.endDate)
   }
+
   useEffect(() => {
     fetchData()
+
   }, []);
   const fetchInActiveUser = (days) => {
     getApiCall(`reports/getDataOfUsersNotVisitedFromDays?count=${days}`,
@@ -482,6 +500,7 @@ const Dashboard = () => {
         if (res?.length > 0) setInActiveUser(res)
         else setInActiveUser([])
       }, () => { })
+
   }
   useEffect(() => {
     debouncedFunction(fetchInActiveUser, 500, days)
@@ -534,21 +553,6 @@ const Dashboard = () => {
     { name: "365 Days", value: 365 },
 
   ]
-  //   <tr>
-  //   <th className="bg-black text-white px-3 py-2">Customer Name</th>
-  //   <th className="bg-black text-white px-3 py-2">Contact Number</th>
-  //   <th className="bg-black text-white px-3 py-2">Last Visited</th>
-  // </tr>
-  // </thead>
-  // <tbody>
-  // {inActiveUser?.map((item, index) => (
-  //   <tr key={index}>
-  //     <td>{item.name}</td>
-  //     <td>{item.phoneNumber}</td>
-  //     <td>{formatDate(item?.visited)}</td>
-  //     {/* <td>{formatDate(item.eventDate)}</td> */}
-  //   </tr>
-  // ))}
 
   const InActiveCols = [{
     name: "Customer Name",
@@ -565,6 +569,13 @@ const Dashboard = () => {
     phoneNumber: item.phoneNumber,
     visited: formatDate(item?.visited),
   }))
+
+  const timings = [
+    "Morning",
+    "Afternoon",
+    "Evening",
+    "Night",
+  ]
 
   return (
     <>
@@ -664,6 +675,71 @@ const Dashboard = () => {
                 <h2 className="text-gray2  text-md  mb-5">No InActive Customers Found</h2>
               </div>}
             </div>
+
+
+          </div>
+          <div className="col-span-full h-full  border shadow-graph bg-white rounded-[16px] p-5">
+            <div>
+              <h2 className="text-black  text-start text-xl 2xl:text-2xl leading-[28px] font-normal mb-5">Peek Booking Hours</h2>
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-12 mt-6">
+                <div className="">
+                  <h2 className="text-gray2  text-start text-lg  font-normal mb-5">Services & Product</h2>
+
+                  <div className='w-full  '>
+                    {timings?.map((item, index) => {
+                      const total = peekTime?.totalRevenue?.[0]?.totalAppointments || 1;
+                      const selectedtime = peekTime?.timings?.find((elm) => elm._id === item)// Avoid division by zero
+                      const percentage = selectedtime ? ((selectedtime?.appointmentCount / total) * 100).toFixed(1) : '0'// 1 decimal point
+                      const percentageValue = parseFloat(percentage);
+                      return (
+                        <div key={index} className="flex items-center w-full  gap-3 mb-6 last:mb-0">
+                          <div className="w-[100px] tex-lg text-black">{item}</div>
+                          <div className="w-[500px]  bg-gray-200 rounded-xl h-[30px] ">
+                            <div className="bg-indigo-600 h-[30px] rounded-xl" style={{ width: `${percentageValue}%` }}
+                            />
+                          </div>
+                          <div className="flex gap-2 items-center">
+                            <span className="text-secondary text-sm">{selectedtime?.appointmentCount || 0}</span>
+                            <span className="text-secondary text-sm">(₹{selectedtime?.totalSales || 0})</span>
+                          </div>
+
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                {/* <div className="">
+                  <h2 className="text-gray2  text-start text-lg  font-normal mb-5">Product</h2>
+
+                  <div className='w-full  '>
+                    {timings?.map((item, index) => {
+                      const total = peekProdTime?.totalRevenue?.[0]?.totalAppointments || 1;
+                      const selectedtime = peekTime?.timings?.find((elm) => elm._id === item)// Avoid division by zero
+                      const percentage = selectedtime ? ((selectedtime?.appointmentCount / total) * 100).toFixed(1) : '0'// 1 decimal point
+                      const percentageValue = parseFloat(percentage);
+                      return (
+                        <div key={index} className="flex items-center w-full  gap-3 mb-6 last:mb-0">
+                          <div className="w-[100px] tex-lg text-black">{item}</div>
+                          <div className="w-[500px]  bg-gray-200 rounded-xl h-[30px] ">
+                            <div className="bg-indigo-600 h-[30px] rounded-xl" style={{ width: `${percentageValue}%` }}
+                            />
+                          </div>
+                          <div className="flex gap-2 items-center">
+                            <span className="text-secondary text-sm">{selectedtime?.appointmentCount || 0}</span>
+                            <span className="text-secondary text-sm">(₹{selectedtime?.totalSales || 0})</span>
+                          </div>
+
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div> */}
+              </div>
+
+
+
+            </div>
+    
 
 
           </div>

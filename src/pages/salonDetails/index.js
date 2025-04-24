@@ -12,26 +12,9 @@ const s3 = new AWS.S3({
 });
 
 const SalonDeatils = () => {
-  const [address, setAddress] = useState('');
-  const [gst, setGst] = useState('');
-  const [tradename, setTradeName] = useState('');
-  const [email, setEmail] = useState('');
-  const [owner, setOwner] = useState('');
-  const [openDate, setOpenDate] = useState('');
-  const [state, setState] = useState('');
-  const [address2, setAddress2] = useState('');
-  const [del, setDel] = useState(false)
-  const [bool, setBool] = useState(false)
-  const [contactNumber, setContactNumber] = useState('');
-  const [images, setImages] = useState([]);
-  const [imageFile, setImageFile] = useState(null);
-  const [imageKey, setImageKey] = useState('');
-  const [fileNames, setFileNames] = useState([]);
-  const [parlorDetails, setParlorDetails] = useState([]);
-
+  const [editParlorDetails,setEditParlorDetails] = useState({})
   const token = localStorage.getItem("token");
   const handleFileChange = async (e) => {
-    setImageFile(e.target.files[0]);
 
     let imageData = e.target.files[0]
     const formData = new FormData();
@@ -60,8 +43,11 @@ const SalonDeatils = () => {
       });
 
       if (response) {
+        setEditParlorDetails((prevDetails) => ({
+          ...prevDetails,
+          images: [...prevDetails.images, response.data.data],
+        }));
 
-        setImages((prevUrls) => [...prevUrls, response.data.data]);
       }
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -111,42 +97,37 @@ const SalonDeatils = () => {
       "parlor/getParlorDetail",
       (resp) => {
 
-        setParlorDetails(resp);
+        setEditParlorDetails(resp);
         // parlorDetails(resp);
       },
       (error) => {
 
       }
     );
-  }, [bool, del]);
-  useEffect(() => {
-    setImages(parlorDetails?.images)
-  }, [parlorDetails])
+  }, []);
+ 
+  const handleChange= (e) => {
+    const { name, value } = e.target;
+    setEditParlorDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: value,
+    }));
+  }
 
   const handleSubmit = () => {
-
+  const {gstNumber, stateName, contactNumber, images, email, trade, owner} = editParlorDetails
     const data = {
-      gstNumber: gst,
-      stateName: state,
-      address: address,
-      address2: address2,
-      contactNumber: contactNumber,
-      images: images,
-      email: email,
-      trade: tradename,
-      owner: owner,
-      live: openDate
+      gstNumber,
+      stateName,
+      contactNumber,
+      images,
+      email,
+      trade,
+      owner,
     }
     postApiData("parlor/editParlorDetails", data,
       (resp) => {
         toast.success("Details has been Submitted!");
-
-        setAddress("")
-        setAddress2("")
-        setContactNumber("")
-        setImages([])
-        setFileNames([])
-        setBool(!bool)
       },
       (error) => {
         toast.error("Something went wrong!");
@@ -156,70 +137,69 @@ const SalonDeatils = () => {
   }
 
   const handleCancelImages = (index) => {
-    images.splice(index, 1);
-    setImages([...images]);
+    setEditParlorDetails((prevDetails) => ({
+      ...prevDetails,
+      images: prevDetails.images.filter((_, i) => i !== index),
+    }));
     handleSubmit()
   }
   const formFields = [
     {
       label: 'Salon Category',
       placeholder: 'Name',
-      value: parlorDetails.name,
+      name: 'name',
       disabled: true,
     },
     {
       label: 'Location',
       placeholder: 'Address',
-      value: parlorDetails.address,
-      onChange: (e) => setAddress(e.target.value),
+      name: 'address',
+      disabled: true,
     },
     {
       label: 'Address',
       placeholder: 'Address 2',
-      value: parlorDetails.address2,
-      onChange: (e) => setAddress2(e.target.value),
+      name: 'address2',
+      disabled: true,
     },
     {
       label: 'State',
       placeholder: 'State',
-      value: parlorDetails.stateName,
-      onChange: (e) => setState(e.target.value),
+      name: 'stateName',
+      disabled: true,
     },
     {
       label: 'Contact Number',
       placeholder: 'Contact Number',
-      value: parlorDetails.contactNumber,
-      onChange: (e) => setContactNumber(e.target.value),
+      name: 'contactNumber',
     },
     {
       label: 'GST Number',
       placeholder: 'GST Number',
-      value: parlorDetails.gstNumber,
-      onChange: (e) => setGst(e.target.value),
+      name: 'gstNumber',
     },
     {
       label: 'Trade Name',
       placeholder: 'Trade Name',
-      value: parlorDetails.trade,
-      onChange: (e) => setTradeName(e.target.value),
+      name:'trade',
+
     },
     {
       label: 'Email',
       placeholder: 'Email',
-      value: parlorDetails.email,
-      onChange: (e) => setEmail(e.target.value),
+      name: 'email',
+
     },
     {
       label: 'Owner Name',
       placeholder: 'Owner Name',
-      value: parlorDetails.owner,
-      onChange: (e) => setOwner(e.target.value),
+      name: 'owner',
     },
     {
       label: 'Salon Operational Date',
       placeholder: 'Salon Operational Date',
-      value: parlorDetails.live,
-      onChange: (e) => setOpenDate(e.target.value),
+      disabled: true,
+      name: 'live',
     },
   ];
 
@@ -240,7 +220,7 @@ const SalonDeatils = () => {
                
                 <NormalInput
                   type='text'
-                  name={`field-${index}`}
+                  name={field.name}
                   label={field.label}
                   lableStyles={{
                     fontWeight:'400',
@@ -250,8 +230,8 @@ const SalonDeatils = () => {
                     border:"none"
                   }}
                   placeholder={field.placeholder}
-                  value={field.value}
-                  onChange={field.onChange}
+                  value={editParlorDetails[field.name] || ''}
+                  onChange={handleChange}
                   disabled={field.disabled}
                 />
                 {/* <input
@@ -298,7 +278,7 @@ const SalonDeatils = () => {
         </div>
         <div className='flex justify-evenly items-center flex-wrap w-full'>
           {
-            parlorDetails?.images?.map((image, index) => (
+            editParlorDetails?.images?.map((image, index) => (
               <div className='w-1/4 h-[150px] relative'>
                 <img src={image} alt="img" className='w-full h-full bg-cover' />
                 <MdCancel className='absolute text-2xl text-black top-0 right-0 cursor-pointer' onClick={() => handleCancelImages(index)} />
