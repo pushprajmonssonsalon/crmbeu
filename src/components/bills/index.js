@@ -183,7 +183,7 @@ const AppointmentBills = () => {
           
           <div className="mx-auto">
             <h1 className="text-center text-2xl font-bold text-black mb-4">
-              {parlorDetails.name}
+              {parlorDetails?.name==="Smart Salon"?`Pro Plus Smart Salon`:parlorDetails?.name}
             </h1>
             <h2 className="text-lg font-semibold text-black">
               {parlorDetails.address}

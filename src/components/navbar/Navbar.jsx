@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import "./Navbar.css";
 import { useState } from "react";
 import { getApiCall } from "../../utils/services";
-import { parlordetail } from "../../redux/actions";
 import { useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
 import ChangePassword from "../modals/ChangePassword";
@@ -11,7 +10,7 @@ const Navbar = () => {
   const [admin, setAdmin] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [unReadMsg, setUnReadMsg] = useState(false);
-  const [parlorDetails, setParlorDetails] = useState({});
+  const [parlorDetails, setParlorDetails] = useState('');
   const navigate = useNavigate();
   const modalRef = useRef(null);
   const adminPress = () => {
@@ -31,17 +30,8 @@ const Navbar = () => {
     };
   }, []);
   useEffect(() => {
-    getApiCall(
-      "parlor/getParlorDetail",
-      (resp) => {
+    let name = localStorage.getItem("salon_address");
 
-        setParlorDetails(resp);
-        parlordetail(resp);
-      },
-      (error) => {
-
-      }
-    );
     getApiCall(
       "/notification/totalUnreadNotification",
       (resp) => {
@@ -52,12 +42,27 @@ const Navbar = () => {
 
       }
     );
-  }, []);
-  useEffect(() => {
+    if (!name|| name === "undefined"|| name === "null") {
+      getApiCall(
+        "parlor/getParlorDetail",
+        (resp) => {
 
-  }, [])
+          setParlorDetails(resp?.address2||resp?.address)
+          localStorage.setItem("salon_address",resp?.address2||resp?.address);
+        },
+        (error) => {
+
+        }
+      );
+    }
+    else {
+      setParlorDetails(name);
+    }
+  }, []);
+ 
   const signoutPress = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("salon_address");
     toast.success("Logout Successful");
     navigate("/login");
   };
@@ -69,13 +74,14 @@ const Navbar = () => {
 
 
         <div className="flex items-center w-full justify-end">
-          <ul className="flex flex-row items-center">
-            {/* <li className="mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
-              {parlorDetails?.name}
+          <ul className="flex flex-row items-center justify-between w-full">
+           
+            <li className=" max-w-[180px] lg:max-w-[350px] overflow-hidden text-ellipsis whitespace-nowrap  text-lightGray2 inter text-xs xl:text-sm  border-b-2 border-gray-300">
+              {parlorDetails}
             </li>
-            <li className="mx-6 max-w-[180px] lg:max-w-[350px] overflow-hidden text-ellipsis whitespace-nowrap font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer hover:border-b-2 border-gray-300">
-              {parlorDetails?.address}
-            </li> */}
+            <li className="flex items-center ">
+
+           
             <li
               onClick={() => navigate("/notifications")}
               className="mx-6 relative h-fit text-slate-100 cursor-pointer "
@@ -117,12 +123,13 @@ const Navbar = () => {
 
               </button>
             </li>
+            </li>
           </ul>
         </div>
         {admin && (
           <div
             className="absolute right-[40px] top-[91px] flex"
-             ref={modalRef}
+            ref={modalRef}
           >
             <div       // Prevent closing when clicking inside
               className="bg-white text-start rounded-[16px] border shadow flex flex-col cursor-pointer p-3 ">
