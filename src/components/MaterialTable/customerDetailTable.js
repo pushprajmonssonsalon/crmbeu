@@ -110,49 +110,7 @@ export default function CustomizedCustomerTables({ headings, data }) {
           onPageChange={handleChangePage}
         />
       </div>
-      {/* <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="customized table" style={{ fontSize: "18px" }}>
-          <TableHead>
-            <TableRow >
-              {
-                headings.map((item, index) => (
-                  <StyledTableCell style={{ fontWeight: 600 }}>{item}</StyledTableCell>
-                ))
-              }
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((item, index) => (
-              <StyledTableRow key={index}>
-                <StyledTableCell scope="row" >
-                  {item?.customer.name}
-                </StyledTableCell>
-                <StyledTableCell>{item?.customer.phoneNumber}</StyledTableCell>
-                <StyledTableCell>{FormatDate(item?.createdAt)}</StyledTableCell>
-                <StyledTableCell>{
-                  item.services.map((data, dataIndex) => (
-                    <div key={dataIndex}>
-                      {data.miniSubcategory}
-                    </div>
-                  ))
-                }</StyledTableCell>
-                <StyledTableCell >{
-                  item.products.map((data, dataIndex) => (
-                    <div key={dataIndex}>
-                      {data.name}
-                    </div>
-                  ))
-                }</StyledTableCell>
-                <StyledTableCell>{item.total}</StyledTableCell>
-                <StyledTableCell style={{ color: item.status === 1 ? 'blue' : item.status === 2 ? 'red' : 'green', fontWeight: 700, fontSize: "18px" }}>{item.status == 1 ? "pending" : item.status == 2 ? "cancelled" : "completed"}</StyledTableCell>
-                <StyledTableCell >{item?.membershipCreditUsed}</StyledTableCell>
-                <StyledTableCell ><button className='bg-green-600 text-white p-2 rounded-lg' onClick={() => handlePrint(item)}><MdPrint />
-                </button></StyledTableCell>
-              </StyledTableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer> */}
+     
     </>
 
   );

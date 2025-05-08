@@ -75,8 +75,8 @@ const AccordianTable = ({ cols, rows, cols2,phoneNumber }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {rows[index]?.activeMembership?.length > 0 &&
-                          rows[index]?.activeMembership?.map((rw, i) => (
+                        {row?.activeMembership?.length > 0 &&
+                          row?.activeMembership?.map((rw, i) => (
                             <tr key={i}>
                               {cols2.map((col, idx) => {
                                 const val = col?.date
