@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  MdEditSquare,
-  MdOutlineContacts,
-  MdOutlineFireHydrantAlt,
-  MdOutlineInventory2,
-  MdRememberMe,
-} from "react-icons/md";
+import { MdOutlineContacts, MdOutlineFireHydrantAlt, MdOutlineInventory2 } from "react-icons/md";
 import { FaAngleDown, FaRegStar } from "react-icons/fa6";
-import { GiRoyalLove } from "react-icons/gi";
 import { LiaChartBarSolid } from "react-icons/lia";
 
-import { BiMessageAltDetail } from "react-icons/bi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import logo3 from "../../images/logo3.png";

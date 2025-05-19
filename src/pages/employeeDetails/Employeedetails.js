@@ -26,7 +26,6 @@ const titles = [
 const Employeedetails = () => {
   const [ismodalOpen, setismodalOpen] = useState(false);
 
-  const [submittedData, setsubmittedData] = useState([]);
   const [name, setName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [email, setEmail] = useState("");
@@ -35,12 +34,9 @@ const Employeedetails = () => {
   const [dob, setDob] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [currentAddress, setCurrentAddress] = useState("");
-  const [permanentAddress, setPermanentAddress] = useState("");
   const [title, setTitle] = useState("");
   const [emergencyNumber, setEmergencyNumber] = useState("");
   const [getstaffData, setStaffData] = useState([]);
-  const [staffState, setStateStafff] = useState(false)
   const [staffstatus, setStaffStaus] = useState(false)
   // const [checked, setChecked] = useState(isActive === "active");
   const [isBool, setIsBool] = useState(false)
@@ -62,7 +58,6 @@ const Employeedetails = () => {
       "owner/getStaff",
       (res) => {
         setStaffData(res);
-        setStateStafff(true)
       },
       (error) => {
 
@@ -127,8 +122,6 @@ const Employeedetails = () => {
     setDob("");
     setStartDate("");
     setEndDate("");
-    setCurrentAddress("");
-    setPermanentAddress("");
     setTitle("");
     setEmergencyNumber("");
     closeModal();
@@ -203,23 +196,7 @@ const Employeedetails = () => {
       onChange: (e) => setEndDate(e.target.value),
       id: "endDate",
     },
-    // Uncomment if needed
-    // {
-    //   label: "Current Address",
-    //   placeholder: "Enter current address",
-    //   type: "text",
-    //   value: currentAddress,
-    //   onChange: (e) => setCurrentAddress(e.target.value),
-    //   id: "currentAddress",
-    // },
-    // {
-    //   label: "Permanent Address",
-    //   placeholder: "Enter permanent address",
-    //   type: "text",
-    //   value: permanentAddress,
-    //   onChange: (e) => setPermanentAddress(e.target.value),
-    //   id: "permanentAddress",
-    // },
+
     {
       label: "Title",
       type: "select",
@@ -257,7 +234,7 @@ const Employeedetails = () => {
             // staffState ==='true'?
             <>
               <div className="w-full">
-                <EmployeeTable data={getstaffData} startIndex={startIndex} endIndex={endIndex} isBool={isBool} setIsBool={setIsBool} />
+                <EmployeeTable data={getstaffData} setData={setStaffData} startIndex={startIndex} endIndex={endIndex} isBool={isBool} setIsBool={setIsBool} />
               </div>
               <div className="flex items-center justify-end">
                 <Pagination

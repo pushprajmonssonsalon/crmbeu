@@ -91,9 +91,6 @@ const InventoryReport = () => {
       data,
       (resp) => {
         if (resp.products.length > 0) {
-
-
-
           setNewMyProducts(resp.products?.map((elm) => elm.products));
         } else {
 

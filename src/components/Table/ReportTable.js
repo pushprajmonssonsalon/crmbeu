@@ -9,7 +9,10 @@ const tableHeaders = [
     "NAIL",
     "HAND & FEET",
     "MAKEUP",
-    "TOTAL"
+    "TOTAL",
+    'NET TOTAL',
+    'TARGET',
+    'PERFORMANCE',
   ];
 
 const ReportTable = ({data}) => {

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import "./report.css";
 import "react-datepicker/dist/react-datepicker.css";
-import { postApiData, formatValue, formatDate } from "../../utils/services";
+import { postApiData, formatValue, formatDate, getApiCall } from "../../utils/services";
 import { usePDF } from 'react-to-pdf';
 import ReportTable from "../../components/Table/ReportTable";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
@@ -10,7 +10,8 @@ import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 import { useSearchParams } from "react-router-dom";
 const Report = () => {
   const [params] = useSearchParams();
-  const [showDate, setShowDate] = useState(false)
+  const [showDate, setShowDate] = useState(false);
+  const [staffs, setStaffs] = useState([]);
   const start = params.get("start");
   const end = params.get("end");
 
@@ -155,32 +156,27 @@ const Report = () => {
 
 
   const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
+   
+   useEffect(() => {
+      getApiCall(
+        "owner/getStaff",
+        (res) => {
+          setStaffs(res);
+        },
+        (error) => {
+  
+        }
+      );
+    }, []);
+
+    const getEmployeeSalary=(id)=>{
+      const employee = staffs.find((staff) => staff._id === id);
+      return employee ? employee.salary : 0;
+
+    }
 
 
-
-  // useEffect(() => {
-  //   const data = {
-  //     startDate: startDate,
-  //     endDate: endDate
-  //   }
-  //   postApiData("reports/getSalesReportOfCustomers", data,
-  //     (resp) => {
-  //       const result = resp.reduce((acc, item) => {
-  //         acc[item._id] = {
-  //           ...item,
-  //           totalRevenue: (item.total - item.discount).toFixed(2)
-  //         };
-  //         return acc;
-  //       }, {});
-  //       setWholeCustomerRevenue(formatValue(result?.old?.totalRevenue))
-  //       setNewCustomerRevenue(formatValue(result?.new?.totalRevenue))
-
-  //     }, (error) => {
-
-  //     }
-  //   )
-  // }, [startDate, endDate])
-
+  
   return (
     <>
       <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
@@ -364,7 +360,7 @@ const Report = () => {
             </table>
           </div>
           {/* PRODUCT REVENUE */}
-          <div className=" rounded-[16px]  col-span-full border border-primaryGray p-5  "
+          <div className=" rounded-[16px]   border border-primaryGray p-5  "
 
           >
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">    PRODUCT DISTRIBUTION</h2>
@@ -393,6 +389,49 @@ const Report = () => {
                   <td className="text-black ">Total</td>
                   <td className="text-black ">{formatValue(productDistributionTotal)}</td>
                 </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className=" rounded-[16px]   border border-primaryGray p-5  "
+
+          >
+            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">EMPLOYEE PERFORMANCE</h2>
+
+
+            <table className="styled-table performance-table">
+              <thead>
+                <tr>
+                  <th>EMPLOYEE</th>
+                  <th className="">TOTAL SALES</th>
+                  <th className="">NET SALES</th>
+                  <th className="">TARGET</th>
+                  <th className="">PERFORMANCE</th>
+                </tr>
+              </thead>
+              <tbody style={{ height: "80px" }}>
+                {categoryWiseDistrubution?.map(({_id:{id,name}, categories }, index) => {
+                  const salary =getEmployeeSalary(id);
+
+                      let totalSum = (categories.reduce((acc, curr) => acc + curr.sumTotal, 0)||0);
+                      let netTotal = (totalSum / 1.18 )||0;
+                      let target = ((salary * 3) || 0);
+
+                      let performance = target>0?((netTotal / target)*100):0;
+                       
+                  return (
+                    <>
+                      <tr>
+                        <td>{name}</td>
+                        <td>{formatValue(totalSum)}</td>
+                        <td>{formatValue(netTotal)}</td>
+                        <td>{formatValue(target)}</td>
+                        <td>{formatValue(performance)}%</td>
+                      </tr>
+                    </>
+
+                  );
+                })}
+             
               </tbody>
             </table>
           </div>

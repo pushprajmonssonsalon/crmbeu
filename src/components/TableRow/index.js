@@ -1,4 +1,3 @@
-import React from "react";
 import { formatValue } from "../../utils/services";
 
 const TableRow = ({ name, categories, tableHeaders }) => {
@@ -11,8 +10,9 @@ const TableRow = ({ name, categories, tableHeaders }) => {
         return <td key={header}>{formatValue(sumTotal) || 0}</td>;
       })}
       <td>{formatValue(totalSum)}</td>
+      
     </tr>
     )
     };
 
-  export default TableRow
+export default TableRow
