@@ -1,29 +1,28 @@
-import React from "react";
 import TableRow from "../TableRow";
 
 const tableHeaders = [
-    "EMPLLOYEE NAME",
-    "HAIR",
-    "SPA",
-    "BEAUTY",
-    "NAIL",
-    "HAND & FEET",
-    "MAKEUP",
-    "TOTAL",
-    'NET TOTAL',
-    'TARGET',
-    'PERFORMANCE',
-  ];
+  "EMPLLOYEE NAME",
+  "HAIR",
+  "SPA",
+  "BEAUTY",
+  "NAIL",
+  "HAND & FEET",
+  "MAKEUP",
+  "TOTAL",
 
-const ReportTable = ({data}) => {
-  
-  return(
+];
+
+const ReportTable = ({ data }) => {
+
+  return (
     <table className="styled-table">
       <thead className="">
         <tr >
           {tableHeaders.map((header) => (
             <th key={header}>{header}</th>
           ))}
+          <th >NET TOTAL</th>
+
         </tr>
       </thead>
       <tbody>
@@ -34,5 +33,5 @@ const ReportTable = ({data}) => {
     </table>
   )
 };
-  
-  export default ReportTable;
+
+export default ReportTable;

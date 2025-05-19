@@ -10,6 +10,7 @@ const TableRow = ({ name, categories, tableHeaders }) => {
         return <td key={header}>{formatValue(sumTotal) || 0}</td>;
       })}
       <td>{formatValue(totalSum)}</td>
+      <td>{formatValue(totalSum/1.18)}</td>
       
     </tr>
     )
