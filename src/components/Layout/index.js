@@ -38,7 +38,7 @@ const Layout = ({ children }) => {
   const path = pathname.split("/").filter(x=>x)[0];
   
   return (
-    <div className="min-w-full   roboto-regular flex ">
+    <div className="min-w-full   roboto-regular bg-ternaryPurple flex bg">
       {/* <Toaster /> */}
         {/* <Sidebar /> */}
         <VerticalSidebar />

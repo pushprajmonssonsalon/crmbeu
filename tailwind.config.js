@@ -15,11 +15,14 @@ module.exports = {
         ternaryGray:'#979797',
         lightGray2:'#636060',
         lightGray:"#D9D9D9",
-        ternary:'#009699',
+        // ternary:'#009699',
+        ternary:'#6049cd',
+
         customPurple:'#5F57FF',
         heading:'#2D2D2D',
         primaryGreen:' #4AB58E',
         primaryPurple:"#A657D6",
+        ternaryPurple:'#F6F6FF',
         primaryYellow:'#FFCE384F',
         secondaryPurple:'#6049cd',
         // secondaryPurple:'#b169ef',
@@ -32,11 +35,10 @@ module.exports = {
         primaryRed2:'rgba(246, 78, 96, 0.63)',
         secondaryRed:'rgba(250, 124, 124, 1)',
         
-
       },
       boxShadow: {
        "card":'1px 2px 16px 0px #0000001A',
-       'navbar': '0px 1px 4px 0px #00000040',
+       'navbar': '0px 1px 4px 0px rgba(0, 0, 0, 0.25)',
        'graph': '0px 4px 4px 0px #00000040',
        'tab': '0px 4px 8px 0px #0000001A',
 
