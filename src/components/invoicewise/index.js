@@ -238,40 +238,48 @@ const InvoiceWise = () => {
             {paginatedData
               ?.map((row, index) => (
                 <tr key={index}>
-                  {headings.map((heading, idx) => (
-                    <td key={idx}>
-                      {heading.id === "services" ? (
-                        (row?.services?.length > 0 && row?.products?.length > 0) ?
-                          "Service/Product"
-                          : row?.services?.length > 0 ? "Service"
-                            : row?.products?.length > 0 ? "Product" : ""
-                      ) : heading.id === "netAmount" ? (
-                        formatValue((row?.subTotal - (row?.discount || 0)) / 1.18)
-                      ) : heading.id === "gstAmount" ? (
-                        formatValue(
-                          row?.subTotal -
-                          (row?.discount || 0) -
-                          ((row?.subTotal - (row?.discount || 0)) / 1.18)
-                        )
-                      ) : heading.id === "invoiceUrl" ? (
-                        <FaFilePdf
-                          className="text-2xl text-black font-bold cursor-pointer"
-                          onClick={() => handleUrl(row[heading.id])}
-                        />
-                      ) : heading.id === "Cash" ||
-                        heading.id === "Upi" ||
-                        heading.id === "Card" ||
-                        heading.id === "Online" ? (
-                        formatValue(row.paymentMethod.find(
-                          (method) => method.name === heading.id
-                        )?.amount) || 0
-                      ) : heading.id === "createdAt" ?
-                        formatDateToFull(row[heading.id], false)
-                        : (
-                          formatValue(row[heading.id])
-                        )}
-                    </td>
-                  ))}
+                  {headings.map((heading, idx) => {
+                    let {id}=heading
+                    let  value =row[id];
+                    let subTotal =row["subTotal"]?row["subTotal"]:row["total"]||0;
+                    
+                    return (
+                      <td key={idx}>
+                        {id === "services" ? (
+                          (row?.services?.length > 0 && row?.products?.length > 0) ?
+                            "Service/Product"
+                            : row?.services?.length > 0 ? "Service"
+                              : row?.products?.length > 0 ? "Product" : ""
+                        ) : id === "netAmount" ? (
+                          formatValue((subTotal - (row?.discount || 0)) / 1.18)
+                        ) : id === "gstAmount" ? (
+                          formatValue(
+                            subTotal -
+                            (row?.discount || 0) -
+                            ((subTotal - (row?.discount || 0)) / 1.18)
+                          )
+                        ) : id === "invoiceUrl" ? (
+                          <FaFilePdf
+                            className="text-2xl text-black font-bold cursor-pointer"
+                            onClick={() => handleUrl(row[id])}
+                          />
+                        ) : id === "Cash" ||
+                          id === "Upi" ||
+                          id === "Card" ||
+                          id === "Online" ? (
+                          formatValue(row.paymentMethod.find(
+                            (method) => method.name === id
+                          )?.amount) || 0
+                        ) : id === "createdAt" ?
+                          formatDateToFull(row[id], false)
+                          : id === "subTotal" ? formatValue(subTotal) : (
+                            formatValue(value)
+                          )}
+                      </td>
+                    )
+                  }
+
+                  )}
                 </tr>
               ))}
           </tbody>
