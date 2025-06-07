@@ -107,10 +107,22 @@ const BookAppointment = ({ onTabChange }) => {
   };
   const membershipPress = (e) => {
     if (e.target.value) {
-      setActiveMemberShip(activemember?.find((elm) => elm._id === e.target.value));
+      const activeMemb = activemember?.find((elm) => elm._id === e.target.value);
+      if (activeMemb?.discount) {
+        setDiscount(activeMemb?.discount)
+      }
+      else if (activeMembership?.discount && !activeMemb?.discount) {
+        setDiscount(0)
+      }
+      setActiveMemberShip(activeMemb);
+      setMemberShipStatus(true)
+      toast.success("membership Applied")
+
     }
     else {
-      setActiveMemberShip({})
+      setActiveMemberShip({});
+      setMemberShipStatus(false);
+      toast.success("membership Removed")
     }
   };
   const handleChangeServices = (e, index, type) => {
@@ -131,7 +143,7 @@ const BookAppointment = ({ onTabChange }) => {
       else {
         newServices[index] = {
           ...newServices[index],
-          [name]: (name==="price")?Math.max(0,+value):value
+          [name]: (name === "price") ? Math.max(0, +value) : value
         };
       }
       dispatch(newUpdateService(newServices))
@@ -448,10 +460,11 @@ const BookAppointment = ({ onTabChange }) => {
     debouncedFunction(fetchProd, 500, data)
 
   };
-  const applyDiscount = () => {
+  const applyDiscount = (discount) => {
     setApplyDiscountPer(discount);
     // alert("Discount Added sucessfully");
-    toast.success("Discount Added Successfully");
+    if (discount)
+      toast.success("Discount Added Successfully");
   };
 
 
@@ -535,18 +548,7 @@ const BookAppointment = ({ onTabChange }) => {
 
   }
 
-  const handleApplyDiscount = () => {
 
-      applyDiscount()
- 
-
-    if (activeMembership?.creditsLeft > 0) {
-      setMemberShipStatus(true)
-      toast.success("membership Applied")
-    }
-
-
-  }
   const genderFields = [
     {
       name: "Male",
@@ -743,7 +745,6 @@ const BookAppointment = ({ onTabChange }) => {
         value: item._id,
       })),
       onChange: membershipPress,
-      readOnly: memberShipStatus,
     },
     {
       label: "Membership Balance",
@@ -759,6 +760,12 @@ const BookAppointment = ({ onTabChange }) => {
       debouncedFunction(fetchUser, 500)
     }
   }, [customerDetails?.phoneNumber])
+  useEffect(() => {
+    if (discount >= 0) {
+      debouncedFunction(applyDiscount, 800, discount)
+    }
+
+  }, [discount])
 
   const tableFields = [customerDetailsArray, paymentDetailsArray];
   return (
@@ -1244,11 +1251,7 @@ const BookAppointment = ({ onTabChange }) => {
 
 
           </div>
-          <div className="flex justify-end mt-12">
 
-            <button onClick={handleApplyDiscount}
-              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Apply</button>
-          </div>
 
 
         </div>

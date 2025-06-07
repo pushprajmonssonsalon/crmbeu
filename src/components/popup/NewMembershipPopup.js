@@ -8,6 +8,7 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState(null);
     const [coins, setCoins] = useState(null);
+    const [discount, setDiscount] = useState(0);
     const [expiry, setExpiry] = useState(3);
 
     if (!isVisible) return null;
@@ -24,9 +25,10 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
             name: name,
             price: +price,
             credits: +coins,
-            expiry: +expiry
+            expiry: +expiry,
+            discount:Math.min(+discount,100)
         }
-        const isEveryEmpty = Object.values(data).some(elm => !elm || elm === "")
+        const isEveryEmpty = Object.values(data).every(elm => !elm || elm === "")
         if (isEveryEmpty) {
             return toast.error("Please Fill All Fields")
         }
@@ -40,6 +42,7 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
                 setPrice(null)
                 setCoins(null)
                 setExpiry(null)
+                setDiscount(0)
             },
             (error) => {
 
@@ -71,6 +74,14 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
             label: "Coins",
             placeholder: "Coins",
             onChange: (e) => setCoins(e.target.value),
+        },
+        {
+            name: "discount",
+            type: "number",
+            value: discount,
+            label: "Discount %",
+            placeholder: "Discount %",
+            onChange: (e) => setDiscount(Math.max(0,Math.min(+e.target.value,100))),
         },
         {
             name: "expiry",
