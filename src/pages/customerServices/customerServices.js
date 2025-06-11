@@ -13,6 +13,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import Loader from "../../components/loader/Loader";
 import exportToExcel from "../../utils/exportToExcel";
 import { MdOutlineClose } from "react-icons/md";
+import ConfirmationModal from "../../components/modals/ConfirmationModal";
 
 export default function CustomerServices({ tab }) {
   const [customerServiceData, setCustomerServiceData] = useState([]);
@@ -31,6 +32,7 @@ export default function CustomerServices({ tab }) {
   const [myServiceData, setMyserviceData] = useState([]);
   // show popup
   const [showPopup, setShowPopup] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   // selected
   const [allServiceFilters, setAllServiceFilters] = useState({
     category: "",
@@ -279,6 +281,39 @@ export default function CustomerServices({ tab }) {
       setShowPopup(true);
     }
   };
+  const handleDeleteService = (id) => {
+    const item = myServiceData?.find(
+      (item) => item?.services?.serviceId === id
+    );
+
+    if (item) {
+      setSelectedMyService(item.services);
+      setShowConfirm(true);
+    }
+  };
+  const handleDelete = () => {
+    const data = {
+      uniqueCode: selectedMyService?.uniqueCode,
+    };
+    postApiData(
+      "salonService/deleteServiceInParlor",
+      data,
+      (resp) => {
+        // if (resp) {
+        toast.success("Service deleted Sucessfully");
+        setMyserviceData((prev) =>
+          prev.filter((item) => item?.services?.uniqueCode !== selectedMyService?.uniqueCode)
+        );
+        setShowConfirm(false);
+
+      },
+      (error) => {
+
+        toast.error("Service already deleted");
+      }
+    );
+
+  }
   const handleUpdate = (updatedItem) => {
     setMyserviceData((prev) =>
       prev.map((item) => {
@@ -427,6 +462,7 @@ export default function CustomerServices({ tab }) {
             <MyServiceTable
               data={myServiceData}
               handleEditService={handleEditService}
+              handleDeleteService={handleDeleteService}
             />
           )}
         <div className="flex justify-between mt-4 items-center">
@@ -522,6 +558,15 @@ export default function CustomerServices({ tab }) {
             onClose={() => setShowPopup(false)}
             onUpdate={handleUpdate}
             editItem={selectedMyService}
+          />
+        )}{" "}
+        {showConfirm && (
+          <ConfirmationModal
+            show={showConfirm}
+            setShow={setShowConfirm}
+
+            text={`Are You Sure You Want To Delete this Service  ${selectedMyService?.name || ""} ?`}
+            onConfirm={handleDelete}
           />
         )}{" "}
       </div>

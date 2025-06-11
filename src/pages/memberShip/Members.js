@@ -3,6 +3,7 @@ import Tabs from '../../components/tabs/Tabs';
 import Membership from './index';
 import Advances from '../advances/Advances';
 import ActiveMembers from '../activeMembers/ActiveMembers';
+import ActiveMembership from './ActiveMembership';
 
 const Members = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -18,6 +19,11 @@ const Members = () => {
       
         name:'Buy Membership',
         component:<Membership  tab={activeTab}/>
+      },
+      {
+      
+        name:'Active Membership',
+        component:<ActiveMembership />
       },
       {
       
