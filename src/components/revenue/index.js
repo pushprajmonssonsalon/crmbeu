@@ -84,7 +84,20 @@ const Revenue = () => {
     );
   };
   const handleExport = () => {
-    if (revenue) exportToExcel(revenue, "Revenue", "revenue.xlsx");
+    const updatedRevenue = revenue.map((elm) => {
+      return {
+        date:elm._id,
+        appointment: elm.appointment,
+        revenue:formatValue(elm.total/1.18),
+        gst:formatValue((elm?.total * 0.18) / 1.18),
+        total:formatValue(elm.total),
+        membershipPoints:elm.membershipPoints,
+        products:elm.products,
+        services:elm.services,
+        
+      }
+    })
+    if (updatedRevenue) exportToExcel(updatedRevenue, "Revenue", "revenue.xlsx");
   };
 
   const headings = [
@@ -161,7 +174,7 @@ const Revenue = () => {
                 <tr key={index}>
                   <td >{row._id}</td>
                   <td>{formatValue(row?.appointment)}</td>
-                  <td>{formatValue(row?.total/1.18)}</td>
+                  <td>{formatValue(row?.total / 1.18)}</td>
                   <td>{formatValue((row?.total * 0.18) / 1.18)}</td>
                   <td>{formatValue((row?.total))}</td>
                   <td>{formatValue(row?.services)}</td>
