@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatDate, formatValue, postApiData } from "../../utils/services";
-import { styled } from "@mui/material/styles";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import exportToExcel from "../../utils/exportToExcel";
-import { FaAngleDown, FaCalendarAlt, FaFileExcel } from "react-icons/fa";
+import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import CustomDatePicker from "../customInput/CustomDatePicker";
 import { useSearchParams } from "react-router-dom";
 import GridRows from "../pagination/gridRows";
@@ -98,13 +90,15 @@ const Revenue = () => {
   const headings = [
     "Date",
     "Appointments",
+    "Revenue",
+    "Gst Amount",
     "Total Revenue",
     "Services",
     "Products",
     "Membership Revenue",
     "ABV (Average Bill Value)",
   ];
-  
+
   const paginatedData = revenue?.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
@@ -165,13 +159,15 @@ const Revenue = () => {
             {paginatedData
               ?.map((row, index) => (
                 <tr key={index}>
-                <td >{row._id}</td>
-                <td>{formatValue(row?.appointment)}</td>
-                <td>{formatValue(row?.total)}</td>
-                <td>{formatValue(row?.services)}</td>
-                <td>{formatValue(row?.products)}</td>
-                <td>{formatValue(row?.membershipPoints)}</td>
-                <td>{formatValue((row?.total/row?.appointment))}</td>
+                  <td >{row._id}</td>
+                  <td>{formatValue(row?.appointment)}</td>
+                  <td>{formatValue(row?.total/1.18)}</td>
+                  <td>{formatValue((row?.total * 0.18) / 1.18)}</td>
+                  <td>{formatValue((row?.total))}</td>
+                  <td>{formatValue(row?.services)}</td>
+                  <td>{formatValue(row?.products)}</td>
+                  <td>{formatValue(row?.membershipPoints)}</td>
+                  <td>{formatValue((row?.total / row?.appointment))}</td>
                 </tr>
               ))}
           </tbody>
