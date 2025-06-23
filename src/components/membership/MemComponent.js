@@ -205,26 +205,7 @@ const MemComponent = ({
   const isStaffSelected = (itemId) => {
     return selectedStaff.some((staff) => staff.employeeId === itemId)
   }
-
-  
-  const handleBuy = () => {
-
-    if(selectedStaff?.length===0)return toast.error("Select Staff")
-    if(!phoneNumber)return toast.error("Enter PhoneNumber")
-    const data = {
-      selectedStaff,
-      paymentMethods,
-      phoneNumber
-    }
-    const res = onClickBuyNow(data)
-
-    if (res) {
-      setSelectedStaff([]);
-      setExpanded(false);
-      setPhoneNumber("")
-    }
-
-  };
+ 
 
   useEffect(() => {
     getApiCall(
@@ -279,7 +260,7 @@ const MemComponent = ({
 
             />
             {visible && phoneNumber.length > 0 && (
-              <div className="absolute top-[80px] h-[104px] w-[283px] overflow-auto bg-white shadow-xl rounded-lg z-3">
+              <div className="absolute top-[80px] h-[104px] w-[283px] overflow-auto bg-white shadow-xl rounded-lg z-[4]">
                 {userData.length > 0 &&
                   userData?.map((item) => {
                     return (

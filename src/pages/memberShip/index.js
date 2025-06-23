@@ -73,13 +73,13 @@ export default function Membership() {
   }, [isNewMembershipModal]);
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
-    const filteredStaffData = membershiptype.filter(
-      (item) => item.name === selectedMembership
+    const filteredMemb = membershiptype?.find(
+      (item) => item._id === selectedMembership
     );
 
-    setMemberShipData(filteredStaffData);
-    setMembershipName(filteredStaffData[0]?.name);
-    setMemberShip(filteredStaffData[0]?.price);
+    setMemberShipData(filteredMemb);
+    setMembershipName(filteredMemb?.name);
+    setMemberShip(filteredMemb?.price);
   };
   const handleDateChange = (e) => {
     const { id, value } = e.target;
@@ -98,7 +98,7 @@ export default function Membership() {
       userId: userId,
       employees: selectedStaff,
 
-      membershipId: memberShipdata[0]?._id,
+      membershipId: memberShipdata?._id,
     };
     let res = true;
     if (
@@ -220,10 +220,10 @@ export default function Membership() {
           setUserId={setUserId}
           memOptions={membershiptype?.map((elm) => ({
             name: elm.name,
-            value: elm.value,
+            value: elm._id,
           }))}
           membership={membership}
-          memValue={membershipName}
+          memValue={memberShipdata?._id}
           memChange={membershipPress}
           memLabel={"Select MemberShip Type"}
           onPayed={onPayed}
