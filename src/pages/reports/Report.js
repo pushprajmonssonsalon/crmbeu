@@ -103,7 +103,7 @@ const Report = () => {
     return report ? report.total : 0;
   }
   const serviceDistributionTotal = useMemo(() => {
-    if (serviceDistribution) {
+    if (serviceDistribution?.length>0) {
       const total = serviceDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
       return formatValue(total);
     }
@@ -111,7 +111,7 @@ const Report = () => {
   }, [serviceDistribution])
 
   const productDistributionTotal = useMemo(() => {
-    if (productDistribution) {
+    if (productDistribution?.length>0) {
       const total = productDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
       return formatValue(total);
     }
@@ -119,26 +119,19 @@ const Report = () => {
   }, [productDistribution])
 
   const totalDistribution =useMemo(()=>{
-    if(productDistributionTotal &&serviceDistributionTotal)
-     return formatValue(productDistributionTotal| +serviceDistributionTotal||0)
-    else return 0
+     return formatValue(productDistributionTotal +serviceDistributionTotal)||0
   },[productDistributionTotal,serviceDistributionTotal])
 
   const gst =useMemo(()=>{
-    if(totalDistribution){
-      const gstAmount =(totalDistribution/1.18);
-      return formatValue(totalDistribution-gstAmount)
+      const gstAmount =(totalDistribution/1.18)||0;
+      return formatValue(totalDistribution-gstAmount)||0
 
-    }
-    else{
-      return 0
-    }
+   
 
   },[totalDistribution])
   const netSales =useMemo(()=>{
-    if(totalDistribution&&gst)
-    return formatValue(totalDistribution-gst)
-    else return 0
+    return formatValue(totalDistribution-gst)||0
+    
   },[totalDistribution,gst])
 
   const submitClick = () => {
@@ -501,7 +494,7 @@ const Report = () => {
               </tbody>
             </table>
           </div>
-          <div className=" rounded-[16px]   border border-primaryGray p-5  "
+          <div className=" rounded-[16px] col-span-full  border border-primaryGray p-5  "
 
           >
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">EMPLOYEE PERFORMANCE</h2>
