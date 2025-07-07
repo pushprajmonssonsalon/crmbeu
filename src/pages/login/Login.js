@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 import logo from "../../images/logo1.png";
@@ -10,6 +9,7 @@ import Typewriter from "../../components/TypewriterText/Typewriter";
 import { MdPhone } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { postApiData } from "../../utils/services";
 
 const Login = () => {
   const messages = [
@@ -39,26 +39,40 @@ const Login = () => {
       userName: mobileNumber,
       password: password,
     };
-    axios
-      .post("https://crm.smartsalon.in/parlor/login", data)
-      .then((resp) => {
-        if (resp) {
-          localStorage.setItem("token", resp?.data?.data);
+    postApiData("parlor/login", data, (resp) => {
+      localStorage.setItem("token", resp?.token);
+      localStorage.setItem("gstApplied", resp?.gstApplied);
 
-          // dispatch(userDetails(resp.data.data));
-          toast.success("You have logined sucessfully")
+      // dispatch(userDetails(resp.data.data));
+      toast.success("You have logined sucessfully")
 
-          // setAuthorizationToken(resp.data.data)
+      // setAuthorizationToken(resp.data.data)
 
-          navigate("/");
-        }
-        
-      })
-      .catch((error) => {
+      navigate("/");
+    }, () => {
         toast.error("please provide valid details")
 
-        // alert("please provide valid details")
-      });
+    })
+    // axios
+    //   .post("https://crm.smartsalon.in/parlor/login", data)
+    //   .then((resp) => {
+    //     if (resp) {
+    //       localStorage.setItem("token", resp?.data?.data);
+
+    //       // dispatch(userDetails(resp.data.data));
+    //       toast.success("You have logined sucessfully")
+
+    //       // setAuthorizationToken(resp.data.data)
+
+    //       navigate("/");
+    //     }
+
+    //   })
+    //   .catch((error) => {
+    //     toast.error("please provide valid details")
+
+    //     // alert("please provide valid details")
+    //   });
   };
 
   return (

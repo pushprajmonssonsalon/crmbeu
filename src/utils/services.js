@@ -3,7 +3,7 @@ import axios from "axios";
 import { store } from "../redux/store";
 const BASE_URL = "https://crm.smartsalon.in/";
 // const BASE_URL = "http://192.168.3.36:4002";
-// const BASE_URL = "http://192.168.2.203:4002";
+// const BASE_URL = "http://192.168.2.43:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
@@ -128,7 +128,7 @@ function formatValue(value){
   return  value.map(elm=>formatValue(elm))
   }
   else if(typeof value ==="number"){
-    return value>0? value?.toFixed(2):value;
+    return value>0? parseFloat(value?.toFixed(2)):value;
 
   }
   else{
@@ -188,4 +188,18 @@ const getStatusColor = (status) => {
       return 'bg-primaryYellow text-secondaryYellow'; // or 'N/A'
   }
 }
-export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear,formatDate,getStatusColor};
+function getDaysBetween(startDate, endDate) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  // Get difference in time (milliseconds)
+  const diffTime = end - start;
+
+  // Convert time difference to days and include both start and end dates
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+  return diffDays;
+}
+
+
+export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear,formatDate,getStatusColor,getDaysBetween};

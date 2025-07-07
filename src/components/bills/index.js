@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router";
-import { getApiCall, postApiData } from "../../utils/services";
+import { formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -51,6 +51,8 @@ const AppointmentBills = () => {
       amount: data?.advanceUsed||0,
     },
   ]
+  const gstToken =localStorage.getItem("gstApplied");
+  const gstApplied =(gstToken==="true")
   const paymentMethodsValue = [...data?.paymentMethod,...otherMethod]?.filter((item) => item.amount > 0);
   const currentDate = new Date();
   const formattedDate = currentDate.toDateString();
@@ -62,10 +64,10 @@ const AppointmentBills = () => {
 
   const serviceDiscount = data.discount;
   const serviceTaxable = serviceTotal - parseFloat(serviceDiscount);
-  const serviceFinalTax = Math.ceil(serviceTaxable / 1.18);
-  const CGST = ((serviceFinalTax * 9) / 100).toFixed(2);
-  const SGST = ((serviceFinalTax * 9) / 100).toFixed(2);
-  const servicePayableAmount = Math.floor(Number(serviceFinalTax) + Number(CGST) + Number(SGST))
+  const serviceFinalTax = gstApplied?formatValue(serviceTaxable):formatValue(serviceTaxable / 1.18);
+  const CGST = formatValue((serviceFinalTax * 9) / 100);
+  const SGST = formatValue((serviceFinalTax * 9) / 100);
+  const servicePayableAmount = Math.round(serviceFinalTax + (CGST) + (SGST))
 
   // const productSubtotalAmount=data.products;
   const productTotalPrice = data.products.reduce(
@@ -75,11 +77,11 @@ const AppointmentBills = () => {
     0
   );
 
-  const productTotalTaxtable = Math.ceil(productTotalPrice / 1.18);
-  const CGSTProduct = (productTotalTaxtable * 9) / 100;
-  const SGSTProduct = (productTotalTaxtable * 9) / 100;
+  const productTotalTaxtable = formatValue(productTotalPrice / 1.18);
+  const CGSTProduct = formatValue((productTotalTaxtable * 9) / 100);
+  const SGSTProduct = formatValue((productTotalTaxtable * 9) / 100);
   // const paytax = Math.ceil(data.total / 1.18);
-  const productFinalPayable = Math.ceil(productTotalTaxtable + CGSTProduct + SGSTProduct)
+  const productFinalPayable = productTotalPrice
 
   // const taxableTotalamountPay = Math.ceil((paytax + CGST + SGST).toFixed());
   useEffect(() => {
@@ -101,11 +103,13 @@ const AppointmentBills = () => {
   // const SGST = (paytax * 9) / 100;
   const taxableTotalamountPay = Math.ceil((paytax + CGST + SGST)).toFixed(2);
 
-  const totalPayableAmount =
-    Math.ceil(serviceTaxable / 1.18) +
-    Math.ceil(productTotalPrice / 1.18) +
-    (productTotalPrice - Math.ceil(productTotalPrice / 1.18)) +
-    (serviceTaxable - Math.ceil(serviceTaxable / 1.18));
+  // const totalPayableAmount =
+  //   Math.ceil(serviceTaxable / 1.18) +
+  //   Math.ceil(productTotalPrice / 1.18) +
+  //   (productTotalPrice - Math.ceil(productTotalPrice / 1.18)) +
+  //   (serviceTaxable - Math.ceil(serviceTaxable / 1.18));
+
+  const totalPayableAmount =Math.round(servicePayableAmount+productFinalPayable)
   const serviceHeadings = [
     "Service Name",
     "Category",
@@ -379,11 +383,11 @@ const AppointmentBills = () => {
                 </div>
                 <div className="text-black font-medium">CGST @ 9:</div>
                 <div className="text-black font-medium text-right">
-                  {CGSTProduct.toFixed()}
+                  {CGSTProduct}
                 </div>
                 <div className="text-black font-medium">SGST @ 9:</div>
                 <div className="text-black font-medium text-right">
-                  {SGSTProduct.toFixed()}
+                  {SGSTProduct}
                 </div>
                 <div className="text-black font-medium">Total:</div>
                 <div className="text-black font-medium text-right">

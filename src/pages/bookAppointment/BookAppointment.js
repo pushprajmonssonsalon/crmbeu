@@ -23,7 +23,8 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 const BookAppointment = ({ onTabChange }) => {
-
+  const gstToken =localStorage.getItem("gstApplied");
+  const gstApplied =(gstToken==="true")
   const { debouncedFunction } = useDebouncer()
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
@@ -198,17 +199,19 @@ const BookAppointment = ({ onTabChange }) => {
 
   const subtotalPrice = x.reduce((accumulator, currentItem) => {
     return accumulator + Number(currentItem.price);
-  }, 0);
+  }, 0)||0;
   const productTotalPrice = productDataReducer.reduce(
     (accumulator, { price, quantity }) => {
       return accumulator + quantity * price;
     },
     0
   );
-  const countdiscount = Math.ceil((subtotalPrice * applyDisountPer) / 100);
-
-  const payableAmount = subtotalPrice - countdiscount;
-  const totalProductServicePayable = payableAmount + productTotalPrice;
+  const countdiscount = Math.floor((subtotalPrice * applyDisountPer) / 100);
+  
+  const payableAmount = formatValue(subtotalPrice - countdiscount);
+  const serviceGst = gstApplied?formatValue(payableAmount*0.18):0;
+  const serviceTotal =Math.round(payableAmount + serviceGst);
+  const totalProductServicePayable = Math.round(serviceTotal + productTotalPrice);
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
     subCategory: "",
@@ -345,12 +348,14 @@ const BookAppointment = ({ onTabChange }) => {
       isMembershipApplied: memberShipStatus,
       // membershipCreditUsed: +memberShip,
       // membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
-      membershipCreditUsed: memberShipStatus ? Math.max(0,Math.min(activeMembership?.creditsLeft || 0, subtotalPrice - countdiscount) ): 0,
+      membershipCreditUsed: memberShipStatus ? Math.max(0,Math.min(activeMembership?.creditsLeft || 0, serviceTotal) ): 0,
       products: productDataReducer,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
       membershipId: activeMembership?._id,
     };
+
+  
     // if (serviceDataReducerLength > 0) {
     postApiData(
       "appointment/bookAppointmentFromCrm",
@@ -522,7 +527,9 @@ const BookAppointment = ({ onTabChange }) => {
   };
 
 
-
+  useEffect(()=>{
+     console.log(x,productDataReducer,"data")
+    },[x,productDataReducer])
 
   const handleProductChange = (e) => {
     const { name, value } = e.target;
@@ -662,10 +669,11 @@ const BookAppointment = ({ onTabChange }) => {
   const paymentDetailsArray = [
     { label: "SUBTOTAL", value: subtotalPrice },
     { label: "DISCOUNT", value: countdiscount },
-    { label: "TOTAL AMOUNT", value: payableAmount },
+    (gstApplied&& ({ label: "SERVICE GST", value: serviceGst })),
+    { label: "TOTAL AMOUNT", value: serviceTotal },
     { label: "PRODUCT PRICE", value: productTotalPrice },
     { label: "PAYABLE AMOUNT", value: totalProductServicePayable },
-  ];
+  ]?.filter(Boolean);
   const customerFields = [
     {
       name: "phoneNumber",

@@ -7,11 +7,15 @@ import { toast } from "react-hot-toast";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import NormalRadio from "../../components/customInput/NormalRadio";
+import useDebouncer from "../../utils/hooks/useDebouncer";
 
 const Edit = () => {
+  const gstToken =localStorage.getItem("gstApplied");
+  const gstApplied =(gstToken==="true")
   const { id } = useParams();
   //Staff data fiktering
   const navigate = useNavigate();
+  const {debouncedFunction}=useDebouncer()
   const [staffData, setStaffData] = useState([]);
   const [activeMembership, setActiveMemberShip] = useState({});
 
@@ -397,20 +401,33 @@ const Edit = () => {
     ?.map((item) => item.price * item.quantity)
     ?.reduce((acc, val) => acc + val, 0);
 
-  const serviceDiscount = subTotalServices * (applyDisountPer / 100);
+  const serviceDiscount = Math.floor(subTotalServices * (applyDisountPer / 100));
+  
+  const totalService = formatValue(subTotalServices - serviceDiscount);
+  const serviceGst = gstApplied?formatValue(totalService*0.18):0;
+  const serviceTotal =Math.round(totalService + serviceGst);
 
-  const totalService = subTotalServices - serviceDiscount;
-
-  const totalAmount = totalService + subProductTotal;
+  const totalAmount = Math.round(serviceTotal + subProductTotal);
   const membershipPress = (e) => {
     if (e.target.value) {
-      setActiveMemberShip(membershipDetails?.find((elm) => elm._id === e.target.value));
+      const activeMemb = membershipDetails?.find((elm) => elm._id === e.target.value);
+      if (activeMemb?.discount) {
+        setDiscount(activeMemb?.discount)
+      }
+      else if (activeMembership?.discount && !activeMemb?.discount) {
+        setDiscount(0)
+      }
+      setActiveMemberShip(activeMemb);
+      setMemberShipStatus(true)
+      toast.success("membership Applied")
+
     }
     else {
-      setActiveMemberShip({})
+      setActiveMemberShip({});
+      setMemberShipStatus(false);
+      toast.success("membership Removed")
     }
   };
-
   const handleChange = (e, index, type) => {
     const { name, value } = e.target;
 
@@ -585,9 +602,12 @@ const Edit = () => {
   ];
   const paymentDetailsArray = [
     { label: "SERVICES SUBTOTAL", value: formatValue(subTotalServices) },
-    { label: "PRODUCT SUBTOTAL", value: formatValue(subProductTotal) },
     { label: "DISCOUNT", value: formatValue(serviceDiscount) },
-    { label: "TOTAL SERVICES", value: formatValue(totalService) },
+        (gstApplied&& ({ label: "SERVICE GST", value: serviceGst })),
+        { label: "TOTAL SERVICES", value: formatValue(serviceTotal) },
+
+    { label: "PRODUCT SUBTOTAL", value: formatValue(subProductTotal) },
+
     { label: "TOTAL PRODUCTS", value: formatValue(subProductTotal) },
     { label: "PAYABLE AMOUNT", value: formatValue(totalAmount) },
   ];
@@ -607,7 +627,7 @@ const Edit = () => {
       isMembershipApplied: memberShipStatus,
 
       // membershipCreditUsed: (memberShipStatus)? (+subTotalServices):0,
-      membershipCreditUsed: isMembershipApplied ? +subServiceTotal: memberShipStatus? Math.max(0,Math.min(activeMembership?.creditsLeft || 0, totalService)) : 0,
+      membershipCreditUsed: isMembershipApplied ? +subServiceTotal: memberShipStatus? Math.max(0,Math.min(activeMembership?.creditsLeft || 0, serviceTotal)) : 0,
       products: appointementProducts,
       discount: serviceDiscount,
       discountPercentage: applyDisountPer,
@@ -620,7 +640,7 @@ const Edit = () => {
         if (resp) {
           toast.success("Appointment Booked SuccessFully");
 
-         navigate(`/appointments?tab=${1}`);
+         navigate(`/?tab=${1}`);
         }
       },
       (error) => {
@@ -628,6 +648,12 @@ const Edit = () => {
       }
     );
   };
+   useEffect(() => {
+      if (discount >= 0) {
+        debouncedFunction(applyDiscount, 800, discount)
+      }
+  
+    }, [discount])
   return (
     <>
       <div className="mx-auto ">
@@ -1048,12 +1074,7 @@ const Edit = () => {
 
 
           </div>
-          <div className="flex justify-end mt-12">
-
-            <button onClick={handleApplyDiscount}
-              className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Apply</button>
-          </div>
-
+         
 
         </div>
         {/* book appointment */}

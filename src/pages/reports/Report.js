@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import "./report.css";
 import "react-datepicker/dist/react-datepicker.css";
-import { postApiData, formatValue, formatDate, getApiCall } from "../../utils/services";
+import { postApiData, formatValue, formatDate, getApiCall, getDaysBetween } from "../../utils/services";
 import { usePDF } from 'react-to-pdf';
 import ReportTable from "../../components/Table/ReportTable";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
@@ -105,7 +105,7 @@ const Report = () => {
   const serviceDistributionTotal = useMemo(() => {
     if (serviceDistribution) {
       const total = serviceDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
-      return total.toFixed(2 || 0);
+      return formatValue(total);
     }
     return 0;
   }, [serviceDistribution])
@@ -113,10 +113,33 @@ const Report = () => {
   const productDistributionTotal = useMemo(() => {
     if (productDistribution) {
       const total = productDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
-      return total.toFixed(2 || 0);
+      return formatValue(total);
     }
     return 0;
   }, [productDistribution])
+
+  const totalDistribution =useMemo(()=>{
+    if(productDistributionTotal &&serviceDistributionTotal)
+     return formatValue(productDistributionTotal| +serviceDistributionTotal||0)
+    else return 0
+  },[productDistributionTotal,serviceDistributionTotal])
+
+  const gst =useMemo(()=>{
+    if(totalDistribution){
+      const gstAmount =(totalDistribution/1.18);
+      return formatValue(totalDistribution-gstAmount)
+
+    }
+    else{
+      return 0
+    }
+
+  },[totalDistribution])
+  const netSales =useMemo(()=>{
+    if(totalDistribution&&gst)
+    return formatValue(totalDistribution-gst)
+    else return 0
+  },[totalDistribution,gst])
 
   const submitClick = () => {
     const data = {
@@ -154,29 +177,73 @@ const Report = () => {
 
   const credits = membershipCredit?.length > 0 && membershipCredit[0]?.membershipCreditUsed;
 
-
-  const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
-   
-   useEffect(() => {
-      getApiCall(
-        "owner/getStaff",
-        (res) => {
-          setStaffs(res);
-        },
-        (error) => {
-  
-        }
-      );
-    }, []);
-
-    const getEmployeeSalary=(id)=>{
-      const employee = staffs.find((staff) => staff._id === id);
-      return employee ? employee.salary : 0;
+  const calculateAvg=(value)=>{
+    if(value){
+    let days= getDaysBetween(startDate,endDate);
+    return formatValue(value/days)||0 
 
     }
+    else return 0
+
+  }
+  const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
+  const membershipRevenue =membershipSale?.length>0?membershipSale[0]?.membershipRevenue:0
+  useEffect(() => {
+    getApiCall(
+      "owner/getStaff",
+      (res) => {
+        setStaffs(res);
+      },
+      (error) => {
+
+      }
+    );
+  }, []);
+  const salesColumns = [
+    {
+      name: "Service Sale",
+      value: serviceDistributionTotal,
+      avg:calculateAvg(serviceDistributionTotal)
 
 
-  
+    }, {
+      name: "Product Sale",
+      value: productDistributionTotal,
+      avg:calculateAvg(productDistributionTotal)
+    }, {
+      name: "Total Sale",
+      value: totalDistribution,
+      avg:calculateAvg(totalDistribution)
+
+    }, {
+      name: "Gst",
+      value: gst,
+      avg:calculateAvg(gst)
+    }, {
+      name: "Net Sales",
+      value: netSales,
+      avg:calculateAvg(netSales)
+    },
+     {
+      name: "Membership Redemption",
+      value: formatValue(credits||0),
+      avg:calculateAvg(credits)
+    },
+     {
+      name: "Membership Sold",
+      value: formatValue(membershipRevenue||0),
+      avg:calculateAvg(membershipRevenue)
+    }
+  ]
+
+  const getEmployeeSalary = (id) => {
+    const employee = staffs.find((staff) => staff._id === id);
+    return employee ? employee.salary : 0;
+
+  }
+
+ console.log(membershipSale,"mem")
+
   return (
     <>
       <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
@@ -222,6 +289,48 @@ const Report = () => {
 
 
         <div className="p-5 grid  sm:grid-cols-1 gap-5 md:grid-cols-2" ref={targetRef} >
+          <div className=" rounded-[16px]  border border-primaryGray p-5  "
+
+          >
+            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">Sales</h2>
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  <th>MODE</th>
+                  <th>AVERAGE</th>
+                  <th>AMOUNT</th>
+
+                  {/* <th>Category</th> */}
+                  {/* Add more column headers as needed */}
+                </tr>
+              </thead>
+              <tbody style={{ height: "80px" }}>
+
+                {salesColumns.map((elm, index) => {
+                  return (
+                    <tr key={index}>
+                      <td>{elm.name}</td>
+                      <td>{elm.avg||0}</td>
+                      <td>{elm.value||0}</td>
+                    </tr>
+                  )
+                })}
+
+
+             
+              
+              </tbody>
+
+              {/* <div className="grid grid-cols-2 gap-3 w-full border-2 border-black">
+            <div className="text-black font-medium">Total :</div>
+            
+        <div className="text-black font-medium text-right">
+             {totalPayment}
+            </div>
+        </div> */}
+            </table>
+
+          </div>
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
@@ -409,15 +518,15 @@ const Report = () => {
                 </tr>
               </thead>
               <tbody style={{ height: "80px" }}>
-                {categoryWiseDistrubution?.map(({_id:{id,name}, categories }, index) => {
-                  const salary =getEmployeeSalary(id);
+                {categoryWiseDistrubution?.map(({ _id: { id, name }, categories }, index) => {
+                  const salary = getEmployeeSalary(id);
 
-                      let totalSum = (categories.reduce((acc, curr) => acc + curr.sumTotal, 0)||0);
-                      let netTotal = (totalSum / 1.18 )||0;
-                      let target = ((salary * 3) || 0);
+                  let totalSum = (categories.reduce((acc, curr) => acc + curr.sumTotal, 0) || 0);
+                  let netTotal = (totalSum / 1.18) || 0;
+                  let target = ((salary * 3) || 0);
 
-                      let performance = target>0?((netTotal / target)*100):0;
-                       
+                  let performance = target > 0 ? ((netTotal / target) * 100) : 0;
+
                   return (
                     <>
                       <tr>
@@ -431,7 +540,7 @@ const Report = () => {
 
                   );
                 })}
-             
+
               </tbody>
             </table>
           </div>
