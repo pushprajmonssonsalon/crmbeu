@@ -9,9 +9,12 @@ import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 import { useSearchParams } from "react-router-dom";
 const Report = () => {
+   const gstToken =localStorage.getItem("gstApplied");
+  const gstApplied =(gstToken==="true")
   const [params] = useSearchParams();
   const [showDate, setShowDate] = useState(false);
   const [staffs, setStaffs] = useState([]);
+  
   const start = params.get("start");
   const end = params.get("end");
 
@@ -123,14 +126,26 @@ const Report = () => {
   },[productDistributionTotal,serviceDistributionTotal])
 
   const gst =useMemo(()=>{
+    if(gstToken){
+      const gstAmount =(totalDistribution*0.18)
+      return formatValue(gstAmount)
+      
+    }else{
       const gstAmount =(totalDistribution/1.18)||0;
       return formatValue(totalDistribution-gstAmount)||0
+    }
 
    
 
   },[totalDistribution])
   const netSales =useMemo(()=>{
-    return formatValue(totalDistribution-gst)||0
+    if(gstToken){
+      return totalDistribution
+    }
+    else{
+
+      return formatValue(totalDistribution-gst)||0
+    }
     
   },[totalDistribution,gst])
 
@@ -194,6 +209,22 @@ const Report = () => {
   }, []);
   const salesColumns = [
     {
+      name: "Total Sale",
+      value: totalDistribution,
+      avg:calculateAvg(totalDistribution)
+
+    },
+     {
+      name: "Gst",
+      value: gst,
+      avg:calculateAvg(gst)
+    },
+     {
+      name: "Net Sales",
+      value: netSales,
+      avg:calculateAvg(netSales)
+    },
+    {
       name: "Service Sale",
       value: serviceDistributionTotal,
       avg:calculateAvg(serviceDistributionTotal)
@@ -203,30 +234,18 @@ const Report = () => {
       name: "Product Sale",
       value: productDistributionTotal,
       avg:calculateAvg(productDistributionTotal)
-    }, {
-      name: "Total Sale",
-      value: totalDistribution,
-      avg:calculateAvg(totalDistribution)
-
-    }, {
-      name: "Gst",
-      value: gst,
-      avg:calculateAvg(gst)
-    }, {
-      name: "Net Sales",
-      value: netSales,
-      avg:calculateAvg(netSales)
+    }, 
+    {
+      name: "Membership Sold",
+      value: formatValue(membershipRevenue||0),
+      avg:calculateAvg(membershipRevenue)
     },
      {
       name: "Membership Redemption",
       value: formatValue(credits||0),
       avg:calculateAvg(credits)
-    },
-     {
-      name: "Membership Sold",
-      value: formatValue(membershipRevenue||0),
-      avg:calculateAvg(membershipRevenue)
     }
+     
   ]
 
   const getEmployeeSalary = (id) => {
@@ -235,7 +254,6 @@ const Report = () => {
 
   }
 
- console.log(membershipSale,"mem")
 
   return (
     <>
@@ -285,13 +303,13 @@ const Report = () => {
           <div className=" rounded-[16px]  border border-primaryGray p-5  "
 
           >
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">Sales</h2>
+            <h2 className="text-darkRedish bg-lightRedish px-3 py-0 capitalize text-start w-fit rounded-[25px]  font-normal text-lg mb-5">Amount Collected</h2>
             <table className="styled-table">
               <thead>
                 <tr>
-                  <th>MODE</th>
-                  <th>AVERAGE</th>
-                  <th>AMOUNT</th>
+                  <th><span className="text-darkRedish font-medium uppercase">MODE</span></th>
+                  <th><span className="text-darkRedish font-medium uppercase">Total Revenue</span></th>
+                  <th><span className="text-darkRedish font-medium uppercase">AVERAGE</span></th>
 
                   {/* <th>Category</th> */}
                   {/* Add more column headers as needed */}
@@ -303,8 +321,8 @@ const Report = () => {
                   return (
                     <tr key={index}>
                       <td>{elm.name}</td>
-                      <td>{elm.avg||0}</td>
                       <td>{elm.value||0}</td>
+                      <td>{elm.avg||0}</td>
                     </tr>
                   )
                 })}
@@ -327,12 +345,12 @@ const Report = () => {
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">COLLECTION</h2>
+            <h2 className="text-darkOrange w-fit bg-lightOrange px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">Collection</h2>
             <table className="styled-table">
               <thead>
                 <tr>
-                  <th>MODE</th>
-                  <th>AMOUNT</th>
+                  <th><span className="text-darkOrange">MODE</span></th>
+                  <th><span className="text-darkOrange">AMOUNT</span></th>
 
                   {/* <th>Category</th> */}
                   {/* Add more column headers as needed */}
@@ -374,14 +392,14 @@ const Report = () => {
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5"> APPOINTMENT STATUS</h2>
+            <h2 className="text-primaryDarkPurple w-fit bg-primaryLightPurple px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5"> APPOINTMENT STATUS</h2>
 
 
             <table className="styled-table">
               <thead>
                 <tr>
-                  <th>STATUS</th>
-                  <th>VALUE</th>
+                  <th><span className="text-primaryDarkPurple">STATUS</span></th>
+                  <th><span className="text-primaryDarkPurple">VALUE</span></th>
                 </tr>
               </thead>
               <tbody style={{ height: "80px" }}>
@@ -405,13 +423,13 @@ const Report = () => {
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">  MEMBERSHIP STATUS</h2>
+            <h2 className="text-primaryDarkGreen w-fit bg-primaryLightGreen px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">  Membership Status</h2>
 
             <table className="styled-table">
               <thead>
                 <tr>
-                  <th>MEMBERSHIP REVENUE</th>
-                  <th>MEMBERSHIP COUNT</th>
+                  <th><span className="text-primaryDarkGreen">MEMBERSHIP REVENUE</span></th>
+                  <th><span className="text-primaryDarkGreen">MEMBERSHIP COUNT</span></th>
                 </tr>
               </thead>
               <tbody style={{ height: "80px" }}>
@@ -435,12 +453,12 @@ const Report = () => {
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">    SERVICE DISTRIBUTION</h2>
+            <h2 className="text-secondaryDarkPurple w-fit bg-secondaryLightPurple px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">    Service Distribution</h2>
             <table className="styled-table">
               <thead>
                 <tr>
-                  <th>SERVICE</th>
-                  <th>TOTAL REVENUE</th>
+                  <th><span className="text-secondaryDarkPurple">SERVICE</span></th>
+                  <th><span className="text-secondaryDarkPurple">TOTAL REVENUE</span></th>
                 </tr>
               </thead>
               <tbody style={{ height: "80px" }}>
@@ -465,14 +483,14 @@ const Report = () => {
           <div className=" rounded-[16px]   border border-primaryGray p-5  "
 
           >
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">    PRODUCT DISTRIBUTION</h2>
+            <h2 className="text-secondaryDarkBlue w-fit bg-secondaryLightBlue px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">Product Distribution</h2>
 
 
             <table className="styled-table">
               <thead>
                 <tr>
-                  <th>PRODUCT</th>
-                  <th>TOTAL REVENUE</th>
+                  <th> <span className="text-secondaryDarkBlue">PRODUCT</span></th>
+                  <th> <span className="text-secondaryDarkBlue">TOTAL REVENUE</span></th>
                 </tr>
               </thead>
               <tbody style={{ height: "80px" }}>
@@ -497,7 +515,7 @@ const Report = () => {
           <div className=" rounded-[16px] col-span-full  border border-primaryGray p-5  "
 
           >
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">EMPLOYEE PERFORMANCE</h2>
+            <h2 className="text-primaryDarkGreen w-fit bg-primaryLightGreen px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">EMPLOYEE PERFORMANCE</h2>
 
 
             <table className="styled-table performance-table">
@@ -540,7 +558,7 @@ const Report = () => {
           <div className=" rounded-[16px] col-span-full border border-primaryGray p-5  "
 
           >
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">   EMPLOYEE SERVICE DISTRIBUTION</h2>
+            <h2 className="text-primaryDarkPurple w-fit bg-primaryLightPurple px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">   EMPLOYEE SERVICE DISTRIBUTION</h2>
 
             <ReportTable data={categoryWiseDistrubution} />
 

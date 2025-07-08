@@ -34,6 +34,22 @@ module.exports = {
         primaryRed:'rgba(250, 124, 124, 0.47)',
         primaryRed2:'rgba(246, 78, 96, 0.63)',
         secondaryRed:'rgba(250, 124, 124, 1)',
+        darkRedish:'#EE9494',
+        lightRedish:'rgba(248, 170, 170, 0.37)',
+        darkOrange:'rgba(249, 169, 90, 1)',
+        lightOrange:'rgba(255, 190, 125, 0.37)',
+        primaryDarkPurple:'rgba(65, 75, 243, 1)',
+        primaryLightPurple:'rgba(65, 75, 243, 0.37)',
+        primaryDarkGreen:'rgba(93, 197, 116, 1)',
+        primaryLightGreen:'rgba(41, 210, 149, 0.22)',
+        secondaryDarkPurple:'rgba(188, 93, 255, 1)',
+        secondaryLightPurple:'rgba(217, 170, 248, 0.37)',
+        secondaryDarkBlue:'rgba(0, 152, 224, 1)',
+        secondaryLightBlue:'rgba(41, 154, 210, 0.22)',
+
+
+
+
         
       },
       boxShadow: {
