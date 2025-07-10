@@ -200,6 +200,10 @@ function getDaysBetween(startDate, endDate) {
 
   return diffDays;
 }
-
+export function toLocalISOString(date) {
+  const offset = date.getTimezoneOffset() * 60000;
+  const localDate = new Date(date.getTime() - offset);
+  return localDate.toISOString().slice(0, 19); // removes 'Z' and ms
+}
 
 export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear,formatDate,getStatusColor,getDaysBetween};

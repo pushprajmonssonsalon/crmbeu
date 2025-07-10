@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import "./report.css";
 import "react-datepicker/dist/react-datepicker.css";
-import { postApiData, formatValue, formatDate, getApiCall, getDaysBetween } from "../../utils/services";
+import { postApiData, formatValue, formatDate, getApiCall, getDaysBetween, toLocalISOString } from "../../utils/services";
 import { usePDF } from 'react-to-pdf';
 import ReportTable from "../../components/Table/ReportTable";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
@@ -33,13 +33,19 @@ const Report = () => {
 
   const [reports, setReports] = useState([]);
   const [membershipSale, setMemberShipSale] = useState([]);
+  const [membershipTodaySale, setMemberShipTodaySale] = useState([]);
   const [paymentMethodReport, setPaymentMethodReport] = useState([]);
   const [appointmentStatus, setAppointmentStatus] = useState([]);
+  const [completedAppointments,setCompletedAppointments]=useState(0)
+  const [completedTodayAppointments,setCompletedTodayAppointments]=useState(0)
   const [serviceDistribution, setServiceDistribution] = useState([]);
+  const [serviceTodayDistribution, setServiceTodayDistribution] = useState([]);
   const [staffDistribution, setStaffDistribution] = useState([]);
   const [categoryWiseDistrubution, setCategoryWiseDistrubution] = useState([])
   const [productDistribution, setProductDistribution] = useState([]);
+  const [productTodayDistribution, setProductTodayDistribution] = useState([]);
   const [membershipCredit, setMembershipCredit] = useState([]);
+  const [membershipTodayCredit, setMembershipTodayCredit] = useState([]);
   const [wholeCustomerRevenue, setWholeCustomerRevenue] = useState("")
   const [newCustomerRevenue, setNewCustomerRevenue] = useState("")
 
@@ -113,6 +119,14 @@ const Report = () => {
     return 0;
   }, [serviceDistribution])
 
+  const serviceTodayDistributionTotal = useMemo(() => {
+    if (serviceTodayDistribution?.length>0) {
+      const total = serviceTodayDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
+      return formatValue(total);
+    }
+    return 0;
+  }, [serviceTodayDistribution])
+
   const productDistributionTotal = useMemo(() => {
     if (productDistribution?.length>0) {
       const total = productDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
@@ -121,9 +135,21 @@ const Report = () => {
     return 0;
   }, [productDistribution])
 
+  const productTodayDistributionTotal = useMemo(() => {
+    if (productTodayDistribution?.length>0) {
+      const total = productTodayDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
+      return formatValue(total);
+    }
+    return 0;
+  }, [productTodayDistribution])
+
   const totalDistribution =useMemo(()=>{
      return formatValue(productDistributionTotal +serviceDistributionTotal)||0
   },[productDistributionTotal,serviceDistributionTotal])
+  
+  const totalTodayDistribution =useMemo(()=>{
+     return formatValue(productTodayDistributionTotal +serviceTodayDistributionTotal)||0
+  },[productTodayDistributionTotal,serviceTodayDistributionTotal])
 
   const gst =useMemo(()=>{
     if(gstToken){
@@ -138,6 +164,21 @@ const Report = () => {
    
 
   },[totalDistribution])
+
+  const gstToday =useMemo(()=>{
+    if(gstToken){
+      const gstAmount =(totalTodayDistribution*0.18)
+      return formatValue(gstAmount)
+      
+    }else{
+      const gstAmount =(totalTodayDistribution/1.18)||0;
+      return formatValue(totalTodayDistribution-gstAmount)||0
+    }
+
+   
+
+  },[totalTodayDistribution])
+
   const netSales =useMemo(()=>{
     if(gstToken){
       return totalDistribution
@@ -148,7 +189,49 @@ const Report = () => {
     }
     
   },[totalDistribution,gst])
+  const netTodaySales =useMemo(()=>{
+    if(gstToken){
+      return totalTodayDistribution
+    }
+    else{
 
+      return formatValue(totalTodayDistribution-gstToday)||0
+    }
+    
+  },[totalTodayDistribution,gstToday])
+const getTodaySale =()=>{
+  const startDate = new Date();
+startDate.setHours(0, 0, 0, 0); // Set to start of the day: 00:00:00.000
+
+const endDate = new Date();
+endDate.setHours(23, 59, 59, 999); 
+
+ const data = {
+      startDate:toLocalISOString( startDate),
+      endDate: toLocalISOString(endDate),
+    };
+    setLoading(true)
+
+    postApiData(
+      "reports/salonDailyReport",
+      data,
+      (resp) => {
+        setLoading(false)
+           const appointments =resp?.appointmentStatus
+        const completed =appointments?.length>0?appointments.find((elm)=>elm._id===3)?.total:0;
+        setCompletedTodayAppointments(completed)
+        setServiceTodayDistribution(resp?.serviceCategoryWiseRevenue);
+        setMemberShipTodaySale(resp?.membershipSale);
+        setProductTodayDistribution(resp?.productRevenueDistribution)
+        setMembershipTodayCredit(resp?.membershipCreditUsed)
+      
+      },
+      (error) => {
+        setLoading(false)
+
+      }
+    );
+}
   const submitClick = () => {
     const data = {
       startDate: startDate,
@@ -161,7 +244,11 @@ const Report = () => {
       data,
       (resp) => {
         setLoading(false)
-        setAppointmentStatus(resp?.appointmentStatus);
+        const appointments =resp?.appointmentStatus
+        const completed =appointments?.length>0?appointments.find((elm)=>elm._id===3)?.total:0
+
+        setAppointmentStatus(appointments);
+        setCompletedAppointments(completed)
         setServiceDistribution(resp?.serviceCategoryWiseRevenue);
         setStaffDistribution(resp?.staffRevenueDistribution);
         setCategoryWiseDistrubution(resp?.staffCategoryWiseRevenue)
@@ -181,9 +268,11 @@ const Report = () => {
 
       }
     );
+    getTodaySale()
   };
 
   const credits = membershipCredit?.length > 0 && membershipCredit[0]?.membershipCreditUsed;
+  const creditsToday = membershipTodayCredit?.length > 0 && membershipTodayCredit[0]?.membershipCreditUsed;
 
   const calculateAvg=(value)=>{
     if(value){
@@ -196,6 +285,8 @@ const Report = () => {
   }
   const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
   const membershipRevenue =membershipSale?.length>0?membershipSale[0]?.membershipRevenue:0
+
+  const membershipTodayRevenue =membershipTodaySale?.length>0?membershipTodaySale[0]?.membershipRevenue:0
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
@@ -207,43 +298,70 @@ const Report = () => {
       }
     );
   }, []);
+  
   const salesColumns = [
     {
       name: "Total Sale",
       value: totalDistribution,
-      avg:calculateAvg(totalDistribution)
+      avg:calculateAvg(totalDistribution),
+      today:totalTodayDistribution
 
     },
      {
       name: "Gst",
       value: gst,
-      avg:calculateAvg(gst)
+      avg:calculateAvg(gst),
+      today:gstToday
     },
      {
       name: "Net Sales",
       value: netSales,
-      avg:calculateAvg(netSales)
+      avg:calculateAvg(netSales),
+      today:netTodaySales
     },
+     {
+      name: "Bills",
+      value: completedAppointments,
+      avg:Math.floor(calculateAvg(completedAppointments)),
+      today:completedTodayAppointments
+    },
+   {
+  name: "Abv",
+  value: formatValue(
+    completedAppointments > 0 ? netSales / completedAppointments : 0
+  ),
+  avg: Math.floor(
+    completedAppointments > 0 ? netSales / completedAppointments : 0
+  ),
+  today: formatValue(
+    completedTodayAppointments > 0 ? netTodaySales / completedTodayAppointments : 0
+  )
+},
     {
       name: "Service Sale",
       value: serviceDistributionTotal,
-      avg:calculateAvg(serviceDistributionTotal)
+      avg:calculateAvg(serviceDistributionTotal),
+      today:serviceTodayDistributionTotal
 
 
     }, {
       name: "Product Sale",
       value: productDistributionTotal,
-      avg:calculateAvg(productDistributionTotal)
+      avg:calculateAvg(productDistributionTotal),
+      today:productTodayDistributionTotal
     }, 
     {
       name: "Membership Sold",
       value: formatValue(membershipRevenue||0),
-      avg:calculateAvg(membershipRevenue)
+      avg:calculateAvg(membershipRevenue),
+      today:formatValue(membershipTodayRevenue)
+
     },
      {
       name: "Membership Redemption",
       value: formatValue(credits||0),
-      avg:calculateAvg(credits)
+      avg:calculateAvg(credits),
+      today:formatValue(creditsToday)
     }
      
   ]
@@ -253,6 +371,7 @@ const Report = () => {
     return employee ? employee.salary : 0;
 
   }
+  console.log(appointmentStatus,"appointmentStatus")
 
 
   return (
@@ -303,13 +422,14 @@ const Report = () => {
           <div className=" rounded-[16px]  border border-primaryGray p-5  "
 
           >
-            <h2 className="text-darkRedish bg-lightRedish px-3 py-0 capitalize text-start w-fit rounded-[25px]  font-normal text-lg mb-5">Amount Collected</h2>
+            <h2 className="text-darkRedish bg-lightRedish px-3 py-0 capitalize text-start w-fit rounded-[25px]  font-normal text-lg mb-5">Daily Sale Report</h2>
             <table className="styled-table">
               <thead>
                 <tr>
                   <th><span className="text-darkRedish font-medium uppercase">MODE</span></th>
-                  <th><span className="text-darkRedish font-medium uppercase">Total Revenue</span></th>
+                  <th><span className="text-darkRedish font-medium uppercase">TODAY</span></th>
                   <th><span className="text-darkRedish font-medium uppercase">AVERAGE</span></th>
+                  <th><span className="text-darkRedish font-medium uppercase">MTD</span></th>
 
                   {/* <th>Category</th> */}
                   {/* Add more column headers as needed */}
@@ -321,8 +441,9 @@ const Report = () => {
                   return (
                     <tr key={index}>
                       <td>{elm.name}</td>
-                      <td>{elm.value||0}</td>
+                      <td>{elm.today||0}</td>
                       <td>{elm.avg||0}</td>
+                      <td>{elm.value||0}</td>
                     </tr>
                   )
                 })}
