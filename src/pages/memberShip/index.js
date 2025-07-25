@@ -14,41 +14,46 @@ import { useSearchParams } from "react-router-dom";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 export default function Membership() {
   const [isNewMembershipModal, setIsNewMembershipModal] = useState(false);
-  const [add, setAdd] = useState(true);
   const [membershiptype, setMembershipType] = useState([]);
   const [membership, setMemberShip] = useState("");
 
   const [userId, setUserId] = useState("");
   const [memberShipdata, setMemberShipData] = useState([]);
   const [memeberShipDetails, setmemeberShipDetails] = useState([]);
-  const [buyNowclick, setBuyClickNow] = useState(false);
   const [todayMembership, setTodayMembership] = useState([]);
   //date
-  const defaultStartDate = formatDate(new Date());
+  // Get first day of the current month
+  
+  // Format both
+  const today= new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+const defaultStartDate = formatDate(firstDayOfMonth); // e.g. "2025-07-01"
+const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
+
+ 
 
   const [searchParams] = useSearchParams();
   const start = searchParams.get("start");
   const end = searchParams.get("end")
   const [showDate, setShowDate] = useState(false)
   const [startDate, setStartDate] = useState(start ? start : defaultStartDate);
-  const [endDate, setEndDate] = useState(end ? end : defaultStartDate);
+  const [endDate, setEndDate] = useState(end ? end : defaultEndDate);
   const [loading, setLoading] = useState(false)
   const [membershipName, setMembershipName] = useState("");
   const [isPayed, setIsPayed] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const fetchMembershipReport = () => {
     getApiCall(
-      "membership/membershipReport",
+      `membership/membershipReport?startDate=${startDate}&endDate=${endDate}`,
       (resp) => {
         setmemeberShipDetails(resp);
       },
       (error) => { }
     );
-  }, [buyNowclick]);
-  // today' membership buy api
-  useEffect(() => {
-    const data = {
+  }
+  const fetchMembershipSale= () => {
+     const data = {
       startDate: startDate,
       endDate: endDate,
     };
@@ -60,7 +65,14 @@ export default function Membership() {
       },
       (error) => { }
     );
-  }, [add]);
+  }
+
+  // today' membership buy api
+  useEffect(() => {
+   
+   fetchMembershipSale()
+    fetchMembershipReport()
+  }, []);
 
   useEffect(() => {
     getApiCall(
@@ -115,10 +127,8 @@ export default function Membership() {
           if (resp) {
             // alert("MemberShip Purchased SucessFully");
             toast.success("MemberShip Purchased SucessFully");
-            setBuyClickNow(true);
             setMembershipName("");
             setIsPayed(false);
-            setAdd(!add);
             res = true;
           }
         },
@@ -127,6 +137,8 @@ export default function Membership() {
           res = false;
         }
       );
+      fetchMembershipReport()
+       fetchMembershipSale()
     } else {
       toast.error("Please provide the sutaible details!!");
       res = false;
@@ -151,14 +163,18 @@ export default function Membership() {
       startDate: startDate,
       endDate: endDate,
     };
+    setLoading(true)
     postApiData(
       "membership/membershipSaleList",
       data,
       (resp) => {
+            setLoading(false);
+
         setTodayMembership(resp);
       },
       (error) => { }
     );
+    fetchMembershipReport()
   };
 
   const openNewMembershipModal = () => {

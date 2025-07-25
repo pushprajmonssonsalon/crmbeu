@@ -5,6 +5,13 @@ module.exports = {
   ],
   theme: {
     extend: {
+       aspectRatio: {
+        '182/84': '182 / 84', // Custom aspect ratio
+        '208/764': '208 / 764', // Custom aspect ratio
+        '558/558': '558 / 558', // Custom aspect ratio
+        '18/18': '18 / 18', // Custom aspect ratio
+        '484/33': '484 / 33', // Custom aspect ratio
+      },
       colors:{
         customGray: 'rgb(203, 213, 225)',
         primaryGray :'#B1B1B1',
@@ -61,9 +68,20 @@ module.exports = {
 
 
 
-      }
-
-
+      },
+      backgroundImage: {
+        'tile1': "url('/src/images/tile1.png')", // correct path for dev
+        'tile2': "url('/src/images/tile2.png')", // correct path for dev
+        'tile3': "url('/src/images/tile3.png')", // correct path for dev
+        'tile4': "url('/src/images/tile4.png')", // correct path for dev
+        'tile5': "url('/src/images/tile5.png')", // correct path for dev
+        'sidebar': "url('/src/images/sidebar.webp')", 
+        // sidebarGradient: 'linear-gradient(176.38deg, #E53232 4.8%, #737373 48.7%)',
+        sidebarGradient: 'linear-gradient(176.93deg, #3294E5 3.76%, #737373 96.74%)',
+        heading1: "url('/src/images/heading1.png')",
+        // sidebarGradient: 'linear-gradient(176.51deg, #8307EF -15.69%, #737373 82.32%)',
+        // sidebarGradient: 'linear-gradient(177.5deg, #6049CD 16.34%, #737373 99.32%)',
+      },
 
     },
   },

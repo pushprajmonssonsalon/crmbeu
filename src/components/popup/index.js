@@ -5,7 +5,7 @@ import NormalInput from "../customInput/NormalInput";
 import toast from "react-hot-toast";
 
 const Popup = ({ onClose, editItem, onUpdate }) => {
-  const disabledInputs = ["name", "category", "subCategory"];
+  const disabledInputs = [ "category", "subCategory"];
   const inputs = [
     {
       name: "name",
@@ -57,8 +57,9 @@ const Popup = ({ onClose, editItem, onUpdate }) => {
   };
 
   const handleEditServiceApi = () => {
-    const { price, appMrp, appPrice, mrp, uniqueCode } = serviceDetails;
+    const { price, appMrp, appPrice, mrp, uniqueCode,name } = serviceDetails;
     const data = {
+      name:name,
       uniqueCode: uniqueCode,
       price: price == 0 ? editItem.price : price,
       mrp: mrp == 0 ? editItem.mrp : mrp,
@@ -72,7 +73,7 @@ const Popup = ({ onClose, editItem, onUpdate }) => {
       (resp) => {
         if (resp) {
           onUpdate(serviceDetails);
-          toast.success("Chnages Applied Succesfully");
+          toast.success("Changes Applied Succesfully");
 
         }
       },

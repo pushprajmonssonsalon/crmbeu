@@ -510,26 +510,31 @@ const Dashboard = () => {
     {
       heading: "Total Revenue",
       value: totalRevenue,
-      icon: <MdCurrencyRupee className="text-customPurple text-md 2xl:text-lg" />,
+      className:'bg-tile1',
+      icon: <MdCurrencyRupee className="text-white text-md 2xl:text-lg" />,
     },
     {
       heading: "Appointments",
       value: compAppointment,
+      className:'bg-tile2',
     },
     {
       heading: "Services Revenue",
       value: serviceRevenue,
-      icon: <MdCurrencyRupee className="text-customPurple text-md 2xl:text-lg" />,
+      className:'bg-tile3',
+      icon: <MdCurrencyRupee className="text-white text-md 2xl:text-lg" />,
     },
     {
       heading: "Products Revenue",
       value: productRevenue,
-      icon: <MdCurrencyRupee className="text-customPurple text-md 2xl:text-lg" />,
+      className:'bg-tile4',
+      icon: <MdCurrencyRupee className="text-white text-md 2xl:text-lg" />,
     },
     {
       heading: "Membership Revenue",
       value: salonDetails?.membership,
-      icon: <MdCurrencyRupee className="text-customPurple text-md 2xl:text-lg" />,
+      className:'bg-tile5',
+      icon: <MdCurrencyRupee className="text-white text-md 2xl:text-lg" />,
     },
   ];
   const empOptions = {
@@ -613,7 +618,7 @@ const Dashboard = () => {
 
           {dashboardData.map((item, index) => (
             <div key={index} className="w-full">
-              <DashboardCard heading={item.heading} value={item.value} icon={item.icon} />
+              <DashboardCard key={index} heading={item.heading} value={item.value} icon={item.icon} className={item.className} />
             </div>
           ))}
 

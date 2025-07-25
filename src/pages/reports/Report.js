@@ -422,7 +422,7 @@ endDate.setHours(23, 59, 59, 999);
           <div className=" rounded-[16px]  border border-primaryGray p-5  "
 
           >
-            <h2 className="text-darkRedish bg-lightRedish px-3 py-0 capitalize text-start w-fit rounded-[25px]  font-normal text-lg mb-5">Daily Sale Report</h2>
+            <h2 className="text-gray-700 bg-gray-300 px-3 py-0 capitalize text-start    font-normal text-lg mb-5">Daily Sale Report</h2>
             <table className="styled-table">
               <thead>
                 <tr>
@@ -466,7 +466,7 @@ endDate.setHours(23, 59, 59, 999);
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
-            <h2 className="text-darkOrange w-fit bg-lightOrange px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">Collection</h2>
+            <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">Collection</h2>
             <table className="styled-table">
               <thead>
                 <tr>
@@ -513,7 +513,7 @@ endDate.setHours(23, 59, 59, 999);
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
-            <h2 className="text-primaryDarkPurple w-fit bg-primaryLightPurple px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5"> APPOINTMENT STATUS</h2>
+            <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5"> APPOINTMENT STATUS</h2>
 
 
             <table className="styled-table">
@@ -544,7 +544,7 @@ endDate.setHours(23, 59, 59, 999);
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
-            <h2 className="text-primaryDarkGreen w-fit bg-primaryLightGreen px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">  Membership Status</h2>
+            <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">  Membership Status</h2>
 
             <table className="styled-table">
               <thead>
@@ -574,7 +574,7 @@ endDate.setHours(23, 59, 59, 999);
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
-            <h2 className="text-secondaryDarkPurple w-fit bg-secondaryLightPurple px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">    Service Distribution</h2>
+            <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">    Service Distribution</h2>
             <table className="styled-table">
               <thead>
                 <tr>
@@ -604,7 +604,7 @@ endDate.setHours(23, 59, 59, 999);
           <div className=" rounded-[16px]   border border-primaryGray p-5  "
 
           >
-            <h2 className="text-secondaryDarkBlue w-fit bg-secondaryLightBlue px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">Product Distribution</h2>
+            <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">Product Distribution</h2>
 
 
             <table className="styled-table">
@@ -636,7 +636,7 @@ endDate.setHours(23, 59, 59, 999);
           <div className=" rounded-[16px] col-span-full  border border-primaryGray p-5  "
 
           >
-            <h2 className="text-primaryDarkGreen w-fit bg-primaryLightGreen px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">EMPLOYEE PERFORMANCE</h2>
+            <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">EMPLOYEE PERFORMANCE</h2>
 
 
             <table className="styled-table performance-table">
@@ -679,7 +679,7 @@ endDate.setHours(23, 59, 59, 999);
           <div className=" rounded-[16px] col-span-full border border-primaryGray p-5  "
 
           >
-            <h2 className="text-primaryDarkPurple w-fit bg-primaryLightPurple px-3 py-0 capitalize rounded-[25px] text-start  font-normal text-lg mb-5">   EMPLOYEE SERVICE DISTRIBUTION</h2>
+            <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">   EMPLOYEE SERVICE DISTRIBUTION</h2>
 
             <ReportTable data={categoryWiseDistrubution} />
 

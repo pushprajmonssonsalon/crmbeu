@@ -3,7 +3,7 @@ import axios from "axios";
 import { store } from "../redux/store";
 const BASE_URL = "https://crm.smartsalon.in/";
 // const BASE_URL = "http://192.168.3.36:4002";
-// const BASE_URL = "http://192.168.2.43:4002";
+// const BASE_URL = "http://192.168.2.242:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();

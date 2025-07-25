@@ -18,21 +18,19 @@ ChartJS.register(
   Legend
 );
 
-const DashboardCard = ({ heading ,value ,icon}) => {
+const DashboardCard = ({ heading ,value ,icon,className}) => {
   
   return (
     <>
      
-      <div className="border shadow-card bg-white rounded-[10px] px-[37px] py-[15px] flex flex-col gap-4">
-      <h3 className="text-sm text-center font-roboto font-bold 2xl:text-md text-heading">{heading}</h3>
-      <div className="flex items-center justify-center">
+      <div  className={`border ${className} font-roboto bg-cover aspect-182/84  shadow-card bg-white rounded-[5px] px-[15px] py-[15px] flex flex-col gap-1`}>
+      <h3 className="text-[18px]  text-start font-roboto font-bold 2xl:text-md text-white">{heading}</h3>
+      <div className="flex items-center ">
         {/* Revenue Value */}
       {icon&&  <span>{React.cloneElement(icon)}</span>}
-        <span className="text-xl font-bold text-customPurple "> {value} </span>
+        <span className="text-xl  font-bold text-white "> {value} </span>
         {/* Percentage Increase with Icon */}
-        <div className="flex items-center justify-center ">
-
-        </div>
+      
 
       </div>
     </div>
