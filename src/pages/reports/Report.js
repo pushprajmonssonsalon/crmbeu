@@ -655,7 +655,7 @@ endDate.setHours(23, 59, 59, 999);
 
                   let totalSum = (categories.reduce((acc, curr) => acc + curr.sumTotal, 0) || 0);
                   let netTotal = (totalSum / 1.18) || 0;
-                  let target = ((salary * 3) || 0);
+                  let target = ((salary * 4) || 0);
 
                   let performance = target > 0 ? ((netTotal / target) * 100) : 0;
 

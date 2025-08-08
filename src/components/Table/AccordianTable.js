@@ -61,23 +61,31 @@ const AccordianTable = ({ cols, rows, cols2,phoneNumber }) => {
               <tr>
                 <td style={{ border: "none" }} colSpan="100%" className="p-0">
                   <div
-                    className={`transition-all bg-gray-200 duration-300 ease-in-out overflow-hidden ${openRow === index ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                    className={`transition-all bg-gray-200 duration-300 ease-in-out  ${openRow === index ? "max-h-[500px] overflow-y-auto opacity-100" : "max-h-0 overflow-hidden opacity-0"
                       }`}
                   >
                     <table className="w-full ">
                       <thead>
                         <tr>
+                           <th  className="bg-black text-white px-3 py-2">
+                             S.no
+                            </th>
                           {cols2.map((col, idx) => (
                             <th key={idx} className="bg-black text-white px-3 py-2">
                               {col.name}
                             </th>
                           ))}
+
                         </tr>
                       </thead>
                       <tbody>
+                   
                         {row?.activeMembership?.length > 0 &&
                           row?.activeMembership?.map((rw, i) => (
                             <tr key={i}>
+                            <td  className="p-2">
+                                    {i+1}
+                                  </td>
                               {cols2.map((col, idx) => {
                                 const val = col?.date
                                   ? formatDateToFull(rw[col.id], false)

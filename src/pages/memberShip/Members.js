@@ -22,7 +22,7 @@ const Members = () => {
       },
       {
       
-        name:'Active Membership',
+        name:'Membership List',
         component:<ActiveMembership />
       },
       {
