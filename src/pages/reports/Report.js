@@ -31,7 +31,6 @@ const Report = () => {
 
   const [loading, setLoading] = useState(false)
 
-  const [reports, setReports] = useState([]);
   const [membershipSale, setMemberShipSale] = useState([]);
   const [membershipTodaySale, setMemberShipTodaySale] = useState([]);
   const [paymentMethodReport, setPaymentMethodReport] = useState([]);
@@ -143,9 +142,11 @@ const Report = () => {
     return 0;
   }, [productTodayDistribution])
 
+  const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
+  const membershipRevenue =membershipSale?.length>0?membershipSale[0]?.membershipRevenue:0
   const totalDistribution =useMemo(()=>{
-     return formatValue(productDistributionTotal +serviceDistributionTotal)||0
-  },[productDistributionTotal,serviceDistributionTotal])
+     return formatValue(totalPayment )||0
+  },[totalPayment])
   
   const totalTodayDistribution =useMemo(()=>{
      return formatValue(productTodayDistributionTotal +serviceTodayDistributionTotal)||0
@@ -255,7 +256,7 @@ endDate.setHours(23, 59, 59, 999);
         setMemberShipSale(resp?.membershipSale);
         setProductDistribution(resp?.productRevenueDistribution)
         setMembershipCredit(resp?.membershipCreditUsed)
-        const paymentMethods = ["Card", "Upi", "Cash"];
+        const paymentMethods = ["Card", "Upi", "Cash","Online"];
 
         let paymentReport = paymentMethods?.map(method => ({
           _id: method,
@@ -283,8 +284,6 @@ endDate.setHours(23, 59, 59, 999);
     else return 0
 
   }
-  const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
-  const membershipRevenue =membershipSale?.length>0?membershipSale[0]?.membershipRevenue:0
 
   const membershipTodayRevenue =membershipTodaySale?.length>0?membershipTodaySale[0]?.membershipRevenue:0
   useEffect(() => {

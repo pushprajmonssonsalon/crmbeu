@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router";
-import { formatValue, getApiCall, postApiData } from "../../utils/services";
+import { formatDateToFull, formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -31,16 +31,6 @@ const AppointmentBills = () => {
   const data = location.state;
 
 
-
-  function FormatDate(date) {
-    const dates = new Date(date);
-
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const formatter = new Intl.DateTimeFormat("en-US", options);
-    const formattedDate = formatter.format(dates);
-
-    return formattedDate;
-  }
   const otherMethod =[
     {
       name: "Membership Used",
@@ -49,6 +39,10 @@ const AppointmentBills = () => {
     {
       name: "Advance Used",
       amount: data?.advanceUsed||0,
+    },
+    {
+      name: "Cashback Used",
+      amount: data?.cashbackUsed||0,
     },
   ]
   const gstToken =localStorage.getItem("gstApplied");
@@ -219,7 +213,7 @@ const AppointmentBills = () => {
             </div>
             <div className="text-black font-medium">Date:</div>
             <div className="text-black font-medium text-right">
-              {FormatDate(data.appointmentDate)}
+              {formatDateToFull(data.appointmentDate)}
             </div>
           </div>
         </div>

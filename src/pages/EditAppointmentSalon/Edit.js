@@ -10,17 +10,19 @@ import NormalRadio from "../../components/customInput/NormalRadio";
 import useDebouncer from "../../utils/hooks/useDebouncer";
 
 const Edit = () => {
-  const gstToken =localStorage.getItem("gstApplied");
-  const gstApplied =(gstToken==="true")
+  const gstToken = localStorage.getItem("gstApplied");
+  const gstApplied = (gstToken === "true")
   const { id } = useParams();
   //Staff data fiktering
   const navigate = useNavigate();
-  const {debouncedFunction}=useDebouncer()
+  const { debouncedFunction } = useDebouncer()
   const [staffData, setStaffData] = useState([]);
   const [activeMembership, setActiveMemberShip] = useState({});
-
+  const [appointmentDetails,setAppointmentDetails]=useState({})
   const [appointementProducts, setAppointmentProducts] = useState([]);
   const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
+  const [membershipCreditUsed, setMembershipCreditUsed] = useState(0)
+  const [userId, setUserId] = useState("")
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
     phoneNumber: "",
@@ -49,7 +51,7 @@ const Edit = () => {
   const [searchProduct, setsearchProduct] = useState("");
   const [showSearchProduct, setShowSearchProduct] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
+
   const [discount, setDiscount] = useState(0);
   const [applyDisountPer, setApplyDiscountPer] = useState(0);
 
@@ -109,12 +111,11 @@ const Edit = () => {
     );
   }, [serviceSelection.subCategory]);
 
-  //single appointment api
-  useEffect(() => {
-    getApiCall(
+  const fetchAppointment=()=>{
+ getApiCall(
       `appointment/getSingleAppointmentDetails?id=${id}`,
       (resp) => {
-
+        setAppointmentDetails(resp)
         setDiscount(resp?.discountPercentage || 0);
         setApplyDiscountPer(resp?.discountPercentage || 0);
         setAddedAppointmentDetails(
@@ -125,16 +126,20 @@ const Edit = () => {
         // setMembershipDetails(resp.customer.activeMembership)
         setMemberShipStatus(resp.membershipUsed);
         setActiveMemberShip(resp.userMembership)
-        // setUserId(resp.customer._id);
+        setUserId(resp.customer._id);
         setSubServiceTotal(resp.membershipCreditUsed);
         setPhoneNumber(resp.customer.phoneNumber);
 
-        // setCreditUsed(resp.membershipCreditUsed)
+        setMembershipCreditUsed(resp?.membershipCreditUsed || 0)
       },
       (error) => {
 
       }
     );
+  }
+  //single appointment api
+  useEffect(() => {
+    fetchAppointment()
   }, []);
 
 
@@ -150,10 +155,8 @@ const Edit = () => {
       }
     );
   }, [serviceSelection.subCategory]);
-
-  useEffect(() => {
-    if (phoneNumber)
-      postApiData(
+   const fetchActiveMembership=async()=>{
+     postApiData(
         `/membership/getActiveMembershipOfUser`,
         { phoneNumber },
         (resp) => {
@@ -167,6 +170,10 @@ const Edit = () => {
 
         }
       );
+   }
+  useEffect(() => {
+    if (phoneNumber)
+    fetchActiveMembership()
   }, [phoneNumber])
 
   // handle buttons for add service
@@ -216,8 +223,8 @@ const Edit = () => {
     }
   };
 
-  
-  
+
+
   const handlestaffChange = (e, index, newService, type = "service") => {
     let splited = e.target.value.split("-");
     let Name = splited[1];
@@ -340,7 +347,7 @@ const Edit = () => {
     // setProductData(itemWithAdditionalInfo)
   };
 
- 
+
   const handleGenderChange = (e) => {
     const { name, value } = e.target;
 
@@ -364,7 +371,7 @@ const Edit = () => {
     };
   }
 
-  
+
   const handleProductChange = (e) => {
     const { name, value } = e.target;
     if (name === 'staffName') {
@@ -388,8 +395,8 @@ const Edit = () => {
 
 
   }
-  
- 
+
+
 
   const subTotalServices = addedAppointmentDetails.reduce(
     (acc, item) => acc + +item?.price,
@@ -402,10 +409,10 @@ const Edit = () => {
     ?.reduce((acc, val) => acc + val, 0);
 
   const serviceDiscount = Math.floor(subTotalServices * (applyDisountPer / 100));
-  
+
   const totalService = formatValue(subTotalServices - serviceDiscount);
-  const serviceGst = gstApplied?formatValue(totalService*0.18):0;
-  const serviceTotal =Math.round(totalService + serviceGst);
+  const serviceGst = gstApplied ? formatValue(totalService * 0.18) : 0;
+  const serviceTotal = Math.round(totalService + serviceGst);
 
   const totalAmount = Math.round(serviceTotal + subProductTotal);
   const membershipPress = (e) => {
@@ -552,6 +559,9 @@ const Edit = () => {
       type: "number",
       onChange: (e) => setDiscount(Math.min(Math.max(e.target.value, 0), 100))
     },
+
+  ]
+  const membershipFields = [
     {
       label: "Membership",
       name: "membership",
@@ -568,12 +578,18 @@ const Edit = () => {
       name: "membershipBalance",
       value: activeMembership?.creditsLeft || 0,
       readOnly: true
+    },
+    {
+      label: "Membership Used",
+      name: "membershipBalance",
+      value: activeMembership?.creditsLeft || 0,
+      readOnly: true
     }
   ]
   const handleApplyDiscount = () => {
 
-      applyDiscount()
-  
+    applyDiscount()
+
     if (!isMembershipApplied) {
 
       if (activeMembership?.creditsLeft > 0) {
@@ -603,8 +619,8 @@ const Edit = () => {
   const paymentDetailsArray = [
     { label: "SERVICES SUBTOTAL", value: formatValue(subTotalServices) },
     { label: "DISCOUNT", value: formatValue(serviceDiscount) },
-        (gstApplied&& ({ label: "SERVICE GST", value: serviceGst })),
-        { label: "TOTAL SERVICES", value: formatValue(serviceTotal) },
+    (gstApplied && ({ label: "SERVICE GST", value: serviceGst })),
+    { label: "TOTAL SERVICES", value: formatValue(serviceTotal) },
 
     { label: "PRODUCT SUBTOTAL", value: formatValue(subProductTotal) },
 
@@ -627,7 +643,7 @@ const Edit = () => {
       isMembershipApplied: memberShipStatus,
 
       // membershipCreditUsed: (memberShipStatus)? (+subTotalServices):0,
-      membershipCreditUsed: isMembershipApplied ? +subServiceTotal: memberShipStatus? Math.max(0,Math.min(activeMembership?.creditsLeft || 0, serviceTotal)) : 0,
+      membershipCreditUsed: isMembershipApplied ? +subServiceTotal : memberShipStatus ? Math.max(0, Math.min(activeMembership?.creditsLeft || 0, serviceTotal)) : 0,
       products: appointementProducts,
       discount: serviceDiscount,
       discountPercentage: applyDisountPer,
@@ -640,7 +656,7 @@ const Edit = () => {
         if (resp) {
           toast.success("Appointment Booked SuccessFully");
 
-         navigate(`/?tab=${1}`);
+          navigate(`/?tab=${1}`);
         }
       },
       (error) => {
@@ -648,12 +664,33 @@ const Edit = () => {
       }
     );
   };
-   useEffect(() => {
-      if (discount >= 0) {
-        debouncedFunction(applyDiscount, 800, discount)
+  useEffect(() => {
+    if (discount >= 0) {
+      debouncedFunction(applyDiscount, 800, discount)
+    }
+
+  }, [discount])
+
+  const removeMembership = async() => {
+    const data = {
+      creditsUsed: membershipCreditUsed,
+      userId: userId,
+      memId: activeMembership._id,
+      isMembershipUsed: false,
+      appointmentId:appointmentDetails?._id
+    }
+     postApiData("membership/applyMembership", data, async (res) => {
+      if (res) {
+        toast.success("membership removed")
+        
+        await fetchActiveMembership()
+        fetchAppointment()
       }
-  
-    }, [discount])
+    }, () => {
+
+    })
+
+  }
   return (
     <>
       <div className="mx-auto ">
@@ -1023,6 +1060,52 @@ const Edit = () => {
                   <div key={index}
                     className="relative">
                     <div className="flex flex-col gap-1">
+                      <NormalInput
+                        name={name}
+                        type={type}
+                        label={label}
+                        disabled={readOnly}
+                        onChange={onChange}
+                        placeholder={placeholder}
+                        value={value}
+                        inputStyles={{
+                          'borderRadius': '16px'
+
+                        }}
+                        lableStyles={{
+                          'fontWeight': '400',
+                          "fontSize": "16px",
+                          'color': '#000000'
+                        }}
+
+
+
+                      />
+                    </div>  </div>
+                )
+
+              })
+
+            }
+
+
+
+          </div>
+
+
+        </div>
+        <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
+
+          <h2 className="font-normal text-start leading-[20px] mb-9 text-black text-[24px]">Apply Membership</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
+            {
+              membershipFields?.map((elm, index) => {
+                const { name, label, placeholder, value, readOnly, type, options, onChange } = elm
+                return (
+                  <div key={index}
+                    className="relative">
+                    <div className="flex flex-col gap-1">
                       {name === "membership" ? <NormalSelect
 
                         name={name}
@@ -1073,8 +1156,13 @@ const Edit = () => {
 
 
 
+
           </div>
-         
+          {membershipCreditUsed>0 && <div className="flex items-center justify-end my-6">
+            <button onClick={removeMembership} className="bg-rose-600 tex-white rounded-[16px] w-[190px] text-sm font-normal  ">Remove Membership</button>
+
+
+          </div>}
 
         </div>
         {/* book appointment */}
@@ -1117,7 +1205,7 @@ const Edit = () => {
 
 
       </div>
-   
+
     </>
   );
 };

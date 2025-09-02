@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
-import { getApiCall } from "../../utils/services";
+import { formatDate, getApiCall } from "../../utils/services";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
@@ -26,15 +26,7 @@ const OrderBill = () => {
     );
   }, []);
 
-  function FormatDate(date) {
-    const dates = new Date(date);
 
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const formatter = new Intl.DateTimeFormat("en-US", options);
-    const formattedDate = formatter.format(dates);
-
-    return formattedDate;
-  }
   const handlePrint = useReactToPrint({
     documentTitle: "Apointment Bill",
 
@@ -98,7 +90,7 @@ const OrderBill = () => {
           <div className="grid grid-cols-2 gap-3">
             <div className="text-black font-medium">Date:</div>
             <div className="text-black font-medium text-right">
-              {FormatDate(orderList.createdAt)}
+              {formatDate(orderList.createdAt)}
             </div>
           </div>
         </div>

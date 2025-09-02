@@ -89,7 +89,7 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
             value: expiry,
             label: "Expiry",
             onChange: handleExpiryChange,
-            options: [3, 6, 9, 12].map((val) => ({
+            options: [3, 6, 9, 12,24].map((val) => ({
                 name: `${val} Months`,
                 value: val,
             })),

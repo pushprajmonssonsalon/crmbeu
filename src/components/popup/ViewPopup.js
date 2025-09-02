@@ -14,14 +14,25 @@ const ViewPopup = ({
   comment = null,
   setComment = () => { }
 }) => {
-  const { total, paymentMethod, membershipCreditUsed, _id, customer } = activeAppointment;
+  console.log(activeAppointment,"activeAppointment")
+  const { total,subTotal, paymentMethod, membershipCreditUsed, _id, customer } = activeAppointment;
   const [advance, setAdvance] = useState({});
+  const [cashback, setCashback] = useState({});
   const [advanceSelected, setAdvanceSelected] = useState({
     selected: false,
     advanceUsed: 0,
   });
+  const [cashbackSelected, setCashbackSelected] = useState({
+    selected: false,
+    cashbackUsed: 0,
+  });
+  const payableAmount=((total||0 )- (membershipCreditUsed||0))
+  const currentTotal =(total||0)-(subTotal||0)
+  // console.log(payableAmount,currentTotal,"total",total-membershipCreditUsed,subTotal)
   // const totalCardUpiCash = parseInt(cash) + parseInt(card) + parseInt(upi);
-  const payTotal = (Math.max((total - membershipCreditUsed) - (advanceSelected?.advanceUsed > 0 ? advanceSelected?.advanceUsed : 0), 0));
+  const serviceTotal=(Math.max((subTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0),0))
+  const payTotal = (Math.max((subTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0), 0)+(currentTotal||0));
+  // console.log((subTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0),currentTotal)
   useEffect(() => {
     if (customer?._id) {
       const payload = {
@@ -29,7 +40,8 @@ const ViewPopup = ({
       }
       postApiData("advance/getAdvance", payload, (res) => {
         if (res) {
-          setAdvance(res);
+          setAdvance(res?.advance);
+          setCashback(res?.wallet);
 
         }
 
@@ -40,7 +52,7 @@ const ViewPopup = ({
 
 
   }, [customer]);
-  if (!isVisible) return null;
+
   const closeModal = () => {
     setModal(false);
   };
@@ -56,7 +68,7 @@ const ViewPopup = ({
       }, 0);
 
       // Calculate the maximum allowable value for the current payment method
-      const maxAllowableValue = payTotal - currentTotal;
+      const maxAllowableValue = ((payTotal||0) - (currentTotal||0));
 
       return {
         ...prev,
@@ -77,8 +89,31 @@ const ViewPopup = ({
     const { checked } = e.target;
     setAdvanceSelected((prev) => ({
       ...prev,
-      selected: checked ? payTotal > 0 && advance?.balance > 0 : false,
-      advanceUsed: checked ? (payTotal > 0 && advance?.balance > 0) ? Math.min((total - membershipCreditUsed || 0), advance?.balance || 0) : 0 : 0,
+      selected: checked ? serviceTotal > 0 && advance?.balance > 0 : false,
+      advanceUsed: checked ? (serviceTotal > 0 && advance?.balance > 0) ? Math.min(((subTotal||0) - (membershipCreditUsed || 0)-(cashbackSelected?.cashbackUsed||0)), (advance?.balance || 0)) : 0 : 0,
+    }));
+
+
+
+    if (checked) setActiveAppointment((prev) => {
+      return {
+        ...prev,
+        paymentMethod: prev.paymentMethod.map((elm) => {
+          return {
+            ...elm,
+            amount: 0, // Ensure the amount doesn't exceed the max allowable value
+          };
+
+        }),
+      };
+    });
+  }
+  const handleCashBack = (e) => {
+    const { checked } = e.target;
+    setCashbackSelected((prev) => ({
+      ...prev,
+      selected: checked ? serviceTotal > 0 && cashback?.balance > 0 : false,
+      cashbackUsed: checked ? (serviceTotal > 0 && cashback?.balance > 0) ? Math.min(((subTotal||0) - (membershipCreditUsed||0)-(advanceSelected?.advanceUsed|| 0)), (cashback?.balance || 0)) : 0 : 0,
     }));
 
 
@@ -103,14 +138,18 @@ const ViewPopup = ({
     const payload = {
       userId: customer?._id,
       advanceUsed: advanceSelected?.advanceUsed || 0,
+      cashbackUsed:cashbackSelected?.cashbackUsed||0
     };
     onUpdate(payload);
 
   };
 
 
+// useEffect(()=>{
+//  console.log(cashbackSelected,advanceSelected,"advance")
+// },[cashbackSelected,advanceSelected])
 
-
+  if (!isVisible) return null;
   return (
     <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
       <div className=' w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
@@ -121,8 +160,24 @@ const ViewPopup = ({
             <button className='text-black text-xl' onClick={onClose}><MdOutlineClose /></button>
 
           </div>
-
-
+          <div className="">
+           <div className="flex mb-1 items-center justify-between">
+            <span className="text-gray-700 uppercase font-medium text-md ">Total</span>
+            <span className="text-gray-700 uppercase font-medium text-md ">Rs {payableAmount}</span>
+           </div>
+           <div className="flex mb-1 items-center justify-between">
+            <span className="text-gray-700 uppercase font-medium text-md ">Advance</span>
+            <span className="text-green-600 font-medium text-xs">- Rs {advanceSelected?.advanceUsed||0}</span>
+           </div>
+           <div className="flex mb-1 items-center justify-between">
+            <span className="text-gray-700 uppercase font-medium text-md ">Cashback</span>
+            <span className="text-green-600 font-medium text-xs">- Rs {cashbackSelected?.cashbackUsed||0}</span>
+           </div>
+           <div className="flex mb-4 items-center justify-between">
+            <span className="text-gray-700 uppercase font-medium text-md ">Payable Amount</span>
+            <span className="text-gray-700 uppercase font-medium text-md ">Rs {payTotal}</span>
+           </div>
+</div>
           <div className="bg-gray-200  p-3  flex items-center justify-between gap-3 ">
 
 
@@ -149,6 +204,39 @@ const ViewPopup = ({
             </label>
             <div className="flex items-center gap-4 ">
               <h1 className=" whitespace-nowrap text-black text-lg">Rs {advance?.balance || 0} </h1>
+
+            </div>
+
+
+
+
+
+          </div>
+          <div className="bg-gray-200 mt-3  p-3  flex items-center justify-between gap-3 ">
+
+
+            <div className="border-gray-300  focus:ring-blue-500  focus:ring-2">
+
+
+              <input
+                defaultChecked=""
+                id="cashback"
+                type="checkbox"
+                value={cashbackSelected?.selected}
+                checked={cashbackSelected?.selected === true}
+                onChange={(e) => handleCashBack(e)}
+                name="bordered-checkbox"
+                className="w-5 h-5 text-blue-600  bg-gray-100  "
+              />
+            </div>
+            <label
+              htmlFor="cashback"
+              className="w-full font-normal cursor-pointer text-black text-md flex items-center justify-between rounded-sm select-none"
+            >
+             Cashback
+            </label>
+            <div className="flex items-center gap-4 ">
+              <h1 className=" whitespace-nowrap text-black text-lg">Rs {cashback?.balance || 0} </h1>
 
             </div>
 

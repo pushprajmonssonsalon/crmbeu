@@ -1,36 +1,66 @@
-import { useState } from 'react';
-import { postApiData } from '../../utils/services';
+import { useEffect, useState } from 'react';
+import { formatDateToFull, postApiData } from '../../utils/services';
 
 import CustomizedCustomerTables from '../../components/MaterialTable/customerDetailTable';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
 import NormalInput from '../../components/customInput/NormalInput';
+import { FaArrowDownLong, FaArrowUpLong } from 'react-icons/fa6';
+import PaginationTable from '../../components/Table/PaginationTable';
 
+import { FaRupeeSign } from "react-icons/fa";
 
 
 const CustomerDetails = () => {
   const [loading, setLoading] = useState(false)
   const [searchParams] = useSearchParams()
-
+  const [tab, setTab] = useState(0)
   const phone = searchParams.get("phone")
   const [phoneNumber, setPhoneNumber] = useState(phone ? phone : "");
   const navigate = useNavigate();
   const [clientsAppointment, setClientsAppointment] = useState([])
+  const [logs, setLogs] = useState([])
   const headings = ["Name", "Phone Number", "Date", "Services", "Products", "Total Price", "Status", "Credit Used", "Action"];
 
-  const handleSearchCustomerdetails = () => {
-    const data = {
-      phoneNumber: phoneNumber
-    };
-    setLoading(true)
+  const handleTab = (tab) => {
+    setTab(tab)
 
-    navigate(`?phone=${phoneNumber}`)
-    postApiData('user/getCustomerDetails',
+  }
+   const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [avalilableBalance, setAvailableBalance] = useState(0);
+
+
+  const handlePageChange = (page) => {
+    setPage(page);
+  };
+
+  const handleRowschange = (e) => {
+    const { value } = e.target;
+    setRowsPerPage(+value);
+     // find the first item index of the current page
+  const firstItemIndex = (page - 1) * rowsPerPage;
+
+  // calculate the new page based on item index
+  const newPage = Math.floor(firstItemIndex / value) + 1;
+
+  setRowsPerPage(value);
+  setPage(newPage);
+  };
+  const fetchLogs =(data)=>{
+    postApiData(`cashback/getCashBackLogs?page=${page}&limit=${rowsPerPage}`,
       data,
       (res) => {
+        
         setLoading(false)
-        setClientsAppointment(res)
+        setLogs(res?.logs)
+        setPage(res?.page)
+        setRowsPerPage(res?.limit)
+        setTotal(res?.total)
+      
+        setAvailableBalance(res?.balance)
       },
       (err) => {
         setLoading(false)
@@ -38,7 +68,70 @@ const CustomerDetails = () => {
       }
     )
   }
+  const handleSearchCustomerdetails = () => {
+    const data = {
+      phoneNumber: phoneNumber
+    };
+    setLoading(true)
+
+    navigate(`?phone=${phoneNumber}`)
+    if (tab === 0)
+      postApiData('user/getCustomerDetails',
+        data,
+        (res) => {
+          setLoading(false)
+          setClientsAppointment(res)
+        },
+        (err) => {
+          setLoading(false)
+
+        }
+      )
+    else fetchLogs(data)
+  }
+  
+  const cols=[{
+   name:"Name",
+   id:"name"
+  },{
+    name:"Phone Number",
+    id:"phoneNumber"
+  },{
+    name:"Amount",
+    id:"amount"
+  },
+  {
+    name:"Type",
+    id:"type"
+  },
+  {
+    name:"Balance",
+    id:"balance"
+  }
+  
+  ,{
+    name:"Date",
+    id:"createdAt"
+  }]
+  const rows = logs?.length > 0 ? logs.map((elm) => ({
+    ...elm, createdAt: formatDateToFull(elm?.createdAt), amount: `₹ ${elm.amount}`, type: <div className='flex items-center gap-2'>
+      <span>{elm.type}</span>
+      {elm?.type === "credit" ? <FaArrowUpLong className='text-green-600' /> : <FaArrowDownLong className='text-red-600' />}
+
+    </div>,
+    balance:`₹ ${elm?.balance||0}`
+  })) : [];
+
+  useEffect(()=>{
+  let data ={
+    phoneNumber
+  }
+  
+  fetchLogs(data)
+  return ()=>{}
  
+
+  },[page,rowsPerPage])
 
   return (
     <>
@@ -46,10 +139,11 @@ const CustomerDetails = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Customer Details</h2>
-            <span className="rounded-[16px] text-xs px-6 border border-gray2">{clientsAppointment?.length} Transaction</span>
+            <span className="rounded-[16px] text-xs px-6 border border-gray2">{tab===0?clientsAppointment?.length:total} Transaction</span>
 
 
           </div>
+
           <div className='flex items-center  gap-3'>
             <div className="relative flex items-center">
               <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
@@ -92,10 +186,45 @@ const CustomerDetails = () => {
                   mask="url(#path-2-inside-1_2527_20936)"
                 />
               </svg>
-            </span></button> : <button  onClick={handleSearchCustomerdetails} className='rounded-[16px] w-[109px] h-[29px] flex items-center justify-center  py-1 bg-black text-white'>Search</button>}
+            </span></button> : <button onClick={handleSearchCustomerdetails} className='rounded-[16px] w-[109px] h-[29px] flex items-center justify-center  py-1 bg-black text-white'>Search</button>}
           </div>
         </div>
-        <CustomizedCustomerTables headings={headings} data={clientsAppointment} />
+        <div className="flex my-3 border border-primaryGray rounded-[16px] w-fit mx-auto justify-center items-center ">
+          <button
+            className={`w-[150px] text-sm ${tab === 0 ? "bg-ternary text-white" : "bg-transparent text-ternary"
+              } px-4 py-2 rounded-[16px] transition-all ease-in duration-100`}
+            onClick={() => handleTab(0)}
+          >
+            Appointments
+          </button>
+          <button
+            className={`w-[150px] text-sm ${tab === 1 ? "bg-ternary" : "bg-transparent text-ternary"
+              } px-4 py-2 rounded-[16px] transition-all ease-in duration-100`}
+            onClick={() => handleTab(1)}
+          >
+            Wallet
+          </button>
+        </div>
+        {tab === 0 ?
+          <CustomizedCustomerTables headings={headings} data={clientsAppointment} /> : 
+          <>
+          <div className='flex items-center justify-start '>
+           <div className='bg-white p-4 shadow-xl border rounded-lg w-[200px] sm:w-[300px]'>
+           <div className='text-black text-xl font-medium mb-4'>Available Balance</div>
+           <div className='flex items-center'>
+           <FaRupeeSign className='text-green-600 text-2xl'/>
+           <span className='text-gray-500 text-3xl'>{avalilableBalance||0}</span>
+           </div>
+
+
+           </div>
+
+          </div>
+            
+          <PaginationTable  columns={cols} rows={rows} rowsPerPage={rowsPerPage} page={page} handleRowschange={handleRowschange} handlePage={handlePageChange} total={total}/>
+          </>
+          
+          }
       </div>
     </>
   )

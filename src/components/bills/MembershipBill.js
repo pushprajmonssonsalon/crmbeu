@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { getApiCall, postApiData } from '../../utils/services';
+import { formatDate, getApiCall, postApiData } from '../../utils/services';
 import { useReactToPrint } from 'react-to-print';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -49,15 +49,7 @@ const MembershipBill = () => {
         }
       );
     }, []);
-    function FormatDate(date) {
-        const dates = new Date(date)
-        
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        const formatter = new Intl.DateTimeFormat('en-US', options);
-        const formattedDate = formatter.format(dates);
-      
-        return formattedDate;
-      }
+  
 
       const handlePrint = useReactToPrint({
         documentTitle: "Membership Bill",
@@ -142,7 +134,7 @@ const MembershipBill = () => {
             <div className='text-black font-medium'>Invoice No:</div>
             <div className='text-black font-medium text-right'>{membershipData.invoiceId}</div>
             <div className='text-black font-medium'>Date:</div>
-            <div className='text-black font-medium text-right'>{FormatDate(membershipData?.createdAt)}</div>
+            <div className='text-black font-medium text-right'>{formatDate(membershipData?.createdAt)}</div>
         </div>
         </div>
         {/* CUSTOMER DETAILS  */}

@@ -78,13 +78,14 @@ const ViewAppointment = () => {
     const activeAppointment = viewAppointmentDetails.find(
       (elm) => elm._id === item._id
     );
-    const { userId, advanceUsed } = item;
+    const { userId, advanceUsed,cashbackUsed } = item;
     if (activeAppointment) {
       const data = {
         status: 3,
         id: item._id,
         comment,
         ...((advanceUsed && userId) && { advanceUsed, userId }),
+        ...((cashbackUsed && userId) && { cashbackUsed, userId }),
         paymentMethod: item?.paymentMethod,
       };
       setLoadingStates((prevLoadingStates) => ({

@@ -23,8 +23,9 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 const BookAppointment = ({ onTabChange }) => {
-  const gstToken =localStorage.getItem("gstApplied");
-  const gstApplied =(gstToken==="true")
+  const gstToken = localStorage.getItem("gstApplied");
+  const gstApplied = (gstToken === "true")
+  const [loading, setLoading] = useState(false);
   const { debouncedFunction } = useDebouncer()
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
@@ -160,17 +161,17 @@ const BookAppointment = ({ onTabChange }) => {
           staffId: Id,
           staffName: Name,
         };
-        
+
       }
       else {
         newProducts[index] = {
           ...newProducts[index],
-          [name]: (name==="price"||name==="quantity")?Math.max(0,+value):value
+          [name]: (name === "price" || name === "quantity") ? Math.max(0, +value) : value
         };
       }
       dispatch(updateProducts(newProducts))
     }
-    
+
   }
 
   useEffect(() => {
@@ -199,7 +200,7 @@ const BookAppointment = ({ onTabChange }) => {
 
   const subtotalPrice = x.reduce((accumulator, currentItem) => {
     return accumulator + Number(currentItem.price);
-  }, 0)||0;
+  }, 0) || 0;
   const productTotalPrice = productDataReducer.reduce(
     (accumulator, { price, quantity }) => {
       return accumulator + quantity * price;
@@ -207,10 +208,10 @@ const BookAppointment = ({ onTabChange }) => {
     0
   );
   const countdiscount = Math.floor((subtotalPrice * applyDisountPer) / 100);
-  
+
   const payableAmount = formatValue(subtotalPrice - countdiscount);
-  const serviceGst = gstApplied?formatValue(payableAmount*0.18):0;
-  const serviceTotal =Math.round(payableAmount + serviceGst);
+  const serviceGst = gstApplied ? formatValue(payableAmount * 0.18) : 0;
+  const serviceTotal = Math.round(payableAmount + serviceGst);
   const totalProductServicePayable = Math.round(serviceTotal + productTotalPrice);
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
@@ -298,7 +299,7 @@ const BookAppointment = ({ onTabChange }) => {
     } else {
       setServiceSelection((prev) => ({
         ...prev,
-        [name]:name==="price"?Math.max(0,+value): value,
+        [name]: name === "price" ? Math.max(0, +value) : value,
       }));
     }
   };
@@ -348,14 +349,14 @@ const BookAppointment = ({ onTabChange }) => {
       isMembershipApplied: memberShipStatus,
       // membershipCreditUsed: +memberShip,
       // membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
-      membershipCreditUsed: memberShipStatus ? Math.max(0,Math.min(activeMembership?.creditsLeft || 0, serviceTotal) ): 0,
+      membershipCreditUsed: memberShipStatus ? Math.max(0, Math.min(activeMembership?.creditsLeft || 0, serviceTotal)) : 0,
       products: productDataReducer,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
       membershipId: activeMembership?._id,
     };
+    setLoading(true)
 
-  
     // if (serviceDataReducerLength > 0) {
     postApiData(
       "appointment/bookAppointmentFromCrm",
@@ -363,6 +364,7 @@ const BookAppointment = ({ onTabChange }) => {
       (resp) => {
         if (resp) {
           // alert("Appointment Booked Sucessfully");
+          setLoading(false)
           toast.success("Appointment Booked Sucessfully");
           dispatch(removeAppointmentProductsData());
           onTabChange(1)
@@ -370,10 +372,12 @@ const BookAppointment = ({ onTabChange }) => {
         }
       },
       (error) => {
+        setLoading(false)
         // alert(" Booking Status Failed");
         toast.error("Booking status failed!");
       }
     );
+
     // }
   };
   // ...`
@@ -401,14 +405,14 @@ const BookAppointment = ({ onTabChange }) => {
     });
     setsearchProduct("");
   };
-  
+
   const deleteService = (item) => {
     dispatch(deletItems(item));
   };
   const deleteProduct = (id) => {
     dispatch(deleteProducts(id));
   };
- 
+
   const handleSubmit = () => {
     const payload = {
       ...customerDetails,
@@ -527,9 +531,9 @@ const BookAppointment = ({ onTabChange }) => {
   };
 
 
-  useEffect(()=>{
-     console.log(x,productDataReducer,"data")
-    },[x,productDataReducer])
+  useEffect(() => {
+    console.log(x, productDataReducer, "data")
+  }, [x, productDataReducer])
 
   const handleProductChange = (e) => {
     const { name, value } = e.target;
@@ -548,7 +552,7 @@ const BookAppointment = ({ onTabChange }) => {
 
       setSelectedProduct((prev) => ({
         ...prev,
-        [name]: (name==="price"||name === "quantity") ? Math.max(0, +value) : value
+        [name]: (name === "price" || name === "quantity") ? Math.max(0, +value) : value
       }))
     }
 
@@ -583,7 +587,7 @@ const BookAppointment = ({ onTabChange }) => {
     {
       name: "price",
       label: "Price",
-      type:"number",
+      type: "number",
       placeholder: "Enter Price"
 
     },
@@ -669,7 +673,7 @@ const BookAppointment = ({ onTabChange }) => {
   const paymentDetailsArray = [
     { label: "SUBTOTAL", value: subtotalPrice },
     { label: "DISCOUNT", value: countdiscount },
-    (gstApplied&& ({ label: "SERVICE GST", value: serviceGst })),
+    (gstApplied && ({ label: "SERVICE GST", value: serviceGst })),
     { label: "TOTAL AMOUNT", value: serviceTotal },
     { label: "PRODUCT PRICE", value: productTotalPrice },
     { label: "PAYABLE AMOUNT", value: totalProductServicePayable },
@@ -681,7 +685,7 @@ const BookAppointment = ({ onTabChange }) => {
       placeholder: "9876543210",
       value: customerDetails.phoneNumber,
     },
-  
+
     {
       name: "date",
       label: "Date",
@@ -917,7 +921,7 @@ const BookAppointment = ({ onTabChange }) => {
                         name="price"
                         type="number"
                         value={item?.price}
-                        onChange={(e)=>handleChangeServices(e,index,"services")}
+                        onChange={(e) => handleChangeServices(e, index, "services")}
                         inputStyles={{ width: "120px", padding: "5px 10px" }}
                       /></td>
                       <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">
@@ -927,7 +931,7 @@ const BookAppointment = ({ onTabChange }) => {
                           options={staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))}
                           inputStyles={{ width: "150px", padding: "5px 10px" }}
 
-                          onChange={(e)=>handleChangeServices(e,index,"services")}
+                          onChange={(e) => handleChangeServices(e, index, "services")}
                           value={`${item.staffId}-${item.satffName}`}
 
                         />
@@ -954,7 +958,7 @@ const BookAppointment = ({ onTabChange }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
             {
               servicesFields?.map((customer, index) => {
-                const { name, label, placeholder,type } = customer
+                const { name, label, placeholder, type } = customer
 
                 const value = serviceSelection[name];
                 const options = servicesOptions[name]
@@ -1049,7 +1053,7 @@ const BookAppointment = ({ onTabChange }) => {
                         name="price"
                         type="number"
                         value={item?.price}
-                        onChange={(e)=>handleChangeServices(e,index,"products")}
+                        onChange={(e) => handleChangeServices(e, index, "products")}
                         inputStyles={{ width: "120px", padding: "5px 10px" }}
                       /></td>
                       <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal">{item?.brand}</td>
@@ -1057,19 +1061,19 @@ const BookAppointment = ({ onTabChange }) => {
                         name="quantity"
                         type="number"
                         value={item?.quantity}
-                        onChange={(e)=>handleChangeServices(e,index,"products")}
+                        onChange={(e) => handleChangeServices(e, index, "products")}
                         inputStyles={{ width: "120px", padding: "5px 10px" }}
                       /></td>
                       <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"> <NormalSelect
-                          name="staff"
-                          label={""}
-                          options={staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))}
-                          inputStyles={{ width: "150px", padding: "5px 10px" }}
+                        name="staff"
+                        label={""}
+                        options={staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))}
+                        inputStyles={{ width: "150px", padding: "5px 10px" }}
 
-                          onChange={(e)=>handleChangeServices(e,index,"products")}
-                          value={`${item.staffId}-${item.staffName}`}
+                        onChange={(e) => handleChangeServices(e, index, "products")}
+                        value={`${item.staffId}-${item.staffName}`}
 
-                        /></td>
+                      /></td>
                       <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
                         {" "}
                         <MdDeleteOutline
@@ -1195,7 +1199,7 @@ const BookAppointment = ({ onTabChange }) => {
           </div>
 
         </div>
-    
+
         {/* Apply Discount */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
 
@@ -1293,10 +1297,23 @@ const BookAppointment = ({ onTabChange }) => {
           </div>
           <div className="flex justify-end mt-12">
 
-            <button onClick={handldeBookAppointment}
+            <button disabled={loading} onClick={handldeBookAppointment}
               className="bg-black text-white rounded-[16px] w-[250px] text-sm font-normal ">Book Appointment</button>
           </div>
+
         </div>)}
+       {loading&& <div className="fixed z-20 top-0 bottom-0 h-full w-full right-0 left-0 bg-black/10 ">
+          <div className="flex items-center justify-center h-full w-full">
+
+
+            <div className="relative flex justify-center items-center">
+              <div className="absolute animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-purple-500" />
+
+            </div>
+
+          </div>
+
+        </div>}
         {/*  */}
         <AddCustomerModal
           isModalOpen={isModalOpen}

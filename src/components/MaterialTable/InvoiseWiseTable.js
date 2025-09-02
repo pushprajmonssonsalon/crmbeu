@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,18 +6,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { IoPrintSharp } from 'react-icons/io5';
+import { formatDate } from '../../utils/services';
 
 
-function FormatDate(date) {
-    const dates = new Date(date)
-    
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const formatter = new Intl.DateTimeFormat('en-US', options);
-    const formattedDate = formatter.format(dates);
-  
-    return formattedDate;
-  }
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -62,7 +53,7 @@ export default function CustomizedInvoiceWiseTables({headings,data,ref}) {
               {  data?.filter((item)=>item.status === 3)?.map((row,index) => (
             <StyledTableRow key={index}>
               <StyledTableCell scope="row">
-                {FormatDate(row.createdAt)}
+                {formatDate(row.createdAt)}
               </StyledTableCell>
               <StyledTableCell >{row?.invoiceId}</StyledTableCell>
               <StyledTableCell >Service</StyledTableCell>

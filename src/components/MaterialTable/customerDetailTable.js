@@ -4,18 +4,11 @@ import { useState } from 'react';
 import GridRows from '../pagination/gridRows';
 import Pagination from '../pagination';
 import { MdOutlineLocalPrintshop } from 'react-icons/md';
+import { formatDate } from '../../utils/services';
 
 
 
-function FormatDate(date) {
-  const dates = new Date(date)
 
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  const formatter = new Intl.DateTimeFormat('en-US', options);
-  const formattedDate = formatter.format(dates);
-
-  return formattedDate;
-}
 
 export default function CustomizedCustomerTables({ headings, data }) {
   const navigate = useNavigate();
@@ -64,7 +57,7 @@ export default function CustomizedCustomerTables({ headings, data }) {
 
               <td className="py-5">{item?.customer.name}</td>
               <td className="py-5">{item?.customer.phoneNumber}</td>
-              <td className="py-5">{FormatDate(item?.createdAt)}</td>
+              <td className="py-5">{formatDate(item?.createdAt)}</td>
               <td className="py-5 max-w-[100px]">
                 {item.services.map((data, dataIndex) => (
                   <div key={dataIndex}>

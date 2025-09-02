@@ -6,10 +6,11 @@ import CustomizedCustomersTables from '../../components/MaterialTable/CustomersD
 
 
 const CustomersDetails = () => {
-   
+  
     const [clientsAppointment, setClientsAppointment] = useState([])
     const headings = ["S.No","Name", "Phone Number"];
 
+    
     const handleSearchCustomerdetails = () => {
 
 
@@ -41,7 +42,13 @@ const CustomersDetails = () => {
                     </div>
 
                 </div>
-                
+                   
+                       
+                            
+                   
+                   
+                           
+                            
                 <CustomizedCustomersTables headings={headings} data={clientsAppointment} />
             </div>
         </>

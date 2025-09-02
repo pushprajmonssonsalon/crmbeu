@@ -1,11 +1,11 @@
 import { GiPartyPopper } from "react-icons/gi";
-import { formatDateMonth } from "../../utils/services";
+import { formatDate, formatDateMonth } from "../../utils/services";
 import Modal from "../modal/Modal";
 const sortByDateType = (a, b, type) => {
   const getMonthDay = (date) => {
-      if (!date) return 9999; // Push empty/null dates to the end
-      const d = new Date(date);
-      return d.getMonth() * 100 + d.getDate(); // Convert MM-DD into a sortable number
+    if (!date) return 9999; // Push empty/null dates to the end
+    const d = new Date(date);
+    return d.getMonth() * 100 + d.getDate(); // Convert MM-DD into a sortable number
   };
 
   return getMonthDay(a[type]) - getMonthDay(b[type]); // Sort dynamically by type
@@ -34,7 +34,7 @@ const ChildComponent = ({ closeModal, data, modalRef, text }) => {
         {/* Modal header */}
         <div className="flex w-full items-center justify-between p-3  border-b  ">
           <h3 className="text-lg flex items-center gap-1 font-semibold text-gray-900 "><GiPartyPopper size={40} className="0 text-yellow-500" />{data?.key}<GiPartyPopper size={40} className="0 text-yellow-500" />
-</h3>
+          </h3>
           <button
             onClick={closeModal}
             type="button"
@@ -68,19 +68,37 @@ const ChildComponent = ({ closeModal, data, modalRef, text }) => {
                 <th className="text-sm">S.no</th>
                 <th className="text-sm">Name</th>
                 <th className="text-sm">Phone Number</th>
-                <th className="text-sm">Birthday</th>
-                <th className="text-sm">Anniversary</th>
+                {data?.type === "membership" ? <>
+                  <th className="text-sm">Membership</th>
+                  <th className="text-sm">Valid To</th>
+                </> :
+                  <>
+                    <th className="text-sm">Birthday</th>
+                    <th className="text-sm">Anniversary</th>
+
+                  </>
+                }
               </tr>
             </thead>
             <tbody>
-              {sortedData?.length>0&&sortedData?.map((item, index) => (
+              {sortedData?.length > 0 && sortedData?.map((item, index) => (
                 <tr key={index}>
-                  <td className="text-sm">{index+1}</td>
+                  <td className="text-sm">{index + 1}</td>
                   <td className="text-sm">{item?.name}</td>
                   <td className="text-sm">{item?.phoneNumber}</td>
-                  <td className="text-sm">{formatDateMonth(item?.dob)}</td>
-                  <td className="text-sm">{formatDateMonth(item?.aniversary)}</td>
-                 
+                  {data?.type === "membership" ? <>
+                    <td className="text-sm">{item?.membershipName}</td>
+                    <td className="text-sm">{formatDate(item?.validTo)}</td>
+
+                  </> :
+                    <>
+
+                      <td className="text-sm">{formatDateMonth(item?.dob)}</td>
+                      <td className="text-sm">{formatDateMonth(item?.aniversary)}</td>
+
+
+                    </>
+                  }
 
                 </tr>
               ))}

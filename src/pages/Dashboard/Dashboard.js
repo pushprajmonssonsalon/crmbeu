@@ -18,9 +18,11 @@ const backgroundColors = [
   "rgba(54, 162, 235, 0.8)",  // Blue
   "rgba(255, 206, 86, 0.8)",  // Yellow
   "rgba(75, 192, 192, 0.8)",  // Teal
+  "rgba(153, 102, 255, 0.8)",  // Purple
+  "rgba(255, 159, 64, 0.8)",   // Orange
+  
 
 ];
-
 
 const wishesLabels = [
   {
@@ -52,6 +54,20 @@ const wishesLabels = [
     type: "aniversary",
 
   },
+  {
+    name: 'Membership Expiring This Week',
+    id: "membershipThisWeekTotal",
+    val: "7",
+    type: "membership",
+
+  },
+  {
+    name: 'Membership Expiring This Month',
+    id: "membershipThisMonthTotal",
+    val: "30",
+    type: "membership",
+
+  },
 ]
 const salesOrder = ["Cash", "Card", "Online", "Upi", "Pending"];
 
@@ -69,6 +85,7 @@ const Dashboard = () => {
   const [showDate, setShowDate] = useState(false)
   const [days, setDays] = useState(30);
   const [events, setEvents] = useState([]);
+  const [expiredMembership,setExpiredMembership]=useState({})
   const [wishes, setWishes] = useState({
 
     labels: wishesLabels?.map((item) => item.name),
@@ -299,12 +316,13 @@ const Dashboard = () => {
       const key = wishesLabels[index].val;
       const label = wishesLabels[index].name;
       const type = wishesLabels[index].type;
-
-      setSelectedEvent({
+     let obj={
         type,
         key: label,
-        value: events[key]
-      })
+        value: type==="membership"?expiredMembership[key]:events[key]||[]
+      }
+      setSelectedEvent(obj)
+      if(obj?.value?.length>0)
       setShowEventModal(true);
     }
   }
@@ -332,6 +350,38 @@ const Dashboard = () => {
       (res) => {
         if (res) setPeekTime(res)
       }, () => { })
+  }
+    const fetchExpMembers = () => {
+    getApiCall(`reports/getMembershipExpiringFromDays`,
+      (res) => {
+       
+          let newObj={};
+          Object.keys(res).forEach((key)=>{
+              newObj[key]=res[key]?.length>0?res[key]?.map((elm)=>({...elm, validTo: formatDate(elm?.validTo)})):[];
+          })
+          setExpiredMembership(newObj);
+    // Update only the dataset's data array
+  setWishes((prev) => {
+    if (!prev.datasets || prev.datasets.length === 0) return prev;
+
+    const updatedDataset = { ...prev.datasets[0] };
+
+    // Keep first 4 items from the old data
+    const updatedData = updatedDataset.data.slice(0, 4);
+
+    // Push counts from API data
+    updatedData.push(newObj["7"]?.length || 0);
+    updatedData.push(newObj["30"]?.length || 0);
+
+    updatedDataset.data = updatedData;
+
+    return {
+      ...prev,
+      datasets: [updatedDataset],
+    };
+  });
+      }, () => { })
+
   }
   const fetchData = (start, end) => {
 
@@ -461,7 +511,8 @@ const Dashboard = () => {
               barThickness: 40,
 
 
-            }
+            },
+         
           ],
           options: {
             responsive: true,
@@ -485,9 +536,12 @@ const Dashboard = () => {
 
 
       }, () => { })
-
+     
     // fetchProdTime(data.startDate, data.endDate)
+        fetchExpMembers()
+
     fetchServiceTime(data.startDate, data.endDate)
+    
   }
 
   useEffect(() => {
@@ -650,7 +704,7 @@ const Dashboard = () => {
             <BarChart
               options={options}
               data={wishes}
-              heading={"Birthdays & Anniversarys"}
+              heading={"Birthdays , Anniversarys & Membership Expiry Report"}
             />
           </div>
           <div className="col-span-full h-full  border shadow-graph bg-white rounded-[16px] p-5">
