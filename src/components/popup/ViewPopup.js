@@ -1,5 +1,5 @@
 import { MdOutlineClose } from "react-icons/md";
-import { postApiData } from "../../utils/services";
+import { formatValue, postApiData } from "../../utils/services";
 import { useEffect, useState } from "react";
 
 const ViewPopup = ({
@@ -14,7 +14,9 @@ const ViewPopup = ({
   comment = null,
   setComment = () => { }
 }) => {
-  console.log(activeAppointment,"activeAppointment")
+    const gstToken = localStorage.getItem("gstApplied");
+  const gstApplied = (gstToken === "true")
+  // console.log(activeAppointment,"activeAppointment")
   const { total,subTotal, paymentMethod, membershipCreditUsed, _id, customer } = activeAppointment;
   const [advance, setAdvance] = useState({});
   const [cashback, setCashback] = useState({});
@@ -26,12 +28,15 @@ const ViewPopup = ({
     selected: false,
     cashbackUsed: 0,
   });
+  const serviceGst = gstApplied ? formatValue(subTotal * 0.18) : 0;
+  const newSubTotal = Math.round(subTotal + serviceGst);
   const payableAmount=((total||0 )- (membershipCreditUsed||0))
-  const currentTotal =(total||0)-(subTotal||0)
+  const currentTotal =(total||0)-(newSubTotal||0)
+  
   // console.log(payableAmount,currentTotal,"total",total-membershipCreditUsed,subTotal)
   // const totalCardUpiCash = parseInt(cash) + parseInt(card) + parseInt(upi);
-  const serviceTotal=(Math.max((subTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0),0))
-  const payTotal = (Math.max((subTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0), 0)+(currentTotal||0));
+  const serviceTotal=(Math.max((newSubTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0),0))
+  const payTotal = (Math.max((newSubTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0), 0)+(currentTotal||0));
   // console.log((subTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0),currentTotal)
   useEffect(() => {
     if (customer?._id) {
@@ -90,7 +95,7 @@ const ViewPopup = ({
     setAdvanceSelected((prev) => ({
       ...prev,
       selected: checked ? serviceTotal > 0 && advance?.balance > 0 : false,
-      advanceUsed: checked ? (serviceTotal > 0 && advance?.balance > 0) ? Math.min(((subTotal||0) - (membershipCreditUsed || 0)-(cashbackSelected?.cashbackUsed||0)), (advance?.balance || 0)) : 0 : 0,
+      advanceUsed: checked ? (serviceTotal > 0 && advance?.balance > 0) ? Math.min(((newSubTotal||0) - (membershipCreditUsed || 0)-(cashbackSelected?.cashbackUsed||0)), (advance?.balance || 0)) : 0 : 0,
     }));
 
 
@@ -113,7 +118,7 @@ const ViewPopup = ({
     setCashbackSelected((prev) => ({
       ...prev,
       selected: checked ? serviceTotal > 0 && cashback?.balance > 0 : false,
-      cashbackUsed: checked ? (serviceTotal > 0 && cashback?.balance > 0) ? Math.min(((subTotal||0) - (membershipCreditUsed||0)-(advanceSelected?.advanceUsed|| 0)), (cashback?.balance || 0)) : 0 : 0,
+      cashbackUsed: checked ? (serviceTotal > 0 && cashback?.balance > 0) ? Math.min(((newSubTotal||0) - (membershipCreditUsed||0)-(advanceSelected?.advanceUsed|| 0)), (cashback?.balance || 0)) : 0 : 0,
     }));
 
 
