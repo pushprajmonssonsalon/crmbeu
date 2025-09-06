@@ -231,6 +231,10 @@ const AppointmentBills = () => {
             <div className="text-black font-medium text-right">
               {data.customer.phoneNumber}
             </div>
+            {data?.customer?.gstNumber&&<><div className="text-black font-medium">GSTIN:</div>
+            <div className="text-black font-medium text-right">
+              {data.customer.gstNumber}
+            </div></>}
           </div>
         </div>
         {/* Membership  */}

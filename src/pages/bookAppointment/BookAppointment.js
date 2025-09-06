@@ -38,6 +38,8 @@ const BookAppointment = ({ onTabChange }) => {
     'aniversary-month': "",
     dob: '',
     aniversary: '',
+    gstNumber:"",
+    note:""
   });
   const [appointmentDetails, setAppointmentDetails] = useState({
 
@@ -325,7 +327,9 @@ const BookAppointment = ({ onTabChange }) => {
     const { name,
       phoneNumber,
       email,
-      gender
+      gender,
+      gstNumber,
+      note
     } = customerDetails;
 
     if (!name) return toast.error("Please Add Customer")
@@ -339,6 +343,8 @@ const BookAppointment = ({ onTabChange }) => {
         gender,
         dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
         aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
+        gstNumber,
+        note,
       },
       subTotal: subtotalPrice,
       // total: subtotalPrice,
@@ -389,6 +395,8 @@ const BookAppointment = ({ onTabChange }) => {
       ...prev,
       name: item.name,
       phoneNumber: item.phoneNumber,
+      gstNumber:item?.gstNumber||"",
+      note:item?.note||""
     }));
 
     setUserId(item._id);
@@ -643,6 +651,12 @@ const BookAppointment = ({ onTabChange }) => {
       value2: customerDetails["aniversary-month"],
       placeholder: "Enter Aniversary",
     },
+    {
+      name: "gstNumber",
+      label: "Gst Number",
+      value: customerDetails?.gstNumber,
+      placeholder: "Gst Number",
+    },
   ];
 
   const servicesOptions = {
@@ -700,7 +714,22 @@ const BookAppointment = ({ onTabChange }) => {
       value: appointmentDetails?.time,
       placeholder: "DD-MM-YYYY"
 
-    }
+    },
+    {
+      name: "note",
+      label: "Note",
+      value: customerDetails?.note,
+      placeholder: "Additional Info"
+
+    },
+    {
+      name: "gstNumber",
+      label: "Customer Gst",
+      value: customerDetails?.gstNumber,
+      placeholder: "Gst Number"
+
+    },
+  
   ]
   const productFields = [
     {
@@ -778,6 +807,9 @@ const BookAppointment = ({ onTabChange }) => {
     }
 
   }, [discount])
+
+
+
 
   const tableFields = [customerDetailsArray, paymentDetailsArray];
   return (
@@ -870,12 +902,15 @@ const BookAppointment = ({ onTabChange }) => {
                                 key={index}
                                 style={{ display: "flex" }}
                                 onClick={() => nameOnclick(item)}
-                                className="flex items-center  px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
+                                className="flex items-center gap-2 px-4 py-2 mb-0 transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
                               >
                                 <p className="mr-2 capitalize font-semibold">{item.name}</p>
                                 <p className="font-semibold">
                                   {item.phoneNumber}
                                 </p>
+                                {item?.note&&<p className="font-bold">
+                                  -{item?.note}
+                                </p>}
                               </div>
                             );
                           })}
