@@ -1,6 +1,59 @@
+import { getApiCall } from "../../utils/services";
 
 const serviceInitialState = {
   serviceData: [],
+};
+
+// src/redux/actions/parlorActions.js
+
+// Action types
+export const FETCH_PARLOR_REQUEST = "FETCH_PARLOR_REQUEST";
+export const FETCH_PARLOR_SUCCESS = "FETCH_PARLOR_SUCCESS";
+export const FETCH_PARLOR_FAILURE = "FETCH_PARLOR_FAILURE";
+
+// Thunk Action
+const parlorInititalState={
+  parlorLoading: false,
+  parlorError: null,
+  parlorData:[]
+}
+export const fetchParlors = () => {
+  return (dispatch) => {
+    dispatch({ type: FETCH_PARLOR_REQUEST });
+
+    getApiCall(
+      "/parlor/getParlorDetail",
+      (resp) => {
+        dispatch({
+          type: FETCH_PARLOR_SUCCESS,
+          payload: resp,
+        });
+      },
+      (error) => {
+        dispatch({
+          type: FETCH_PARLOR_FAILURE,
+          payload: error,
+        });
+      }
+    );
+  };
+};
+
+
+export const parlorReducer = (state = parlorInititalState, action) => {
+  switch (action.type) {
+    case FETCH_PARLOR_REQUEST:
+      return { ...state, parlorLoading: true, parlorError: null };
+
+    case FETCH_PARLOR_SUCCESS:
+      return { ...state, parlorLoading: false, parlorData: action.payload };
+
+    case FETCH_PARLOR_FAILURE:
+      return { ...state, parlorLoading: false, parlorError: action.payload };
+
+    default:
+      return state;
+  }
 };
 
 export const serviceAddReducer = (state = serviceInitialState, action) => {

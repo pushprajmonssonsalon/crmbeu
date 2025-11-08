@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { formatDate, getApiCall, postApiData } from '../../utils/services';
+import { calculateGst, formatDate, getApiCall, postApiData } from '../../utils/services';
 import { useReactToPrint } from 'react-to-print';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -108,8 +108,7 @@ const MembershipBill = () => {
         });
       };
 
-    const headings = ["NAME","PHONE NO.","EMPLOYEE","MEMBERSHIP NAME","PRICE","GST","TOTAL"]
-
+  const {baseAmount,gstAmount}= (price&&membershipData?.createdAt)?calculateGst(price,membershipData?.createdAt,true): { baseAmount: 0, gstAmount: 0 };
   return (
     <>
  
@@ -158,9 +157,9 @@ const MembershipBill = () => {
             <div className='text-black font-medium'>Coins:</div>
             <div className='text-black font-medium text-right'>{credits}</div>
             <div className='text-black font-medium'>Price:</div>
-            <div className='text-black font-medium text-right'>{Math.ceil(price/1.18)}</div>
+            <div className='text-black font-medium text-right'>{baseAmount}</div>
             <div className='text-black font-medium'>GST:</div>
-            <div className='text-black font-medium text-right'>{GST}</div>
+            <div className='text-black font-medium text-right'>{gstAmount}</div>
             <div className='text-black font-medium'>Total:</div>
             <div className='text-black font-medium text-right'>Rs {Total}</div>
         </div>

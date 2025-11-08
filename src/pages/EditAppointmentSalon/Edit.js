@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { formatValue, getApiCall, postApiData } from "../../utils/services";
+import { useEffect, useRef, useState } from "react";
+import { formatValue, getApiCall, handleProductAndServiceGst, postApiData } from "../../utils/services";
 import { useNavigate, useParams } from "react-router";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
@@ -8,12 +8,27 @@ import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import NormalRadio from "../../components/customInput/NormalRadio";
 import useDebouncer from "../../utils/hooks/useDebouncer";
+import { useSelector } from "react-redux";
 
 const Edit = () => {
   const gstToken = localStorage.getItem("gstApplied");
   const gstApplied = (gstToken === "true")
   const { id } = useParams();
   //Staff data fiktering
+  const serviceRef= useRef(null);
+  const productRef= useRef(null);
+  const searchContainerRef = useRef(null);
+  const productContainerRef= useRef(null);
+  const { parlorLoading, parlorData, parlorError } = useSelector((state) => state.parlorReducer);
+  const parlorServices= parlorData?.services||[];
+  const parlorProducts=parlorData?.products||[];
+
+   const [searchService,setSearchService]=useState("")
+    const [searchServices,setSearchServices]=useState([])
+    const [showSearchResults,setShowSearchResults]=useState(false);
+    const [searchProduct, setsearchProduct] = useState("");
+      const [showProdDropdown, setShowProdDropdown] = useState(false);
+      const [showSearchProduct, setShowSearchProduct] = useState([]);
   const navigate = useNavigate();
   const { debouncedFunction } = useDebouncer()
   const [staffData, setStaffData] = useState([]);
@@ -48,9 +63,8 @@ const Edit = () => {
   const [service, setService] = useState([]);
   const [subservice, setSubService] = useState([]);
   const [miniservice, setMiniService] = useState([]);
-  const [searchProduct, setsearchProduct] = useState("");
-  const [showSearchProduct, setShowSearchProduct] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  
+  // const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [discount, setDiscount] = useState(0);
   const [applyDisountPer, setApplyDiscountPer] = useState(0);
@@ -70,46 +84,47 @@ const Edit = () => {
   };
 
 
-  useEffect(() => {
-    getApiCall(
-      "salonService/getServiceCategory",
+  // useEffect(() => {
+  //   getApiCall(
+  //     "salonService/getServiceCategory",
 
-      (resp) => {
-        setService(resp);
-      },
-      (error) => { }
-    );
-  }, [customerDetails?.gender]);
+  //     (resp) => {
+  //       setService(resp);
+  //     },
+  //     (error) => { }
+  //   );
+  // }, [customerDetails?.gender]);
   // api call for getting subcategory
-  const categorydata = {
-    categoryName: serviceSelection.category,
-    gender: customerDetails.gender,
-  };
-  useEffect(() => {
-    postApiData(
-      "salonService/getSubServiceCategory",
-      categorydata,
-      (resp) => {
-        setSubService(resp);
-      },
-      (error) => { }
-    );
-  }, [serviceSelection.category]);
-  const minicatgdata = {
-    category: serviceSelection.category,
-    gender: customerDetails.gender,
-    subCategory: serviceSelection.subCategory,
-  };
-  useEffect(() => {
-    postApiData(
-      "salonService/getSuggestedSalonServices",
-      minicatgdata,
-      (resp) => {
-        setMiniService(resp[0]);
-      },
-      (error) => { }
-    );
-  }, [serviceSelection.subCategory]);
+  // const categorydata = {
+  //   categoryName: serviceSelection.category,
+  //   gender: customerDetails.gender,
+  // };
+  // useEffect(() => {
+  //   postApiData(
+  //     "salonService/getSubServiceCategory",
+  //     categorydata,
+  //     (resp) => {
+  //       setSubService(resp);
+  //     },
+  //     (error) => { }
+  //   );
+  // }, [serviceSelection.category]);
+
+  // const minicatgdata = {
+  //   category: serviceSelection.category,
+  //   gender: customerDetails.gender,
+  //   subCategory: serviceSelection.subCategory,
+  // };
+  // useEffect(() => {
+  //   postApiData(
+  //     "salonService/getSuggestedSalonServices",
+  //     minicatgdata,
+  //     (resp) => {
+  //       setMiniService(resp[0]);
+  //     },
+  //     (error) => { }
+  //   );
+  // }, [serviceSelection.subCategory]);
 
   const fetchAppointment=()=>{
  getApiCall(
@@ -154,7 +169,8 @@ const Edit = () => {
 
       }
     );
-  }, [serviceSelection.subCategory]);
+  }, []);
+
    const fetchActiveMembership=async()=>{
      postApiData(
         `/membership/getActiveMembershipOfUser`,
@@ -177,51 +193,51 @@ const Edit = () => {
   }, [phoneNumber])
 
   // handle buttons for add service
-  const serviceAddpress = () => {
-    const { miniSub, miniSubcategory, ...rest } = serviceSelection;
+  // const serviceAddpress = () => {
+  //   const { miniSub, miniSubcategory, ...rest } = serviceSelection;
 
-    const selected = {
+  //   const selected = {
 
-      ...rest,
-      miniSubcategory: miniSub,
-    };
-    const isEveryEmpty = Object.values(selected).some((elm) => !elm || elm === "0" || elm.toString().trim() === "");
-    if (isEveryEmpty) {
-      return toast.error("Please Select All Fields");
-    }
-    setAddedAppointmentDetails([...addedAppointmentDetails, serviceSelection]);
+  //     ...rest,
+  //     miniSubcategory: miniSub,
+  //   };
+  //   const isEveryEmpty = Object.values(selected).some((elm) => !elm || elm === "0" || elm.toString().trim() === "");
+  //   if (isEveryEmpty) {
+  //     return toast.error("Please Select All Fields");
+  //   }
+  //   setAddedAppointmentDetails([...addedAppointmentDetails, serviceSelection]);
 
-  };
+  // };
 
-  const handleServiceChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "miniSubcategory") {
-      const splited = value.split("---");
-      const price = splited[0];
-      const val = splited[1];
-      setServiceSelection({
-        ...serviceSelection,
-        miniSubcategory: value,
-        price: +price,
-        miniSub: val,
-      });
-    } else if (name === "staff") {
-      const splited = value.split("-");
-      const Name = splited[1];
-      const Id = splited[0];
+  // const handleServiceChange = (e) => {
+  //   const { name, value } = e.target;
+  //   if (name === "miniSubcategory") {
+  //     const splited = value.split("---");
+  //     const price = splited[0];
+  //     const val = splited[1];
+  //     setServiceSelection({
+  //       ...serviceSelection,
+  //       miniSubcategory: value,
+  //       price: +price,
+  //       miniSub: val,
+  //     });
+  //   } else if (name === "staff") {
+  //     const splited = value.split("-");
+  //     const Name = splited[1];
+  //     const Id = splited[0];
 
-      setServiceSelection({
-        ...serviceSelection,
-        staffId: Id,
-        satffName: Name,
-      });
-    } else {
-      setServiceSelection((prev) => ({
-        ...prev,
-        [name]: name === "price" ? Math.max(0, +value) : value,
-      }));
-    }
-  };
+  //     setServiceSelection({
+  //       ...serviceSelection,
+  //       staffId: Id,
+  //       satffName: Name,
+  //     });
+  //   } else {
+  //     setServiceSelection((prev) => ({
+  //       ...prev,
+  //       [name]: name === "price" ? Math.max(0, +value) : value,
+  //     }));
+  //   }
+  // };
 
 
 
@@ -268,84 +284,133 @@ const Edit = () => {
     }
   };
 
+const matchesSearch =(searchTerm)=> {
+    const services =parlorServices?.filter((service)=>{
+  const matches= service?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service?.subCategory?.toLowerCase().includes(searchTerm.toLowerCase())||
+        service?.category?.toLowerCase().includes(searchTerm.toLowerCase());
+        return matches
+    })
+    if(services?.length>0)
+      setShowSearchResults(true)
+    setSearchServices(services)
+  
+       
+  }
+ 
+  const searchServiceOnchange = (e) => {
+    const val= e.target.value
+    setSearchService(val);
+    debouncedFunction(matchesSearch, 300,val)
+    
+  };
+ const serviceNameOnclick = (item) => {
+    const selected={
+      ...item,
+      category: item?.category,
+    subCategory: item?.subCategory,
+    miniSubcategory: item.name,
+    price:isNaN(parseInt(item?.price))?1999:parseInt(item?.price),
+  
+    }
+    setAddedAppointmentDetails([...addedAppointmentDetails, selected]);
 
+     toast.success("service added")
+  };
 
   // search product api
   // on search product click
+ 
+  const matchProds =(searchTerm)=> {
+    const products =parlorProducts?.filter((product)=>{
+  const matches= product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.brand?.toLowerCase().includes(searchTerm.toLowerCase());
+        return matches
+    })
+    if(products?.length>0)
+    setShowProdDropdown(true)
+    setShowSearchProduct(products)
+  
+       
+  }
+
+  // on search product click
   const searchProductOnchange = (e) => {
     setsearchProduct(e.target.value);
-    const data = {
-      name: searchProduct,
-    };
-    postApiData(
-      "inventory/getSuggestedProductOfSalon",
-      data,
-      (resp) => {
-
-        setShowSearchProduct(resp.products);
-      },
-      (error) => {
-
-      }
-    );
+  
+    debouncedFunction(matchProds, 200, e.target.value)
+    
   };
   const productNameOnclick = (item) => {
-    setSelectedProduct({
-      ...item,
-      quantity: 1
-
-    });
-    setsearchProduct("");
-  };
-
-
-  const addproductPress = (
-  ) => {
-    if (!selectedProduct) return toast.error("Please Select Product");
-
-    const { quantity, // Adding quantity key
-      staffId,
-      staffName, price, } = selectedProduct
-    if (!quantity || quantity === "0") {
-      toast.error("Please Enter Quantiy");
-
-      return;
-    }
-    if (!price || price === "0") {
-      toast.error("Please Enter Price");
-
-      return;
-    }
-    if (!staffId || !staffName) {
-      toast.error("Please Select Staff");
-
-      return;
-    }
-    if (!price) {
-      toast.error("Please Select Product");
-
-      return;
-    }
-    // productQnt,productStaffid
-
-
-
-    setAppointmentProducts((prev) => {
-      const index = prev.findIndex((elm) => elm._id === selectedProduct._id);
+      
+      const selected ={
+        ...item,
+        price:isNaN(parseInt(item.price))?1999:parseInt(item.price),
+        quantity:1,
+        gst:item?.gst||18,
+  
+      }
+      setAppointmentProducts((prev) => {
+      const index = prev.findIndex((elm) => elm._id === selected._id);
 
       if (index !== -1) {
         return prev.map((elm, i) =>
-          i === index ? selectedProduct : elm
+          i === index ? selected : elm
         );
       } else {
-        return [...prev, selectedProduct];
+        return [...prev, selected];
       }
     });
-    toast.success("Product Added Successfully");
+      toast.success("product added succesfully");
+    };
 
-    // dispatch(EditproductAdded(itemWithAdditionalInfo));
-    // setProductData(itemWithAdditionalInfo)
-  };
+  // const addproductPress = (
+  // ) => {
+  //   if (!selectedProduct) return toast.error("Please Select Product");
+
+  //   const { quantity, // Adding quantity key
+  //     staffId,
+  //     staffName, price, } = selectedProduct
+  //   if (!quantity || quantity === "0") {
+  //     toast.error("Please Enter Quantiy");
+
+  //     return;
+  //   }
+  //   if (!price || price === "0") {
+  //     toast.error("Please Enter Price");
+
+  //     return;
+  //   }
+  //   if (!staffId || !staffName) {
+  //     toast.error("Please Select Staff");
+
+  //     return;
+  //   }
+  //   if (!price) {
+  //     toast.error("Please Select Product");
+
+  //     return;
+  //   }
+  //   // productQnt,productStaffid
+
+
+
+  //   setAppointmentProducts((prev) => {
+  //     const index = prev.findIndex((elm) => elm._id === selectedProduct._id);
+
+  //     if (index !== -1) {
+  //       return prev.map((elm, i) =>
+  //         i === index ? selectedProduct : elm
+  //       );
+  //     } else {
+  //       return [...prev, selectedProduct];
+  //     }
+  //   });
+  //   toast.success("Product Added Successfully");
+
+  //   // dispatch(EditproductAdded(itemWithAdditionalInfo));
+  //   // setProductData(itemWithAdditionalInfo)
+  // };
 
 
   const handleGenderChange = (e) => {
@@ -372,29 +437,29 @@ const Edit = () => {
   }
 
 
-  const handleProductChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'staffName') {
-      const splited = value.split("-");
-      const Name = splited[1];
-      const Id = splited[0];
-      setSelectedProduct((prev) => ({
-        ...prev,
-        staffId: Id,
-        staffName: Name,
-      }));
+  // const handleProductChange = (e) => {
+  //   const { name, value } = e.target;
+  //   if (name === 'staffName') {
+  //     const splited = value.split("-");
+  //     const Name = splited[1];
+  //     const Id = splited[0];
+  //     setSelectedProduct((prev) => ({
+  //       ...prev,
+  //       staffId: Id,
+  //       staffName: Name,
+  //     }));
 
-    }
-    else {
+  //   }
+  //   else {
 
-      setSelectedProduct((prev) => ({
-        ...prev,
-        [name]: name === "quantity" ? Math.max(0, +value) : value
-      }))
-    }
+  //     setSelectedProduct((prev) => ({
+  //       ...prev,
+  //       [name]: name === "quantity" ? Math.max(0, +value) : value
+  //     }))
+  //   }
 
 
-  }
+  // }
 
 
 
@@ -410,8 +475,8 @@ const Edit = () => {
 
   const serviceDiscount = Math.floor(subTotalServices * (applyDisountPer / 100));
 
-  const totalService = formatValue(subTotalServices - serviceDiscount);
-  const serviceGst = gstApplied ? formatValue(totalService * 0.18) : 0;
+  const totalService = formatValue(subTotalServices - serviceDiscount||0);
+  const serviceGst = gstApplied ? formatValue(totalService * 0.05) : 0;
   const serviceTotal = Math.round(totalService + serviceGst);
 
   const totalAmount = Math.round(serviceTotal + subProductTotal);
@@ -450,6 +515,7 @@ const Edit = () => {
     }
 
   };
+  
   const deleteProduct = (idx) => {
     setAppointmentProducts((prev) => prev.filter((elm, index) => index !== idx))
   }
@@ -468,88 +534,88 @@ const Edit = () => {
   ];
 
 
-  const servicesFields = [
-    {
-      name: "category",
-      label: "Add Service",
-      options: service
+  // const servicesFields = [
+  //   {
+  //     name: "category",
+  //     label: "Add Service",
+  //     options: service
 
-    },
-    {
-      name: "subCategory",
-      label: "Category",
-      options: subservice
-    },
-    {
-      name: "miniSubcategory",
-      label: "Sub Category",
-      options: miniservice?.services?.map((elm) => ({
-        name: elm.name,
-        value: `${elm.price}---${elm.name}`,
-      })),
-    },
-    {
-      name: "price",
-      label: "Price",
-      type: "number",
-      placeholder: "Enter Price",
-
-
-    },
-    {
-      name: "staff",
-      label: "Select Staff",
-      options: staffData?.map((elm) => ({
-        name: elm.name,
-        value: `${elm._id}-${elm.name}`,
-      })),
-    },
-    // {
-    //   name: "product",
-    //   label: "Search Product",
-    //   type: "text",
-    //   placeholder: "Product Name"
-    // },
-
-  ];
-
-  const productFields = [
-    {
-      name: "name",
-      label: "Product Name",
-      placeholder: "Product Name",
-      value: selectedProduct?.name,
-    },
-    {
-      name: "price",
-      label: "Price",
-      type: "Number",
-      placeholder: "Price",
-      value: selectedProduct?.price,
-    },
-    {
-      name: "brand",
-      label: "Brand",
-      value: selectedProduct?.brand,
-      readOnly: true,
-      placeholder: "Brand",
-    },
-    {
-      name: "quantity",
-      label: "Quantity",
-      type: "number",
-      value: selectedProduct?.quantity,
-      placeholder: "Quantity",
-    },
-    {
-      name: "staffName",
-      label: "Select Staff",
-      value: `${selectedProduct?.staffId}-${selectedProduct?.staffName}`,
-      options: staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))
+  //   },
+  //   {
+  //     name: "subCategory",
+  //     label: "Category",
+  //     options: subservice
+  //   },
+  //   {
+  //     name: "miniSubcategory",
+  //     label: "Sub Category",
+  //     options: miniservice?.services?.map((elm) => ({
+  //       name: elm.name,
+  //       value: `${elm.price}---${elm.name}`,
+  //     })),
+  //   },
+  //   {
+  //     name: "price",
+  //     label: "Price",
+  //     type: "number",
+  //     placeholder: "Enter Price",
 
 
-    }
-  ]
+  //   },
+  //   {
+  //     name: "staff",
+  //     label: "Select Staff",
+  //     options: staffData?.map((elm) => ({
+  //       name: elm.name,
+  //       value: `${elm._id}-${elm.name}`,
+  //     })),
+  //   },
+  //   // {
+  //   //   name: "product",
+  //   //   label: "Search Product",
+  //   //   type: "text",
+  //   //   placeholder: "Product Name"
+  //   // },
+
+  // ];
+
+  // const productFields = [
+  //   {
+  //     name: "name",
+  //     label: "Product Name",
+  //     placeholder: "Product Name",
+  //     value: selectedProduct?.name,
+  //   },
+  //   {
+  //     name: "price",
+  //     label: "Price",
+  //     type: "Number",
+  //     placeholder: "Price",
+  //     value: selectedProduct?.price,
+  //   },
+  //   {
+  //     name: "brand",
+  //     label: "Brand",
+  //     value: selectedProduct?.brand,
+  //     readOnly: true,
+  //     placeholder: "Brand",
+  //   },
+  //   {
+  //     name: "quantity",
+  //     label: "Quantity",
+  //     type: "number",
+  //     value: selectedProduct?.quantity,
+  //     placeholder: "Quantity",
+  //   },
+  //   {
+  //     name: "staffName",
+  //     label: "Select Staff",
+  //     value: `${selectedProduct?.staffId}-${selectedProduct?.staffName}`,
+  //     options: staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))
+
+
+  //   }
+  // ]
   const discounFields = [
     {
       label: "Discount Percentage",
@@ -586,20 +652,20 @@ const Edit = () => {
       readOnly: true
     }
   ]
-  const handleApplyDiscount = () => {
+  // const handleApplyDiscount = () => {
 
-    applyDiscount()
+  //   applyDiscount()
 
-    if (!isMembershipApplied) {
+  //   if (!isMembershipApplied) {
 
-      if (activeMembership?.creditsLeft > 0) {
-        setMemberShipStatus(true)
-        toast.success("membership Applied")
-      }
-    }
+  //     if (activeMembership?.creditsLeft > 0) {
+  //       setMemberShipStatus(true)
+  //       toast.success("membership Applied")
+  //     }
+  //   }
 
 
-  }
+  // }
 
   const customerDetailsArray = [
     {
@@ -619,22 +685,57 @@ const Edit = () => {
   const paymentDetailsArray = [
     { label: "SERVICES SUBTOTAL", value: formatValue(subTotalServices) },
     { label: "DISCOUNT", value: formatValue(serviceDiscount) },
-    (gstApplied && ({ label: "SERVICE GST", value: serviceGst })),
+  gstApplied ? { label: "SERVICE GST", value: serviceGst } : null,
     { label: "TOTAL SERVICES", value: formatValue(serviceTotal) },
 
     { label: "PRODUCT SUBTOTAL", value: formatValue(subProductTotal) },
 
     { label: "TOTAL PRODUCTS", value: formatValue(subProductTotal) },
     { label: "PAYABLE AMOUNT", value: formatValue(totalAmount) },
-  ];
+  ]?.filter(Boolean);
   const tableFields = [customerDetailsArray, paymentDetailsArray];
   // handle book appointment
+  const validate=(products)=>{
+      if(addedAppointmentDetails?.length>0){
+      let serviceValid = addedAppointmentDetails.some((elm)=>!elm.staffId||!elm.price)
+      if(serviceValid){
+        serviceRef.current?.scrollIntoView({
+      behavior: "smooth", // smooth scroll
+      block: "start",     // start | center | end | nearest
+    });
+    toast.error("Please fill fields in services")
+        return false;
+      }
+
+    }
+    
+
+    if (products?.length > 0) {
+      let fieldEmpty = products.some((elm) =>!elm.staffId|| !elm.price || !elm.quantity||!elm.gst)
+      if (fieldEmpty) {
+        
+        productRef.current?.scrollIntoView({
+          behavior: "smooth", // smooth scroll
+          block: "start",     // start | center | end | nearest
+        });
+      toast.error("Please fill all fields in products")
+        return false
+      }
+    }
+    return true
+  }
   const handleBookAppointment = () => {
-
-
+    
+    
+    const {serviceGst,serviceSubTotal,serviceTotal,updatedProducts,productGstTotal,productBaseAmountTotal,productTotal} =handleProductAndServiceGst(totalService,appointementProducts,appointmentDetails?.appointmentDate);
     const data = {
       services: addedAppointmentDetails,
-
+      serviceSubTotal,
+      serviceGst,
+      serviceTotal,
+      productGst:productGstTotal,
+      productSubTotal:productBaseAmountTotal,
+      productTotal,
       subTotal: subTotalServices,
       total: totalAmount,
 
@@ -644,10 +745,11 @@ const Edit = () => {
 
       // membershipCreditUsed: (memberShipStatus)? (+subTotalServices):0,
       membershipCreditUsed: isMembershipApplied ? +subServiceTotal : memberShipStatus ? Math.max(0, Math.min(activeMembership?.creditsLeft || 0, serviceTotal)) : 0,
-      products: appointementProducts,
+      products: updatedProducts,
       discount: serviceDiscount,
       discountPercentage: applyDisountPer,
     };
+    if(!validate(updatedProducts))return 
 
     postApiData(
       `appointment/editAppointmentBookedFromCrm?id=${id}`,
@@ -671,6 +773,26 @@ const Edit = () => {
 
   }, [discount])
 
+  useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (
+          searchContainerRef.current &&
+          !searchContainerRef.current.contains(event.target)
+        ) {
+          setShowSearchResults(false);
+        }
+        if (
+          productContainerRef.current &&
+          !productContainerRef.current.contains(event.target)
+        ) {
+          setShowProdDropdown(false);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+  
   const removeMembership = async() => {
     const data = {
       creditsUsed: membershipCreditUsed,
@@ -721,7 +843,7 @@ const Edit = () => {
           </div>
 
         </div>  {/* service Detail */}
-        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+        <div ref={serviceRef} className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
 
           <div className="flex items-center gap-6  mb-9 ">
             <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Service Detail</h2>
@@ -795,70 +917,58 @@ const Edit = () => {
         {/* service select */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
-            {
-              servicesFields?.map((customer, index) => {
-                const { name, label, placeholder, options, type } = customer
+          <div className="relative w-full flex flex-col gap-1 mb-5">
+              <NormalInput
+                name="searchService"
+                label="Search Service"
+                placeholder="Service Name"
+                onChange={searchServiceOnchange}
 
-                const value = serviceSelection[name];
-                return (
-                  <div key={index} className="relative">
-                    <div className="flex flex-col gap-1">
+                value={searchService}
+                inputStyles={{
+                  'borderRadius': '16px'
 
-                      {name === "price" ?
-
-                        <NormalInput
-                          name={name}
-                          type={type}
-                          label={label}
-                          onChange={handleServiceChange}
-                          placeholder={placeholder}
-                          value={value}
-                          inputStyles={{
-                            'borderRadius': '16px'
-
-                          }}
-                          lableStyles={{
-                            'fontWeight': '400',
-                            "fontSize": "16px",
-                            'color': '#000000'
-                          }}
+                }}
+                lableStyles={{
+                  'fontWeight': '400',
+                  "fontSize": "16px",
+                  'color': '#000000'
+                }}
 
 
 
-                        />
-                        : <NormalSelect
+              />
+              <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
+              {searchServices?.length > 0 && showSearchResults && (
+                <div
+                ref={searchContainerRef}
+                  className="absolute top-[80px] w-full p-2  max-h-[350px]  overflow-y-auto bg-white shadow-lg z-[1000]"
+                >
+                  {searchServices?.map((item) => {
+                    return (
+                      <div
+                        className="flex justify-between  bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md cursor-pointer"
+                      >
+                      <div className="flex gap-6  cursor-pointer">
 
-                          name={name}
-                          label={label}
-                          options={options}
-                          onChange={handleServiceChange}
-                          value={value}
-                          inputStyles={{
-                            'borderRadius': '16px'
-
-                          }}
-                          lableStyles={{
-                            'fontWeight': '400',
-                            "fontSize": "16px",
-                            'color': '#000000'
-                          }}
-
-
-
-                        />}
-                    </div>
-
-                  </div>
-                )
-              })
-            }
-          </div>
-          <div className="flex justify-end mt-5">
+                        <p className="mr-2 capitalize font-medium">{item.category}</p>
+                        <p className="mr-2 capitalize font-medium">{item.subCategory}</p>
+                        <p className="mr-2 capitalize font-semibold">{item.name}</p>
+                        <p className="mr-2 capitalize font-semibold">₹{item.price}</p>
+                        <p className="mr-2 capitalize font-semibold">{item.gender}</p>
+                      </div>
+                      <button onClick={() => serviceNameOnclick(item)} className="bg-ternary hover:scale-105 delay-100 duration-100 transition-all ease-in px-4 rounded-lg py-2 text-white font-bold">Add</button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          {/* <div className="flex justify-end mt-5">
 
             <button onClick={serviceAddpress}
               className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
-          </div>
+          </div> */}
 
         </div>
         <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
@@ -869,7 +979,7 @@ const Edit = () => {
           </div>
 
           {appointementProducts?.length > 0 && (
-            <div className="w-full">
+            <div ref={productRef}  className="w-full">
               <table className="w-full">
                 <thead>
                   <tr>
@@ -939,8 +1049,7 @@ const Edit = () => {
         {/* product select */}
         <div className="rounded-[10px] mb-9 bg-white border p-5 ">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Product</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 mb-4 ">
-            <div className="relative w-full flex flex-col gap-1">
+                      <div className="relative w-full flex flex-col gap-1">
               <NormalInput
                 name="product"
                 label="Search Product"
@@ -962,26 +1071,31 @@ const Edit = () => {
 
               />
               <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
-              {searchProduct?.length > 0 && (
+              {showProdDropdown&& showSearchProduct?.length > 0 && (
                 <div
-                  style={{}}
-                  className="absolute top-[80px] w-full p-2 max-h-[200px]  overflow-y-auto bg-white shadow-lg z-[2]"
+                  ref={productContainerRef}
+                  className="absolute top-[80px] w-full  p-2 max-h-[300px]  overflow-y-auto bg-white shadow-lg z-[9]"
                 >
                   {showSearchProduct?.map((item) => {
                     return (
                       <div
-                        onClick={() => productNameOnclick(item)}
-                        className="flex bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
+                        className="flex justify-between  bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md  cursor-pointer"
                       >
+                        <div className="flex gap-6  cursor-pointer">
+
+                       
+                        <p className="mr-2 capitalize font-medium">{item.brand}</p>
                         <p className="mr-2 capitalize font-semibold">{item.name}</p>
+                        <p className="mr-2 capitalize font-semibold">₹{item.price}</p>
+                      </div>
+                      <button onClick={() => productNameOnclick(item)} className="bg-ternary hover:scale-105 delay-100 duration-100 transition-all ease-in px-4 rounded-lg py-2 text-white font-bold">Add</button>
                       </div>
                     );
                   })}
                 </div>
               )}
             </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
+          {/* <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
             {
               productFields?.map((elm, index) => {
                 const { name, label, placeholder, value, readOnly, type, options } = elm
@@ -1043,7 +1157,7 @@ const Edit = () => {
 
             <button onClick={addproductPress}
               className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Confirm</button>
-          </div>
+          </div> */}
 
         </div>
 

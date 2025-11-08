@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import "./BookAppointment.css";
-import { formatDateWOYear, formatValue, getApiCall, postApiData } from "../../utils/services";
+import { formatDateWOYear, formatValue, getApiCall, handleProductAndServiceGst, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteProducts, newUpdateService, productAdded, removeAppointmentProductsData, serviceAdded, updateProducts } from "../../redux/actions";
+import {
+  deleteProducts,
+  newUpdateService,
+  productAdded,
+  removeAppointmentProductsData,
+  serviceAdded,
+  updateProducts,
+} from "../../redux/actions";
 import { deletItems } from "../../redux/actions";
 import { MdDeleteOutline } from "react-icons/md";
 import TimePicker from "rc-time-picker";
@@ -16,6 +23,7 @@ import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import AddCustomerModal from "../../components/modals/AddCustomerModal";
 import useDebouncer from "../../utils/hooks/useDebouncer";
+import { fetchParlors } from "../../redux/reducers";
 const formatDate = (date) => {
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0"); // January is 0!
@@ -26,7 +34,17 @@ const BookAppointment = ({ onTabChange }) => {
   const gstToken = localStorage.getItem("gstApplied");
   const gstApplied = (gstToken === "true")
   const [loading, setLoading] = useState(false);
-  const { debouncedFunction } = useDebouncer()
+  const serviceRef= useRef(null)
+  const productRef= useRef(null)
+  const customerRef= useRef(null)
+  
+  const { debouncedFunction } = useDebouncer();
+  const [searchService,setSearchService]=useState("")
+  const [searchServices,setSearchServices]=useState([])
+  const [showSearchResults,setShowSearchResults]=useState(false);
+  const { parlorLoading, parlorData, parlorError } = useSelector((state) => state.parlorReducer);
+  const parlorServices= parlorData?.services||[];
+  const parlorProducts=parlorData?.products||[];
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
     phoneNumber: "",
@@ -49,6 +67,9 @@ const BookAppointment = ({ onTabChange }) => {
   })
   const [visible, setVisible] = useState(false);
   const [userData, setUserData] = useState([]);
+  const searchContainerRef = useRef(null);
+  const productContainerRef = useRef(null);
+  const search = useRef(null);
 
   const [service, setService] = useState([]);
   const [subservice, setSubService] = useState([]);
@@ -65,6 +86,7 @@ const BookAppointment = ({ onTabChange }) => {
 
   const [applyDisountPer, setApplyDiscountPer] = useState(0);
   const [searchProduct, setsearchProduct] = useState("");
+  const [showProdDropdown, setShowProdDropdown] = useState(false);
   const [showSearchProduct, setShowSearchProduct] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
@@ -212,7 +234,7 @@ const BookAppointment = ({ onTabChange }) => {
   const countdiscount = Math.floor((subtotalPrice * applyDisountPer) / 100);
 
   const payableAmount = formatValue(subtotalPrice - countdiscount);
-  const serviceGst = gstApplied ? formatValue(payableAmount * 0.18) : 0;
+  const serviceGst = gstApplied ? formatValue(payableAmount * 0.05) : 0;
   const serviceTotal = Math.round(payableAmount + serviceGst);
   const totalProductServicePayable = Math.round(serviceTotal + productTotalPrice);
   const [serviceSelection, setServiceSelection] = useState({
@@ -224,47 +246,66 @@ const BookAppointment = ({ onTabChange }) => {
     satffName: "",
   });
 
+ useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
+        setShowSearchResults(false);
+      }
+      if (
+        productContainerRef.current &&
+        !productContainerRef.current.contains(event.target)
+      ) {
+        setShowProdDropdown(false);
+      }
+    };
 
-  useEffect(() => {
-    getApiCall(
-      "salonService/getServiceCategory",
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  // useEffect(() => {
+  //   getApiCall(
+  //     "salonService/getServiceCategory",
 
-      (resp) => {
-        setService(resp);
-      },
-      (error) => { }
-    );
-  }, [customerDetails?.gender]);
+  //     (resp) => {
+  //       setService(resp);
+  //     },
+  //     (error) => { }
+  //   );
+  // }, [customerDetails?.gender]);
   // api call for getting subcategory
   const categorydata = {
     categoryName: serviceSelection.category,
     gender: customerDetails.gender,
   };
-  useEffect(() => {
-    postApiData(
-      "salonService/getSubServiceCategory",
-      categorydata,
-      (resp) => {
-        setSubService(resp);
-      },
-      (error) => { }
-    );
-  }, [serviceSelection.category]);
-  const minicatgdata = {
-    category: serviceSelection.category,
-    gender: customerDetails.gender,
-    subCategory: serviceSelection.subCategory,
-  };
-  useEffect(() => {
-    postApiData(
-      "salonService/getSuggestedSalonServices",
-      minicatgdata,
-      (resp) => {
-        setMiniService(resp[0]);
-      },
-      (error) => { }
-    );
-  }, [serviceSelection.subCategory]);
+  // useEffect(() => {
+  //   postApiData(
+  //     "salonService/getSubServiceCategory",
+  //     categorydata,
+  //     (resp) => {
+  //       setSubService(resp);
+  //     },
+  //     (error) => { }
+  //   );
+  // }, [serviceSelection.category]);
+  // const minicatgdata = {
+  //   category: serviceSelection.category,
+  //   gender: customerDetails.gender,
+  //   subCategory: serviceSelection.subCategory,
+  // };
+  // useEffect(() => {
+  //   postApiData(
+  //     "salonService/getSuggestedSalonServices",
+  //     minicatgdata,
+  //     (resp) => {
+  //       setMiniService(resp[0]);
+  //     },
+  //     (error) => { }
+  //   );
+  // }, [serviceSelection.subCategory]);
+  
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
@@ -273,56 +314,94 @@ const BookAppointment = ({ onTabChange }) => {
       },
       (error) => { }
     );
-  }, [serviceSelection.subCategory]);
-
+  }, []);
+  
   const dispatch = useDispatch();
-  const handleServiceChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "miniSubcategory") {
-      const splited = value.split("---");
-      const price = splited[0];
-      const val = splited[1];
-      setServiceSelection({
-        ...serviceSelection,
-        miniSubcategory: value,
-        price: +price,
-        miniSub: val,
-      });
-    } else if (name === "staff") {
-      const splited = value.split("-");
-      const Name = splited[1];
-      const Id = splited[0];
+  console.log(x,"services")
+  // const handleServiceChange = (e) => {
+  //   const { name, value } = e.target;
+  //   if (name === "miniSubcategory") {
+  //     const splited = value.split("---");
+  //     const price = splited[0];
+  //     const val = splited[1];
+  //     setServiceSelection({
+  //       ...serviceSelection,
+  //       miniSubcategory: value,
+  //       price: +price,
+  //       miniSub: val,
+  //     });
+  //   } else if (name === "staff") {
+  //     const splited = value.split("-");
+  //     const Name = splited[1];
+  //     const Id = splited[0];
+      
+  //     setServiceSelection({
+  //       ...serviceSelection,
+  //       staffId: Id,
+  //       satffName: Name,
+  //     });
+  //   } else {
+  //     setServiceSelection((prev) => ({
+  //       ...prev,
+  //       [name]: name === "price" ? Math.max(0, +value) : value,
+  //     }));
+  //   }
+  // };
+  
+  // const handldeAddButton = () => {
+  //   const { miniSub, miniSubcategory, ...rest } = serviceSelection;
+    
+  //   const selected = {
 
-      setServiceSelection({
-        ...serviceSelection,
-        staffId: Id,
-        satffName: Name,
-      });
-    } else {
-      setServiceSelection((prev) => ({
-        ...prev,
-        [name]: name === "price" ? Math.max(0, +value) : value,
-      }));
+  //     ...rest,
+  //     miniSubcategory: miniSub,
+  //   };
+  //   const isEveryEmpty = Object.values(selected).some((elm) => !elm);
+  //   if (isEveryEmpty) {
+  //     return toast.error("Please Select All Fields");
+  //   }
+  //   dispatch(serviceAdded(selected));
+  //   // alert("All service added")
+  //   toast.success("All Service Added!!");
+  // };
+  const validate=(products)=>{
+      if(x?.length>0){
+      let serviceValid = x.some((elm)=>!elm.staffId||!elm.price)
+      if(serviceValid){
+        serviceRef.current?.scrollIntoView({
+      behavior: "smooth", // smooth scroll
+      block: "start",     // start | center | end | nearest
+    });
+    toast.error("Please fill fields in services")
+        return false;
+      }
+
     }
-  };
-
-  const handldeAddButton = () => {
-    const { miniSub, miniSubcategory, ...rest } = serviceSelection;
-
-    const selected = {
-
-      ...rest,
-      miniSubcategory: miniSub,
+    if (!customerDetails?.name) {
+        customerRef.current?.scrollIntoView({
+          behavior: "smooth", // smooth scroll
+          block: "start",     // start | center | end | nearest
+        });
+      
+       toast.error("Please Add Customer")
+    return false;
     };
-    const isEveryEmpty = Object.values(selected).some((elm) => !elm);
-    if (isEveryEmpty) {
-      return toast.error("Please Select All Fields");
-    }
-    dispatch(serviceAdded(selected));
-    // alert("All service added")
-    toast.success("All Service Added!!");
-  };
 
+    if (products?.length > 0) {
+      let fieldEmpty = products.some((elm) =>!elm.staffId|| !elm.price || !elm.quantity||!elm.gst)
+      if (fieldEmpty) {
+        
+        productRef.current?.scrollIntoView({
+          behavior: "smooth", // smooth scroll
+          block: "start",     // start | center | end | nearest
+        });
+      toast.error("Please fill all fields in products")
+        return false
+      }
+    }
+    return true
+  }
+  
   const handldeBookAppointment = () => {
     const { name,
       phoneNumber,
@@ -331,9 +410,10 @@ const BookAppointment = ({ onTabChange }) => {
       gstNumber,
       note
     } = customerDetails;
-
-    if (!name) return toast.error("Please Add Customer")
-
+  
+    const {serviceGst,serviceSubTotal,serviceTotal,updatedProducts,productGstTotal,productBaseAmountTotal,productTotal} =handleProductAndServiceGst(payableAmount,productDataReducer,appointmentDetails?.date);
+     
+    if(!validate(updatedProducts))return;
     const data = {
       services: x,
       customer: {
@@ -347,6 +427,12 @@ const BookAppointment = ({ onTabChange }) => {
         note,
       },
       subTotal: subtotalPrice,
+      serviceSubTotal,
+      serviceGst,
+      serviceTotal,
+      productGst:productGstTotal,
+      productSubTotal:productBaseAmountTotal,
+      productTotal,
       // total: subtotalPrice,
       total: totalProductServicePayable,
       // appointmentDate: date + "T" + time + ".000Z",
@@ -356,14 +442,14 @@ const BookAppointment = ({ onTabChange }) => {
       // membershipCreditUsed: +memberShip,
       // membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
       membershipCreditUsed: memberShipStatus ? Math.max(0, Math.min(activeMembership?.creditsLeft || 0, serviceTotal)) : 0,
-      products: productDataReducer,
+      products: updatedProducts,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
       membershipId: activeMembership?._id,
     };
     setLoading(true)
-
-    // if (serviceDataReducerLength > 0) {
+    
+    
     postApiData(
       "appointment/bookAppointmentFromCrm",
       data,
@@ -374,7 +460,7 @@ const BookAppointment = ({ onTabChange }) => {
           toast.success("Appointment Booked Sucessfully");
           dispatch(removeAppointmentProductsData());
           onTabChange(1)
-
+          
         }
       },
       (error) => {
@@ -383,13 +469,13 @@ const BookAppointment = ({ onTabChange }) => {
         toast.error("Booking status failed!");
       }
     );
-
-    // }
+    
+    
   };
   // ...`
   const nameOnclick = (item) => {
     // e.preventDefault();
-
+    
     setMemberShipItem(item);
     setCustomerDetails((prev) => ({
       ...prev,
@@ -398,42 +484,58 @@ const BookAppointment = ({ onTabChange }) => {
       gstNumber:item?.gstNumber||"",
       note:item?.note||""
     }));
-
+    
     setUserId(item._id);
     setVisible(false);
   };
-
+  
   // product name on click
-
+  
   const productNameOnclick = (item) => {
-    setSelectedProduct({
+    
+    const selected ={
       ...item,
-      quantity: 1
+      price:isNaN(parseInt(item.price))?1999:parseInt(item.price),
+      quantity:1,
+      gst:item?.gst||18,
 
-    });
-    setsearchProduct("");
+    }
+ dispatch(productAdded(selected));
+    toast.success("product added succesfully");
+    };
+  const serviceNameOnclick = (item) => {
+    const selected={
+      ...item,
+      category: item?.category,
+    subCategory: item?.subCategory,
+    miniSubcategory: item.name,
+    price:isNaN(parseInt(item?.price))?1999:parseInt(item?.price),
+  
+    }
+     dispatch(serviceAdded(selected));
+     toast.success("service added")
   };
-
+  
   const deleteService = (item) => {
     dispatch(deletItems(item));
   };
   const deleteProduct = (id) => {
     dispatch(deleteProducts(id));
   };
-
+  
   const handleSubmit = () => {
     const payload = {
       ...customerDetails,
       dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
       aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
-
+      
     }
     if (!payload?.phoneNumber || payload.phoneNumber?.length !== 10) {
 
       return toast.error("Enter Valid Phone Number")
     }
     if (!payload?.name) {
-
+      
       return toast.error("Enter Valid Customer Name")
     }
     postApiData(
@@ -448,34 +550,66 @@ const BookAppointment = ({ onTabChange }) => {
   };
 
   const [isModalOpen, setModalOpen] = useState(false);
-
+  
   const openModal = () => {
     setModalOpen(true);
   };
-
+  
   const closeModal = () => {
     setModalOpen(false);
   };
-
-  const fetchProd = (data) => {
-    postApiData(
-      "inventory/getSuggestedProductOfSalon",
-      data,
-      (resp) => {
-        setShowSearchProduct(resp.products);
-      },
-      (error) => { }
-    );
+  
+  // const fetchProd = (data) => {
+  //   postApiData(
+  //     "inventory/getSuggestedProductOfSalon",
+  //     data,
+  //     (resp) => {
+  //       setShowSearchProduct(resp.products);
+  //     },
+  //     (error) => { }
+  //   );
+  // }
+  
+  const matchProds =(searchTerm)=> {
+    const products =parlorProducts?.filter((product)=>{
+  const matches= product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product?.brand?.toLowerCase().includes(searchTerm.toLowerCase());
+        return matches
+    })
+    if(products?.length>0)
+    setShowProdDropdown(true)
+    setShowSearchProduct(products)
+  
+       
   }
 
   // on search product click
   const searchProductOnchange = (e) => {
     setsearchProduct(e.target.value);
-    const data = {
-      name: searchProduct,
-    };
-    debouncedFunction(fetchProd, 500, data)
+  
+    debouncedFunction(matchProds, 200, e.target.value)
+    
+  };
+  const matchesSearch =(searchTerm)=> {
+    const services =parlorServices?.filter((service)=>{
+  const matches= service?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service?.subCategory?.toLowerCase().includes(searchTerm.toLowerCase())||
+        service?.category?.toLowerCase().includes(searchTerm.toLowerCase());
+        return matches
+    })
+    if(services?.length>0)
+      setShowSearchResults(true)
+    setSearchServices(services)
+  
+       
+  }
 
+ 
+  const searchServiceOnchange = (e) => {
+    const val= e.target.value
+    setSearchService(val);
+    debouncedFunction(matchesSearch, 300,val)
+    
   };
   const applyDiscount = (discount) => {
     setApplyDiscountPer(discount);
@@ -483,11 +617,11 @@ const BookAppointment = ({ onTabChange }) => {
     if (discount)
       toast.success("Discount Added Successfully");
   };
-
-
-
+  
+  
+  
   const fetchUser = () => {
-
+    
     setVisible(true);
     const data = {
       phoneNumber: customerDetails?.phoneNumber,
@@ -500,74 +634,79 @@ const BookAppointment = ({ onTabChange }) => {
       },
       (error) => { }
     );
-
+    
   }
+  
+  // const addproductPress = (
+  // ) => {
+  //   if (!selectedProduct) return toast.error("Please Select Product");
+    
+  //   const { quantity, // Adding quantity key
+  //     staffId,
+  //     staffName, price,gst } = selectedProduct
+  //     if (!quantity || quantity === "0") {
+  //       toast.error("Please Enter Quantiy");
+        
+  //       return;
+  //     }
+  //     if (!price || price === "0") {
+  //       toast.error("Please Enter Price");
+        
+  //       return;
+  //     }
+  //     if (!staffId || !staffName) {
+  //       toast.error("Please Select Staff");
+        
+  //       return;
+  //   }
+  //   if (!price) {
+  //     toast.error("Please Select Product");
+      
+  //     return;
+  //   }
+  //   if (!gst) {
+  //     toast.error("Please Select gst");
+      
+  //     return;
+  //   }
+    
+  //   // productQnt,productStaffid
+    
+    
+  //   dispatch(productAdded(selectedProduct));
+  //   toast.success("product added succesfully");
+  // };
+  
 
-  const addproductPress = (
-  ) => {
-    if (!selectedProduct) return toast.error("Please Select Product");
+  // useEffect(() => {
+    //   console.log(x, productDataReducer, "data")
+    // }, [x, productDataReducer])
+    
+  //   const handleProductChange = (e) => {
+  //     const { name, value } = e.target;
+  //     if (name === 'staffName') {
+  //       const splited = value.split("-");
+  //       const Name = splited[1];
+  //       const Id = splited[0];
+  //       setSelectedProduct((prev) => ({
+  //         ...prev,
+  //         staffId: Id,
+  //         staffName: Name,
+  //       }));
+        
+  //     }
+  //     else {
+        
+  //       setSelectedProduct((prev) => ({
+  //         ...prev,
+  //         [name]: (name === "price" || name === "quantity") ? Math.max(0, +value) :(name==="gst"&&name==="quantity")?+value: value
+  //     }))
+  //   }
 
-    const { quantity, // Adding quantity key
-      staffId,
-      staffName, price, } = selectedProduct
-    if (!quantity || quantity === "0") {
-      toast.error("Please Enter Quantiy");
-
-      return;
-    }
-    if (!price || price === "0") {
-      toast.error("Please Enter Price");
-
-      return;
-    }
-    if (!staffId || !staffName) {
-      toast.error("Please Select Staff");
-
-      return;
-    }
-    if (!price) {
-      toast.error("Please Select Product");
-
-      return;
-    }
-
-    // productQnt,productStaffid
-
-
-    dispatch(productAdded(selectedProduct));
-    toast.success("product added succesfully");
-  };
-
-
-  useEffect(() => {
-    console.log(x, productDataReducer, "data")
-  }, [x, productDataReducer])
-
-  const handleProductChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'staffName') {
-      const splited = value.split("-");
-      const Name = splited[1];
-      const Id = splited[0];
-      setSelectedProduct((prev) => ({
-        ...prev,
-        staffId: Id,
-        staffName: Name,
-      }));
-
-    }
-    else {
-
-      setSelectedProduct((prev) => ({
-        ...prev,
-        [name]: (name === "price" || name === "quantity") ? Math.max(0, +value) : value
-      }))
-    }
-
-
-  }
-
-
+    
+  // }
+  
+  
   const genderFields = [
     {
       name: "Male",
@@ -578,39 +717,40 @@ const BookAppointment = ({ onTabChange }) => {
       value: "F",
     },
   ];
-  const servicesFields = [
-    {
-      name: "category",
-      label: "Add Service"
-    },
-    {
-      name: "subCategory",
-      label: "Category"
-    },
-    {
-      name: "miniSubcategory",
-      label: "Sub Category"
-
-    },
-    {
-      name: "price",
-      label: "Price",
-      type: "number",
-      placeholder: "Enter Price"
-
-    },
-    {
-      name: "staff",
-      label: "Select Staff"
-    },
-    // {
-    //   name: "product",
-    //   label: "Search Product",
-    //   type: "text",
-    //   placeholder: "Product Name"
-    // },
-
-  ];
+  // const servicesFields = [
+   
+  //   {
+  //     name: "category",
+  //     label: "Add Service"
+  //   },
+  //   {
+  //     name: "subCategory",
+  //     label: "Category"
+  //   },
+  //   {
+  //     name: "miniSubcategory",
+  //     label: "Sub Category"
+      
+  //   },
+  //   {
+  //     name: "price",
+  //     label: "Price",
+  //     type: "number",
+  //     placeholder: "Enter Price"
+      
+  //   },
+  //   {
+  //     name: "staff",
+  //     label: "Select Staff"
+  //   },
+  //   // {
+  //     //   name: "product",
+  //     //   label: "Search Product",
+  //   //   type: "text",
+  //   //   placeholder: "Product Name"
+  //   // },
+    
+  // ];
   const addCustomerFields = [
     {
       name: "name",
@@ -628,7 +768,7 @@ const BookAppointment = ({ onTabChange }) => {
       name: "email",
       label: "Email Address",
       value: customerDetails.email,
-
+      
       placeholder: "Enter Email Address",
     },
     {
@@ -658,32 +798,32 @@ const BookAppointment = ({ onTabChange }) => {
       placeholder: "Gst Number",
     },
   ];
-
-  const servicesOptions = {
-    category: service,
-    subCategory: subservice,
-    miniSubcategory: miniservice?.services?.map((elm) => ({
-      name: elm.name,
-      value: `${elm.price}---${elm.name}`,
-    })),
-    staff: staffData?.map((elm) => ({
-      name: elm.name,
-      value: `${elm._id}-${elm.name}`,
-    })),
-  };
+  
+  // const servicesOptions = {
+  //   category: service,
+  //   subCategory: subservice,
+  //   miniSubcategory: miniservice?.services?.map((elm) => ({
+  //     name: elm.name,
+  //     value: `${elm.price}---${elm.name}`,
+  //   })),
+  //   staff: staffData?.map((elm) => ({
+  //     name: elm.name,
+  //     value: `${elm._id}-${elm.name}`,
+  //   })),
+  // };
   const customerDetailsArray = [
     { label: "NAME", value: customerDetails.name },
     {
       label: "MEMBERSHIP",
       value:
-        membershipitem?.activeMembership?.length > 0 ? "Active" : "Inactive",
+      membershipitem?.activeMembership?.length > 0 ? "Active" : "Inactive",
     },
     { label: "TOTAL VISITS", value: 0 },
     { label: "CARD ON FILE", value: 0 },
     { label: "LAST VISIT", value: 0 },
     { label: "POINTS", value: 0 },
   ];
-
+  
   const paymentDetailsArray = [
     { label: "SUBTOTAL", value: subtotalPrice },
     { label: "DISCOUNT", value: countdiscount },
@@ -699,28 +839,28 @@ const BookAppointment = ({ onTabChange }) => {
       placeholder: "9876543210",
       value: customerDetails.phoneNumber,
     },
-
+    
     {
       name: "date",
       label: "Date",
       type: 'date',
       value: appointmentDetails?.date,
       placeholder: "DD-MM-YYYY"
-
+      
     },
     {
       name: "time",
       label: "Time",
       value: appointmentDetails?.time,
       placeholder: "DD-MM-YYYY"
-
+      
     },
     {
       name: "note",
       label: "Note",
       value: customerDetails?.note,
       placeholder: "Additional Info"
-
+      
     },
     {
       name: "gstNumber",
@@ -729,45 +869,64 @@ const BookAppointment = ({ onTabChange }) => {
       placeholder: "Gst Number"
 
     },
-  
+    
   ]
-  const productFields = [
+  const gstOption =[
     {
-      name: "name",
-      label: "Product Name",
-      placeholder: "Product Name",
-      value: selectedProduct?.name,
+      name:"18%",
+      value:18
     },
     {
-      name: "price",
-      label: "Price",
-      type: "Number",
-      placeholder: "Price",
-      value: selectedProduct?.price,
-    },
-    {
-      name: "brand",
-      label: "Brand",
-      value: selectedProduct?.brand,
-      readOnly: true,
-      placeholder: "Brand",
-    },
-    {
-      name: "quantity",
-      label: "Quantity",
-      type: "number",
-      value: selectedProduct?.quantity,
-      placeholder: "Quantity",
-    },
-    {
-      name: "staffName",
-      label: "Select Staff",
-      value: `${selectedProduct?.staffId}-${selectedProduct?.staffName}`,
-      options: staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))
-
-
+      name:"5%",
+      value:5
     }
   ]
+  
+  // const productFields = [
+  //   {
+  //     name: "name",
+  //     label: "Product Name",
+  //     placeholder: "Product Name",
+  //     value: selectedProduct?.name,
+  //   },
+  //   {
+  //     name: "price",
+  //     label: "Price",
+  //     type: "Number",              
+  //     placeholder: "Price",
+  //     value: selectedProduct?.price,
+  //   },
+  //   {
+  //     name: "brand",
+  //     label: "Brand",
+  //     value: selectedProduct?.brand,
+  //     readOnly: true,
+  //     placeholder: "Brand",
+  //   },
+  //   {
+  //     name: "quantity",
+  //     label: "Quantity",
+  //     type: "number",
+  //     value: selectedProduct?.quantity,
+  //     placeholder: "Quantity",
+  //   },
+  //   {
+  //     name: "gst",
+  //     label: "Gst",
+  //     type: "select",
+  //     value: selectedProduct?.gst,
+  //     options:gstOption,
+  //     placeholder: "Gst %",
+  //   },
+  //   {
+  //     name: "staffName",
+  //     label: "Select Staff",
+  //     value: `${selectedProduct?.staffId}-${selectedProduct?.staffName}`,
+  //     options: staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))
+      
+      
+  //   }
+  // ]
   const discounFields = [
     {
       label: "Discount Percentage",
@@ -794,8 +953,23 @@ const BookAppointment = ({ onTabChange }) => {
       readOnly: true
     }
   ]
+ const fields = [
+  { key: "index", label: "#", type: "text" },
+  { key: "miniSubcategory", label: "Name", type: "text" },
+  { key: "category", label: "Category", type: "text" },
+  { key: "subCategory", label: "Sub Category", type: "text" },
+  { key: "price", label: "Price", type: "input" },
+  { key: "staff", label: "Staff", type: "select" },
+  { key: "action", label: "Action", type: "action" },
+];
 
 
+  // Common cell class
+  // const cellClass =
+  //   "border-none text-sm 2xl:text-md text-ternaryGray font-normal";
+
+  
+  
   useEffect(() => {
     if (customerDetails?.phoneNumber) {
       debouncedFunction(fetchUser, 500)
@@ -805,19 +979,29 @@ const BookAppointment = ({ onTabChange }) => {
     if (discount >= 0) {
       debouncedFunction(applyDiscount, 800, discount)
     }
-
+    
   }, [discount])
+  
+  
+  // useEffect(()=>{
+    
+  //   console.log(subtotalPrice,
+  //     // total: subtotalPrice,
+  //     totalProductServicePayable,payableAmount,"total")
+  //   },[subtotalPrice,totalProductServicePayable,payableAmount])
+    
+    const tableFields = [customerDetailsArray, paymentDetailsArray];
 
-
-
-
-  const tableFields = [customerDetailsArray, paymentDetailsArray];
-  return (
-    <>
+    useEffect(() => {
+      dispatch(fetchParlors());
+    }, [dispatch]);
+    // console.log(serviceSelection,"serviceSelection")
+    return (
+      <>
       <div className="mx-auto ">
         {/* customer details */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
-          <div className="flex items-center mb-9 justify-between">
+          <div ref={customerRef} className="flex items-center mb-9 justify-between">
             <h2 className="font-normal leading-[20px]   text-black text-[24px]">Customer Details</h2>
             <button
               onClick={openModal}
@@ -843,6 +1027,7 @@ const BookAppointment = ({ onTabChange }) => {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
+            
             {
               customerFields?.map((customer, index) => {
                 const { name, label, placeholder, value, readOnly, type } = customer
@@ -924,7 +1109,7 @@ const BookAppointment = ({ onTabChange }) => {
         </div>
 
         {/* service Detail */}
-        <div className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+        <div ref={serviceRef} className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
 
           <div className="flex items-center gap-6  mb-9 ">
             <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Service Detail</h2>
@@ -936,14 +1121,17 @@ const BookAppointment = ({ onTabChange }) => {
               <table className="w-full">
                 <thead>
                   <tr>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">#</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Name</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Category</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Sub Category</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Price</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Staff</th>
-                    <th className="border-none  overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md">Action</th>
-                  </tr>
+                 
+                        {fields.map((f) => (
+                          <th
+                            key={f.key}
+                            className="border-none overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md"
+                          >
+                            {f.label}
+                          </th>
+                        ))}
+                      </tr>
+                 
                 </thead>
                 <tbody>
                   {x?.map((item, index) => (
@@ -990,11 +1178,57 @@ const BookAppointment = ({ onTabChange }) => {
         {/* service select */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
+          <div className="relative w-full flex flex-col gap-1 mb-5">
+              <NormalInput
+                name="searchService"
+                label="Search Service"
+                placeholder="Service Name"
+                onChange={searchServiceOnchange}
+
+                value={searchService}
+                inputStyles={{
+                  'borderRadius': '16px'
+
+                }}
+                lableStyles={{
+                  'fontWeight': '400',
+                  "fontSize": "16px",
+                  'color': '#000000'
+                }}
+
+
+
+              />
+              <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
+              {searchServices?.length > 0 && showSearchResults && (
+                <div
+                ref={searchContainerRef}
+                  className="absolute top-[80px] w-full p-2  max-h-[350px]  overflow-y-auto bg-white shadow-lg z-[1000]"
+                >
+                  {searchServices?.map((item) => {
+                    return (
+                      <div
+                        className="flex justify-between  bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md cursor-pointer"
+                      >
+                      <div className="flex gap-6  cursor-pointer">
+
+                        <p className="mr-2 capitalize font-medium">{item.category}</p>
+                        <p className="mr-2 capitalize font-medium">{item.subCategory}</p>
+                        <p className="mr-2 capitalize font-semibold">{item.name}</p>
+                        <p className="mr-2 capitalize font-semibold">₹{item.price}</p>
+                        <p className="mr-2 capitalize font-semibold">{item.gender}</p>
+                      </div>
+                      <button onClick={() => serviceNameOnclick(item)} className="bg-ternary hover:scale-105 delay-100 duration-100 transition-all ease-in px-4 rounded-lg py-2 text-white font-bold">Add</button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
-            {
+            {/* {
               servicesFields?.map((customer, index) => {
                 const { name, label, placeholder, type } = customer
-
                 const value = serviceSelection[name];
                 const options = servicesOptions[name]
                 return (
@@ -1048,13 +1282,13 @@ const BookAppointment = ({ onTabChange }) => {
                   </div>
                 )
               })
-            }
+            } */}
           </div>
-          <div className="flex justify-end mt-5">
+          {/* <div className="flex justify-end mt-5">
 
             <button onClick={handldeAddButton}
               className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Add Service</button>
-          </div>
+          </div> */}
 
         </div>
         {/* product Detail  */}
@@ -1062,7 +1296,6 @@ const BookAppointment = ({ onTabChange }) => {
           <div className="flex items-center gap-6  mb-9 ">
             <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Product Detail</h2>
             <span className="border text-black text-[13px] border-gray2 w-[27px] flex items-center justify-center rounded-[16px] h-[21px]">{productDataReducer?.length > 9 ? '9+' : productDataReducer?.length + "+"}</span>
-
           </div>
 
           {productDataReducer?.length > 0 && (
@@ -1075,6 +1308,7 @@ const BookAppointment = ({ onTabChange }) => {
                     <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Price</th>
                     <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Brand</th>
                     <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Quantity</th>
+                    <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Gst</th>
                     <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Staff</th>
                     <th className="border-none text-sm font-normal text-gray2 2xl:text-md">Action</th>
                   </tr>
@@ -1098,6 +1332,16 @@ const BookAppointment = ({ onTabChange }) => {
                         value={item?.quantity}
                         onChange={(e) => handleChangeServices(e, index, "products")}
                         inputStyles={{ width: "120px", padding: "5px 10px" }}
+                      /></td>
+                      <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"> <NormalSelect
+                        name="gst"
+                        label={""}
+                        options={gstOption}
+                        inputStyles={{ width: "150px", padding: "5px 10px" }}
+
+                        onChange={(e) => handleChangeServices(e, index, "products")}
+                        value={item?.gst}
+
                       /></td>
                       <td className="border-none text-sm 2xl:text-md text-ternaryGray font-normal"> <NormalSelect
                         name="staff"
@@ -1125,9 +1369,8 @@ const BookAppointment = ({ onTabChange }) => {
 
         </div>
         {/* product select */}
-        <div className="rounded-[10px] mb-9 bg-white border p-5 ">
+        <div ref={productRef} className="rounded-[10px] mb-9 bg-white border p-5 ">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Product</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 mb-4 ">
             <div className="relative w-full flex flex-col gap-1">
               <NormalInput
                 name="product"
@@ -1150,26 +1393,31 @@ const BookAppointment = ({ onTabChange }) => {
 
               />
               <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
-              {searchProduct?.length > 0 && (
+              {showProdDropdown&& showSearchProduct?.length > 0 && (
                 <div
-                  style={{}}
-                  className="absolute top-[80px] w-full p-2 max-h-[200px]  overflow-y-auto bg-white shadow-lg z-[2]"
+                  ref={productContainerRef}
+                  className="absolute top-[80px] w-full  p-2 max-h-[300px]  overflow-y-auto bg-white shadow-lg z-[9]"
                 >
                   {showSearchProduct?.map((item) => {
                     return (
                       <div
-                        onClick={() => productNameOnclick(item)}
-                        className="flex bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md transition-all duration-300 ease-in-out transform hover:bg-[#f5da42] hover:scale-95 cursor-pointer"
+                        className="flex justify-between  bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md  cursor-pointer"
                       >
+                        <div className="flex gap-6  cursor-pointer">
+
+                       
+                        <p className="mr-2 capitalize font-medium">{item.brand}</p>
                         <p className="mr-2 capitalize font-semibold">{item.name}</p>
+                        <p className="mr-2 capitalize font-semibold">₹{item.price}</p>
+                      </div>
+                      <button onClick={() => productNameOnclick(item)} className="bg-ternary hover:scale-105 delay-100 duration-100 transition-all ease-in px-4 rounded-lg py-2 text-white font-bold">Add</button>
                       </div>
                     );
                   })}
                 </div>
               )}
             </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
+          {/* <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
             {
               productFields?.map((elm, index) => {
                 const { name, label, placeholder, value, readOnly, type, options } = elm
@@ -1177,7 +1425,7 @@ const BookAppointment = ({ onTabChange }) => {
                   <div key={index}
                     className="relative">
                     <div className="flex flex-col gap-1">
-                      {name === "staffName" ? <NormalSelect
+                      {name === "staffName"|| name==="gst" ? <NormalSelect
 
                         name={name}
                         label={label}
@@ -1231,7 +1479,7 @@ const BookAppointment = ({ onTabChange }) => {
 
             <button onClick={addproductPress}
               className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal ">Add Product</button>
-          </div>
+          </div> */}
 
         </div>
 
@@ -1320,7 +1568,7 @@ const BookAppointment = ({ onTabChange }) => {
                             {item.label}
                           </td>
                           <td className=" font-normal   text-sm 2xl:text-md border-none px-4 py-2 text-green-800">
-                            {formatValue(item.value)}
+                            {isNaN(formatValue(item.value))?"NA":formatValue(item.value)}
                           </td>
                         </tr>
                       ))}

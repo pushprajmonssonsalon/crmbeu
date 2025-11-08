@@ -32,6 +32,8 @@ import Services from "./pages/customerServices/Services";
 import Members from "./pages/memberShip/Members";
 import Contacts from "./pages/Contacts/Contacts";
 import AllReport from "./pages/reports/AllReport";
+import Plans from "./pages/Plans/Plans";
+import Layout from "./components/Layout";
 
 function App() {
   useEffect(() => {
@@ -155,6 +157,10 @@ function App() {
         <Route
           path="/notifications"
           element={<PrivateRoute Component={Notification} />}
+        />
+        <Route
+          path="/plans"
+          element={<Layout><Plans/></Layout>}
         />
         <Route
           path="/notifications/:id"

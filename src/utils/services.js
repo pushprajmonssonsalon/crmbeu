@@ -2,8 +2,7 @@ import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
 const BASE_URL = "https://crm.smartsalon.in/";
-// const BASE_URL = "http://192.168.3.36:4002";
-// const BASE_URL = "http://192.168.2.242:4002";
+// const BASE_URL = "http://192.168.2.210:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
@@ -21,11 +20,12 @@ const authToken = store.getState();
 // });
 
 const setAuthorizationToken = (auth_token) => {
-  
+
   if (auth_token) {
     // instance.defaults.headers.common['Authorization'] =  `Bearer ${auth_token}`;
   }
 };
+
 const postApiData = (endpoint, apidata, success, failur) => {
   const token = localStorage.getItem("token");
   const instance = axios.create({
@@ -41,14 +41,15 @@ const postApiData = (endpoint, apidata, success, failur) => {
   instance
     .post(endpoint, apidata)
     .then((res) => {
-      
+
       success(res?.data?.data);
     })
     .catch((error) => {
-      
+
       failur(error);
     });
 };
+
 const getApiCall = (endpoint, success, failur) => {
   const token = localStorage.getItem("token");
   const instance = axios.create({
@@ -70,7 +71,8 @@ const getApiCall = (endpoint, success, failur) => {
       failur("error", error);
     });
 };
-function formatDateToFull(dateString,full=true) {
+
+function formatDateToFull(dateString, full = true) {
   if (dateString) {
     const [datePart, timePart] = dateString.split("T");
     const [year, month, day] = datePart.split("-");
@@ -82,10 +84,10 @@ function formatDateToFull(dateString,full=true) {
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ];
     const monthShort = monthNames[parseInt(month, 10) - 1];
-    
-    if(!full){
+
+    if (!full) {
       const formattedDate = `${parseInt(day, 10)} ${monthShort} ${year} `;
-       return formattedDate
+      return formattedDate
     }
     // Format the time as "08:34 AM/PM"
     let hourInt = parseInt(hour, 10);
@@ -99,6 +101,7 @@ function formatDateToFull(dateString,full=true) {
   }
   return dateString;
 }
+
 function formatDateMonth(dateString) {
   if (dateString) {
     const [datePart] = dateString.split("T");
@@ -123,21 +126,21 @@ const formatDateWOYear = (day, month) => {
   if (!day || !month) return null; // Handle empty values
   return new Date(`1970-${month.padStart(2, "0")}-${day.padStart(2, "0")}T00:00:00Z`);
 };
-function formatValue(value){
-  if(Array.isArray(value)){
-  return  value.map(elm=>formatValue(elm))
+function formatValue(value) {
+  if (Array.isArray(value)) {
+    return value.map(elm => formatValue(elm))
   }
-  else if(typeof value ==="number"){
-    return value>0? parseFloat(value?.toFixed(2)):value;
+  else if (typeof value === "number") {
+    return value > 0 ? parseFloat(value?.toFixed(2)) : value;
 
   }
-  else{
+  else {
     return value;
 
   }
 }
 
-const formatDate = (dateStr, ind = false,month=false) => {
+const formatDate = (dateStr, ind = false, month = false) => {
   if (!dateStr) return ""
 
   if (ind) {
@@ -147,8 +150,8 @@ const formatDate = (dateStr, ind = false,month=false) => {
     const yyyy = date[0]
     return `${dd}/${mm}/${yyyy}`
   }
-   if (month){
-                      // Full year
+  if (month) {
+    // Full year
     const date = new Date(dateStr);  // Current date
 
 
@@ -206,4 +209,107 @@ export function toLocalISOString(date) {
   return localDate.toISOString().slice(0, 19); // removes 'Z' and ms
 }
 
-export { postApiData, getApiCall, setAuthorizationToken ,formatDateToFull,formatValue,formatDateMonth,formatDateWOYear,formatDate,getStatusColor,getDaysBetween};
+const gstToken = localStorage.getItem("gstApplied");
+
+export const isGstExclusive=(gstToken === "true");
+export function calculateGst(val, inputDate,membership=false) {
+  if (!val || !inputDate) return val||0;
+  
+  const gstToken = localStorage.getItem("gstApplied");
+  const referenceDate = new Date("2025-09-22");
+  referenceDate.setHours(0, 0, 0, 0);
+
+  const userDate = new Date(inputDate);
+  userDate.setHours(0, 0, 0, 0);
+
+  // Decide GST rate based on date
+  const gstRate = userDate < referenceDate ? 0.18 : 0.05;
+
+  const gstExclusive = membership?false:gstToken === "true";
+  let baseAmount, gstAmount, finalAmount;
+  
+  if (gstExclusive) {
+    baseAmount = val;
+    gstAmount = val * gstRate;
+    finalAmount = baseAmount + gstAmount;
+  } else {
+    baseAmount = val / (1 + gstRate);
+    gstAmount = val - baseAmount;
+    finalAmount = val;
+  }
+
+  // Optional: format values if formatValue exists
+    baseAmount = formatValue(baseAmount);
+    gstAmount = formatValue(gstAmount);
+    finalAmount = formatValue(finalAmount);
+  
+
+  return { baseAmount, gstAmount, finalAmount };
+}
+export function calculateProductGst(val,gstRate=1.18) {
+  if (!val ) return val||0;
+  let prodBaseAmount = formatValue(val / gstRate);
+
+  
+  
+  return {prodBaseAmount,
+    prodGstAmount:formatValue(val-prodBaseAmount),
+    prodFinalAmount:val};
+}
+  const referenceDate = new Date("2025-09-22");
+  referenceDate.setHours(0, 0, 0, 0);
+
+  
+export function handleProductAndServiceGst(services,products,inputDate){
+   const {gstAmount,finalAmount,baseAmount}= calculateGst(services,inputDate)
+    //  console.log("services",gstAmount,finalAmount,baseAmount)
+
+const userDate = new Date(inputDate);
+  userDate.setHours(0, 0, 0, 0);
+  // Decide GST rate based on date
+  let gstChange= userDate < referenceDate;
+  let productGstTotal=0;
+  let productBaseAmountTotal=0;
+  let productTotal=0;
+const updatedProducts = products?.map((elm)=>{
+   let gstRate = 1.18; // default 18%
+
+  if (!gstChange && elm.gst === 5) {
+    gstRate = 1.05;
+  }
+   const amount = parseInt(elm.price) ;
+  const {prodGstAmount,prodBaseAmount} = calculateProductGst(amount, gstRate);
+  productGstTotal=formatValue(productGstTotal+prodGstAmount*parseInt(elm.quantity));
+  productBaseAmountTotal=formatValue(productBaseAmountTotal+prodBaseAmount*parseInt(elm.quantity));
+  productTotal=formatValue(productTotal+amount*parseInt(elm.quantity));
+  return{
+   ...elm,
+   gstAmount:prodGstAmount,
+   baseAmount:prodBaseAmount    
+  }
+})
+
+  
+
+   return {
+    serviceGst:gstAmount,
+    serviceTotal:finalAmount,
+    serviceSubTotal:baseAmount,
+    updatedProducts,
+    productGstTotal,
+    productBaseAmountTotal,
+    productTotal,
+   }
+
+}
+export const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+};
+
+export { postApiData, getApiCall, setAuthorizationToken, formatDateToFull, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };

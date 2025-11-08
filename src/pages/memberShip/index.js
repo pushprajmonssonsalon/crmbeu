@@ -12,6 +12,7 @@ import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import exportToExcel from "../../utils/exportToExcel";
 import { useSearchParams } from "react-router-dom";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
+import CustomTab from "../../components/tabs/CustomTab";
 export default function Membership() {
   const [isNewMembershipModal, setIsNewMembershipModal] = useState(false);
   const [membershiptype, setMembershipType] = useState([]);
@@ -42,6 +43,7 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
   const [membershipName, setMembershipName] = useState("");
   const [isPayed, setIsPayed] = useState(false);
   const navigate = useNavigate();
+
 
   const fetchMembershipReport = () => {
     getApiCall(
@@ -229,6 +231,7 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
 
   return (
     <>
+      
       <div className="w-full mx-auto">
 
         <MemComponent

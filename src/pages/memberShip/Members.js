@@ -4,6 +4,7 @@ import Membership from './index';
 import Advances from '../advances/Advances';
 import ActiveMembers from '../activeMembers/ActiveMembers';
 import ActiveMembership from './ActiveMembership';
+import AdvanceTab from '../advances/AdvanceTab';
 
 const Members = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -33,8 +34,8 @@ const Members = () => {
       },
       {
       
-        name:'Advance Payment',
-        component:<Advances  />
+        name:'Advance',
+        component:<AdvanceTab  />
   
       },
      

@@ -1,11 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router";
-import { formatDateToFull, formatValue, getApiCall, postApiData } from "../../utils/services";
+import { calculateGst, calculateProductGst, formatDateToFull, formatValue, getApiCall } from "../../utils/services";
 import { useReactToPrint } from "react-to-print";
-import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import AWS from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
 import salonLogo from "../../images/logo2.png";
 
 
@@ -45,24 +42,20 @@ const AppointmentBills = () => {
       amount: data?.cashbackUsed||0,
     },
   ]
-  const gstToken =localStorage.getItem("gstApplied");
-  const gstApplied =(gstToken==="true")
   const paymentMethodsValue = [...data?.paymentMethod,...otherMethod]?.filter((item) => item.amount > 0);
-  const currentDate = new Date();
-  const formattedDate = currentDate.toDateString();
 
   const serviceTotal = data.services.reduce((accumulator, { price }) => {
     return accumulator + parseFloat(price);
   }, 0);
 
 
-  const serviceDiscount = data.discount;
-  const serviceTaxable = serviceTotal - parseFloat(serviceDiscount);
-  const serviceFinalTax = gstApplied?formatValue(serviceTaxable):formatValue(serviceTaxable / 1.18);
-  const CGST = formatValue((serviceFinalTax * 9) / 100);
-  const SGST = formatValue((serviceFinalTax * 9) / 100);
-  const servicePayableAmount = Math.round(serviceFinalTax + (CGST) + (SGST))
-
+  const serviceDiscount = data.discount||0;
+  const serviceTaxable = serviceTotal||0 - parseFloat(serviceDiscount);
+  const {baseAmount,finalAmount,gstAmount} = calculateGst(serviceTaxable,data?.appointmentDate) 
+  let serviceSubTotal= data?.serviceSubTotal? data?.serviceSubTotal:baseAmount||0; 
+  const serviceGst =data?.serviceGst?data?.serviceGst: gstAmount||0;
+  const serviceFinalAmount = data?.serviceTotal?data?.serviceTotal:finalAmount||0;
+  
   // const productSubtotalAmount=data.products;
   const productTotalPrice = data.products.reduce(
     (accumulator, { price, quantity }) => {
@@ -70,14 +63,13 @@ const AppointmentBills = () => {
     },
     0
   );
-
-  const productTotalTaxtable = formatValue(productTotalPrice / 1.18);
-  const CGSTProduct = formatValue((productTotalTaxtable * 9) / 100);
-  const SGSTProduct = formatValue((productTotalTaxtable * 9) / 100);
-  // const paytax = Math.ceil(data.total / 1.18);
+  
+  const productSubTotal = data?.productSubTotal?data?.productSubTotal:formatValue(productTotalPrice / 1.18);
+  const productGstTotal = data?.productGst?data?.productGst:formatValue((productSubTotal * 0.18) );
+  // const paytax = Math.ceil(data.total / 1.05);
   const productFinalPayable = productTotalPrice
 
-  // const taxableTotalamountPay = Math.ceil((paytax + CGST + SGST).toFixed());
+  // const taxableTotalamountPay = Math.ceil((paytax + GST + SGST).toFixed());
   useEffect(() => {
     getApiCall(
       "parlor/getParlorDetail",
@@ -92,77 +84,24 @@ const AppointmentBills = () => {
     );
   }, []);
 
-  const paytax = Math.ceil(data.total / 1.18);
-  // const CGST = (paytax * 9) / 100;
+  // const GST = (paytax * 9) / 100;
   // const SGST = (paytax * 9) / 100;
-  const taxableTotalamountPay = Math.ceil((paytax + CGST + SGST)).toFixed(2);
 
   // const totalPayableAmount =
-  //   Math.ceil(serviceTaxable / 1.18) +
-  //   Math.ceil(productTotalPrice / 1.18) +
-  //   (productTotalPrice - Math.ceil(productTotalPrice / 1.18)) +
-  //   (serviceTaxable - Math.ceil(serviceTaxable / 1.18));
-
-  const totalPayableAmount =Math.round(servicePayableAmount+productFinalPayable)
-  const serviceHeadings = [
-    "Service Name",
-    "Category",
-    "Rate",
-    "QTY",
-    "Employee Name",
-  ];
+  //   Math.ceil(serviceTaxable / 1.05) +
+  //   Math.ceil(productTotalPrice / 1.05) +
+  //   (productTotalPrice - Math.ceil(productTotalPrice / 1.05)) +
+  //   (serviceTaxable - Math.ceil(serviceTaxable / 1.05));
+  console.log(serviceFinalAmount,productFinalPayable,"total")
+  const totalPayableAmount =Math.round(serviceFinalAmount+productFinalPayable)
+ 
 
   const handlePrint = useReactToPrint({
     documentTitle: "Apointment Bill",
 
     removeAfterPrint: true,
   });
-  function handleChange(current) {
-
-    const doc = new jsPDF();
-    doc.html(current, {
-      html2canvas: { scale: 1 / 8, autoPaging: true },
-      callback: (pdf) => {
-        const pdfData = pdf.output('blob');
-        const uniqueId = uuidv4();
-        const s3 = new AWS.S3({
-          accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY,
-          secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY,
-          region: process.env.REACT_APP_AWS_REGION,
-        });
-
-        const params = {
-          Bucket: 'tphpdfs',
-          Key: `uploaded/pdf_${uniqueId}.pdf`,
-          Body: pdfData,
-          ContentType: 'application/pdf',
-          ACL: 'public-read',
-        };
-
-        s3.upload(params, (err, data1) => {
-          if (err) {
-            console.error('Error uploading PDF to S3:', err);
-          } else {
-            const datas = {
-              appointmentId: data?._id,
-              invoiceUrl: data1.Location,
-              salonName: parlorDetails.name
-            }
-
-            postApiData("appointment/printAndSendInvoiceOfAppointment",
-              datas,
-              (resp) => {
-
-              },
-              (err) => {
-
-              }
-            )
-          }
-        });
-      },
-    });
-  };
+ 
 
   return (
     <>
@@ -311,19 +250,16 @@ const AppointmentBills = () => {
               </div>
               <div className="text-black font-medium">Taxable Service:</div>
               <div className="text-black font-medium text-right">
-                Rs {serviceFinalTax}
+                Rs {serviceSubTotal}
               </div>
-              <div className="text-black font-medium">CGST @ 9:</div>
+              <div className="text-black font-medium">GST </div>
               <div className="text-black font-medium text-right">
-                {CGST}
+               Rs {serviceGst}
               </div>
-              <div className="text-black font-medium">SGST @ 9:</div>
-              <div className="text-black font-medium text-right">
-                {SGST}
-              </div>
+           
               <div className="text-black font-medium">Total:</div>
               <div className="text-black font-medium text-right">
-                Rs {servicePayableAmount}
+                Rs {serviceFinalAmount}
               </div>
             </div>
           </div>
@@ -337,23 +273,28 @@ const AppointmentBills = () => {
             <table>
               <thead>
                 <tr className="text-black">
-                  <th class="text-bold">productName</th>
+                  <th class="text-bold">Name</th>
                   <th class="text-bold">Brand</th>
                   <th class="text-bold">Rate</th>
+                  <th class="text-bold">Gst</th>
                   <th class="text-bold">QTY</th>
-                  <th class="text-bold">StaffName</th>
-                  <th class="text-bold">subTotal</th>
+                  <th class="text-bold">Staff</th>
+                  <th class="text-bold">Total</th>
                 </tr>
               </thead>
               <tbody>
                 {data?.products.map((item, index) => {
                   // 
                   const totalPrice = item.quantity * item.price;
+                  const {prodBaseAmount,prodGstAmount}=calculateProductGst(item.price)
+                  const rate = item?.baseAmount|| prodBaseAmount||0
+                  const gstAmount = (item?.gstAmount|| prodGstAmount||0)
                   return (
                     <tr className="text-black font-semibold">
                       <td>{item.name}</td>
                       <td>{item.brand}</td>
-                      <td>Rs.{item.price}</td>
+                      <td>Rs.{rate}</td>
+                      <td>Rs.{gstAmount}</td>
                       <td>{item.quantity}</td>
                       <td class="">
                         {staffData
@@ -366,6 +307,7 @@ const AppointmentBills = () => {
                     </tr>
                   );
                 })}
+               
               </tbody>
             </table>
 
@@ -377,19 +319,16 @@ const AppointmentBills = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="text-black font-medium">Taxable Products:</div>
                 <div className="text-black font-medium text-right">
-                  Rs {productTotalTaxtable}
+                  Rs {productSubTotal}
                 </div>
-                <div className="text-black font-medium">CGST @ 9:</div>
+                <div className="text-black font-medium">GST </div>
                 <div className="text-black font-medium text-right">
-                  {CGSTProduct}
+                  Rs {productGstTotal}
                 </div>
-                <div className="text-black font-medium">SGST @ 9:</div>
-                <div className="text-black font-medium text-right">
-                  {SGSTProduct}
-                </div>
+               
                 <div className="text-black font-medium">Total:</div>
                 <div className="text-black font-medium text-right">
-                  Rs {productFinalPayable}
+                  Rs {productTotalPrice}
                 </div>
               </div>
             </div>

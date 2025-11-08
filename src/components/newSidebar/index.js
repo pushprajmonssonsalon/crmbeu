@@ -42,6 +42,7 @@ const VerticalSidebar = () => {
       num: 10,
     },
     { name: "Royality", link: `/royalities`, icon: FaRegStar, num: 10 },
+    { name: "Plans", link: `/plans`, icon: LiaChartBarSolid, num: 10 },
   ];
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("/")
@@ -63,29 +64,12 @@ const VerticalSidebar = () => {
     dispatch({ type: "TOGGLE_ACCORDION", payload: !openAccordion });
   };
 
-  const isReportLinkActive = () => {
-    const reportObj = menus.find((item => item.name === "Reports"))
-    const Index = reportObj.submenus.findIndex((item) => item.link === pathname)
-    if (Index !== -1) {
-      return true
-    }
-    return false
-
-
-
-  }
   useEffect(() => {
     setActiveTab(pathname)
   }, [pathname])
   return (
     <section className={`bg-secondaryPurple pt-[32px] sticky top-0  flex gap-6 h-screen  `}>
-      <div
-        // onMouseEnter={handleOpen}  onMouseLeave={()=>{
-        //   if(open){
-        //     handleOpen()
-        //   }
-        // }} 
-        className={`${open ? "w-56 pl-4 " : "w-16 pl-[11px]"} transition-all ease-in    overflow-hidden`}>
+      <div className={`${open ? "w-56 pl-4 " : "w-16 pl-[11px]"} transition-all ease-in    overflow-hidden`}>
 
         <div className="flex mb-[32px] h-[63px] justify-between">
 

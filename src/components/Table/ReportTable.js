@@ -12,7 +12,7 @@ const tableHeaders = [
 
 ];
 
-const ReportTable = ({ data }) => {
+const ReportTable = ({ data ,endDate}) => {
 
   return (
     <table className="styled-table">
@@ -27,7 +27,7 @@ const ReportTable = ({ data }) => {
       </thead>
       <tbody>
         {data?.map(({ name, categories }) => (
-          <TableRow key={name} name={name} categories={categories} tableHeaders={tableHeaders} />
+          <TableRow endDate={endDate} key={name} name={name} categories={categories} tableHeaders={tableHeaders} />
         ))}
       </tbody>
     </table>

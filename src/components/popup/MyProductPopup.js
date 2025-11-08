@@ -3,6 +3,7 @@ import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from "../../utils/services";
 import toast from "react-hot-toast";
 import NormalInput from "../customInput/NormalInput";
+import NormalSelect from "../customInput/NormalSelect";
 
 const MyProductPopup = ({
   data,
@@ -14,25 +15,28 @@ const MyProductPopup = ({
 }) => {
   const [productDetails, setProductDetails] = useState({
     price: 0,
-    mrp: 0
+    mrp: 0,
+    gst:18,
   })
 
 
   const handleEditServiceApi = () => {
-    const { price, mrp } = productDetails;
+    const { price, mrp ,gst} = productDetails;
     const item = {
       id: data?._id,
       price: +price == 0 ? data?.price : +price,
       mrp: +mrp == 0 ? data?.mrp : +mrp,
+      gst:+gst==0?data?.gst:+gst
     };
     postApiData(
       "inventory/editSalonProducts",
       item,
       (resp) => {
         if (resp) {
+          toast.success("product updated")
         } else {
           // alert("Chnages Applied Succesfully");
-          toast.success("Chenges Applied SuccessFully");
+          toast.error("Chenges not applied");
         }
       },
       (error) => {
@@ -76,16 +80,31 @@ const MyProductPopup = ({
       placeholder: "Price",
       disabled: false,
     },
+    {
+      select:true,
+      options:[{
+        name:"18%",
+        value:18
+      },{
+        name:"5%",
+        value:5
+      }],
+      name: "gst",
+      label: "Gst :",
+      placeholder: "Gst %",
+      disabled: false,
+    },
   ];
 
   useEffect(() => {
     setProductDetails({
       price: data?.price,
-      mrp: data?.mrp
+      mrp: data?.mrp,
+      gst:data?.gst
     })
 
   }, [data])
-  if (!isVisible) return null
+  if (!isVisible) return null;
   return (
     <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
       <div className=' w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
@@ -106,11 +125,30 @@ const MyProductPopup = ({
           <div className="grid grid-cols-1 gap-y-3 mb-4">
             {
               inputFields.map((input, index) => {
-                const { name, placeholder, label, disabled } = input;
+                const { name, placeholder, label, disabled,select,options } = input;
                 const value = disabled ? data?.[name] : productDetails[name];
 
                 return (
                   <div key={index} className="grid grid-cols-2 ">
+                  {
+                    select?<NormalSelect
+                       name={name}
+                      value={value}
+                      options={options}
+                      disabled={disabled}
+                      label={label}
+                      inputStyles={{
+                        'borderRadius': '10px',
+                        padding: "10px 15px",
+
+                      }}
+                      lableStyles={{
+                        'fontWeight': '400',
+                        "fontSize": "14px",
+                        'color': '#000000'
+                      }} placeholder={placeholder}
+                      onChange={handleChange}
+                    />:
                     <NormalInput
                       name={name}
                       value={value}
@@ -128,6 +166,7 @@ const MyProductPopup = ({
                       }} placeholder={placeholder}
                       onChange={handleChange}
                     />
+                  }
 
                   </div>
                 );

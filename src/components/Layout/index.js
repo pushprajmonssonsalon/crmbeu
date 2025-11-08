@@ -31,6 +31,7 @@ const routesObject = {
   "salon-details": "Salon Details",
   royalities: "Royalties",
   notifications: "Notifications",
+  plans:"Plans",
   "notifications/:id": "Notification Details"
 };
 const Layout = ({ children }) => {

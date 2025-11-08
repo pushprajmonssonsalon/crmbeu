@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { formatDate, formatValue, postApiData } from "../../utils/services";
+import { calculateGst, formatDate, formatValue, postApiData } from "../../utils/services";
 import exportToExcel from "../../utils/exportToExcel";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import CustomDatePicker from "../customInput/CustomDatePicker";
@@ -84,17 +84,25 @@ const Revenue = () => {
     );
   };
   const handleExport = () => {
+
     const updatedRevenue = revenue.map((elm) => {
+  const { baseAmount, gstAmount, finalAmount } = calculateGst((elm.services), endDate);
+
+      let products = elm?.products || 0;
+      let total = finalAmount + products;
+      let subTotal = baseAmount + products
+      let abv = Math.floor(total / elm?.appointment)
       return {
-        date:elm._id,
+        date: elm._id,
         appointment: elm.appointment,
-        revenue:formatValue(elm.total/1.18),
-        gst:formatValue((elm?.total * 0.18) / 1.18),
-        total:formatValue(elm.total),
-        membershipPoints:elm.membershipPoints,
-        products:elm.products,
-        services:elm.services,
-        
+        revenue: subTotal,
+        gst: gstAmount,
+        total: elm?.total,
+        membershipPoints: elm.membershipPoints,
+        products: elm.products,
+        services: elm.services,
+        abv
+
       }
     })
     if (updatedRevenue) exportToExcel(updatedRevenue, "Revenue", "revenue.xlsx");
@@ -170,19 +178,27 @@ const Revenue = () => {
           </thead>
           <tbody>
             {paginatedData
-              ?.map((row, index) => (
+              ?.map((row, index) => {
+                const {baseAmount,gstAmount,finalAmount}=calculateGst((row.services),endDate);
+                let products = row?.products||0;
+                let total=finalAmount+products;
+                let subTotal=baseAmount+products
+                let abv =Math.floor(total/row?.appointment)
+                return(
+
                 <tr key={index}>
                   <td >{row._id}</td>
                   <td>{formatValue(row?.appointment)}</td>
-                  <td>{formatValue(row?.total / 1.18)}</td>
-                  <td>{formatValue((row?.total * 0.18) / 1.18)}</td>
+                  <td>{formatValue(subTotal)}</td>
+                  <td>{formatValue(gstAmount)}</td>
                   <td>{formatValue((row?.total))}</td>
                   <td>{formatValue(row?.services)}</td>
-                  <td>{formatValue(row?.products)}</td>
+                  <td>{formatValue(products)}</td>
                   <td>{formatValue(row?.membershipPoints)}</td>
-                  <td>{formatValue((row?.total / row?.appointment))}</td>
+                  <td>{formatValue(abv)}</td>
                 </tr>
-              ))}
+                )
+            })}
           </tbody>
         </table>
         <div className="flex justify-between mt-4 items-center">

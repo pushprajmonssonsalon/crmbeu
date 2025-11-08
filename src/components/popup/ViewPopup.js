@@ -28,7 +28,7 @@ const ViewPopup = ({
     selected: false,
     cashbackUsed: 0,
   });
-  const serviceGst = gstApplied ? formatValue(subTotal * 0.18) : 0;
+  const serviceGst = gstApplied ? formatValue(subTotal * 0.05) : 0;
   const newSubTotal = Math.round(subTotal + serviceGst);
   const payableAmount=((total||0 )- (membershipCreditUsed||0))
   const currentTotal =(total||0)-(newSubTotal||0)
@@ -58,9 +58,7 @@ const ViewPopup = ({
 
   }, [customer]);
 
-  const closeModal = () => {
-    setModal(false);
-  };
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setActiveAppointment((prev) => {

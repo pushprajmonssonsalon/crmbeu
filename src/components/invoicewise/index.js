@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { formatDate, formatDateToFull, formatValue, postApiData } from "../../utils/services";
+import { calculateGst, formatDate, formatDateToFull, formatValue, postApiData } from "../../utils/services";
 import { FaFilePdf } from "react-icons/fa6";
 import CustomDatePicker from "../customInput/CustomDatePicker";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
@@ -103,7 +103,7 @@ const InvoiceWise = () => {
     { name: "Date", id: "createdAt" },
     { name: "Invoice No.", id: "invoiceId" },
     { name: "Service/Product", id: "services" }, // or other relevant field
-    { name: "Price", id: "subTotal" },
+    { name: "Price", id: "price" },
     { name: "Membership Redemption", id: "membershipCreditUsed" },
     { name: "Cash", id: "Cash" }, // Special handling needed based on payment method
     { name: "Upi", id: "Upi" }, // Special handling needed based on payment method
@@ -151,36 +151,37 @@ const InvoiceWise = () => {
         )?.amount) || 0
         const Card = formatValue(elm?.paymentMethod?.find(
           (method) => method?.name === "Card"
-        )?.amount) || 0
-        let Net = formatValue((elm?.subTotal - (elm?.discount || 0)) / 1.18);
-        let Gst = formatValue(
-          elm?.subTotal -
-          (elm?.discount || 0) -
-          ((elm?.subTotal - (elm?.discount || 0)) / 1.18)
-        )
+        )?.amount) || 0;
+        let products = elm.products?.length > 0 ? elm.products.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0) || 0 : 0;
+
+        let { gstAmount, baseAmount ,finalAmount} = calculateGst((elm?.subTotal - (elm?.discount || 0)), elm.createdAt)
+        let total = (parseInt(finalAmount) + parseInt(products));
+        let netAmount = baseAmount + parseInt(products);
 
         return {
           Date: formatDateToFull(elm?.createdAt),
           InvoiceNo: elm?.invoiceId,
-          'Service/Product': elm?.services?.length > 0 ? "Service"
-            : elm?.products?.length > 0 ? "Product" : "",
-          Price: elm?.subTotal,
+          'Service/Product': (elm?.services?.length > 0 && elm?.products?.length > 0) ?
+            "Service/Product"
+            : elm?.services?.length > 0 ? "Service"
+              : elm?.products?.length > 0 ? "Product" : "",
+          Price: total,
           MembershipRedemption: elm?.membershipCreditUsed,
           Cash: Cash,
           Upi: Upi,
           Online: Online,
           Card: Card,
-          Net,
-          Gst,
+          Net: netAmount,
+          Gst: gstAmount,
           Invoice: elm?.invoiceUrl
 
         }
       })
-
       exportToExcel(data, 'InvoiceWise', 'invoice_wise.xlsx')
     }
 
   }
+  // console.log("filtered data",filteredData)
   return (
     <>
       <div className="flex items-center justify-between">
@@ -241,8 +242,11 @@ const InvoiceWise = () => {
                   {headings.map((heading, idx) => {
                     let {id}=heading
                     let  value =row[id];
-                    let subTotal =row["subTotal"]?row["subTotal"]:row["total"]||0;
-                    
+                    let apppintmentDate=row["createdAt"];
+                    let products = row?.products?.length>0?row.products.reduce((acc,curr)=>acc+(curr.price*curr.quantity),0):0;
+                    let {baseAmount, gstAmount,finalAmount}=calculateGst(row.subTotal - (row?.discount || 0),apppintmentDate)
+                    let subTotal =(parseInt(finalAmount)||0)+(parseInt(products)||0);
+                    let netAmount= baseAmount+(parseInt(products)||0)
                     return (
                       <td key={idx}>
                         {id === "services" ? (
@@ -251,13 +255,9 @@ const InvoiceWise = () => {
                             : row?.services?.length > 0 ? "Service"
                               : row?.products?.length > 0 ? "Product" : ""
                         ) : id === "netAmount" ? (
-                          formatValue((subTotal - (row?.discount || 0)) / 1.18)
+                          (netAmount||0)
                         ) : id === "gstAmount" ? (
-                          formatValue(
-                            subTotal -
-                            (row?.discount || 0) -
-                            ((subTotal - (row?.discount || 0)) / 1.18)
-                          )
+                           gstAmount
                         ) : id === "invoiceUrl" ? (
                           <FaFilePdf
                             className="text-2xl text-black font-bold cursor-pointer"
@@ -272,7 +272,7 @@ const InvoiceWise = () => {
                           )?.amount) || 0
                         ) : id === "createdAt" ?
                           formatDateToFull(row[id], false)
-                          : id === "subTotal" ? formatValue(subTotal) : (
+                          : id === "price" ? formatValue(subTotal) : (
                             formatValue(value)
                           )}
                       </td>

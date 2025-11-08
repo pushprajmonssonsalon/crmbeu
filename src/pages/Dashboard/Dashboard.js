@@ -4,7 +4,7 @@ import DonutChart from "../../components/charts/DonutChart";
 import { formatDate, formatValue, getApiCall, postApiData } from "../../utils/services";
 import DashboardCard from "../../components/charts/DashboardCards";
 import { MdCurrencyRupee } from "react-icons/md";
-import { FaCalendarAlt } from "react-icons/fa";
+import { FaCalendarAlt, FaUser } from "react-icons/fa";
 import { FaAngleDown } from "react-icons/fa6";
 
 import EventModal from "../../components/modals/EventModal";
@@ -111,6 +111,11 @@ const Dashboard = () => {
     products: [0, 0],
     employeeLabels: ["A", "B"],
     employeeNames: ["A", "B"],
+    oldNewUserData:{
+      newUsers: 1,
+       oldUsers: 3
+          
+    },
     employees: {
       labels: ["A", "B", "C", "D"],
       datasets: [
@@ -300,6 +305,7 @@ const Dashboard = () => {
 
     return formatValue(salonDetails?.sales.slice(0, -1).reduce((curr, acc) => curr + acc, 0))
   }, [salonDetails.sales])
+  
 
   const serviceRevenue = useMemo(() => {
 
@@ -401,10 +407,14 @@ const Dashboard = () => {
           serviceCategoryWiseRevenue,
           productRevenueDistribution,
           staffCategoryWiseRevenue,
-          membershipSale
+          membershipSale,
+          oldNewUsersData,
         } = res;
         const payments = paymentMethodReport;
-
+        const udpdatedUserData={
+       newUsers: oldNewUsersData?.length>0?oldNewUsersData[0]?.newUsers||0:0,
+       oldUsers:  oldNewUsersData?.length>0?oldNewUsersData[0]?.oldUsers||0:0
+        }
         const appoOrder = [3, 1, 4];
         const services = [];
         const products = [];
@@ -478,6 +488,7 @@ const Dashboard = () => {
           appointments: [...appoData],
           serviceLabels: [...serviceOrder],
           services: [...services],
+          oldNewUserData:udpdatedUserData,
           productLabels: [...productLabels],
           products: [...products],
           employees,
@@ -561,6 +572,18 @@ const Dashboard = () => {
   }, [days]);
   const compAppointment = salonDetails?.appointments[0];
   const dashboardData = [
+    {
+      heading: "Old Users",
+      value: salonDetails?.oldNewUserData?.oldUsers,
+      className:'bg-tile1',
+      icon: <FaUser className="text-white text-md 2xl:text-lg" />,
+    },
+    {
+      heading: "New Users",
+      value: salonDetails?.oldNewUserData?.newUsers,
+      className:'bg-tile1',
+      icon: <FaUser className="text-white text-md 2xl:text-lg" />,
+    },
     {
       heading: "Total Revenue",
       value: totalRevenue,
@@ -709,7 +732,7 @@ const Dashboard = () => {
           </div>
           <div className="col-span-full h-full  border shadow-graph bg-white rounded-[16px] p-5">
             <div>
-              <h2 className="text-black  text-start text-xl 2xl:text-2xl leading-[28px] font-normal mb-5">InActive Customers Report</h2>
+              <h2 className="text-black  text-start text-xl 2xl:text-2xl leading-[28px] font-normal mb-5">Inactive Customers Report</h2>
               <div className="flex flex-col gap-1 ">
                 <NormalSelect
                   label="Select Days"
