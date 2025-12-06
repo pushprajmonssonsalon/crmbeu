@@ -1,8 +1,9 @@
 import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
-const BASE_URL = "https://crm.smartsalon.in/";
-// const BASE_URL = "http://192.168.2.210:4002";
+// const BASE_URL = "https://crm.smartsalon.in/";
+const BASE_URL = "http://192.168.2.18:4002";
+// const BASE_URL = "http://192.168.2.202:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
@@ -293,12 +294,12 @@ const updatedProducts = products?.map((elm)=>{
 
    return {
     serviceGst:gstAmount,
-    serviceTotal:finalAmount,
+    serviceTotal:Math.round(finalAmount),
     serviceSubTotal:baseAmount,
     updatedProducts,
     productGstTotal,
     productBaseAmountTotal,
-    productTotal,
+    productTotal:Math.round(productTotal),
    }
 
 }

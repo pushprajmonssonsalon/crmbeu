@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import "./BookAppointment.css";
 import { formatDateWOYear, formatValue, getApiCall, handleProductAndServiceGst, postApiData } from "../../utils/services";
 import { useEffect } from "react";
@@ -42,7 +42,7 @@ const BookAppointment = ({ onTabChange }) => {
   const [searchService,setSearchService]=useState("")
   const [searchServices,setSearchServices]=useState([])
   const [showSearchResults,setShowSearchResults]=useState(false);
-  const { parlorLoading, parlorData, parlorError } = useSelector((state) => state.parlorReducer);
+  const { parlorLoading, parlorData } = useSelector((state) => state.parlorReducer);
   const parlorServices= parlorData?.services||[];
   const parlorProducts=parlorData?.products||[];
   const [customerDetails, setCustomerDetails] = useState({
@@ -69,16 +69,11 @@ const BookAppointment = ({ onTabChange }) => {
   const [userData, setUserData] = useState([]);
   const searchContainerRef = useRef(null);
   const productContainerRef = useRef(null);
-  const search = useRef(null);
-
-  const [service, setService] = useState([]);
-  const [subservice, setSubService] = useState([]);
-  const [miniservice, setMiniService] = useState([]);
+  
   const [staffData, setStaffData] = useState([]);
 
   const [discount, setDiscount] = useState(0);
   const [membershipitem, setMemberShipItem] = useState(null);
-  const [userId, setUserId] = useState("");
   const [activeMembership, setActiveMemberShip] = useState({});
   const [memberShipStatus, setMemberShipStatus] = useState(false);
   // product table state
@@ -88,7 +83,6 @@ const BookAppointment = ({ onTabChange }) => {
   const [searchProduct, setsearchProduct] = useState("");
   const [showProdDropdown, setShowProdDropdown] = useState(false);
   const [showSearchProduct, setShowSearchProduct] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const x = useSelector((store) => store.serviceAddReducer.serviceData);
 
   // useEffect(() => {
@@ -124,8 +118,7 @@ const BookAppointment = ({ onTabChange }) => {
 
 
         });
-        setSubService(null);
-        setMiniService(null);
+     
       }
     }
 
@@ -137,6 +130,7 @@ const BookAppointment = ({ onTabChange }) => {
       if (activeMemb?.discount) {
         setDiscount(activeMemb?.discount)
       }
+    
       else if (activeMembership?.discount && !activeMemb?.discount) {
         setDiscount(0)
       }
@@ -236,6 +230,11 @@ const BookAppointment = ({ onTabChange }) => {
   const payableAmount = formatValue(subtotalPrice - countdiscount);
   const serviceGst = gstApplied ? formatValue(payableAmount * 0.05) : 0;
   const serviceTotal = Math.round(payableAmount + serviceGst);
+  
+  const membershipCreditUsed =useMemo(()=>{
+    return  memberShipStatus ? Math.max(0, Math.floor(Math.min(activeMembership?.creditsLeft || 0, serviceTotal))) : 0
+  },[activeMembership,serviceTotal])
+  
   const totalProductServicePayable = Math.round(serviceTotal + productTotalPrice);
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
@@ -275,11 +274,13 @@ const BookAppointment = ({ onTabChange }) => {
   //     (error) => { }
   //   );
   // }, [customerDetails?.gender]);
+
   // api call for getting subcategory
-  const categorydata = {
-    categoryName: serviceSelection.category,
-    gender: customerDetails.gender,
-  };
+  // const categorydata = {
+  //   categoryName: serviceSelection.category,
+  //   gender: customerDetails.gender,
+  // };
+  
   // useEffect(() => {
   //   postApiData(
   //     "salonService/getSubServiceCategory",
@@ -427,9 +428,9 @@ const BookAppointment = ({ onTabChange }) => {
         note,
       },
       subTotal: subtotalPrice,
-      serviceSubTotal,
-      serviceGst,
-      serviceTotal,
+      serviceSubTotal:serviceSubTotal||0,
+      serviceGst:serviceGst||0,
+      serviceTotal:serviceTotal||0,
       productGst:productGstTotal,
       productSubTotal:productBaseAmountTotal,
       productTotal,
@@ -441,14 +442,13 @@ const BookAppointment = ({ onTabChange }) => {
       isMembershipApplied: memberShipStatus,
       // membershipCreditUsed: +memberShip,
       // membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
-      membershipCreditUsed: memberShipStatus ? Math.max(0, Math.min(activeMembership?.creditsLeft || 0, serviceTotal)) : 0,
+      membershipCreditUsed: memberShipStatus ?membershipCreditUsed :0,
       products: updatedProducts,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
       membershipId: activeMembership?._id,
     };
     setLoading(true)
-    
     
     postApiData(
       "appointment/bookAppointmentFromCrm",
@@ -485,7 +485,6 @@ const BookAppointment = ({ onTabChange }) => {
       note:item?.note||""
     }));
     
-    setUserId(item._id);
     setVisible(false);
   };
   
@@ -503,6 +502,7 @@ const BookAppointment = ({ onTabChange }) => {
  dispatch(productAdded(selected));
     toast.success("product added succesfully");
     };
+
   const serviceNameOnclick = (item) => {
     const selected={
       ...item,
@@ -812,7 +812,7 @@ const BookAppointment = ({ onTabChange }) => {
   //   })),
   // };
   const customerDetailsArray = [
-    { label: "NAME", value: customerDetails.name },
+    { label: "NAME", value: customerDetails?.name },
     {
       label: "MEMBERSHIP",
       value:
@@ -825,12 +825,14 @@ const BookAppointment = ({ onTabChange }) => {
   ];
   
   const paymentDetailsArray = [
-    { label: "SUBTOTAL", value: subtotalPrice },
-    { label: "DISCOUNT", value: countdiscount },
-    (gstApplied && ({ label: "SERVICE GST", value: serviceGst })),
-    { label: "TOTAL AMOUNT", value: serviceTotal },
-    { label: "PRODUCT PRICE", value: productTotalPrice },
-    { label: "PAYABLE AMOUNT", value: totalProductServicePayable },
+    { label: "SERVICES", value: formatValue(subtotalPrice) },
+    { label: "DISCOUNT", value: `- ${countdiscount}` },
+    { label: "SUBTOTAL", value: ` ${payableAmount}` },
+    (gstApplied && ({ label: "SERVICE GST", value: formatValue(serviceGst) })),
+    { label: "SERVICE TOTAL ", value: formatValue(serviceTotal) },
+    { label: "PRODUCT PRICE", value: formatValue(productTotalPrice) },
+    { label: "PAYABLE AMOUNT", value: formatValue(totalProductServicePayable) },
+    membershipCreditUsed&& { label: "MEMBERSHIP CREDIT USED", value: `- ${membershipCreditUsed}` },
   ]?.filter(Boolean);
   const customerFields = [
     {
@@ -972,7 +974,7 @@ const BookAppointment = ({ onTabChange }) => {
   
   useEffect(() => {
     if (customerDetails?.phoneNumber) {
-      debouncedFunction(fetchUser, 500)
+      debouncedFunction(fetchUser, 800)
     }
   }, [customerDetails?.phoneNumber])
   useEffect(() => {
@@ -1567,8 +1569,8 @@ const BookAppointment = ({ onTabChange }) => {
                           <td className="font-normal text-black text-sm  2xl:text-md border-none px-4 py-2">
                             {item.label}
                           </td>
-                          <td className=" font-normal   text-sm 2xl:text-md border-none px-4 py-2 text-green-800">
-                            {isNaN(formatValue(item.value))?"NA":formatValue(item.value)}
+                          <td className=" font-normal text-right   text-sm 2xl:text-md border-none px-4 py-2 text-green-800">
+                            {item.value}
                           </td>
                         </tr>
                       ))}

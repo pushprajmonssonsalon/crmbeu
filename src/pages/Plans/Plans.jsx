@@ -163,8 +163,8 @@ const handleBuyPlan = async (planId) => {
     }
 
     // Step 2: Prevent multiple concurrent transactions
-    if (processingRef.current) return;
-    processingRef.current = true;
+      if (processingRef.current) return; // block duplicate entry
+        processingRef.current = true; // loc
 
     // Step 3: Ensure Razorpay script is loaded
     const isLoaded = await loadRazorpayScript();
@@ -188,7 +188,7 @@ const handleBuyPlan = async (planId) => {
 
         // Step 5: Configure Razorpay options
         const options = {
-          key: "rzp_live_gPOHKfuDqbcZFw", // Replace with env variable in production
+          key: "rzp_live_ReLPWPX0nsXIfA", // Replace with env variable in production
           // key: "rzp_test_hdlZcgaBXfBRBr",
           amount: orderResponse.amount, // Amount in paise
           currency: "INR",
@@ -199,6 +199,8 @@ const handleBuyPlan = async (planId) => {
             try {
               
               if (!paymentResponse) {
+                processingRef.current = false;
+
                 toast.error("No response from payment gateway.");
                 return;
               }
@@ -210,6 +212,8 @@ const handleBuyPlan = async (planId) => {
 
               toast.success("Payment successful! Your plan is now active.");
             } catch (err) {
+                        processingRef.current = false;
+
               console.error("Payment verification failed:", err);
               toast.error("Something went wrong while verifying payment.");
             } finally {
@@ -234,7 +238,11 @@ const handleBuyPlan = async (planId) => {
         // Step 6: Open Razorpay Checkout
         try {
           const razorpayInstance = new window.Razorpay(options);
-          razorpayInstance.open();
+          razorpayInstance.open(); 
+            setTimeout(() => {
+          processingRef.current = false                                
+                                
+            }, 1200); // Adjust 
 
           // Handle user closing payment popup
           razorpayInstance.on("close", () => {
@@ -310,12 +318,12 @@ const handleBuyPlan = async (planId) => {
              onClick={()=>handlePlanClick(plan._id)}
               key={index}
               className={`relative cursor-pointer bg-white rounded-2xl shadow-xl overflow-hidden transform transition-all hover:scale-105 ${
-               (selectedPlan.planId==plan._id)? 'ring-4 ring-purple-500' : ''
+               (selectedPlan.planId==plan._id)? 'ring-4 ring-ternary' : ''
               }`}
             >
               {
                 (index==1)  && (
-                <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-bl-lg font-semibold flex items-center gap-1">
+                <div className="absolute top-0 right-0 bg-gradient-to-r from-ternary to-pink-600 text-white px-4 py-1 rounded-bl-lg font-semibold flex items-center gap-1">
                   <IoSparkles className="w-4 h-4" />
                   Most Popular
                 </div>
@@ -346,7 +354,7 @@ const handleBuyPlan = async (planId) => {
                   className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
                  (selectedPlan.planId==plan._id)||
                 (index==1) 
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg'
+                      ? 'bg-gradient-to-r from-ternary to-pink-600 text-white hover:from-ternary hover:to-pink-700 shadow-lg'
                       : 'bg-gray-900 text-white hover:bg-gray-800'
                   }`}
                 >

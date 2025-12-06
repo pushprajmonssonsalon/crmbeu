@@ -42,19 +42,25 @@ const AppointmentBills = () => {
       amount: data?.cashbackUsed||0,
     },
   ]
+  // console.log(data,"data")
   const paymentMethodsValue = [...data?.paymentMethod,...otherMethod]?.filter((item) => item.amount > 0);
 
   const serviceTotal = data.services.reduce((accumulator, { price }) => {
     return accumulator + parseFloat(price);
   }, 0);
+  const checkZero=(value1,value2)=>{
+    if(value1===0)return value1;
+    if(!value1)return value2
+    return value1
+  }
 
 
   const serviceDiscount = data.discount||0;
-  const serviceTaxable = serviceTotal||0 - parseFloat(serviceDiscount);
+  const serviceTaxable =  checkZero(data?.serviceSubTotal,serviceTotal||0 - parseFloat(serviceDiscount));
   const {baseAmount,finalAmount,gstAmount} = calculateGst(serviceTaxable,data?.appointmentDate) 
-  let serviceSubTotal= data?.serviceSubTotal? data?.serviceSubTotal:baseAmount||0; 
-  const serviceGst =data?.serviceGst?data?.serviceGst: gstAmount||0;
-  const serviceFinalAmount = data?.serviceTotal?data?.serviceTotal:finalAmount||0;
+  let serviceSubTotal= checkZero(data?.serviceSubTotal,baseAmount||0); 
+  const serviceGst =checkZero(data?.serviceGst, gstAmount);
+  const serviceFinalAmount = checkZero(data?.serviceTotal,finalAmount||0);
   
   // const productSubtotalAmount=data.products;
   const productTotalPrice = data.products.reduce(
@@ -92,7 +98,7 @@ const AppointmentBills = () => {
   //   Math.ceil(productTotalPrice / 1.05) +
   //   (productTotalPrice - Math.ceil(productTotalPrice / 1.05)) +
   //   (serviceTaxable - Math.ceil(serviceTaxable / 1.05));
-  console.log(serviceFinalAmount,productFinalPayable,"total")
+  // console.log(serviceFinalAmount,productFinalPayable,"total")
   const totalPayableAmount =Math.round(serviceFinalAmount+productFinalPayable)
  
 
@@ -261,6 +267,10 @@ const AppointmentBills = () => {
               <div className="text-black font-medium text-right">
                 Rs {serviceFinalAmount}
               </div>
+              <div className="text-black font-medium">Membership Credit Used:</div>
+              <div className="text-black font-medium text-right">
+               - Rs {data.membershipCreditUsed}
+              </div>
             </div>
           </div>
         </div>
@@ -365,6 +375,12 @@ const AppointmentBills = () => {
               })}
             </tbody>
           </table>
+              <div className="grid grid-cols-2 gap-3 my-3 text-lg">
+            <div className="text-black font-semibold">Total Bill Value:</div>
+            <div className="text-black font-semibold text-right">
+              Rs {data?.total}
+            </div>
+          </div>
         </div>
         <div className="mt-2 border-t-2 border-black border-dotted">
           <h1 className="text-center text-lg font-bold  text-black mb-4">

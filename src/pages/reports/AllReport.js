@@ -6,6 +6,7 @@ import Categorywise from '../../components/categorywise/Categorywise';
 import Revenue from '../../components/revenue';
 import WeeklyReport from '../weeklyReport';
 import Employee from './Employee';
+import EmployeeReport from './EmployeeReport';
 
 const AllReport = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -21,6 +22,12 @@ const AllReport = () => {
       
         name:'Report',
         component:<Report />
+      },
+      {
+      
+        name:'Employee Report',
+        component:<EmployeeReport />
+  
       },
       {
       
@@ -48,7 +55,7 @@ const AllReport = () => {
       },
       {
       
-        name:'Employee Report',
+        name:'Employee Overview',
         component:<Employee />
   
       },

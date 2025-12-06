@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatValue, getApiCall, handleProductAndServiceGst, postApiData } from "../../utils/services";
 import { useNavigate, useParams } from "react-router";
 import { MdDeleteOutline } from "react-icons/md";
@@ -33,6 +33,7 @@ const Edit = () => {
   const { debouncedFunction } = useDebouncer()
   const [staffData, setStaffData] = useState([]);
   const [activeMembership, setActiveMemberShip] = useState({});
+  const [membershipUsed, setMembershipUsed] = useState(false);
   const [appointmentDetails,setAppointmentDetails]=useState({})
   const [appointementProducts, setAppointmentProducts] = useState([]);
   const [addedAppointmentDetails, setAddedAppointmentDetails] = useState([]);
@@ -59,10 +60,7 @@ const Edit = () => {
     satffName: "",
   });
 
-  // services getting state
-  const [service, setService] = useState([]);
-  const [subservice, setSubService] = useState([]);
-  const [miniservice, setMiniService] = useState([]);
+ 
   
   // const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -74,7 +72,6 @@ const Edit = () => {
   const [memberShipStatus, setMemberShipStatus] = useState(false);
   const [isMembershipApplied, setIsMembershipApplied] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [subServiceTotal, setSubServiceTotal] = useState(0);
 
 
   const applyDiscount = () => {
@@ -142,10 +139,11 @@ const Edit = () => {
         setMemberShipStatus(resp.membershipUsed);
         setActiveMemberShip(resp.userMembership)
         setUserId(resp.customer._id);
-        setSubServiceTotal(resp.membershipCreditUsed);
         setPhoneNumber(resp.customer.phoneNumber);
 
-        setMembershipCreditUsed(resp?.membershipCreditUsed || 0)
+        setMembershipCreditUsed(resp?.membershipCreditUsed || 0);
+         setMembershipUsed(resp?.membershipCreditUsed>0);
+        
       },
       (error) => {
 
@@ -191,6 +189,10 @@ const Edit = () => {
     if (phoneNumber)
     fetchActiveMembership()
   }, [phoneNumber])
+
+  // useEffect(()=>{
+  // console.log(activeMembership,'activeMemb')
+  // },[activeMembership])
 
   // handle buttons for add service
   // const serviceAddpress = () => {
@@ -431,8 +433,7 @@ const matchesSearch =(searchTerm)=> {
 
 
       });
-      setSubService(null);
-      setMiniService(null);
+    
     };
   }
 
@@ -476,10 +477,19 @@ const matchesSearch =(searchTerm)=> {
   const serviceDiscount = Math.floor(subTotalServices * (applyDisountPer / 100));
 
   const totalService = formatValue(subTotalServices - serviceDiscount||0);
+  
+  // const serviceGst = gstApplied ? formatValue(totalService * 0.05) : 0;
+  // const serviceTotal = Math.round(totalService + serviceGst);
+
+  // 
+  
+  
+  
+  
+  // const netPayableAmount=formatValue(totalService-parseInt(membershipCreditUsed||0))
   const serviceGst = gstApplied ? formatValue(totalService * 0.05) : 0;
   const serviceTotal = Math.round(totalService + serviceGst);
-
-  const totalAmount = Math.round(serviceTotal + subProductTotal);
+  const totalProductServicePayable = Math.round(serviceTotal + subProductTotal);
   const membershipPress = (e) => {
     if (e.target.value) {
       const activeMemb = membershipDetails?.find((elm) => elm._id === e.target.value);
@@ -501,9 +511,11 @@ const matchesSearch =(searchTerm)=> {
     }
   };
   const handleChange = (e, index, type) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
 
     if (type === "service") {
+      value = value.replace(/\D/g, ""); // remove all non-digits
+
       const updatedAppointments = [...addedAppointmentDetails];
       updatedAppointments[index][name] = name === "price" ? Math.max(0, +value) : value;
       setAddedAppointmentDetails(updatedAppointments);
@@ -533,7 +545,7 @@ const matchesSearch =(searchTerm)=> {
     },
   ];
 
-
+  
   // const servicesFields = [
   //   {
   //     name: "category",
@@ -627,11 +639,12 @@ const matchesSearch =(searchTerm)=> {
     },
 
   ]
-  const membershipFields = [
+  const membershipFields =useMemo(()=>{
+    let arr=[
     {
       label: "Membership",
       name: "membership",
-      value: activeMembership?._id,
+      value:activeMembership?._id?activeMembership?._id:"",
       options: membershipDetails?.map((item) => ({
         name: `${item.name}-${item.creditsLeft}`,
         value: item._id,
@@ -648,10 +661,12 @@ const matchesSearch =(searchTerm)=> {
     {
       label: "Membership Used",
       name: "membershipBalance",
-      value: activeMembership?.creditsLeft || 0,
+      value: membershipCreditUsed,
       readOnly: true
     }
   ]
+  return arr;
+  },[activeMembership,memberShipStatus,membershipDetails,membershipCreditUsed]) 
   // const handleApplyDiscount = () => {
 
   //   applyDiscount()
@@ -678,21 +693,32 @@ const matchesSearch =(searchTerm)=> {
     },
     {
       label: "AMOUNT",
-      value: formatValue(activeMembership?.amount)
+      value: formatValue(membershipCreditUsed)
     },
 
   ];
-  const paymentDetailsArray = [
-    { label: "SERVICES SUBTOTAL", value: formatValue(subTotalServices) },
-    { label: "DISCOUNT", value: formatValue(serviceDiscount) },
-  gstApplied ? { label: "SERVICE GST", value: serviceGst } : null,
-    { label: "TOTAL SERVICES", value: formatValue(serviceTotal) },
+  // const paymentDetailsArray = [
+  //   { label: "SERVICES SUBTOTAL", value: formatValue(subTotalServices) },
+  //   { label: "DISCOUNT", value: formatValue(serviceDiscount) },
+  // gstApplied ? { label: "SERVICE GST", value: serviceGst } : null,
+  //   { label: "TOTAL SERVICES", value: formatValue(serviceTotal) },
 
-    { label: "PRODUCT SUBTOTAL", value: formatValue(subProductTotal) },
+  //   { label: "PRODUCT SUBTOTAL", value: formatValue(subProductTotal) },
 
-    { label: "TOTAL PRODUCTS", value: formatValue(subProductTotal) },
-    { label: "PAYABLE AMOUNT", value: formatValue(totalAmount) },
-  ]?.filter(Boolean);
+  //   { label: "TOTAL PRODUCTS", value: formatValue(subProductTotal) },
+  //   { label: "PAYABLE AMOUNT", value: formatValue(totalAmount) },
+  // ]?.filter(Boolean);
+
+    const paymentDetailsArray = [
+      { label: "SERVICES", value: formatValue(subTotalServices) },
+      { label: "DISCOUNT", value: `- ${serviceDiscount}` },
+      { label: "SUBTOTAL", value: ` ${totalService}` },
+      (gstApplied && ({ label: "SERVICE GST", value: formatValue(serviceGst) })),
+      { label: "SERVICE TOTAL ", value: formatValue(serviceTotal) },
+      { label: "PRODUCT PRICE", value: formatValue(subProductTotal) },
+      { label: "PAYABLE AMOUNT", value: formatValue(totalProductServicePayable) },
+      membershipCreditUsed&& { label: "MEMBERSHIP CREDIT USED", value: `- ${membershipCreditUsed}` },
+    ]?.filter(Boolean);
   const tableFields = [customerDetailsArray, paymentDetailsArray];
   // handle book appointment
   const validate=(products)=>{
@@ -730,21 +756,21 @@ const matchesSearch =(searchTerm)=> {
     const {serviceGst,serviceSubTotal,serviceTotal,updatedProducts,productGstTotal,productBaseAmountTotal,productTotal} =handleProductAndServiceGst(totalService,appointementProducts,appointmentDetails?.appointmentDate);
     const data = {
       services: addedAppointmentDetails,
-      serviceSubTotal,
-      serviceGst,
-      serviceTotal,
+      serviceSubTotal:serviceSubTotal||0,
+      serviceGst:serviceGst||0,
+      serviceTotal:serviceTotal||0,
       productGst:productGstTotal,
       productSubTotal:productBaseAmountTotal,
-      productTotal,
+      productTotal:productTotal||0,
       subTotal: subTotalServices,
-      total: totalAmount,
+      total: totalProductServicePayable,
 
       membershipUsed: memberShipStatus,
       membershipId: memberShipStatus ? activeMembership?._id : "",
       isMembershipApplied: memberShipStatus,
 
       // membershipCreditUsed: (memberShipStatus)? (+subTotalServices):0,
-      membershipCreditUsed: isMembershipApplied ? +subServiceTotal : memberShipStatus ? Math.max(0, Math.min(activeMembership?.creditsLeft || 0, serviceTotal)) : 0,
+      membershipCreditUsed,
       products: updatedProducts,
       discount: serviceDiscount,
       discountPercentage: applyDisountPer,
@@ -766,6 +792,14 @@ const matchesSearch =(searchTerm)=> {
       }
     );
   };
+
+  useEffect(()=>{
+    if(!membershipUsed && activeMembership){
+      let crediUsed=   Math.max(0, Math.floor(Math.min(activeMembership?.creditsLeft || 0, serviceTotal)))
+        setMembershipCreditUsed(crediUsed)
+
+    }
+  },[serviceTotal,membershipUsed,activeMembership])
   useEffect(() => {
     if (discount >= 0) {
       debouncedFunction(applyDiscount, 800, discount)
@@ -793,7 +827,11 @@ const matchesSearch =(searchTerm)=> {
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
   
+  const membershipRef= useRef(false);
+
   const removeMembership = async() => {
+    if(membershipRef.current)return
+     membershipRef.current=true;
     const data = {
       creditsUsed: membershipCreditUsed,
       userId: userId,
@@ -807,8 +845,13 @@ const matchesSearch =(searchTerm)=> {
         
         await fetchActiveMembership()
         fetchAppointment()
+              setActiveMemberShip(null);
+
+        membershipRef.current=false
+
       }
     }, () => {
+        membershipRef.current=false
 
     })
 
@@ -843,7 +886,7 @@ const matchesSearch =(searchTerm)=> {
           </div>
 
         </div>  {/* service Detail */}
-        <div ref={serviceRef} className="rounded-[10px] bg-secondaryGray shadow-tab border p-5 mb-9">
+        <div  ref={serviceRef} className="rounded-[10px] relative bg-secondaryGray shadow-tab border p-5 mb-9">
 
           <div className="flex items-center gap-6  mb-9 ">
             <h2 className="font-normal text-start leading-[20px]  text-black text-[24px]">Service Detail</h2>
@@ -851,7 +894,7 @@ const matchesSearch =(searchTerm)=> {
           </div>
 
           {addedAppointmentDetails.length > 0 && (
-            <div className="w-full">
+            <div className={` ${membershipUsed?"blur-sm":""} w-full`}>
               <table className="w-full">
                 <thead>
                   <tr>
@@ -909,6 +952,14 @@ const matchesSearch =(searchTerm)=> {
               </table>
             </div>
           )}
+          {membershipUsed&&
+            <div className="flex rounded-[10px] z-[3] items-center justify-center absolute  left-0 right-0 top-0 bottom-0 h-full w-full bg-white/30 ">
+              <div className=" relative flex flex-col items-center gap-3">
+              <span className="font-normal text-start leading-[20px]  text-black text-[24px]">Remove membership to edit services and add them later.</span>
+                <button onClick={removeMembership} className="bg-rose-600 tex-white rounded-[16px] w-[190px] text-sm font-normal">Remove Membership </button>
+              </div>
+            </div>
+          }
 
 
         </div>
@@ -1272,7 +1323,7 @@ const matchesSearch =(searchTerm)=> {
 
 
           </div>
-          {membershipCreditUsed>0 && <div className="flex items-center justify-end my-6">
+          {membershipUsed && <div className="flex items-center justify-end my-6">
             <button onClick={removeMembership} className="bg-rose-600 tex-white rounded-[16px] w-[190px] text-sm font-normal  ">Remove Membership</button>
 
 
