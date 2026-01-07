@@ -51,14 +51,7 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
             setDailyDiscount(numValue);
         }
     };
-    const handleSave = () => {
-        const discountData = {
-            type: discountType,
-            value: discountType === 'daily' ? dailyDiscount : dayWiseDiscounts
-        };
-        console.log('Saving discount data:', discountData);
-        alert('Discount settings saved successfully!');
-    };
+  
     if (!isVisible) return null;
     const handleExpiryChange = (e) => {
         setExpiry(+e.target.value)

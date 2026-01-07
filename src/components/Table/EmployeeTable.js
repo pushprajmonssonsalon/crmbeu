@@ -183,6 +183,8 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
         </tbody>
       </table>
       <EditCustomerModal
+       label="Edit Staff"
+  heading="Edit Staff"
         isModalOpen={isEdit}
         closeModal={handleClose}
         formFields={formFields}

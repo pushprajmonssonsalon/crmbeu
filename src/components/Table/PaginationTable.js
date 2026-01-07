@@ -10,7 +10,7 @@ const PaginationTable = ({columns,rows,rowsPerPage,page,handleRowschange,handleP
           <tr>
             <th className="bg-black text-white px-3 py-2">#</th>
             {columns?.map((column, index) => (
-              <th key={index} className="bg-black text-white px-3 py-2">{column.name}</th>
+              <th key={index} className="bg-black text-white ">{column.name}</th>
             ))}
           </tr>
         </thead>

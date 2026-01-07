@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { calculateGst, formatDate, formatDateToFull, formatValue, postApiData } from "../../utils/services";
+import { calculateGst, calculateProductGst, formatDate, formatDateToFull, formatValue, postApiData } from "../../utils/services";
 import { FaFilePdf } from "react-icons/fa6";
 import CustomDatePicker from "../customInput/CustomDatePicker";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
@@ -7,7 +7,9 @@ import { useSearchParams } from "react-router-dom";
 import exportToExcel from "../../utils/exportToExcel";
 import GridRows from "../pagination/gridRows";
 import Pagination from "../pagination";
+
 const InvoiceWise = () => {
+  
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
   const [loading, setLoading] = useState(false)
   // Use URLSearchParams to parse query parameters
@@ -152,11 +154,17 @@ const InvoiceWise = () => {
         const Card = formatValue(elm?.paymentMethod?.find(
           (method) => method?.name === "Card"
         )?.amount) || 0;
+        
         let products = elm.products?.length > 0 ? elm.products.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0) || 0 : 0;
-
-        let { gstAmount, baseAmount ,finalAmount} = calculateGst((elm?.subTotal - (elm?.discount || 0)), elm.createdAt)
-        let total = (parseInt(finalAmount) + parseInt(products));
-        let netAmount = baseAmount + parseInt(products);
+    let currentSubtotal=parseInt(elm.subTotal) -elm?.discount||0
+  let { gstAmount=0, baseAmount=0 ,finalAmount=0} = calculateGst(currentSubtotal, elm.appointmentDate);
+  let { prodGstAmount=0, prodBaseAmount=0 } = calculateProductGst(products);
+  let gst = gstAmount + (elm?.productGst?elm?.productGst:prodGstAmount);
+  let productSubTotal= elm?.productSubTotal? elm?.productSubTotal:prodBaseAmount;
+  
+  // let total = (parseInt(finalAmount)||0 + parseInt(products)||0);
+  let subTotal =(parseInt(finalAmount)||0)+(parseInt(products)||0);
+  let netAmount= formatValue(baseAmount+productSubTotal)
 
         return {
           Date: formatDateToFull(elm?.createdAt),
@@ -165,14 +173,14 @@ const InvoiceWise = () => {
             "Service/Product"
             : elm?.services?.length > 0 ? "Service"
               : elm?.products?.length > 0 ? "Product" : "",
-          Price: total,
+          Price: subTotal,
           MembershipRedemption: elm?.membershipCreditUsed,
           Cash: Cash,
           Upi: Upi,
           Online: Online,
           Card: Card,
           Net: netAmount,
-          Gst: gstAmount,
+          Gst: gst,
           Invoice: elm?.invoiceUrl
 
         }
@@ -244,9 +252,16 @@ const InvoiceWise = () => {
                     let  value =row[id];
                     let apppintmentDate=row["createdAt"];
                     let products = row?.products?.length>0?row.products.reduce((acc,curr)=>acc+(curr.price*curr.quantity),0):0;
-                    let {baseAmount, gstAmount,finalAmount}=calculateGst(row.subTotal - (row?.discount || 0),apppintmentDate)
-                    let subTotal =(parseInt(finalAmount)||0)+(parseInt(products)||0);
-                    let netAmount= baseAmount+(parseInt(products)||0)
+                    let {baseAmount=0, gstAmount=0,finalAmount=0}=calculateGst(row.subTotal - (row?.discount || 0),apppintmentDate);
+                    let { prodGstAmount=0, prodBaseAmount=0 ,prodFinalAmount=0} = calculateProductGst(products);
+                    let subTotal =formatValue((parseInt(finalAmount)||0)+(parseInt(products)||0));
+                    let gst = formatValue(parseInt(gstAmount) + (row?.productGst?row?.productGst:prodGstAmount));
+                    let productSubTotal= row?.productSubTotal ?row?.productSubTotal: prodBaseAmount;
+
+                    let netAmount= formatValue(baseAmount+productSubTotal)
+
+                    {/*  */}
+  
                     return (
                       <td key={idx}>
                         {id === "services" ? (
@@ -257,7 +272,7 @@ const InvoiceWise = () => {
                         ) : id === "netAmount" ? (
                           (netAmount||0)
                         ) : id === "gstAmount" ? (
-                           gstAmount
+                           gst
                         ) : id === "invoiceUrl" ? (
                           <FaFilePdf
                             className="text-2xl text-black font-bold cursor-pointer"

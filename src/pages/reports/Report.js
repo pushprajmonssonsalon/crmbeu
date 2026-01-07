@@ -8,7 +8,6 @@ import {
   formatDate,
   getApiCall,
   getDaysBetween,
-  toLocalISOString,
   calculateGst,
 } from "../../utils/services";
 import { usePDF } from 'react-to-pdf';
@@ -16,6 +15,9 @@ import ReportTable from "../../components/Table/ReportTable";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 import { useSearchParams } from "react-router-dom";
+import exportToExcel from "../../utils/exportToExcel";
+import { CiExport } from "react-icons/ci";
+
 const Report = () => {
   const [params] = useSearchParams();
   const [showDate, setShowDate] = useState(false);
@@ -66,14 +68,14 @@ const Report = () => {
 
   }
 
-  const fetchSales =()=>{
-     const data = {
+  const fetchSales = () => {
+    const data = {
       startDate: startDate,
-      endDate:endDate,
+      endDate: endDate,
     };
-        setLoading(true)
+    setLoading(true)
 
-        postApiData(
+    postApiData(
       "reports/salonDailyReport",
       data,
       (resp) => {
@@ -86,8 +88,8 @@ const Report = () => {
 
         setServiceDistribution(resp?.serviceCategoryWiseRevenue);
         setCategoryWiseDistrubution(resp?.staffCategoryWiseRevenue)
-        setAdvanceUsed(resp?.advanceUsed?.length>0?parseFloat(resp?.advanceUsed[0]?.advanceUsed):0)
-        setAdvanceRevenue(resp?.advanceRevenue?.length>0?parseFloat(resp?.advanceRevenue[0]?.advanceRevenue):0)
+        setAdvanceUsed(resp?.advanceUsed?.length > 0 ? parseFloat(resp?.advanceUsed[0]?.advanceUsed) : 0)
+        setAdvanceRevenue(resp?.advanceRevenue?.length > 0 ? parseFloat(resp?.advanceRevenue[0]?.advanceRevenue) : 0)
         setMemberShipSale(resp?.membershipSale);
         setProductDistribution(resp?.productRevenueDistribution)
         setMembershipCredit(resp?.membershipCreditUsed)
@@ -98,19 +100,19 @@ const Report = () => {
         }));
         setPaymentMethodReport(paymentReport)
 
-      
+
       },
       (error) => {
         setLoading(false)
 
       }
     );
-      
-    
+
+
   }
 
-  
-  
+
+
   const findTotalById = (reportArray, id) => {
     const report = reportArray.find(item => item._id === id);
     return report ? report?.total : 0;
@@ -122,7 +124,7 @@ const Report = () => {
     }
     return 0;
   }, [serviceDistribution])
-  
+
   const serviceTodayDistributionTotal = useMemo(() => {
     if (serviceTodayDistribution?.length > 0) {
       const total = serviceTodayDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
@@ -130,7 +132,7 @@ const Report = () => {
     }
     return 0;
   }, [serviceTodayDistribution])
-  
+
   const productDistributionTotal = useMemo(() => {
     if (productDistribution?.length > 0) {
       const total = productDistribution?.reduce((acc, curr) => acc + curr?.totalRevenue, 0)
@@ -150,48 +152,67 @@ const Report = () => {
   const totalPayment = paymentMethodReport?.reduce((acc, payment) => acc + payment.total, 0);
   const membershipRevenue = membershipSale?.length > 0 ? membershipSale[0]?.membershipRevenue : 0
   const totalDistribution = useMemo(() => {
-    const {finalAmount}=calculateGst(serviceDistributionTotal,endDate);
-    return Math.round(productDistributionTotal+finalAmount) || 0
-  }, [productDistributionTotal,serviceDistributionTotal,endDate])
-  
+    const { finalAmount } = calculateGst(serviceDistributionTotal, endDate);
+    return Math.round(productDistributionTotal + finalAmount) || 0
+  }, [productDistributionTotal, serviceDistributionTotal, endDate])
+
   const totalTodayDistribution = useMemo(() => {
-    
+
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
-    const {finalAmount}=calculateGst(serviceTodayDistributionTotal,endDate);
-    
+    const { finalAmount } = calculateGst(serviceTodayDistributionTotal, endDate);
+
     return Math.round(productTodayDistributionTotal + finalAmount) || 0
   }, [productTodayDistributionTotal, serviceTodayDistributionTotal])
-  
+
   const gst = useMemo(() => {
     const { gstAmount } = calculateGst(serviceDistributionTotal, endDate)
     return Math.round(gstAmount)
-    
-  }, [serviceDistributionTotal,endDate])
-  
+
+  }, [serviceDistributionTotal, endDate])
+
   const gstToday = useMemo(() => {
-    
+
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
     const { gstAmount } = calculateGst(serviceTodayDistributionTotal, endDate)
     return Math.round(gstAmount)
-  }, [serviceTodayDistributionTotal,endDate])
-  
+  }, [serviceTodayDistributionTotal, endDate])
+
   const netSales = useMemo(() => {
     const { baseAmount } = calculateGst(serviceDistributionTotal, endDate);
-    return Math.round(baseAmount+productDistributionTotal);
-    
-    
-  }, [serviceDistributionTotal,productDistributionTotal,endDate])
+    return Math.round(baseAmount + productDistributionTotal);
+
+
+  }, [serviceDistributionTotal, productDistributionTotal, endDate])
+  const netServiceSales = useMemo(() => {
+    const { baseAmount } = calculateGst(serviceDistributionTotal, endDate);
+    return Math.round(baseAmount);
+
+
+  }, [serviceDistributionTotal, endDate])
   const netTodaySales = useMemo(() => {
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
     const { baseAmount } = calculateGst(serviceTodayDistributionTotal, endDate)
-    return Math.round(baseAmount+productTodayDistributionTotal);
-    
-  }, [serviceTodayDistributionTotal,productTodayDistributionTotal])
+    return Math.round(baseAmount + productTodayDistributionTotal);
+
+  }, [serviceTodayDistributionTotal, productTodayDistributionTotal])
+
+  const hsnColumns = [
+    { name: "Hsn Code", id: "hsnCode" },
+    { name: "Gst Rate", id: "gst" },
+    { name: "Taxable Amount", id: "gst" },
+    { name: "Membership Credit Used", id: "gst" },
+    { name: "Advance Used", id: "gst" },
+    { name: "Total Tax", id: "gst" },
+    { name: "CGST", id: "gst" },
+    { name: "SGST", id: "gst" },
+    { name: "IGST", id: "gst" },
+    { name: "Total", id: "gst" },
+  ]
   const getTodaySale = () => {
-    
+
     const data = {
       startDate: defaultStartDate,
       endDate: defaultStartDate,
@@ -210,34 +231,34 @@ const Report = () => {
         setMemberShipTodaySale(resp?.membershipSale);
         setProductTodayDistribution(resp?.productRevenueDistribution)
         setMembershipTodayCredit(resp?.membershipCreditUsed)
-        setAdvanceTodayRevenue(resp?.advanceRevenue?.length>0?parseFloat(resp?.advanceRevenue[0]?.advanceRevenue):0)
+        setAdvanceTodayRevenue(resp?.advanceRevenue?.length > 0 ? parseFloat(resp?.advanceRevenue[0]?.advanceRevenue) : 0)
 
       },
       (error) => {
         setLoading(false)
-        
+
       }
     );
   }
   const submitClick = () => {
-    
-    
+
+
     fetchSales()
   };
-  
+
   const credits = membershipCredit?.length > 0 && membershipCredit[0]?.membershipCreditUsed;
   const creditsToday = membershipTodayCredit?.length > 0 && membershipTodayCredit[0]?.membershipCreditUsed;
-  
+
   const calculateAvg = (value) => {
     if (value) {
       let days = getDaysBetween(startDate, endDate);
       return formatValue(Math.floor(value / days)) || 0
-      
+
     }
     else return 0
-    
+
   }
-  
+
   const membershipTodayRevenue = membershipTodaySale?.length > 0 ? membershipTodaySale[0]?.membershipRevenue : 0
   useEffect(() => {
     getApiCall(
@@ -246,19 +267,19 @@ const Report = () => {
         setStaffs(res);
       },
       (error) => {
-        
+
       }
     );
   }, []);
-  
-  
-    useEffect(() => {
-     
-      fetchSales(true);
-      getTodaySale()
-      
-  
-    }, [])
+
+
+  useEffect(() => {
+
+    fetchSales(true);
+    getTodaySale()
+
+
+  }, [])
   const salesColumns = [
     {
       name: "Total Sale",
@@ -335,6 +356,25 @@ const Report = () => {
   const getEmployeeSalary = (id) => {
     const employee = staffs.find((staff) => staff._id === id);
     return employee ? employee.salary : 0;
+
+  }
+
+  const hsnRows = {
+    HsnCode: "999721",
+    GstRate: "5%",
+    TaxableAmount: netServiceSales||0,
+    MembershipCreditUsed: formatValue(credits)||0,
+    AdvanceUsed: formatValue(advanceUsed)||0,
+    TaxableAmount: netServiceSales||0,
+    TotalTax: gst||0,
+    CGST: formatValue(gst / 2)||0,
+    SGST: formatValue(gst / 2)||0,
+    IGST: 0,
+    Total: formatValue(netServiceSales + parseFloat(gst))||0,
+  }
+
+  const exportHsnReport =()=>{
+      exportToExcel([hsnRows], "Hsn Report", "hsnreport.xlsx",false);
 
   }
   // console.log(appointmentStatus, "appointmentStatus")
@@ -606,6 +646,43 @@ const Report = () => {
           <div className=" rounded-[16px] col-span-full  border border-primaryGray p-5  "
 
           >
+          <div className="flex gap-6">
+            <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start w-full  font-normal text-lg mb-5">HSN REPORT</h2>
+             <button
+            className="w-[150px]  gap-1 bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
+            onClick={exportHsnReport}
+          >
+           Export <CiExport  size={20}/>
+
+          </button>
+          </div>
+
+            <table className="styled-table performance-table">
+              <thead>
+                <tr>
+                  {hsnColumns?.map((elm, index) => {
+                    return (
+                      <th key={index} >{elm.name}</th>
+                    )
+                  })
+                  }
+                </tr>
+              </thead>
+              <tbody style={{ height: "80px" }}>
+                      <tr>
+                {Object.values(hsnRows)?.map((item, index) => {
+                  return (
+                        <td key={index}>{item}</td>
+                  );
+                })}
+
+                      </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className=" rounded-[16px] col-span-full  border border-primaryGray p-5  "
+
+          >
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">EMPLOYEE PERFORMANCE</h2>
 
 
@@ -624,7 +701,7 @@ const Report = () => {
                   const salary = getEmployeeSalary(id);
 
                   let totalSum = (categories.reduce((acc, curr) => acc + curr.sumTotal, 0) || 0);
-                  let {baseAmount} = calculateGst(totalSum,endDate);
+                  let { baseAmount } = calculateGst(totalSum, endDate);
                   let target = ((salary * 4) || 0);
 
                   let performance = target > 0 ? ((baseAmount / target) * 100) : 0;

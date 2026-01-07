@@ -7,6 +7,8 @@ const EditCustomerModal = ({
   closeModal,
   formFields,
   handleSubmit,
+  label,
+  heading,
   handleChange
 }) => {
   return (
@@ -17,7 +19,7 @@ const EditCustomerModal = ({
           onRequestClose={closeModal}
           className=" w-[80%] sm:w-[70%]  relative top-[10%] bottom-[10%]  z-30  mx-auto"
 
-          contentLabel="Add Staff Modal"
+          contentLabel={label}
           style={{
             content: {
 
@@ -35,7 +37,7 @@ const EditCustomerModal = ({
               backgroundColor: "rgba(0, 0, 0, 0.3)", // Set the overlay background color
             },
           }}        >
-          <h1 className=" text-2xl  text-black mb-4  text-start ">Edit Employee</h1>
+          <h1 className=" text-2xl  text-black mb-4  text-start ">{heading}</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 mb-4">
             {
               formFields?.map((customer, index) => {

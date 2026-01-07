@@ -1,8 +1,8 @@
 import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
-// const BASE_URL = "https://crm.smartsalon.in/";
-const BASE_URL = "http://192.168.2.18:4002";
+const BASE_URL = "https://crm.smartsalon.in/";
+// const BASE_URL = "http://192.168.2.28:4002";
 // const BASE_URL = "http://192.168.2.202:4002";
 //  const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
@@ -127,6 +127,21 @@ const formatDateWOYear = (day, month) => {
   if (!day || !month) return null; // Handle empty values
   return new Date(`1970-${month.padStart(2, "0")}-${day.padStart(2, "0")}T00:00:00Z`);
 };
+const formatDateString=(dateString="DD-MM-YYYY")=>{
+    const [year, month, day] = dateString.split("-");
+
+    // Convert month from "08" to "Aug" or any other short form
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const monthShort = monthNames[parseInt(month, 10) - 1];
+
+   
+   return  `${parseInt(day, 10)} ${monthShort} ${year} `;
+    
+
+}
 function formatValue(value) {
   if (Array.isArray(value)) {
     return value.map(elm => formatValue(elm))
@@ -247,18 +262,20 @@ export function calculateGst(val, inputDate,membership=false) {
 
   return { baseAmount, gstAmount, finalAmount };
 }
+const referenceDate = new Date("2025-09-22");
+referenceDate.setHours(0, 0, 0, 0);
 export function calculateProductGst(val,gstRate=1.18) {
   if (!val ) return val||0;
+  
+  
+  
   let prodBaseAmount = formatValue(val / gstRate);
-
-  
-  
   return {prodBaseAmount,
     prodGstAmount:formatValue(val-prodBaseAmount),
-    prodFinalAmount:val};
+    prodFinalAmount:val
+  
+  };
 }
-  const referenceDate = new Date("2025-09-22");
-  referenceDate.setHours(0, 0, 0, 0);
 
   
 export function handleProductAndServiceGst(services,products,inputDate){
@@ -312,5 +329,34 @@ export const loadRazorpay = () => {
       document.body.appendChild(script);
     });
 };
+export function getDayOfToday(){
+const today = new Date();
+let day = today.getDay(); // 0 (Sun) → 6 (Sat)
+return day; // Convert Sunday(0) to 7
 
-export { postApiData, getApiCall, setAuthorizationToken, formatDateToFull, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };
+
+}
+export function isTodayMatch(inputDate){
+  if(!inputDate)return false;
+  const today = new Date();
+  const date = new Date(inputDate);
+  if(!date)return false;
+  return (
+    today.getDate() === date.getDate() &&
+    today.getMonth() === date.getMonth()
+  );
+};
+export function getBirthDayAndAnniversary(dob,anniversary){
+
+  return {hasBirthday:isTodayMatch(dob),hasAnniversary:isTodayMatch(anniversary)
+          
+  }
+
+}
+
+// Example:
+// const birthday = "1999-12-05";   // any year
+// console.log(isTodayMatch(birthday));   // true if today is 5 Dec
+
+
+export { postApiData, getApiCall, setAuthorizationToken, formatDateToFull,formatDateString, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };

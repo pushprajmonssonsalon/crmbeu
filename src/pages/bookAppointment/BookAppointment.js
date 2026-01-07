@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from "react";
 import "./BookAppointment.css";
-import { formatDateWOYear, formatValue, getApiCall, handleProductAndServiceGst, postApiData } from "../../utils/services";
+import { formatDateWOYear, formatValue, getApiCall, getBirthDayAndAnniversary, getDayOfToday, handleProductAndServiceGst, postApiData } from "../../utils/services";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -127,16 +127,34 @@ const BookAppointment = ({ onTabChange }) => {
   const membershipPress = (e) => {
     if (e.target.value) {
       const activeMemb = activemember?.find((elm) => elm._id === e.target.value);
-      if (activeMemb?.discount) {
-        setDiscount(activeMemb?.discount)
+      if(activeMemb?.hasOwnProperty("dailyDiscount")){
+        let discountData =activeMemb?.dailyDiscount;
+       const day = getDayOfToday();
+       const todayDiscount =Math.max(discount||0,discountData[`${day}`]||0);
+       const {hasBirthday,hasAnniversary}=getBirthDayAndAnniversary(customerDetails?.dob,customerDetails?.aniversary);
+      //  console.log(hasBirthday,hasAnniversary,activeMemb)
+       let birthdayDiscount=hasBirthday?activeMemb?.bdDiscount:0
+       let anniversaryDiscount=hasAnniversary?activeMemb?.anvDiscount:0
+      //  console.log(birthdayDiscount,anniversaryDiscount,customerDetails?.dob,customerDetails?.aniversary,customerDetails)
+       setDiscount(Math.max(todayDiscount,birthdayDiscount||0,anniversaryDiscount||0,discount));
+       setActiveMemberShip(activeMemb);
+       setMemberShipStatus(true)
+       toast.success("membership Applied")
+
+
       }
-    
-      else if (activeMembership?.discount && !activeMemb?.discount) {
-        setDiscount(0)
+      else{
+        if (activeMemb?.discount) {
+          setDiscount(activeMemb?.discount)
+        }
+        else if (activeMembership?.discount && !activeMemb?.discount) {
+          setDiscount(0)
+        }
+        setActiveMemberShip(activeMemb);
+        setMemberShipStatus(true)
+        toast.success("membership Applied")
+
       }
-      setActiveMemberShip(activeMemb);
-      setMemberShipStatus(true)
-      toast.success("membership Applied")
 
     }
     else {
@@ -482,7 +500,9 @@ const BookAppointment = ({ onTabChange }) => {
       name: item.name,
       phoneNumber: item.phoneNumber,
       gstNumber:item?.gstNumber||"",
-      note:item?.note||""
+      note:item?.note||"",
+      dob:item?.dob,
+      aniversary:item?.aniversary
     }));
     
     setVisible(false);

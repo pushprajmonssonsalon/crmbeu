@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import GridRows from '../pagination/gridRows';
 import Pagination from '../pagination';
+import { MdEdit } from 'react-icons/md';
 
 
 
 
 
-export default function CustomizedCustomersTables({ headings, data }) {
+export default function CustomizedCustomersTables({ headings, data ,handleUpdate}) {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const filteredData = [...(data || [])].reverse();
@@ -18,6 +18,7 @@ export default function CustomizedCustomersTables({ headings, data }) {
   const handleChangePage = (newPage) => {
     setPage(newPage);
   };
+  
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
@@ -47,11 +48,13 @@ export default function CustomizedCustomersTables({ headings, data }) {
               <td className="py-5">{index+1}</td>
               <td className="py-5">{item?.name}</td>
               <td className="py-5">{item?.phoneNumber}</td>
+              <td className="py-5"><button onClick={()=>handleUpdate(item)} className='text-ternary text-xl'> <MdEdit/></button></td>
              
             </tr>
           ))}
         </tbody>
       </table>
+      
       <div className="flex justify-between mt-4 items-center">
         <GridRows
           totalItems={data?.length}

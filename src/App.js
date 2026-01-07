@@ -16,7 +16,6 @@ import TestExcel from "./components/invoicewise/TestExcel";
 import { Toaster } from "react-hot-toast";
 import Revenue from "./components/revenue";
 import WeeklyReport from "./pages/weeklyReport";
-import SalonDeatils from "./pages/salonDetails";
 import Royalities from "./pages/royalities";
 import { useEffect } from "react";
 import Notification from "./pages/notification/notification";
@@ -34,6 +33,7 @@ import Contacts from "./pages/Contacts/Contacts";
 import AllReport from "./pages/reports/AllReport";
 import Plans from "./pages/Plans/Plans";
 import Layout from "./components/Layout";
+import Salon from "./pages/salonDetails/Salon";
 
 function App() {
   useEffect(() => {
@@ -148,7 +148,7 @@ function App() {
       
         <Route
           path="/salon-details"
-          element={<PrivateRoute Component={SalonDeatils} />}
+          element={<PrivateRoute Component={Salon} />}
         />
         <Route
           path="/royalities"

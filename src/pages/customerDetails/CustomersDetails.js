@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
-import { postApiData } from '../../utils/services';
+import { formatDateWOYear, postApiData } from '../../utils/services';
 
 import CustomizedCustomersTables from '../../components/MaterialTable/CustomersDetailTable';
+import AddCustomerModal from '../../components/modals/AddCustomerModal';
+import toast from 'react-hot-toast';
 
 
 
 const CustomersDetails = () => {
-  
+   const [isEdit,setIsEdit]= useState(false);
     const [clientsAppointment, setClientsAppointment] = useState([])
-    const headings = ["S.No","Name", "Phone Number"];
-
+    const headings = ["S.No","Name", "Phone Number","Edit"];
+   const [user,setUser]=useState({
+   })
     
     const handleSearchCustomerdetails = () => {
 
@@ -25,11 +28,80 @@ const CustomersDetails = () => {
             }
         )
     }
+    const handleClose=()=>{
+        setIsEdit(false)
+    }
+     const formFields = [
+   {
+      name: "name",
+      label: "Enter Name",
+      placeholder: "Enter Name",
+      value: user?.name,
+    },
+    {
+      name: "phoneNumber",
+      label: "Mobile Number",
+      placeholder: "Enter Mobile Number",
+      disabled:true,
+      value: user?.phoneNumber,
+    },
+   
+   
+    {
+      name: "dob",
+      label: "Birthday",
+      value1: user["dob-date"],
+      value2: user["dob-month"],
+      placeholder: "Enter Aniversary",
+    },
+    {
+      name: "aniversary",
+      label: "Aniversary",
+      value1: user["aniversary-date"],
+      value2: user["aniversary-month"],
+      placeholder: "Enter Aniversary",
+    },
+    
+  ];
+  const handleChange=(e)=>{
+    const {name,value}= e.target;
+    setUser((elm)=>({
+        ...elm,
+        [name]:value
+    }))
+  }
+  const handleEdit=(item)=>{
 
+   setUser(item)
+   setIsEdit(true)
+  }
+     const handleSubmit = () => {
+        const payload = {
+          ...user,
+          dob: formatDateWOYear(user["dob-date"], user["dob-month"]),
+          aniversary: formatDateWOYear(user["aniversary-date"], user["aniversary-month"]),
+          
+        }
+       
+        if (!payload?.name) {
+          
+          return toast.error("Enter Valid Customer Name")
+        }
+        postApiData(
+          "parlor/editUserDetailsBySalon",
+          payload,
+          (resp) => {
+            toast.success("Customer Added Sucessfully");
+            setIsEdit(false)
+            setUser({})
+            setClientsAppointment((prev)=>prev.map((elm)=>elm._id==payload?._id?payload:elm))
+          },
+          (error) => { }
+        );
+      };
     useEffect(() => {
         handleSearchCustomerdetails()
     }, [])
-
     return (
         <>
             <div className=" rounded-[16px] border border-primaryGray p-5  ">
@@ -49,8 +121,16 @@ const CustomersDetails = () => {
                    
                            
                             
-                <CustomizedCustomersTables headings={headings} data={clientsAppointment} />
+                <CustomizedCustomersTables headings={headings} data={clientsAppointment} handleUpdate={handleEdit} />
             </div>
+             <AddCustomerModal
+                       isModalOpen={isEdit}
+          closeModal={handleClose}
+          addCustomerFields={formFields}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          heading={"Edit Customer"}
+                        />
         </>
     )
 }

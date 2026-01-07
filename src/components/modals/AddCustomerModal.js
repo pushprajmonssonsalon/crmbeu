@@ -39,7 +39,7 @@ const AddCustomerModal = ({
           <h1 className=" text-black text-2xl mb-6">{heading}</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 mb-4">
             {addCustomerFields.map((input, index) => {
-              const { name, placeholder, label, value, options ,value1,value2} = input;
+              const { name, placeholder, label, value, options ,value1,value2,disabled} = input;
               return (
                 <div key={index} className="flex  flex-col gap-1">
                   {(name === "dob" || name === "aniversary") ?
@@ -47,6 +47,7 @@ const AddCustomerModal = ({
                         placeholder={placeholder}
                       label={label}
                       name={name}
+                      disabled={disabled}
                       value1={value1}
                       value2={value2}
                       onChange={handleChange}
@@ -59,6 +60,8 @@ const AddCustomerModal = ({
                       label={label}
                       name={name}
                       value={value}
+                    disabled={disabled}
+
                       onChange={handleChange}
                       inputStyles={{
                             'borderRadius': '10px',
@@ -77,6 +80,8 @@ const AddCustomerModal = ({
                         name={name}
                         value={value}
                         options={options}
+                      disabled={disabled}
+
                         onChange={handleChange}
                         inputStyles={{
                             'borderRadius': '10px',
