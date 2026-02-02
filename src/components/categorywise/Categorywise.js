@@ -4,6 +4,7 @@ import CategoryTable from "./CategoryTable";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import CustomDatePicker from "../customInput/CustomDatePicker";
 import { useSearchParams } from "react-router-dom";
+import exportToExcel from "../../utils/exportToExcel";
 
 const categoryHeadings = [
   {
@@ -42,7 +43,7 @@ const Categorywise = () => {
   const [showDate, setShowDate] = useState(false)
   const start = params.get("start");
   const end = params.get("end");
- 
+
 
   //date
   const defaultStartDate = formatDate(new Date());
@@ -135,26 +136,47 @@ const Categorywise = () => {
       row: getSubCatRow(minSubCatRevenue),
     },
   ];
-  useEffect(() => { 
-    if(startDate && endDate)
-    searchClick()
-  },[])
+  const handleExport = () => {
+    // console.log(subCateogries,"categories")
+    if (subCateogries?.length > 0 || miniSubCategories?.length > 0) {
+      const sheets = [
+        { name: "Sub Category Wise Report", values: subCateogries?.map((elm) => ({ ...elm, name: elm._id })) },
+        { name: "Mini Category Wise report", values: miniSubCategories?.map((elm) => ({ ...elm, name: elm._id })) }
+      ];
+
+
+      exportToExcel(sheets, "CategoryWise", "CategoryWise.xlsx", true);
+
+    }
+  }
+  useEffect(() => {
+    if (startDate && endDate)
+      searchClick()
+  }, [])
   return (
     <>
       {" "}
-      <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
-        <div className="flex items-center  gap-6">
-          <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
-            <FaCalendarAlt className="text-customPurple text-sm" />
-            <span className="text-secondary text-sm">Year-to-date </span>
-            <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
+      <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center  gap-6">
+            <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
+              <FaCalendarAlt className="text-customPurple text-sm" />
+              <span className="text-secondary text-sm">Year-to-date </span>
+              <FaAngleDown className={`text-secondary text-sm ${showDate ? "rotate-180" : ""} `} />
 
-          </button>
-          <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
-            <span>{formatDate(startDate, true)}</span>
-            <span>~</span>
-            <span>{formatDate(endDate, true)}</span>
+            </button>
+            <div className="flex gap-2 font-normal  items-center text-xs text-secondary">
+              <span>{formatDate(startDate, true)}</span>
+              <span>~</span>
+              <span>{formatDate(endDate, true)}</span>
+            </div>
           </div>
+          <button
+            className="w-[150px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
+            onClick={handleExport}
+          >
+            Export All
+          </button>
         </div>
         {showDate && <div className=" flex items-center my-4  gap-3">
           <CustomDatePicker
@@ -175,20 +197,20 @@ const Categorywise = () => {
 
 
 
-        {tableFields?.map((item, index) => {
-          const { heading, cols, rows, row } = item;
-          return (
-            <div className=" rounded-[16px] border border-primaryGray p-5  mb-9 last:mb-0">
-            
-              <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">{heading}</h2>
+      {tableFields?.map((item, index) => {
+        const { heading, cols, rows, row } = item;
+        return (
+          <div className=" rounded-[16px] border border-primaryGray p-5  mb-9 last:mb-0">
 
-              <div className="mb-5 last:mb-0">
-                <CategoryTable rows={rows} cols={cols} row={row} />
-              </div>
+            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">{heading}</h2>
+
+            <div className="mb-5 last:mb-0">
+              <CategoryTable rows={rows} cols={cols} row={row} />
             </div>
-          );
-        })}
-     
+          </div>
+        );
+      })}
+
 
     </>
   );
