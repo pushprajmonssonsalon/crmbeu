@@ -4,17 +4,13 @@ import { formatDate, getApiCall, postApiData } from "../../utils/services";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { IoMdPersonAdd } from "react-icons/io";
-import { MdCardMembership } from "react-icons/md";
-import NewMembershipModal from "../../components/popup/NewMembershipPopup";
 import CustomizedTables from "../../components/MaterialTable";
 import MemComponent from "../../components/membership/MemComponent";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import exportToExcel from "../../utils/exportToExcel";
 import { useSearchParams } from "react-router-dom";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
-import CustomTab from "../../components/tabs/CustomTab";
 export default function Membership() {
-  const [isNewMembershipModal, setIsNewMembershipModal] = useState(false);
   const [membershiptype, setMembershipType] = useState([]);
   const [membership, setMemberShip] = useState("");
 
@@ -84,7 +80,7 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
       },
       (error) => { }
     );
-  }, [isNewMembershipModal]);
+  }, []);
   const membershipPress = (e) => {
     const selectedMembership = e.target.value;
     const filteredMemb = membershiptype?.find(
@@ -150,9 +146,7 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
     // setMemberShipData(null)
   };
 
-  const onNewClose = () => {
-    setIsNewMembershipModal(false);
-  };
+  
   const onPayed = () => {
     setIsPayed(true);
   };
@@ -179,9 +173,7 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
     fetchMembershipReport()
   };
 
-  const openNewMembershipModal = () => {
-    setIsNewMembershipModal(true);
-  };
+  
 
   const headings = [
     "NAME",
@@ -204,13 +196,7 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
           icon: <IoMdPersonAdd />,
         },
       },
-      {
-        heading: "Add new membership",
-        button: {
-          onClick: openNewMembershipModal,
-          icon: <MdCardMembership />,
-        },
-      },
+   
     ],
     banners: [
       {
@@ -313,12 +299,7 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
           )}
         </div>
 
-        {isNewMembershipModal && (
-          <NewMembershipModal
-            isVisible={isNewMembershipModal}
-            onClose={onNewClose}
-          />
-        )}
+     
       </div>
     </>
   );

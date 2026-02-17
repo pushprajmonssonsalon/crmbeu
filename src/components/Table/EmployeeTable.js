@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import SwitchExample from '../switch';
 import { MdOutlineModeEdit, MdDeleteOutline } from "react-icons/md";
-import { postApiData } from '../../utils/services';
+import { formatDateToFull, postApiData } from '../../utils/services';
 import toast from 'react-hot-toast';
 import EditCustomerModal from '../modals/EditCustomerModal';
 import ConfirmationModal from '../modals/ConfirmationModal';
@@ -29,6 +29,7 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
     { name: "MOBILE NO.", value: "phoneNumber" },
     { name: "DESIGNATION", value: "role" },
     { name: "SALARY", value: "salary" },
+    { name: "JOINING DATE", value: "createdAt" },
   ];
   const handleEditClick = (item) => {
 
@@ -151,9 +152,10 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
               <td>{index + 1}</td>
               {
                 cols.map((elm, idx) => {
+                  let val=item[elm.value];
                   return (
                     <td key={idx} className='text-left '>
-                      {item[elm.value] ? item[elm.value] : ""}
+                      { val ?elm.value ==="createdAt"?formatDateToFull(val,false): val : ""}
                     </td>
                   )
                 }

@@ -16,6 +16,7 @@ export default function Tabs({ tabs, activeTab, handleTabChange }) {
    const tab =parseInt(searchParams.get("tab"));
    if(!isNaN(tab))handleTabChange(tab)
   },[searchParams])
+  const ActiveComponent = tabs[activeTab]?.component;
 
   return (
     <div className="w-full ">
@@ -40,8 +41,10 @@ export default function Tabs({ tabs, activeTab, handleTabChange }) {
         </div>
       </div>
       <div className="mt-4  transition-opacity duration-500 opacity-100">
-        {/* Content with Fade Animation */}
-        {tabs.filter((tab, index) => index === activeTab)?.map((elm, index) => {
+        {/* Content with Fade Animation */}{
+          ActiveComponent
+        }
+        {/* {tabs.filter((tab, index) => index === activeTab)?.map((elm, index) => {
 
           return <>
             {
@@ -49,7 +52,7 @@ export default function Tabs({ tabs, activeTab, handleTabChange }) {
             }
           </>
 
-        })}
+        })} */}
 
       </div>
     </div>

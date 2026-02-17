@@ -161,7 +161,7 @@ const Employee = () => {
       ['EMPLOYEE SERVICES REVENUE REPORT'],
       ['Generated on: ' + new Date().toLocaleString()],
       [],
-      ['Employee Name', 'Category', 'Sub Category', 'Service Name', 'Revenue (₹)', 'Employee Total (₹)']
+      ['Employee Name', 'Category', 'Sub Category', 'Service Name',"Total Services" ,'Revenue (₹)', 'Employee Total (₹)']
     ];
 
     let currentRow = 4; // Starting after headers
@@ -176,6 +176,7 @@ const Employee = () => {
           service.category,
           service.subCategory,
           service.service,
+          service.totalServices,
           service.sumTotal,
           serviceIndex === 0 ? empTotal : '' // Show total only on first row
         ]);
