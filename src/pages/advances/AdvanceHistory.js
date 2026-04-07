@@ -1,10 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import useDebouncer from '../../utils/hooks/useDebouncer';
-import { formatDateToFull, postApiData } from '../../utils/services';
-import { IoMdPrint } from 'react-icons/io';
+import { useEffect, useState } from 'react';
+import { postApiData } from '../../utils/services';
 import exportToExcel from '../../utils/exportToExcel';
-import CustomTable from '../../components/Table/CustomTable';
-import { useNavigate } from 'react-router';
 import AdvanceTable from '../../components/Table/AdvanceTable';
 import GridRows from '../../components/pagination/gridRows';
 import Pagination from '../../components/pagination';

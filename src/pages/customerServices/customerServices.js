@@ -14,6 +14,7 @@ import Loader from "../../components/loader/Loader";
 import exportToExcel from "../../utils/exportToExcel";
 import { MdOutlineClose } from "react-icons/md";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import CustomSelect from "../../components/customInput/CustomSelect";
 
 export default function CustomerServices({ tab }) {
   const [customerServiceData, setCustomerServiceData] = useState([]);
@@ -21,10 +22,11 @@ export default function CustomerServices({ tab }) {
   const [loading, setLoading] = useState(false)
   const [addproductModal, setAddProductModal] = useState(false);
   const [serviceItem, setServiceItem] = useState({
-    mrp: 0,
-    price: 0,
-    appMrp: 0,
-    appPrice: 0,
+    name: "",
+    mrp: "",
+    price: "",
+    appMrp: "",
+    appPrice: "",
     category: "",
     subCategory: "",
   });
@@ -69,6 +71,46 @@ export default function CustomerServices({ tab }) {
       name: "Nail",
     },
   ];
+  const subCategoryData=[
+  "Hair Straightening",
+  "Bridal Makeup",
+  "Cleanup",
+  "Threading",
+  "Portable Bed Massage",
+  "Piercing",
+  "Occassion Makeup",
+  "Body Polishing",
+  "Nail Extensions",
+  "Nail Art",
+  "Mehendi",
+  "Body Wax",
+  "Express Spa",
+  "Hd Bridal Makeup",
+  "Facials",
+  "Light Makeup",
+  "Hair Color",
+  "Scrubs & Wraps",
+  "Hair Treatment",
+  "Color Touch Up",
+  "Mani/ Pedi",
+  "MANICURE & PEDICURE",
+  "Massages",
+  "Cut & Style",
+  "Nail Refill",
+  "Bleach",
+  "Others",
+  "Hair Spa",
+  "Basic Makeup",
+  "Package"
+]
+const categoryOptions = CategoryData.map((elm) => ({
+    name: elm.name,
+    value: elm.name,
+  }));
+const subCategoryOptions=subCategoryData?.map((elm)=>({
+  name:elm,
+  value:elm
+}))
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -91,16 +133,24 @@ export default function CustomerServices({ tab }) {
   ];
   const serviceItemFields = [
     {
+      name: "name",
+      placeholder: "Name",
+      label: "Name",
+      // disabled: true,
+    },
+    {
       name: "category",
       placeholder: "Category",
       label: "Category",
-      disabled: true,
+      options:categoryOptions
+      // disabled: true,
     },
     {
       name: "subCategory",
       placeholder: "Sub Category",
       label: "Sub Category",
-      disabled: true
+      options:subCategoryOptions
+      // disabled: true
     },
     {
       name: "mrp",
@@ -340,10 +390,7 @@ export default function CustomerServices({ tab }) {
       [name]: type === "number" ? +value : value,
     }));
   };
-  const categoryOptions = CategoryData.map((elm) => ({
-    name: elm.name,
-    value: elm.name,
-  }));
+  
   const genderOptions = [
     {
       name: "Female",
@@ -368,6 +415,9 @@ export default function CustomerServices({ tab }) {
       exportToExcel(formattedData, "Services", "Services.xlsx");
     }
 
+  };
+  const handleAddService = () => {
+    setAddProductModal(true);
   };
   return (
     <>
@@ -433,12 +483,21 @@ export default function CustomerServices({ tab }) {
             clear
           </button>
           {tab === 1 && (
-            <button
-              className="h-[36px] mt-4 w-[100px] bg-ternary rounded-[16px] flex items-center justify-center text-white text-sm"
-              onClick={handleExport}
-            >
-              Export All
-            </button>
+            <>
+              <button
+                className="h-[36px] mt-4 w-[100px] bg-ternary rounded-[16px] flex items-center justify-center text-white text-sm"
+                onClick={handleExport}
+              >
+                Export All
+              </button>
+
+              <button
+                className="h-[36px] mt-4 w-[120px] bg-green-600 rounded-[16px] flex items-center justify-center text-white text-sm"
+                onClick={handleAddService}
+              >
+                Add Service
+              </button>
+            </>
           )}
         </div>
 
@@ -506,13 +565,13 @@ export default function CustomerServices({ tab }) {
               </div>
               <div className="grid grid-cols-1 gap-y-3 mb-4">
                 {serviceItemFields.map((input, index) => {
-                  const { name, placeholder, label, disabled } = input;
+                  const { name, placeholder, label, options=null,disabled } = input;
                   const value = serviceItem[name];
 
 
                   return (
                     <div key={index} className="grid grid-cols-2 ">
-                      <NormalInput
+                      {/* <NormalInput
                         name={name}
                         value={value}
                         label={label}
@@ -529,7 +588,51 @@ export default function CustomerServices({ tab }) {
                           'color': '#000000'
                         }} placeholder={placeholder}
                         onChange={handleChange}
-                      />
+                      /> */}
+                      {options? (
+                        <>
+                           <CustomSelect
+                          name={name}
+                          value={value}
+                          label={label}
+                          disabled={disabled}
+                          placeholder={placeholder}
+                          onChange={handleChange}
+                          inputStyles={{
+                            borderRadius: "10px",
+                            padding: "10px 15px",
+                            fontSize: "13px",
+                            fontWeight: "400",   
+                          }}
+                          lableStyles={{
+                            fontWeight: "500",  
+                            fontSize: "13px",
+                          }}
+                          options={options}
+                        />
+
+                        
+                        </>
+                      ) : (
+                        <NormalInput
+                          name={name}
+                          value={value}
+                          label={label}
+                          disabled={disabled}
+                          placeholder={placeholder}
+                          onChange={handleChange}
+                          inputStyles={{
+                            borderRadius: "10px",
+                            padding: "10px 15px",
+                            fontSize: "13px",
+                            fontWeight: "400",   
+                          }}
+                          lableStyles={{
+                            fontWeight: "500",  
+                            fontSize: "13px",
+                          }}
+                        />
+                      )}
                     </div>
                   );
                 })}

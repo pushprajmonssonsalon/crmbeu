@@ -32,8 +32,9 @@ const Employeedetails = () => {
   const [employeeCode, setEmployeeCode] = useState("");
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  // const [startDate, setStartDate] = useState("");
+  const [joinAt, setJoinAt] = useState("");
+  // const [endDate, setEndDate] = useState("");
   const [title, setTitle] = useState("");
   const [emergencyNumber, setEmergencyNumber] = useState("");
   const [getstaffData, setStaffData] = useState([]);
@@ -80,8 +81,10 @@ const Employeedetails = () => {
       employeeCode: employeeCode,
       gender: gender,
       dob: dob,
-      startDate: startDate,
-      endDate: endDate,
+      // startDate: startDate,
+      // endDate: endDate,
+      joinAt: joinAt,
+      // endDate: endDate,
       staff: title,
       emergencyNumber: emergencyNumber,
     };
@@ -120,8 +123,9 @@ const Employeedetails = () => {
     setEmployeeCode("");
     setGender("");
     setDob("");
-    setStartDate("");
-    setEndDate("");
+    setJoinAt("")
+    // setStartDate("");
+    // setEndDate("");
     setTitle("");
     setEmergencyNumber("");
     closeModal();
@@ -181,21 +185,21 @@ const Employeedetails = () => {
       id: "dob",
     },
     {
-      label: "Start Date",
-      placeholder: "Enter start date",
+      label: "Joining Date",
+      placeholder: "Enter date",
       type: "date",
-      value: startDate,
-      onChange: (e) => setStartDate(e.target.value),
-      id: "startDate",
+      value: joinAt,
+      onChange: (e) => setJoinAt(e.target.value),
+      id: "joinAt",
     },
-    {
-      label: "End Date",
-      placeholder: "Enter end date",
-      type: "date",
-      value: endDate,
-      onChange: (e) => setEndDate(e.target.value),
-      id: "endDate",
-    },
+    // {
+    //   label: "End Date",
+    //   placeholder: "Enter end date",
+    //   type: "date",
+    //   value: endDate,
+    //   onChange: (e) => setEndDate(e.target.value),
+    //   id: "endDate",
+    // },
 
     {
       label: "Title",
@@ -246,8 +250,7 @@ const Employeedetails = () => {
               </div>
             </>
             : <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <img style={{ height: '500px', }}
-                src="https://res.cloudinary.com/dkvmvyvnx/image/upload/v1706943691/employees_blank.aa1a0e0d_ol8mir.png" />
+              Loading...
 
             </div>
         }

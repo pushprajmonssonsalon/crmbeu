@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import SwitchExample from '../switch';
 import { MdOutlineModeEdit, MdDeleteOutline } from "react-icons/md";
-import { formatDateToFull, postApiData } from '../../utils/services';
+import { formatDateForInput, formatDateToFull, postApiData } from '../../utils/services';
 import toast from 'react-hot-toast';
 import EditCustomerModal from '../modals/EditCustomerModal';
 import ConfirmationModal from '../modals/ConfirmationModal';
@@ -29,7 +29,7 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
     { name: "MOBILE NO.", value: "phoneNumber" },
     { name: "DESIGNATION", value: "role" },
     { name: "SALARY", value: "salary" },
-    { name: "JOINING DATE", value: "createdAt" },
+    { name: "JOINING DATE", value: "joinAt" },
   ];
   const handleEditClick = (item) => {
 
@@ -41,7 +41,8 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
       name: item.name,
       phoneNumber: item.phoneNumber,
       role: item.role,
-      salary: item.salary
+      salary: item.salary,
+      joinAt: item.joinAt
     });
 
   }
@@ -101,7 +102,8 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
       name: item.name,
       phoneNumber: item.phoneNumber,
       role: item.role,
-      salary: item.salary
+      salary: item.salary,
+      joinAt: item.joinAt
     });
    
   }
@@ -130,6 +132,13 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
       value: editItem.salary,
       name: "salary",
     },
+    {
+      label: "Joining Date",
+      placeholder: "Enter date",
+      type: "date",
+      value: formatDateForInput(editItem.joinAt),
+      name: "joinAt",
+    },
   ];
   return (
     <>
@@ -155,7 +164,7 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
                   let val=item[elm.value];
                   return (
                     <td key={idx} className='text-left '>
-                      { val ?elm.value ==="createdAt"?formatDateToFull(val,false): val : ""}
+                      { val ?elm.value ==="joinAt"?formatDateToFull(val,false): val : ""}
                     </td>
                   )
                 }

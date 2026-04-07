@@ -90,6 +90,15 @@ const Categorywise = () => {
   };
 
 
+  const SubCatTotal = useMemo(() => {
+    if (subCateogries?.length > 0) {
+      const total = subCateogries.reduce(
+        (acc, curr) => acc + curr.totalServices,
+        0
+      );
+      return total || 0;
+    } else return 0;
+  }, [subCateogries]);
   const SubCatRevenue = useMemo(() => {
     if (subCateogries?.length > 0) {
       const total = subCateogries.reduce(
@@ -100,6 +109,15 @@ const Categorywise = () => {
     } else return 0;
   }, [subCateogries]);
 
+  const minSubCatTotal = useMemo(() => {
+    if (miniSubCategories?.length > 0) {
+      const total = miniSubCategories.reduce(
+        (acc, curr) => acc + curr.totalServices,
+        0
+      );
+      return total;
+    } else return 0;
+  }, [miniSubCategories]);
   const minSubCatRevenue = useMemo(() => {
     if (miniSubCategories?.length > 0) {
       const total = miniSubCategories.reduce(
@@ -110,12 +128,12 @@ const Categorywise = () => {
     } else return 0;
   }, [miniSubCategories]);
 
-  const getSubCatRow = (value) => {
+  const getSubCatRow = (value,SubCatTotal) => {
     return (
       <>
         <tr>
           <td className="text-black font-bold"><span className="font-bold">Total</span></td>
-          <td className=""></td>
+          <td className="">{SubCatTotal}</td>
           <td className="text-black font-bold">{value}</td>
         </tr>
       </>
@@ -127,13 +145,13 @@ const Categorywise = () => {
       heading: "Sub Category Wise report",
       cols: categoryHeadings,
       rows: subCateogries,
-      row: getSubCatRow(SubCatRevenue),
+      row: getSubCatRow(SubCatRevenue,SubCatTotal),
     },
     {
       heading: "Mini Category Wise report",
       cols: subCategoryHeadings,
       rows: miniSubCategories,
-      row: getSubCatRow(minSubCatRevenue),
+      row: getSubCatRow(minSubCatRevenue,minSubCatTotal),
     },
   ];
   const handleExport = () => {
