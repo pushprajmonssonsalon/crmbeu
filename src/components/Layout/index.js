@@ -30,6 +30,7 @@ const routesObject = {
   inventoryreport: "Inventory Report",
   "salon-details": "Salon Details",
   royalities: "Royalties",
+  sop: "SOP",
   notifications: "Notifications",
   plans:"Plans",
   "notifications/:id": "Notification Details"
