@@ -34,6 +34,8 @@ import AllReport from "./pages/reports/AllReport";
 import Plans from "./pages/Plans/Plans";
 import Layout from "./components/Layout";
 import Salon from "./pages/salonDetails/Salon";
+import Sop from "./pages/sop/sop";
+import SopDetail from "./pages/sop/sopDetail";
 
 function App() {
   useEffect(() => {
@@ -157,6 +159,14 @@ function App() {
         <Route
           path="/notifications"
           element={<PrivateRoute Component={Notification} />}
+        />
+        <Route
+          path="/sop/:id"
+          element={<PrivateRoute Component={SopDetail} />}
+        />
+        <Route
+          path="/sop"
+          element={<PrivateRoute Component={Sop} />}
         />
         <Route
           path="/plans"
