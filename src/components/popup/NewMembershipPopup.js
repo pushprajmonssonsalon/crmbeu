@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from '../../utils/services';
 import toast from 'react-hot-toast';
 import NormalInput from '../customInput/NormalInput';
 import NormalSelect from '../customInput/NormalSelect';
 import CustomDiscount from './CustomDiscount';
-const NewMembershipModal = ({ isVisible, onClose }) => {
+const NewMembershipModal = ({ isVisible, onClose, mode = "add", membershipData = null,onSubmit=()=>{} }) => {
     const [name, setName] = useState("");
     const [price, setPrice] = useState(null);
     const [coins, setCoins] = useState(null);
@@ -51,7 +51,43 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
             setDailyDiscount(numValue);
         }
     };
-  
+      useEffect(() => {
+        if (membershipData && (mode === "edit" || mode === "view")) {
+            setName(membershipData.name || "");
+            setPrice(membershipData.price || "");
+            setCoins(membershipData.credits || "");
+            setExpiry(membershipData.expiry || 3);
+            setBdDiscount(membershipData.bdDiscount || 0);
+            setAnvDiscount(membershipData.anvDiscount || 0);
+
+            if (membershipData.dailyDiscount && typeof membershipData.dailyDiscount === 'object') {
+                setDiscountType("daywise");
+                setDayWiseDiscounts(membershipData.dailyDiscount);
+                setDiscount(0);
+                setDailyDiscount(0);
+            } else {
+                setDiscountType("daily");
+                setDiscount(membershipData.discount || 0);
+                setDailyDiscount(membershipData.discount || 0);
+                setDayWiseDiscounts({
+                    0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0
+                });
+            }
+        } else {
+            setName("");
+            setPrice(null);
+            setCoins(null);
+            setDiscount(0);
+            setBdDiscount(0);
+            setAnvDiscount(0);
+            setExpiry(3);
+            setDiscountType('daily');
+            setDailyDiscount(0);
+            setDayWiseDiscounts({
+                0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0
+            });
+        }
+    }, [membershipData, mode]);
     if (!isVisible) return null;
     const handleExpiryChange = (e) => {
         setExpiry(+e.target.value)
@@ -71,27 +107,36 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
             anvDiscount:Math.min(+anvDiscount, 100),
            ...(discountType==="daywise"&& {dailyDiscount:dayWiseDiscounts})
         }
+        if (mode === "edit" && membershipData?._id) {
+            data.membershipId = membershipData._id;
+        }
+
         const isEveryEmpty = Object.values(data).every(elm => !elm || elm === "")
         if (isEveryEmpty) {
             return toast.error("Please Fill All Fields")
         }
-        postApiData("parlor/createMembershipForParlor",
+        
+        const endpoint = mode === "edit" ? "parlor/updateMembershipForParlor" : "parlor/createMembershipForParlor";
+        
+        postApiData(endpoint,
             data,
             (res) => {
 
-                toast.success("Membership Added Successfully!")
-                onClose()
+                toast.success(mode === "edit" ? "Membership Updated Successfully!" : "Membership Added Successfully!")
+             
                 setName("")
                 setPrice(null)
                 setCoins(null)
                 setExpiry(null)
                 setDiscount(0)
+                   onSubmit()
             },
             (error) => {
 
                 toast.error("Something went wrong!")
             }
         )
+        onSubmit()
     }
     const formFields = [
         {
@@ -171,7 +216,7 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
 
                 <div className=' '>
                     <div className='flex justify-between items-center mb-6'>
-                        <h1 className={`text-2xl text-black `}>Add your Memberships</h1>
+                        <h1 className={`text-2xl text-black `}>{mode === "view" ? "View Membership" : mode === "edit" ? "Edit Membership" : "Add your Memberships"}</h1>
                         <button className='text-black text-xl' onClick={() => onClose()}><MdOutlineClose /></button>
 
                     </div>
@@ -191,6 +236,7 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
                                         handleDayWiseChange={handleDayWiseChange}
                                         handleDailyDiscountChange={handleDailyDiscountChange}
                                         placeholder={placeholder}
+                                        disabled={mode === 'view'}
                                       
                                        
 
@@ -208,6 +254,7 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
                                                 value={value}
                                                 type={type}
                                                 onChange={onChange}
+                                                disabled={mode === 'view'}
                                                 inputStyles={{
                                                     'borderRadius': '10px',
                                                     padding: "10px 15px",
@@ -226,6 +273,7 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
                                                     value={value}
                                                     options={options}
                                                     onChange={onChange}
+                                                    disabled={mode === 'view'}
                                                     inputStyles={{
                                                         'borderRadius': '10px',
                                                         padding: "10px 15px",
@@ -247,14 +295,16 @@ const NewMembershipModal = ({ isVisible, onClose }) => {
                                 className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
                                 onClick={onClose}
                             >
-                                Cancel
+                                {mode === 'view' ? "Close" : "Cancel"}
                             </button>
-                            <button
-                                className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
-                                onClick={handleAddMembership}
-                            >
-                                ADD
-                            </button>
+                            {mode !== 'view' && (
+                                <button
+                                    className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
+                                    onClick={handleAddMembership}
+                                >
+                                    {mode === 'edit' ? "UPDATE" : "ADD"}
+                                </button>
+                            )}
                         </div>
                         {/* ))} */}
                     </div>
