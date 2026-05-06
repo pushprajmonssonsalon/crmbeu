@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MdOutlineContacts, MdOutlineFireHydrantAlt, MdOutlineInventory2 } from "react-icons/md";
 import { FaAngleDown, FaRegStar } from "react-icons/fa6";
-import { LiaChartBarSolid } from "react-icons/lia";
+import { LiaChartBarSolid, LiaGgCircle } from "react-icons/lia";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,6 +43,8 @@ const VerticalSidebar = () => {
     },
     { name: "Royality", link: `/royalities`, icon: FaRegStar, num: 10 },
     { name: "Plans", link: `/plans`, icon: LiaChartBarSolid, num: 10 },
+    {name: "SOP", link: `/sop`, icon: LiaGgCircle, num: 11},
+
   ];
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("/")
