@@ -42,7 +42,27 @@ const Login = () => {
     postApiData("parlor/login", data, (resp) => {
       localStorage.setItem("token", resp?.token);
       localStorage.setItem("gstApplied", resp?.gstApplied);
+      // Persist royalty flags so PrivateRoute can enforce redirects
+      localStorage.setItem("royaltyOverdue", resp?.royaltyOverdue ? "true" : "false");
+      localStorage.setItem("royaltyDue", resp?.royaltyDue ? "true" : "false");
 
+      // Check payment status from database
+      if (resp?.paymentDone === true || resp?.paymentStatus === "completed") {
+        // Payment is done, grant access
+        localStorage.setItem("paymentDone", "true");
+        toast.success("Payment verified! Welcome back!");
+      } else if (resp?.paymentDone === false || resp?.paymentStatus === "pending") {
+        // Payment not done, redirect to payment page
+        localStorage.setItem("paymentDone", "false");
+        toast.error("Please complete your payment to continue");
+        navigate("/royalties-check");
+        return;
+      }
+
+      if (resp?.royaltyOverdue) {
+        navigate("/royalties-check");
+        return; 
+      }
       // dispatch(userDetails(resp.data.data));
       toast.success("You have logined sucessfully")
 

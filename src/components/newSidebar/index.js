@@ -44,6 +44,7 @@ const VerticalSidebar = () => {
     { name: "Royality", link: `/royalities`, icon: FaRegStar, num: 10 },
     { name: "Plans", link: `/plans`, icon: LiaChartBarSolid, num: 10 },
     {name: "SOP", link: `/sop`, icon: LiaGgCircle, num: 11},
+    { name: "Royalties Check", link: `/royalties-check`, icon: FaRegStar, num: 13 },
 
   ];
   const dispatch = useDispatch();

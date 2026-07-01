@@ -17,6 +17,7 @@ import { Toaster } from "react-hot-toast";
 import Revenue from "./components/revenue";
 import WeeklyReport from "./pages/weeklyReport";
 import Royalities from "./pages/royalities";
+import RoyaltiesCheck from "./pages/royaltiesCheck";
 import { useEffect } from "react";
 import Notification from "./pages/notification/notification";
 import SingleNotification from "./pages/notification/singleNotification";
@@ -33,6 +34,7 @@ import Contacts from "./pages/Contacts/Contacts";
 import AllReport from "./pages/reports/AllReport";
 import Plans from "./pages/Plans/Plans";
 import Layout from "./components/Layout";
+import GlobalAlert from "./components/GlobalAlert";
 import Salon from "./pages/salonDetails/Salon";
 import Sop from "./pages/sop/sop";
 import SopDetail from "./pages/sop/sopDetail";
@@ -54,6 +56,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <GlobalAlert message="This is a global alert and will be displayed on all pages." />
       <Toaster />
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -155,6 +158,10 @@ function App() {
         <Route
           path="/royalities"
           element={<PrivateRoute Component={Royalities} />}
+        />
+        <Route
+          path="/royalties-check"
+          element={<PrivateRoute Component={RoyaltiesCheck} />}
         />
         <Route
           path="/notifications"
