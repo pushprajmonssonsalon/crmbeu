@@ -4,10 +4,13 @@ import Pagination from '../../components/pagination';
 import { getApiCall } from '../../utils/services';
 import { MdCardMembership, MdEdit } from 'react-icons/md';
 import NewMembershipModal from '../../components/popup/NewMembershipPopup';
+import { FaRegEye } from 'react-icons/fa';
 
 const ActiveMembership = () => {
   const [membership, setMemberships] = useState([]);
   const [isNewMembershipModal, setIsNewMembershipModal] = useState(false);
+  const [modalMode, setModalMode] = useState("add"); // "add", "edit", "view"
+  const [selectedMembership, setSelectedMembership] = useState(null);
 
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -28,10 +31,14 @@ const ActiveMembership = () => {
       id: "credits",
       name: "Credits"
     },
-    // {
-    //   id: "action",
-    //   name: "Action"
-    // },
+    {
+      id: "discount",
+      name: "Discount"
+    },
+    {
+      id: "action",
+      name: "Action"
+    },
 
   ]
 
@@ -47,14 +54,18 @@ const ActiveMembership = () => {
     setRowsPerPage(+event.target.value);
     setPage(1);
   };
-  useEffect(() => {
-    getApiCall(
+  const getMembership=()=>{
+ getApiCall(
       "membership/getMembership",
       (resp) => {
         setMemberships(resp.membershipList);
       },
       (error) => { }
     );
+
+  }
+  useEffect(() => {
+   getMembership()
   }, []);
   const actions = [
 
@@ -62,7 +73,11 @@ const ActiveMembership = () => {
     {
       heading: "Add new membership",
       button: {
-        onClick: () => setIsNewMembershipModal(true),
+        onClick: () => {
+          setModalMode("add");
+          setSelectedMembership(null);
+          setIsNewMembershipModal(true);
+        },
         icon: <MdCardMembership />,
       },
     }
@@ -118,8 +133,19 @@ const ActiveMembership = () => {
                         {elm.id === "index" ?
                           index + 1
                           : elm.id === "action" ?
-                            <button className='text-black text-lg'><MdEdit /></button>
-                            : item[elm.id]}</td>
+                            <div className='flex items-center gap-1'>
+                              <button className='text-black text-lg' onClick={() => {
+                                setModalMode("view");
+                                setSelectedMembership(item);
+                                setIsNewMembershipModal(true);
+                              }}><FaRegEye /></button>
+                              <button className='text-black text-lg' onClick={() => {
+                                setModalMode("edit");
+                                setSelectedMembership(item);
+                                setIsNewMembershipModal(true);
+                              }}><MdEdit /></button>
+                            </div>
+                          :elm.id==="discount"? `${item[elm.id]||0}%` : item[elm.id]||""}</td>
                     )
                   })}
 
@@ -146,7 +172,17 @@ const ActiveMembership = () => {
       {isNewMembershipModal && (
         <NewMembershipModal
           isVisible={isNewMembershipModal}
-          onClose={() => setIsNewMembershipModal(false)}
+          mode={modalMode}
+          membershipData={selectedMembership}
+          onClose={() => {
+            setIsNewMembershipModal(false);
+            setSelectedMembership(null);
+          }}
+          onSubmit={() => {
+            setIsNewMembershipModal(false);
+            setSelectedMembership(null);
+            getMembership()
+          }}
         />
       )}
     </>

@@ -9,6 +9,7 @@ const CustomDiscount = ({
     daysOfWeek,
     handleDayWiseChange,
     handleDailyDiscountChange,
+    disabled = false,
 }) => {
     
 
@@ -25,6 +26,7 @@ const CustomDiscount = ({
                 <div className="flex gap-4">
                     <button
                         onClick={() => setDiscountType('daily')}
+                        disabled={disabled}
                         className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${discountType === 'daily'
                             ? 'bg-ternary text-white shadow-md'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -34,6 +36,7 @@ const CustomDiscount = ({
                     </button>
                     <button
                         onClick={() => setDiscountType('daywise')}
+                        disabled={disabled}
                         className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${discountType === 'daywise'
                             ? 'bg-ternary text-white shadow-md'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -56,6 +59,7 @@ const CustomDiscount = ({
                                 step="0.1"
                                 value={dailyDiscount}
                                 onChange={(e) => handleDailyDiscountChange(e.target.value)}
+                                disabled={disabled}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg "
                                 placeholder="Enter discount percentage"
                             />
@@ -84,6 +88,7 @@ const CustomDiscount = ({
                                             step="0.1"
                                             value={dayWiseDiscounts[key]}
                                             onChange={(e) => handleDayWiseChange(key, e.target.value)}
+                                            disabled={disabled}
                                             className="flex-1 px-4 py-1 border border-gray-300 rounded-lg "
                                             placeholder="0"
                                         />
