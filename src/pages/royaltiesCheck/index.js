@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { FaWallet, FaCalendarAlt, FaCheckCircle, FaFileInvoiceDollar, FaMoneyBillWave } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { loadRazorpay } from "../../utils/services";
+import { setRoyaltyStatus } from "../../redux/reducers";
 
 // Local base URL for royalties-specific requests (kept local to avoid changing shared services)
-const LOCAL_BASE_URL = "https://coat-daycare-uncombed.ngrok-free.dev/";
+const LOCAL_BASE_URL = "http://192.168.2.23:4002/"; // Replace with your actual local base URL
 
-const createRoyaltyOrder = async (payload) => {
+const createRoyaltyOrder = async () => {
   try {
     const token = localStorage.getItem("token");
 
@@ -22,17 +24,16 @@ const createRoyaltyOrder = async (payload) => {
     });
 
     const res = await instance.post(
-      "royalty/createRoyaltyOrder",
-      payload
+      "royalty/createRoyaltyOrder"
     );
 
-    return res?.data;
+    return res.data;
   } catch (error) {
     throw error;
   }
 };
 
-const getRoyaltyStatus = async () => {
+const getRoyaltyStatus = async (dispatch) => {
   try {
     const token = localStorage.getItem("token");
 
@@ -45,12 +46,18 @@ const getRoyaltyStatus = async () => {
       },
     });
 
-    const res = await instance.get(
-      "royalty/getRoyaltyStatus"
-    );
-    console.log("getRoyaltyStatus response:", res);
+    const res = await instance.get("royalty/getRoyaltyStatus");
 
-    return res?.data; 
+    const data = res.data;
+
+    dispatch(
+      setRoyaltyStatus({
+        royaltyDue: Boolean(data?.royaltyDue),
+        royaltyOverdue: Boolean(data?.royaltyOverdue),
+      })
+    );
+
+    return data;
   } catch (error) {
     throw error;
   }
@@ -58,139 +65,110 @@ const getRoyaltyStatus = async () => {
 
 const RoyaltiesCheck = () => {
   const navigate = useNavigate();
-  const [amount, setAmount] = useState(10000);
+  const dispatch = useDispatch();
+  const [amount, setAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("upi");
   const [paymentStatus, setPaymentStatus] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [royaltyPaidStatus, setRoyaltyPaidStatus] = useState("Pending");
 
-  const handlePay = async () => {
-    if (amount <= 0) {
-      toast.error("Enter a valid royalty amount.");
-      return;
-    }
+ const handlePay = async () => {
+  if (isProcessing) return;
+  setIsProcessing(true);
 
-    if (isProcessing) return;
-    setIsProcessing(true);
-
+  try {
     const isLoaded = await loadRazorpay();
+
     if (!isLoaded) {
-      toast.error("Unable to load Razorpay checkout. Please refresh and try again.");
+      toast.error("Razorpay failed to load. Please refresh.");
       setIsProcessing(false);
       return;
     }
 
-    const payload = {
-      amount: 0,
-      paymentMethod: "",
-      description: "Royalty payment",
-    };
+    const orderResponse = await createRoyaltyOrder();
 
-    createRoyaltyOrder(payload)
-      .then((orderResponse) => {
-        console.log("orderResponse", orderResponse);
-        const orderData = orderResponse?.order || orderResponse;
+    const orderData = orderResponse?.order;
 
-        const options = {
-          // key: "rzp_live_ReLPWPX0nsXIfA",
-          key: "rzp_test_T6FgyMoebY9qEy",
-          amount: orderData.amount,
-          currency: "INR",
-          name: "Smart Salon",
-          description: "Royalties Check Payment",
-          order_id: orderData.id,
-          notes: {
-            paymentMethod,
-          },
-          handler: async (paymentResponse) => {
-            try {
-              await new Promise((resolve) => setTimeout(resolve, 2000));
-              // after payment is done, check the royalty status from the backend
-              const royaltyStatus = await getRoyaltyStatus();
+    if (!orderData) {
+      toast.error("Invalid order response");
+      setIsProcessing(false);
+      return;
+    }
 
-              console.log("royaltyStatus", royaltyStatus);
+    const options = {
+      key: "rzp_test_T6FgyMoebY9qEy",
+      amount: orderData.amount,
+      currency: orderData.currency || "INR",
+      name: "Smart Salon",
+      description: "Royalty Payment",
+      order_id: orderData.id,
 
-              const data = royaltyStatus?.data || royaltyStatus;
-
-              // if royality clear
-              if (
-                data?.royaltyOverdue === false &&
-                data?.royaltyDue === false
-              ) {
-                localStorage.setItem("royaltyOverdue", "false");
-                localStorage.setItem("royaltyDue", "false");
-                localStorage.setItem("royaltyCheckRequired", "false");
-
-                setPaymentStatus(
-                  `Payment successful: ₹${amount.toLocaleString()} paid by ${
-                    paymentMethod === "upi"
-                      ? "UPI"
-                      : paymentMethod === "card"
-                      ? "Card"
-                      : "Net Banking"
-                  }.`
-                );
-
-                toast.success("Royalty payment completed successfully.");
-
-                setTimeout(() => {
-                  navigate("/");
-                }, 2000);
-              } else {
-                localStorage.setItem(
-                  "royaltyOverdue",
-                  String(data?.royaltyOverdue)
-                );
-
-                localStorage.setItem(
-                  "royaltyDue",
-                  String(data?.royaltyDue)
-                );
-
-                toast.error(
-                  "Payment is not verified yet. Please try again in a few seconds."
-                );
-              }
-            } catch (error) {
-              console.log("Error message:", error.message);
-              console.log("Response:", error.response);
-              console.log("Request:", error.request);
-              console.log("Full error:", error);
-              console.log("getRoyaltyStatus error", error);
-              toast.error("Unable to verify royalty status.");
-            } finally {
-              setIsProcessing(false);
-            }
-          },
-          prefill: {
-            contact: "",
-          },
-          theme: {
-            color: "#2563eb",
-          },
-        };
-
+      handler: async () => {
         try {
-          const razorpay = new window.Razorpay(options);
-          razorpay.open();
-          razorpay.on("close", () => {
-            setIsProcessing(false);
-            if (!paymentStatus) {
-              toast.error("Payment cancelled by user.");
-            }
-          });
+          await getRoyaltyStatus(dispatch);
+
+          toast.success("Payment successful!");
+
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+
         } catch (error) {
-          console.error("Razorpay open failed", error);
-          toast.error("Unable to open Razorpay checkout.");
+          toast.error("Payment verification failed.");
+        } finally {
           setIsProcessing(false);
         }
-      })
-      .catch((error) => {
-        console.error("Order creation failed", error);
-        toast.error("Could not initiate payment. Please try again.");
-        setIsProcessing(false);
-      });
+      },
+
+      theme: {
+        color: "#2563eb",
+      },
+    };
+
+    const razorpay = new window.Razorpay(options);
+
+    razorpay.open();
+
+    razorpay.on("payment.failed", () => {
+      toast.error("Payment failed");
+      setIsProcessing(false);
+    });
+
+    razorpay.on("close", () => {
+      setIsProcessing(false);
+    });
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong.");
+    setIsProcessing(false);
+  }
+};
+
+useEffect(() => {
+  const fetchRoyaltyStatus = async () => {
+    try {
+      const res = await getRoyaltyStatus(dispatch);
+
+
+      setAmount(res?.royaltyAmount || 0);
+
+      let status = "Pending";
+      if(res.royaltyOverdue){
+        status = "Overdue";
+      }else if(!res.royaltyDue){
+        status = "Paid";
+      }
+      setRoyaltyPaidStatus(status);
+
+    } catch (error) {
+      console.error("Error fetching royalty status:", error);
+    }
   };
+
+  fetchRoyaltyStatus();
+}, []);
 
   return (
       <div className="py-8">
@@ -218,8 +196,8 @@ const RoyaltiesCheck = () => {
                 <p className="text-sm font-medium">Invoice Status</p>
                 <FaFileInvoiceDollar className="h-5 w-5" />
               </div>
-              <p className="mt-4 text-xl font-semibold text-slate-900">Pending</p>
-              <p className="mt-1 text-sm text-slate-600">1 invoice awaiting payment</p>
+              <p className="mt-4 text-xl font-semibold text-slate-900">{royaltyPaidStatus}</p>
+              {/* <p className="mt-1 text-sm text-slate-600">1 invoice awaiting payment</p> */}
             </div>
           </div>
         </div>

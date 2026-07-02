@@ -1,6 +1,7 @@
 import "./App.css";
 import Login from "./pages/login/Login";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Appointment from "./pages/Appointment/Appointment";
 import OwnerService from "./pages/ownerServices";
 import ViewAppointment from "./pages/viewAppointment/ViewAppointment";
@@ -18,7 +19,7 @@ import Revenue from "./components/revenue";
 import WeeklyReport from "./pages/weeklyReport";
 import Royalities from "./pages/royalities";
 import RoyaltiesCheck from "./pages/royaltiesCheck";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Notification from "./pages/notification/notification";
 import SingleNotification from "./pages/notification/singleNotification";
 import Categorywise from "./components/categorywise/Categorywise";
@@ -34,12 +35,56 @@ import Contacts from "./pages/Contacts/Contacts";
 import AllReport from "./pages/reports/AllReport";
 import Plans from "./pages/Plans/Plans";
 import Layout from "./components/Layout";
-import GlobalAlert from "./components/GlobalAlert";
 import Salon from "./pages/salonDetails/Salon";
 import Sop from "./pages/sop/sop";
 import SopDetail from "./pages/sop/sopDetail";
+import ReminderModal from "./components/GlobalAlert";
+
+const ReminderTriggers = () => {
+  const location = useLocation();
+  const previousPathRef = useRef(location.pathname);
+  const { royaltyDue, royaltyOverdue } = useSelector((state) => state.royaltyReducer || {});
+
+  useEffect(() => {
+    const shouldOpenReminder = royaltyDue && !royaltyOverdue;
+
+    if (previousPathRef.current !== location.pathname && shouldOpenReminder && location.pathname !== "/royalties-check") {
+      window.dispatchEvent(new CustomEvent("open-reminder-modal"));
+    }
+
+    previousPathRef.current = location.pathname;
+  }, [location.pathname]);
+
+  return null;
+};
 
 function App() {
+  const [showReminder, setShowReminder] = useState(false);
+  const reminderTimerRef = useRef(null);
+  const { royaltyDue, royaltyOverdue } = useSelector((state) => state.royaltyReducer || {});
+
+  useEffect(() => {
+    const openReminderModal = () => {
+      if (!royaltyDue || royaltyOverdue) return;
+      if (reminderTimerRef.current) {
+        clearTimeout(reminderTimerRef.current);
+      }
+
+      reminderTimerRef.current = setTimeout(() => {
+        setShowReminder(true);
+      }, 2000);
+    };
+
+    window.addEventListener("open-reminder-modal", openReminderModal);
+
+    return () => {
+      window.removeEventListener("open-reminder-modal", openReminderModal);
+      if (reminderTimerRef.current) {
+        clearTimeout(reminderTimerRef.current);
+      }
+    };
+  }, [royaltyDue, royaltyOverdue]);
+
   useEffect(() => {
     const handleWheel = (e) => {
       if (e.target.type === "number") {
@@ -48,15 +93,36 @@ function App() {
     };
 
     document.addEventListener("wheel", handleWheel, { passive: false });
-    
+
     return () => {
       document.removeEventListener("wheel", handleWheel);
     };
   }, []);
 
+  useEffect(() => {
+    const shouldOpenReminder = royaltyDue && !royaltyOverdue;
+
+    if (!shouldOpenReminder) return;
+
+    const handleTabActivity = () => {
+      if (document.visibilityState === "visible") {
+        window.dispatchEvent(new CustomEvent("open-reminder-modal"));
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleTabActivity);
+    window.addEventListener("focus", handleTabActivity);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleTabActivity);
+      window.removeEventListener("focus", handleTabActivity);
+    };
+  }, []);
+
   return (
     <BrowserRouter>
-      <GlobalAlert message="This is a global alert and will be displayed on all pages." />
+      <ReminderTriggers />
+      <ReminderModal open={showReminder} onClose={() => {setShowReminder(false)}} />
       <Toaster />
       <Routes>
         <Route path="/login" element={<Login />} />

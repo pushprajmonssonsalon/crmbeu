@@ -1,16 +1,16 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Layout from '../Layout';
 
 const PrivateRoute = (props) => {
   let { Component } = props;
   const token = localStorage.getItem('token');
-  const royaltyOverdue = localStorage.getItem('royaltyOverdue') === 'true';
+  const { royaltyOverdue } = useSelector((state) => state.royaltyReducer || {});
   const location = useLocation();
 
   if (!token) {
     return <Navigate to={"/login"} />;
   }
-console.log("royaltyOverdue:", royaltyOverdue, "location.pathname:", location.pathname);
   // If royalty is overdue, block access to all pages except the royalties check page
   if (royaltyOverdue && location.pathname !== "/royalties-check") {
     return <Navigate to={"/royalties-check"} />;

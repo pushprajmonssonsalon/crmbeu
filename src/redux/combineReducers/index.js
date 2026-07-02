@@ -2,10 +2,12 @@ import { combineReducers } from "redux";
 import { SidebarReducer, UpdateServices, parlorReducer, serviceAddReducer } from '../reducers';
 import { ProductAddReducer } from "../reducers";
 import { authReducer } from "../reducers";
+import { royaltyReducer } from "../reducers";
 
 
 const rootReducer = combineReducers({
   authReducer: authReducer,
+  royaltyReducer: royaltyReducer,
   parlorReducer:parlorReducer,
   serviceAddReducer:serviceAddReducer,
   ProductAddReducer:ProductAddReducer,

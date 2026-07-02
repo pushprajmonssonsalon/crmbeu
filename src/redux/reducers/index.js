@@ -146,6 +146,38 @@ export const ProductAddReducer = (state = productDataIntialState, action) => {
   }
 };
 
+export const SET_ROYALTY_STATUS = "SET_ROYALTY_STATUS";
+export const CLEAR_ROYALTY_STATUS = "CLEAR_ROYALTY_STATUS";
+
+const royaltyInitialState = {
+  royaltyDue: false,
+  royaltyOverdue: false,
+};
+
+export const setRoyaltyStatus = (payload) => ({
+  type: SET_ROYALTY_STATUS,
+  payload,
+});
+
+export const clearRoyaltyStatus = () => ({
+  type: CLEAR_ROYALTY_STATUS,
+});
+
+export const royaltyReducer = (state = royaltyInitialState, action) => {
+  switch (action.type) {
+    case SET_ROYALTY_STATUS:
+      return {
+        ...state,
+        royaltyDue: Boolean(action.payload?.royaltyDue),
+        royaltyOverdue: Boolean(action.payload?.royaltyOverdue),
+      };
+    case CLEAR_ROYALTY_STATUS:
+      return royaltyInitialState;
+    default:
+      return state;
+  }
+};
+
 const userDataIntialState = {
   userData:'',
 };

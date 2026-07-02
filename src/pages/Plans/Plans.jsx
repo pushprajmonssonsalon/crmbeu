@@ -205,7 +205,6 @@ const handleBuyPlan = async (planId) => {
                 return;
               }
                 
-              console.log("Payment Success:", paymentResponse);
 
               // ✅ TODO: Implement post-payment API call for order verification
               // await verifyPayment(paymentResponse);
