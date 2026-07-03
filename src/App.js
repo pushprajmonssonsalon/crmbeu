@@ -53,7 +53,7 @@ const ReminderTriggers = () => {
       window.dispatchEvent(new CustomEvent("cancel-reminder-modal"));
     }
 
-    if (previousPathRef.current !== location.pathname && shouldOpenReminder && location.pathname !== "/royalties-check") {
+    if (previousPathRef.current !== location.pathname && shouldOpenReminder && location.pathname !== "/royalties-check" && location.pathname !== "/login") {
       window.dispatchEvent(new CustomEvent("open-reminder-modal"));
     }
 
@@ -77,10 +77,10 @@ function App() {
 
       // start a delayed show; when the timer fires, ensure user is still on an allowed page
       reminderTimerRef.current = setTimeout(() => {
-        if (window.location.pathname !== "/royalties-check") {
+        if (window.location.pathname !== "/royalties-check" && window.location.pathname !== "/login") {
           setShowReminder(true);
         }
-      }, 2000);
+      }, 5000);
     };
 
     const cancelReminder = () => {
