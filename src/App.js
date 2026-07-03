@@ -48,6 +48,11 @@ const ReminderTriggers = () => {
   useEffect(() => {
     const shouldOpenReminder = royaltyDue && !royaltyOverdue;
 
+    // On any navigation, cancel any pending reminder so it doesn't appear on unrelated pages
+    if (previousPathRef.current !== location.pathname) {
+      window.dispatchEvent(new CustomEvent("cancel-reminder-modal"));
+    }
+
     if (previousPathRef.current !== location.pathname && shouldOpenReminder && location.pathname !== "/royalties-check") {
       window.dispatchEvent(new CustomEvent("open-reminder-modal"));
     }
@@ -70,15 +75,28 @@ function App() {
         clearTimeout(reminderTimerRef.current);
       }
 
+      // start a delayed show; when the timer fires, ensure user is still on an allowed page
       reminderTimerRef.current = setTimeout(() => {
-        setShowReminder(true);
+        if (window.location.pathname !== "/royalties-check") {
+          setShowReminder(true);
+        }
       }, 2000);
     };
 
+    const cancelReminder = () => {
+      if (reminderTimerRef.current) {
+        clearTimeout(reminderTimerRef.current);
+        reminderTimerRef.current = null;
+      }
+      setShowReminder(false);
+    };
+
     window.addEventListener("open-reminder-modal", openReminderModal);
+    window.addEventListener("cancel-reminder-modal", cancelReminder);
 
     return () => {
       window.removeEventListener("open-reminder-modal", openReminderModal);
+      window.removeEventListener("cancel-reminder-modal", cancelReminder);
       if (reminderTimerRef.current) {
         clearTimeout(reminderTimerRef.current);
       }
@@ -99,25 +117,7 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const shouldOpenReminder = royaltyDue && !royaltyOverdue;
-
-    if (!shouldOpenReminder) return;
-
-    const handleTabActivity = () => {
-      if (document.visibilityState === "visible") {
-        window.dispatchEvent(new CustomEvent("open-reminder-modal"));
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleTabActivity);
-    window.addEventListener("focus", handleTabActivity);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleTabActivity);
-      window.removeEventListener("focus", handleTabActivity);
-    };
-  }, []);
+  
 
   return (
     <BrowserRouter>

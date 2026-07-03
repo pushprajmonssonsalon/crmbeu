@@ -29,8 +29,7 @@ const ReminderModal = ({ open, onClose }) => {
 
         {/* Message */}
         <p className="mt-3 text-center text-sm text-gray-600">
-          Your royalty payment is pending. Please complete the payment to
-          continue enjoying uninterrupted services.
+          Your royalty payment is pending. Please complete the payment by the 15th of this month to avoid temporary suspension of your account access.
         </p>
 
 

@@ -72,6 +72,9 @@ const RoyaltiesCheck = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [royaltyPaidStatus, setRoyaltyPaidStatus] = useState("Pending");
+  const [count, setCount] = useState(0);
+  const [breakdown, setBreakdown] = useState([]);
+  const [monthlyAmount, setMonthlyAmount] = useState(0);
 
  const handlePay = async () => {
   if (isProcessing) return;
@@ -144,6 +147,9 @@ const RoyaltiesCheck = () => {
     toast.error("Something went wrong.");
     setIsProcessing(false);
   }
+  finally {
+    setIsProcessing(false);
+  }
 };
 
 useEffect(() => {
@@ -153,6 +159,12 @@ useEffect(() => {
 
 
       setAmount(res?.royaltyAmount || 0);
+
+        setCount(res?.count || 0);
+        setBreakdown(res?.breakdown || []);
+
+        const perMonth = res?.count ? Math.round((res?.royaltyAmount || 0) / res.count) : 0;
+        setMonthlyAmount(perMonth);
 
       let status = "Pending";
       if(res.royaltyOverdue){
@@ -186,6 +198,13 @@ useEffect(() => {
               <div>
                 <p className="text-sm uppercase tracking-[0.18em]">Due Amount</p>
                 <p className="mt-1 text-2xl font-semibold">₹{amount.toLocaleString()}</p>
+                {count > 0 ? (
+                  <p className="mt-2 text-sm text-slate-600">
+                    {count === 1
+                      ? `Your royalty payment is pending for the last month, therefore the total payable amount is ₹${amount.toLocaleString()}.`
+                      : `Your royalty payment is pending for the last ${count} months, therefore the total payable amount is ₹${amount.toLocaleString()} (₹${monthlyAmount.toLocaleString()} per month).`}
+                  </p>
+                ) : null}
               </div>
             </div>
           </div>
@@ -212,6 +231,17 @@ useEffect(() => {
             >
               {isProcessing ? "Opening Razorpay..." : "Pay Royalty Now"}
             </button>
+
+            {count > 0 ? (
+              <div className="mt-5 rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+                <p className="font-semibold mb-2">Royalty Breakdown</p>
+                <div className="grid gap-2 text-sm">
+                  <div className="flex justify-between"><span>Pending Months:</span><span>{count}</span></div>
+                  <div className="flex justify-between"><span>Monthly Royalty:</span><span>₹{monthlyAmount.toLocaleString()}</span></div>
+                  <div className="flex justify-between font-semibold"><span>Total Payable Amount:</span><span>₹{amount.toLocaleString()}</span></div>
+                </div>
+              </div>
+            ) : null}
 
             {paymentStatus ? (
               <div className="mt-5 rounded-3xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
