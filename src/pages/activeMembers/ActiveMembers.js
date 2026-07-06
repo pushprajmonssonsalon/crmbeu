@@ -4,6 +4,7 @@ import AccordianTable from "../../components/Table/AccordianTable";
 import { AiOutlineSearch } from "react-icons/ai";
 import NormalInput from "../../components/customInput/NormalInput";
 import { useSearchParams } from "react-router-dom";
+import exportToExcel from "../../utils/exportToExcel";
 
 const ActiveMembers = () => {
   const [members, setMembers] = useState([]);
@@ -49,7 +50,37 @@ const ActiveMembers = () => {
     },
   ];
 
- 
+const handleExportActiveMembership = () => {
+  const data = members.flatMap((member) =>
+    (member.activeMembership || []).map((membership, index) => ({
+      Name: member?.name,
+      "Phone Number": member?.phoneNumber,
+      "Membership Name": membership?.name,
+      "Credit Left": membership?.creditsLeft,
+      "Joined On": membership?.createdAt
+        ? new Date(membership.createdAt).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "",
+      "Expiring On": membership?.validTo
+        ? new Date(membership.validTo).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "",
+    }))
+  );
+
+  const finalData = data.map((item, index) => ({
+    "S.no": index + 1,
+    ...item,
+  }));
+
+  exportToExcel(finalData, "ActiveMembers", "active_members.xlsx");
+};
 
   useEffect(() => {
     getApiCall(
@@ -81,7 +112,12 @@ const ActiveMembers = () => {
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Active Members</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{members?.length} Members</span>
 
-
+             <button
+                className="w-[150px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
+                onClick={handleExportActiveMembership}
+              >
+                Export All
+              </button>
           </div>
             <div className="relative flex items-center">
               <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />

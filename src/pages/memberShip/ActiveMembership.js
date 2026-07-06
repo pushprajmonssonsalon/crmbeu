@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import GridRows from '../../components/pagination/gridRows';
 import Pagination from '../../components/pagination';
-import { getApiCall } from '../../utils/services';
-import { MdCardMembership, MdEdit } from 'react-icons/md';
+import { deleteApiCall, getApiCall } from '../../utils/services';
+import { MdCardMembership, MdDelete, MdEdit } from 'react-icons/md';
 import NewMembershipModal from '../../components/popup/NewMembershipPopup';
 import { FaRegEye } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 const ActiveMembership = () => {
   const [membership, setMemberships] = useState([]);
@@ -54,8 +55,8 @@ const ActiveMembership = () => {
     setRowsPerPage(+event.target.value);
     setPage(1);
   };
-  const getMembership=()=>{
- getApiCall(
+  const getMembership = () => {
+    getApiCall(
       "membership/getMembership",
       (resp) => {
         setMemberships(resp.membershipList);
@@ -65,7 +66,7 @@ const ActiveMembership = () => {
 
   }
   useEffect(() => {
-   getMembership()
+    getMembership()
   }, []);
   const actions = [
 
@@ -84,6 +85,19 @@ const ActiveMembership = () => {
 
 
   ]
+  const handleDeleteMemberShip = (membership) => {
+    deleteApiCall(
+      `membership/deleteSalonMembership/${membership._id}`,
+      (resp) => {
+        toast.success("Membership deleted successfully!!")
+        getMembership();
+      },
+      (error) => {
+        console.error("Error deleting membership:", error);
+        toast.error("Something went wrong!!")
+      }
+    );
+  };
   return (
     <>
 
@@ -125,7 +139,7 @@ const ActiveMembership = () => {
             </thead>
             <tbody>
               {paginatedData?.map((item, index) => (
-                <tr key={index}>
+                <tr key={item._id}>
 
                   {headings?.map((elm, idx) => {
                     return (
@@ -144,8 +158,11 @@ const ActiveMembership = () => {
                                 setSelectedMembership(item);
                                 setIsNewMembershipModal(true);
                               }}><MdEdit /></button>
+                              <button className='text-red-500 text-lg' onClick={() => {
+                                handleDeleteMemberShip(item);
+                              }}><MdDelete /></button>
                             </div>
-                          :elm.id==="discount"? `${item[elm.id]||0}%` : item[elm.id]||""}</td>
+                            : elm.id === "discount" ? `${item[elm.id] || 0}%` : item[elm.id] || ""}</td>
                     )
                   })}
 

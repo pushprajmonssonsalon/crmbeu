@@ -74,6 +74,29 @@ const getApiCall = (endpoint, success, failur) => {
     });
 };
 
+const deleteApiCall = (endpoint, success, failure) => {
+  const token = localStorage.getItem("token");
+
+  const instance = axios.create({
+    baseURL: BASE_URL,
+    timeout: 30000,
+    headers: {
+      "X-Custom-Header": "foobar",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  instance
+    .delete(endpoint)
+    .then((res) => {
+      success(res);
+    })
+    .catch((error) => {
+      failure("error", error);
+    });
+};
+
 function formatDateToFull(dateString, full = true) {
   if (dateString) {
     const [datePart, timePart] = dateString.split("T");
@@ -365,4 +388,4 @@ export function getBirthDayAndAnniversary(dob,anniversary){
 // console.log(isTodayMatch(birthday));   // true if today is 5 Dec
 
 
-export { postApiData, getApiCall, setAuthorizationToken, formatDateToFull,formatDateString, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };
+export { postApiData, getApiCall, deleteApiCall, setAuthorizationToken, formatDateToFull,formatDateString, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };

@@ -80,7 +80,7 @@ function App() {
         if (window.location.pathname !== "/royalties-check" && window.location.pathname !== "/login") {
           setShowReminder(true);
         }
-      }, 5000);
+      }, 15000);
     };
 
     const cancelReminder = () => {
