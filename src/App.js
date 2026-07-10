@@ -1,7 +1,7 @@
 import "./App.css";
 import Login from "./pages/login/Login";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Appointment from "./pages/Appointment/Appointment";
 import OwnerService from "./pages/ownerServices";
 import ViewAppointment from "./pages/viewAppointment/ViewAppointment";
@@ -39,11 +39,48 @@ import Salon from "./pages/salonDetails/Salon";
 import Sop from "./pages/sop/sop";
 import SopDetail from "./pages/sop/sopDetail";
 import ReminderModal from "./components/GlobalAlert";
+import { setRoyaltyStatus } from "./redux/reducers";
+import axios from "axios";
+
+const LOCAL_BASE_URL = process.env.REACT_APP_BASE_URI;
 
 const ReminderTriggers = () => {
   const location = useLocation();
   const previousPathRef = useRef(location.pathname);
+  const dispatch = useDispatch();
   const { royaltyDue, royaltyOverdue } = useSelector((state) => state.royaltyReducer || {});
+
+  useEffect(() => {
+    const fetchRoyaltyStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const instance = axios.create({
+          baseURL: LOCAL_BASE_URL,
+          timeout: 30000,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const res = await instance.get("royalty/getRoyaltyStatus");
+        const data = res.data;
+
+        dispatch(
+          setRoyaltyStatus({
+            royaltyDue: Boolean(data?.royaltyDue),
+            royaltyOverdue: Boolean(data?.royaltyOverdue),
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching royalty status:", error);
+      }
+    };
+
+    fetchRoyaltyStatus();
+  }, [dispatch, location.pathname]);
 
   useEffect(() => {
     const shouldOpenReminder = royaltyDue && !royaltyOverdue;
@@ -64,6 +101,7 @@ const ReminderTriggers = () => {
 };
 
 function App() {
+  const dispatch = useDispatch();
   const [showReminder, setShowReminder] = useState(false);
   const reminderTimerRef = useRef(null);
   const { royaltyDue, royaltyOverdue } = useSelector((state) => state.royaltyReducer || {});
@@ -117,12 +155,10 @@ function App() {
     };
   }, []);
 
-  
-
   return (
     <BrowserRouter>
       <ReminderTriggers />
-      <ReminderModal open={showReminder} onClose={() => {setShowReminder(false)}} />
+      <ReminderModal open={showReminder} onClose={() => { setShowReminder(false) }} />
       <Toaster />
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -147,7 +183,7 @@ function App() {
           path="/contacts"
           element={<PrivateRoute Component={Contacts} />}
         />
-      
+
         <Route
           path="/ownerservice"
           element={<PrivateRoute Component={OwnerService} />}
@@ -209,14 +245,14 @@ function App() {
           element={<PrivateRoute Component={Edit} />}
         />
         <Route path="/orders" element={<PrivateRoute Component={Orders} />} />
-       
+
         <Route path="/test" element={<PrivateRoute Component={TestExcel} />} />
         <Route path="/revenue" element={<PrivateRoute Component={Revenue} />} />
         <Route
           path="/weeklyreport"
           element={<PrivateRoute Component={WeeklyReport} />}
         />
-      
+
         <Route
           path="/salon-details"
           element={<PrivateRoute Component={Salon} />}
@@ -243,7 +279,7 @@ function App() {
         />
         <Route
           path="/plans"
-          element={<Layout><Plans/></Layout>}
+          element={<Layout><Plans /></Layout>}
         />
         <Route
           path="/notifications/:id"
