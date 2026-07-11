@@ -82,9 +82,8 @@ const verifyPayment = async (orderId) => {
     timeout: 30000,
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   });
-  const res = await instance.get(`verifyRoyaltyPayment/${orderId}`);
+  const res = await instance.get(`royalty/verifyRoyaltyPayment/${orderId}`);
   const data = res.data;
-  console.log(data);
   return data;
 };
 
@@ -102,7 +101,7 @@ const RoyaltiesCheck = () => {
   const [totalAmountWithGST, setTotalAmountWithGST] = useState(0);
   const [monthlyAmount, setMonthlyAmount] = useState(0);
 
- const handlePay = async () => {
+const handlePay = async () => {
   if (isProcessing) return;
 
   setIsProcessing(true);
@@ -127,126 +126,76 @@ const RoyaltiesCheck = () => {
 
     const options = {
       key: process.env.REACT_APP_RAZORPAY_KEY_ROYALTY,
-
       amount: orderData.amount,
-
       currency: orderData.currency || "INR",
-
       name: "Smart Salon",
-
       description: "Royalty Payment",
-
       order_id: orderData.id,
-
 
       handler: async (response) => {
         try {
-
-          const orderId = response.razorpay_order_id;
+          const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+          } = response;
 
           let paymentStatus = "pending";
 
-
           // Wait for webhook confirmation
           for (let i = 0; i < 5; i++) {
-
-            const result = await verifyPayment(orderId);
+            const result = await verifyPayment(razorpay_order_id);
 
             paymentStatus = result.status;
-
 
             if (paymentStatus === "paid") {
               break;
             }
 
             // wait 2 seconds before checking again
-            await new Promise(resolve =>
-              setTimeout(resolve, 2000)
-            );
+            await new Promise((resolve) => setTimeout(resolve, 2000));
           }
 
-
           if (paymentStatus === "paid") {
-
             await getRoyaltyStatus(dispatch);
-
             toast.success("Payment successful!");
-
             setTimeout(() => {
               navigate("/");
             }, 1000);
-
-
           } else {
-
-            toast.info(
-              "Payment received. Verification is still in progress."
-            );
-
+            toast("Payment received. Verification is still in progress.");
           }
-
-
         } catch (error) {
-
-          console.error(
-            "Payment verification error",
-            error
-          );
-
-          toast.error(
-            "Payment verification failed."
-          );
-
+          console.error("Payment verification error", error);
+          toast.error("Payment verification failed.");
         } finally {
-
           setIsProcessing(false);
-
         }
       },
 
+      modal: {
+        ondismiss: () => {
+          setIsProcessing(false);
+        },
+      },
 
       theme: {
-        color: "#2563eb"
-      }
+        color: "#2563eb",
+      },
     };
-
 
     const razorpay = new window.Razorpay(options);
 
-
     razorpay.on("payment.failed", (response) => {
-
-      console.log(
-        "Payment failed",
-        response.error
-      );
-
+      console.log("Payment failed", response.error);
       toast.error("Payment failed");
-
       setIsProcessing(false);
-
     });
-
-
-    razorpay.on("close", () => {
-
-      setIsProcessing(false);
-
-    });
-
 
     razorpay.open();
-
-
   } catch (error) {
-
     console.error(error);
-
     toast.error("Something went wrong.");
-
-    setIsProcessing(false);
-
-  }finally{
     setIsProcessing(false);
   }
 };
