@@ -1,10 +1,7 @@
 import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
-const BASE_URL = "https://crm.smartsalon.in/";
-// const BASE_URL = "http://192.168.1.37:4002";
-// const BASE_URL = "http://192.168.2.202:4002";
-//  const BASE_URL = process.env.REACT_APP_BASE_URI;
+const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
 // const authToken = token;
@@ -70,6 +67,29 @@ const getApiCall = (endpoint, success, failur) => {
     })
     .catch((error) => {
       failur("error", error);
+    });
+};
+
+const deleteApiCall = (endpoint, success, failure) => {
+  const token = localStorage.getItem("token");
+
+  const instance = axios.create({
+    baseURL: BASE_URL,
+    timeout: 30000,
+    headers: {
+      "X-Custom-Header": "foobar",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  instance
+    .delete(endpoint)
+    .then((res) => {
+      success(res);
+    })
+    .catch((error) => {
+      failure("error", error);
     });
 };
 
@@ -364,4 +384,4 @@ export function getBirthDayAndAnniversary(dob,anniversary){
 // console.log(isTodayMatch(birthday));   // true if today is 5 Dec
 
 
-export { postApiData, getApiCall, setAuthorizationToken, formatDateToFull,formatDateString, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };
+export { postApiData, getApiCall, deleteApiCall, setAuthorizationToken, formatDateToFull,formatDateString, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };

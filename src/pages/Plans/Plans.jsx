@@ -188,9 +188,8 @@ const handleBuyPlan = async (planId) => {
 
         // Step 5: Configure Razorpay options
         const options = {
-          key: "rzp_live_ReLPWPX0nsXIfA", // Replace with env variable in production
-          // key: "rzp_test_hdlZcgaBXfBRBr",
-          amount: orderResponse.amount, // Amount in paise
+          key: process.env.REACT_APP_PLAN_RAZORPAY_KEY,
+          amount: orderResponse.amount, 
           currency: "INR",
           name: "The Professional World",
           description: "Plan Purchase",
@@ -204,11 +203,7 @@ const handleBuyPlan = async (planId) => {
                 toast.error("No response from payment gateway.");
                 return;
               }
-                
-              console.log("Payment Success:", paymentResponse);
-
-              // ✅ TODO: Implement post-payment API call for order verification
-              // await verifyPayment(paymentResponse);
+              
 
               toast.success("Payment successful! Your plan is now active.");
             } catch (err) {

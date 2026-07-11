@@ -336,7 +336,7 @@ const BookAppointment = ({ onTabChange }) => {
   }, []);
   
   const dispatch = useDispatch();
-  console.log(x,"services")
+  // console.log(x,"services")
   // const handleServiceChange = (e) => {
   //   const { name, value } = e.target;
   //   if (name === "miniSubcategory") {

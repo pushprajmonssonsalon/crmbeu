@@ -10,6 +10,7 @@ import { MdPhone } from "react-icons/md";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { postApiData } from "../../utils/services";
+import { setRoyaltyStatus } from "../../redux/reducers";
 
 const Login = () => {
   const messages = [
@@ -42,7 +43,21 @@ const Login = () => {
     postApiData("parlor/login", data, (resp) => {
       localStorage.setItem("token", resp?.token);
       localStorage.setItem("gstApplied", resp?.gstApplied);
+      dispatch(
+        setRoyaltyStatus({
+          royaltyDue: Boolean(resp?.royaltyDue),
+          royaltyOverdue: Boolean(resp?.royaltyOverdue),
+        })
+      );
 
+      if (resp?.royaltyDue && !resp?.royaltyOverdue) {
+        window.dispatchEvent(new CustomEvent("open-reminder-modal"));
+      }
+
+      if (resp?.royaltyOverdue) {
+        navigate("/royalties-check");
+        return; 
+      }
       // dispatch(userDetails(resp.data.data));
       toast.success("You have logined sucessfully")
 
