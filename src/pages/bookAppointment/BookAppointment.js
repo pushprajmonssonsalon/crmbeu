@@ -34,17 +34,17 @@ const BookAppointment = ({ onTabChange }) => {
   const gstToken = localStorage.getItem("gstApplied");
   const gstApplied = (gstToken === "true")
   const [loading, setLoading] = useState(false);
-  const serviceRef= useRef(null)
-  const productRef= useRef(null)
-  const customerRef= useRef(null)
-  
+  const serviceRef = useRef(null)
+  const productRef = useRef(null)
+  const customerRef = useRef(null)
+
   const { debouncedFunction } = useDebouncer();
-  const [searchService,setSearchService]=useState("")
-  const [searchServices,setSearchServices]=useState([])
-  const [showSearchResults,setShowSearchResults]=useState(false);
+  const [searchService, setSearchService] = useState("")
+  const [searchServices, setSearchServices] = useState([])
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const { parlorLoading, parlorData } = useSelector((state) => state.parlorReducer);
-  const parlorServices= parlorData?.services||[];
-  const parlorProducts=parlorData?.products||[];
+  const parlorServices = parlorData?.services || [];
+  const parlorProducts = parlorData?.products || [];
   const [customerDetails, setCustomerDetails] = useState({
     name: "",
     phoneNumber: "",
@@ -56,8 +56,8 @@ const BookAppointment = ({ onTabChange }) => {
     'aniversary-month': "",
     dob: '',
     aniversary: '',
-    gstNumber:"",
-    note:""
+    gstNumber: "",
+    note: ""
   });
   const [appointmentDetails, setAppointmentDetails] = useState({
 
@@ -69,7 +69,7 @@ const BookAppointment = ({ onTabChange }) => {
   const [userData, setUserData] = useState([]);
   const searchContainerRef = useRef(null);
   const productContainerRef = useRef(null);
-  
+
   const [staffData, setStaffData] = useState([]);
 
   const [discount, setDiscount] = useState(0);
@@ -118,7 +118,7 @@ const BookAppointment = ({ onTabChange }) => {
 
 
         });
-     
+
       }
     }
 
@@ -127,23 +127,23 @@ const BookAppointment = ({ onTabChange }) => {
   const membershipPress = (e) => {
     if (e.target.value) {
       const activeMemb = activemember?.find((elm) => elm._id === e.target.value);
-      if(activeMemb?.hasOwnProperty("dailyDiscount")){
-        let discountData =activeMemb?.dailyDiscount;
-       const day = getDayOfToday();
-       const todayDiscount =Math.max(discount||0,discountData[`${day}`]||0);
-       const {hasBirthday,hasAnniversary}=getBirthDayAndAnniversary(customerDetails?.dob,customerDetails?.aniversary);
-      //  console.log(hasBirthday,hasAnniversary,activeMemb)
-       let birthdayDiscount=hasBirthday?activeMemb?.bdDiscount:0
-       let anniversaryDiscount=hasAnniversary?activeMemb?.anvDiscount:0
-      //  console.log(birthdayDiscount,anniversaryDiscount,customerDetails?.dob,customerDetails?.aniversary,customerDetails)
-       setDiscount(Math.max(todayDiscount,birthdayDiscount||0,anniversaryDiscount||0,discount));
-       setActiveMemberShip(activeMemb);
-       setMemberShipStatus(true)
-       toast.success("membership Applied")
+      if (activeMemb?.hasOwnProperty("dailyDiscount")) {
+        let discountData = activeMemb?.dailyDiscount;
+        const day = getDayOfToday();
+        const todayDiscount = Math.max(discount || 0, discountData[`${day}`] || 0);
+        const { hasBirthday, hasAnniversary } = getBirthDayAndAnniversary(customerDetails?.dob, customerDetails?.aniversary);
+        //  console.log(hasBirthday,hasAnniversary,activeMemb)
+        let birthdayDiscount = hasBirthday ? activeMemb?.bdDiscount : 0
+        let anniversaryDiscount = hasAnniversary ? activeMemb?.anvDiscount : 0
+        //  console.log(birthdayDiscount,anniversaryDiscount,customerDetails?.dob,customerDetails?.aniversary,customerDetails)
+        setDiscount(Math.max(todayDiscount, birthdayDiscount || 0, anniversaryDiscount || 0, discount));
+        setActiveMemberShip(activeMemb);
+        setMemberShipStatus(true)
+        toast.success("membership Applied")
 
 
       }
-      else{
+      else {
         if (activeMemb?.discount) {
           setDiscount(activeMemb?.discount)
         }
@@ -174,7 +174,7 @@ const BookAppointment = ({ onTabChange }) => {
         newServices[index] = {
           ...newServices[index],
           staffId: Id,
-          satffName: Name,
+          staffName: Name,
         };
 
       }
@@ -248,11 +248,11 @@ const BookAppointment = ({ onTabChange }) => {
   const payableAmount = formatValue(subtotalPrice - countdiscount);
   const serviceGst = gstApplied ? formatValue(payableAmount * 0.05) : 0;
   const serviceTotal = Math.round(payableAmount + serviceGst);
-  
-  const membershipCreditUsed =useMemo(()=>{
-    return  memberShipStatus ? Math.max(0, Math.floor(Math.min(activeMembership?.creditsLeft || 0, serviceTotal))) : 0
-  },[activeMembership,serviceTotal])
-  
+
+  const membershipCreditUsed = useMemo(() => {
+    return memberShipStatus ? Math.max(0, Math.floor(Math.min(activeMembership?.creditsLeft || 0, serviceTotal))) : 0
+  }, [activeMembership, serviceTotal])
+
   const totalProductServicePayable = Math.round(serviceTotal + productTotalPrice);
   const [serviceSelection, setServiceSelection] = useState({
     category: "",
@@ -260,10 +260,10 @@ const BookAppointment = ({ onTabChange }) => {
     miniSubcategory: "",
     staffId: "",
     price: 0,
-    satffName: "",
+    staffName: "",
   });
 
- useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         searchContainerRef.current &&
@@ -298,7 +298,7 @@ const BookAppointment = ({ onTabChange }) => {
   //   categoryName: serviceSelection.category,
   //   gender: customerDetails.gender,
   // };
-  
+
   // useEffect(() => {
   //   postApiData(
   //     "salonService/getSubServiceCategory",
@@ -324,7 +324,7 @@ const BookAppointment = ({ onTabChange }) => {
   //     (error) => { }
   //   );
   // }, [serviceSelection.subCategory]);
-  
+
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
@@ -334,7 +334,7 @@ const BookAppointment = ({ onTabChange }) => {
       (error) => { }
     );
   }, []);
-  
+
   const dispatch = useDispatch();
   // console.log(x,"services")
   // const handleServiceChange = (e) => {
@@ -353,7 +353,7 @@ const BookAppointment = ({ onTabChange }) => {
   //     const splited = value.split("-");
   //     const Name = splited[1];
   //     const Id = splited[0];
-      
+
   //     setServiceSelection({
   //       ...serviceSelection,
   //       staffId: Id,
@@ -366,10 +366,10 @@ const BookAppointment = ({ onTabChange }) => {
   //     }));
   //   }
   // };
-  
+
   // const handldeAddButton = () => {
   //   const { miniSub, miniSubcategory, ...rest } = serviceSelection;
-    
+
   //   const selected = {
 
   //     ...rest,
@@ -383,44 +383,44 @@ const BookAppointment = ({ onTabChange }) => {
   //   // alert("All service added")
   //   toast.success("All Service Added!!");
   // };
-  const validate=(products)=>{
-      if(x?.length>0){
-      let serviceValid = x.some((elm)=>!elm.staffId||!elm.price)
-      if(serviceValid){
+  const validate = (products) => {
+    if (x?.length > 0) {
+      let serviceValid = x.some((elm) => !elm.staffId || !elm.price)
+      if (serviceValid) {
         serviceRef.current?.scrollIntoView({
-      behavior: "smooth", // smooth scroll
-      block: "start",     // start | center | end | nearest
-    });
-    toast.error("Please fill fields in services")
+          behavior: "smooth", // smooth scroll
+          block: "start",     // start | center | end | nearest
+        });
+        toast.error("Please fill fields in services")
         return false;
       }
 
     }
     if (!customerDetails?.name) {
-        customerRef.current?.scrollIntoView({
-          behavior: "smooth", // smooth scroll
-          block: "start",     // start | center | end | nearest
-        });
-      
-       toast.error("Please Add Customer")
-    return false;
+      customerRef.current?.scrollIntoView({
+        behavior: "smooth", // smooth scroll
+        block: "start",     // start | center | end | nearest
+      });
+
+      toast.error("Please Add Customer")
+      return false;
     };
 
     if (products?.length > 0) {
-      let fieldEmpty = products.some((elm) =>!elm.staffId|| !elm.price || !elm.quantity||!elm.gst)
+      let fieldEmpty = products.some((elm) => !elm.staffId || !elm.price || !elm.quantity || !elm.gst)
       if (fieldEmpty) {
-        
+
         productRef.current?.scrollIntoView({
           behavior: "smooth", // smooth scroll
           block: "start",     // start | center | end | nearest
         });
-      toast.error("Please fill all fields in products")
+        toast.error("Please fill all fields in products")
         return false
       }
     }
     return true
   }
-  
+
   const handldeBookAppointment = () => {
     const { name,
       phoneNumber,
@@ -429,10 +429,15 @@ const BookAppointment = ({ onTabChange }) => {
       gstNumber,
       note
     } = customerDetails;
-  
-    const {serviceGst,serviceSubTotal,serviceTotal,updatedProducts,productGstTotal,productBaseAmountTotal,productTotal} =handleProductAndServiceGst(payableAmount,productDataReducer,appointmentDetails?.date);
-     
-    if(!validate(updatedProducts))return;
+
+    if (appointmentDetails.date < formatDate(new Date())) {
+      toast.error("Previous dates are not allowed");
+      return;
+    }
+
+    const { serviceGst, serviceSubTotal, serviceTotal, updatedProducts, productGstTotal, productBaseAmountTotal, productTotal } = handleProductAndServiceGst(payableAmount, productDataReducer, appointmentDetails?.date);
+
+    if (!validate(updatedProducts)) return;
     const data = {
       services: x,
       customer: {
@@ -446,11 +451,11 @@ const BookAppointment = ({ onTabChange }) => {
         note,
       },
       subTotal: subtotalPrice,
-      serviceSubTotal:serviceSubTotal||0,
-      serviceGst:serviceGst||0,
-      serviceTotal:serviceTotal||0,
-      productGst:productGstTotal,
-      productSubTotal:productBaseAmountTotal,
+      serviceSubTotal: serviceSubTotal || 0,
+      serviceGst: serviceGst || 0,
+      serviceTotal: serviceTotal || 0,
+      productGst: productGstTotal,
+      productSubTotal: productBaseAmountTotal,
       productTotal,
       // total: subtotalPrice,
       total: totalProductServicePayable,
@@ -460,14 +465,14 @@ const BookAppointment = ({ onTabChange }) => {
       isMembershipApplied: memberShipStatus,
       // membershipCreditUsed: +memberShip,
       // membershipCreditUsed: memberShipStatus ? +subTotalService : 0,
-      membershipCreditUsed: memberShipStatus ?membershipCreditUsed :0,
+      membershipCreditUsed: memberShipStatus ? membershipCreditUsed : 0,
       products: updatedProducts,
       discount: +countdiscount,
       discountPercentage: applyDisountPer,
       membershipId: activeMembership?._id,
     };
     setLoading(true)
-    
+
     postApiData(
       "appointment/bookAppointmentFromCrm",
       data,
@@ -478,7 +483,7 @@ const BookAppointment = ({ onTabChange }) => {
           toast.success("Appointment Booked Sucessfully");
           dispatch(removeAppointmentProductsData());
           onTabChange(1)
-          
+
         }
       },
       (error) => {
@@ -487,75 +492,75 @@ const BookAppointment = ({ onTabChange }) => {
         toast.error("Booking status failed!");
       }
     );
-    
-    
+
+
   };
   // ...`
   const nameOnclick = (item) => {
     // e.preventDefault();
-    
+
     setMemberShipItem(item);
     setCustomerDetails((prev) => ({
       ...prev,
       name: item.name,
       phoneNumber: item.phoneNumber,
-      gstNumber:item?.gstNumber||"",
-      note:item?.note||"",
-      dob:item?.dob,
-      aniversary:item?.aniversary
+      gstNumber: item?.gstNumber || "",
+      note: item?.note || "",
+      dob: item?.dob,
+      aniversary: item?.aniversary
     }));
-    
+
     setVisible(false);
   };
-  
+
   // product name on click
-  
+
   const productNameOnclick = (item) => {
-    
-    const selected ={
+
+    const selected = {
       ...item,
-      price:isNaN(parseInt(item.price))?1999:parseInt(item.price),
-      quantity:1,
-      gst:item?.gst||18,
+      price: isNaN(parseInt(item.price)) ? 1999 : parseInt(item.price),
+      quantity: 1,
+      gst: item?.gst || 18,
 
     }
- dispatch(productAdded(selected));
+    dispatch(productAdded(selected));
     toast.success("product added succesfully");
-    };
+  };
 
   const serviceNameOnclick = (item) => {
-    const selected={
+    const selected = {
       ...item,
       category: item?.category,
-    subCategory: item?.subCategory,
-    miniSubcategory: item.name,
-    price:isNaN(parseInt(item?.price))?1999:parseInt(item?.price),
-  
+      subCategory: item?.subCategory,
+      miniSubcategory: item.name,
+      price: isNaN(parseInt(item?.price)) ? 1999 : parseInt(item?.price),
+
     }
-     dispatch(serviceAdded(selected));
-     toast.success("service added")
+    dispatch(serviceAdded(selected));
+    toast.success("service added")
   };
-  
+
   const deleteService = (item) => {
     dispatch(deletItems(item));
   };
   const deleteProduct = (id) => {
     dispatch(deleteProducts(id));
   };
-  
+
   const handleSubmit = () => {
     const payload = {
       ...customerDetails,
       dob: formatDateWOYear(customerDetails["dob-date"], customerDetails["dob-month"]),
       aniversary: formatDateWOYear(customerDetails["aniversary-date"], customerDetails["aniversary-month"]),
-      
+
     }
     if (!payload?.phoneNumber || payload.phoneNumber?.length !== 10) {
 
       return toast.error("Enter Valid Phone Number")
     }
     if (!payload?.name) {
-      
+
       return toast.error("Enter Valid Customer Name")
     }
     postApiData(
@@ -570,15 +575,15 @@ const BookAppointment = ({ onTabChange }) => {
   };
 
   const [isModalOpen, setModalOpen] = useState(false);
-  
+
   const openModal = () => {
     setModalOpen(true);
   };
-  
+
   const closeModal = () => {
     setModalOpen(false);
   };
-  
+
   // const fetchProd = (data) => {
   //   postApiData(
   //     "inventory/getSuggestedProductOfSalon",
@@ -589,47 +594,47 @@ const BookAppointment = ({ onTabChange }) => {
   //     (error) => { }
   //   );
   // }
-  
-  const matchProds =(searchTerm)=> {
-    const products =parlorProducts?.filter((product)=>{
-  const matches= product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+
+  const matchProds = (searchTerm) => {
+    const products = parlorProducts?.filter((product) => {
+      const matches = product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product?.brand?.toLowerCase().includes(searchTerm.toLowerCase());
-        return matches
+      return matches
     })
-    if(products?.length>0)
-    setShowProdDropdown(true)
+    if (products?.length > 0)
+      setShowProdDropdown(true)
     setShowSearchProduct(products)
-  
-       
+
+
   }
 
   // on search product click
   const searchProductOnchange = (e) => {
     setsearchProduct(e.target.value);
-  
+
     debouncedFunction(matchProds, 200, e.target.value)
-    
+
   };
-  const matchesSearch =(searchTerm)=> {
-    const services =parlorServices?.filter((service)=>{
-  const matches= service?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service?.subCategory?.toLowerCase().includes(searchTerm.toLowerCase())||
+  const matchesSearch = (searchTerm) => {
+    const services = parlorServices?.filter((service) => {
+      const matches = service?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service?.subCategory?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         service?.category?.toLowerCase().includes(searchTerm.toLowerCase());
-        return matches
+      return matches
     })
-    if(services?.length>0)
+    if (services?.length > 0)
       setShowSearchResults(true)
     setSearchServices(services)
-  
-       
+
+
   }
 
- 
+
   const searchServiceOnchange = (e) => {
-    const val= e.target.value
+    const val = e.target.value
     setSearchService(val);
-    debouncedFunction(matchesSearch, 300,val)
-    
+    debouncedFunction(matchesSearch, 300, val)
+
   };
   const applyDiscount = (discount) => {
     setApplyDiscountPer(discount);
@@ -637,11 +642,11 @@ const BookAppointment = ({ onTabChange }) => {
     if (discount)
       toast.success("Discount Added Successfully");
   };
-  
-  
-  
+
+
+
   const fetchUser = () => {
-    
+
     setVisible(true);
     const data = {
       phoneNumber: customerDetails?.phoneNumber,
@@ -654,54 +659,54 @@ const BookAppointment = ({ onTabChange }) => {
       },
       (error) => { }
     );
-    
+
   }
-  
+
   // const addproductPress = (
   // ) => {
   //   if (!selectedProduct) return toast.error("Please Select Product");
-    
+
   //   const { quantity, // Adding quantity key
   //     staffId,
   //     staffName, price,gst } = selectedProduct
   //     if (!quantity || quantity === "0") {
   //       toast.error("Please Enter Quantiy");
-        
+
   //       return;
   //     }
   //     if (!price || price === "0") {
   //       toast.error("Please Enter Price");
-        
+
   //       return;
   //     }
   //     if (!staffId || !staffName) {
   //       toast.error("Please Select Staff");
-        
+
   //       return;
   //   }
   //   if (!price) {
   //     toast.error("Please Select Product");
-      
+
   //     return;
   //   }
   //   if (!gst) {
   //     toast.error("Please Select gst");
-      
+
   //     return;
   //   }
-    
+
   //   // productQnt,productStaffid
-    
-    
+
+
   //   dispatch(productAdded(selectedProduct));
   //   toast.success("product added succesfully");
   // };
-  
+
 
   // useEffect(() => {
-    //   console.log(x, productDataReducer, "data")
-    // }, [x, productDataReducer])
-    
+  //   console.log(x, productDataReducer, "data")
+  // }, [x, productDataReducer])
+
   //   const handleProductChange = (e) => {
   //     const { name, value } = e.target;
   //     if (name === 'staffName') {
@@ -713,20 +718,20 @@ const BookAppointment = ({ onTabChange }) => {
   //         staffId: Id,
   //         staffName: Name,
   //       }));
-        
+
   //     }
   //     else {
-        
+
   //       setSelectedProduct((prev) => ({
   //         ...prev,
   //         [name]: (name === "price" || name === "quantity") ? Math.max(0, +value) :(name==="gst"&&name==="quantity")?+value: value
   //     }))
   //   }
 
-    
+
   // }
-  
-  
+
+
   const genderFields = [
     {
       name: "Male",
@@ -738,7 +743,7 @@ const BookAppointment = ({ onTabChange }) => {
     },
   ];
   // const servicesFields = [
-   
+
   //   {
   //     name: "category",
   //     label: "Add Service"
@@ -750,14 +755,14 @@ const BookAppointment = ({ onTabChange }) => {
   //   {
   //     name: "miniSubcategory",
   //     label: "Sub Category"
-      
+
   //   },
   //   {
   //     name: "price",
   //     label: "Price",
   //     type: "number",
   //     placeholder: "Enter Price"
-      
+
   //   },
   //   {
   //     name: "staff",
@@ -769,7 +774,7 @@ const BookAppointment = ({ onTabChange }) => {
   //   //   type: "text",
   //   //   placeholder: "Product Name"
   //   // },
-    
+
   // ];
   const addCustomerFields = [
     {
@@ -788,7 +793,7 @@ const BookAppointment = ({ onTabChange }) => {
       name: "email",
       label: "Email Address",
       value: customerDetails.email,
-      
+
       placeholder: "Enter Email Address",
     },
     {
@@ -818,7 +823,7 @@ const BookAppointment = ({ onTabChange }) => {
       placeholder: "Gst Number",
     },
   ];
-  
+
   // const servicesOptions = {
   //   category: service,
   //   subCategory: subservice,
@@ -836,14 +841,14 @@ const BookAppointment = ({ onTabChange }) => {
     {
       label: "MEMBERSHIP",
       value:
-      membershipitem?.activeMembership?.length > 0 ? "Active" : "Inactive",
+        membershipitem?.activeMembership?.length > 0 ? "Active" : "Inactive",
     },
     { label: "TOTAL VISITS", value: 0 },
     { label: "CARD ON FILE", value: 0 },
     { label: "LAST VISIT", value: 0 },
     { label: "POINTS", value: 0 },
   ];
-  
+
   const paymentDetailsArray = [
     { label: "SERVICES", value: formatValue(subtotalPrice) },
     { label: "DISCOUNT", value: `- ${countdiscount}` },
@@ -852,8 +857,9 @@ const BookAppointment = ({ onTabChange }) => {
     { label: "SERVICE TOTAL ", value: formatValue(serviceTotal) },
     { label: "PRODUCT PRICE", value: formatValue(productTotalPrice) },
     { label: "PAYABLE AMOUNT", value: formatValue(totalProductServicePayable) },
-    membershipCreditUsed&& { label: "MEMBERSHIP CREDIT USED", value: `- ${membershipCreditUsed}` },
+    membershipCreditUsed && { label: "MEMBERSHIP CREDIT USED", value: `- ${membershipCreditUsed}` },
   ]?.filter(Boolean);
+  const todayDate = formatDate(new Date());
   const customerFields = [
     {
       name: "phoneNumber",
@@ -861,28 +867,29 @@ const BookAppointment = ({ onTabChange }) => {
       placeholder: "9876543210",
       value: customerDetails.phoneNumber,
     },
-    
+
     {
       name: "date",
       label: "Date",
       type: 'date',
       value: appointmentDetails?.date,
+      min: todayDate,
       placeholder: "DD-MM-YYYY"
-      
+
     },
     {
       name: "time",
       label: "Time",
       value: appointmentDetails?.time,
       placeholder: "DD-MM-YYYY"
-      
+
     },
     {
       name: "note",
       label: "Note",
       value: customerDetails?.note,
       placeholder: "Additional Info"
-      
+
     },
     {
       name: "gstNumber",
@@ -891,19 +898,19 @@ const BookAppointment = ({ onTabChange }) => {
       placeholder: "Gst Number"
 
     },
-    
+
   ]
-  const gstOption =[
+  const gstOption = [
     {
-      name:"18%",
-      value:18
+      name: "18%",
+      value: 18
     },
     {
-      name:"5%",
-      value:5
+      name: "5%",
+      value: 5
     }
   ]
-  
+
   // const productFields = [
   //   {
   //     name: "name",
@@ -945,8 +952,8 @@ const BookAppointment = ({ onTabChange }) => {
   //     label: "Select Staff",
   //     value: `${selectedProduct?.staffId}-${selectedProduct?.staffName}`,
   //     options: staffData?.map((item) => ({ name: item?.name, value: `${item._id}-${item.name}` }))
-      
-      
+
+
   //   }
   // ]
   const discounFields = [
@@ -975,23 +982,23 @@ const BookAppointment = ({ onTabChange }) => {
       readOnly: true
     }
   ]
- const fields = [
-  { key: "index", label: "#", type: "text" },
-  { key: "miniSubcategory", label: "Name", type: "text" },
-  { key: "category", label: "Category", type: "text" },
-  { key: "subCategory", label: "Sub Category", type: "text" },
-  { key: "price", label: "Price", type: "input" },
-  { key: "staff", label: "Staff", type: "select" },
-  { key: "action", label: "Action", type: "action" },
-];
+  const fields = [
+    { key: "index", label: "#", type: "text" },
+    { key: "miniSubcategory", label: "Name", type: "text" },
+    { key: "category", label: "Category", type: "text" },
+    { key: "subCategory", label: "Sub Category", type: "text" },
+    { key: "price", label: "Price", type: "input" },
+    { key: "staff", label: "Staff", type: "select" },
+    { key: "action", label: "Action", type: "action" },
+  ];
 
 
   // Common cell class
   // const cellClass =
   //   "border-none text-sm 2xl:text-md text-ternaryGray font-normal";
 
-  
-  
+
+
   useEffect(() => {
     if (customerDetails?.phoneNumber) {
       debouncedFunction(fetchUser, 800)
@@ -1001,33 +1008,33 @@ const BookAppointment = ({ onTabChange }) => {
     if (discount >= 0) {
       debouncedFunction(applyDiscount, 800, discount)
     }
-    
+
   }, [discount])
-  
-  
+
+
   // useEffect(()=>{
-    
+
   //   console.log(subtotalPrice,
   //     // total: subtotalPrice,
   //     totalProductServicePayable,payableAmount,"total")
   //   },[subtotalPrice,totalProductServicePayable,payableAmount])
-    
-    const tableFields = [customerDetailsArray, paymentDetailsArray];
 
-    useEffect(() => {
-      dispatch(fetchParlors());
-    }, [dispatch]);
-    // console.log(serviceSelection,"serviceSelection")
-    return (
-      <>
+  const tableFields = [customerDetailsArray, paymentDetailsArray];
+
+  useEffect(() => {
+    dispatch(fetchParlors());
+  }, [dispatch]);
+  // console.log(serviceSelection,"serviceSelection")
+  return (
+    <>
       <div className="mx-auto ">
         {/* customer details */}
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
-          <div ref={customerRef} className="flex items-center mb-9 justify-between">
+          <div ref={customerRef} className="flex flex-col sm:flex-row items-start sm:items-center mb-9 justify-between gap-3">
             <h2 className="font-normal leading-[20px]   text-black text-[24px]">Customer Details</h2>
             <button
               onClick={openModal}
-              className="w-[190px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]">Add New Customer</button>
+              className="w-full sm:w-[190px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]">Add New Customer</button>
           </div>
           <div className="flex flex-col mb-9  gap-5">
             <h1 className="text-black  font-normal text-md">
@@ -1049,10 +1056,10 @@ const BookAppointment = ({ onTabChange }) => {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
-            
+
             {
               customerFields?.map((customer, index) => {
-                const { name, label, placeholder, value, readOnly, type } = customer
+                const { name, label, placeholder, value, readOnly, type, min } = customer
                 return (
                   <div className="relative">
                     <div className="flex flex-col gap-1">
@@ -1060,6 +1067,7 @@ const BookAppointment = ({ onTabChange }) => {
                         key={index}
                         name={name}
                         type={type}
+                        min={min}
                         label={label}
                         disabled={readOnly}
                         onChange={handleChange}
@@ -1115,7 +1123,7 @@ const BookAppointment = ({ onTabChange }) => {
                                 <p className="font-semibold">
                                   {item.phoneNumber}
                                 </p>
-                                {item?.note&&<p className="font-bold">
+                                {item?.note && <p className="font-bold">
                                   -{item?.note}
                                 </p>}
                               </div>
@@ -1139,21 +1147,21 @@ const BookAppointment = ({ onTabChange }) => {
           </div>
 
           {x.length > 0 && (
-            <div className="w-full">
+            <div className="w-full table-responsive">
               <table className="w-full">
                 <thead>
                   <tr>
-                 
-                        {fields.map((f) => (
-                          <th
-                            key={f.key}
-                            className="border-none overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md"
-                          >
-                            {f.label}
-                          </th>
-                        ))}
-                      </tr>
-                 
+
+                    {fields.map((f) => (
+                      <th
+                        key={f.key}
+                        className="border-none overflow-hidden text-ellipsis text-sm font-normal text-gray2 2xl:text-md"
+                      >
+                        {f.label}
+                      </th>
+                    ))}
+                  </tr>
+
                 </thead>
                 <tbody>
                   {x?.map((item, index) => (
@@ -1177,7 +1185,7 @@ const BookAppointment = ({ onTabChange }) => {
                           inputStyles={{ width: "150px", padding: "5px 10px" }}
 
                           onChange={(e) => handleChangeServices(e, index, "services")}
-                          value={`${item.staffId}-${item.satffName}`}
+                          value={`${item.staffId}-${item.staffName}`}
 
                         />
                       </td>
@@ -1201,37 +1209,37 @@ const BookAppointment = ({ onTabChange }) => {
         <div className="rounded-[10px] bg-white shadow-tab border p-5 mb-9">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Service</h2>
           <div className="relative w-full flex flex-col gap-1 mb-5">
-              <NormalInput
-                name="searchService"
-                label="Search Service"
-                placeholder="Service Name"
-                onChange={searchServiceOnchange}
+            <NormalInput
+              name="searchService"
+              label="Search Service"
+              placeholder="Service Name"
+              onChange={searchServiceOnchange}
 
-                value={searchService}
-                inputStyles={{
-                  'borderRadius': '16px'
+              value={searchService}
+              inputStyles={{
+                'borderRadius': '16px'
 
-                }}
-                lableStyles={{
-                  'fontWeight': '400',
-                  "fontSize": "16px",
-                  'color': '#000000'
-                }}
+              }}
+              lableStyles={{
+                'fontWeight': '400',
+                "fontSize": "16px",
+                'color': '#000000'
+              }}
 
 
 
-              />
-              <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
-              {searchServices?.length > 0 && showSearchResults && (
-                <div
+            />
+            <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
+            {searchServices?.length > 0 && showSearchResults && (
+              <div
                 ref={searchContainerRef}
-                  className="absolute top-[80px] w-full p-2  max-h-[350px]  overflow-y-auto bg-white shadow-lg z-[1000]"
-                >
-                  {searchServices?.map((item) => {
-                    return (
-                      <div
-                        className="flex justify-between  bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md cursor-pointer"
-                      >
+                className="absolute top-[80px] w-full p-2  max-h-[350px]  overflow-y-auto bg-white shadow-lg z-[1000]"
+              >
+                {searchServices?.map((item) => {
+                  return (
+                    <div
+                      className="flex justify-between  bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md cursor-pointer"
+                    >
                       <div className="flex gap-6  cursor-pointer">
 
                         <p className="mr-2 capitalize font-medium">{item.category}</p>
@@ -1241,12 +1249,12 @@ const BookAppointment = ({ onTabChange }) => {
                         <p className="mr-2 capitalize font-semibold">{item.gender}</p>
                       </div>
                       <button onClick={() => serviceNameOnclick(item)} className="bg-ternary hover:scale-105 delay-100 duration-100 transition-all ease-in px-4 rounded-lg py-2 text-white font-bold">Add</button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9 ">
             {/* {
               servicesFields?.map((customer, index) => {
@@ -1321,7 +1329,7 @@ const BookAppointment = ({ onTabChange }) => {
           </div>
 
           {productDataReducer?.length > 0 && (
-            <div className="w-full">
+            <div className="w-full table-responsive">
               <table className="w-full">
                 <thead>
                   <tr>
@@ -1393,52 +1401,52 @@ const BookAppointment = ({ onTabChange }) => {
         {/* product select */}
         <div ref={productRef} className="rounded-[10px] mb-9 bg-white border p-5 ">
           <h2 className="font-normal text-start leading-[20px] mb-9   text-black text-[24px]">Select Product</h2>
-            <div className="relative w-full flex flex-col gap-1">
-              <NormalInput
-                name="product"
-                label="Search Product"
-                placeholder="Product Name"
-                onChange={searchProductOnchange}
+          <div className="relative w-full flex flex-col gap-1">
+            <NormalInput
+              name="product"
+              label="Search Product"
+              placeholder="Product Name"
+              onChange={searchProductOnchange}
 
-                value={searchProduct}
-                inputStyles={{
-                  'borderRadius': '16px'
+              value={searchProduct}
+              inputStyles={{
+                'borderRadius': '16px'
 
-                }}
-                lableStyles={{
-                  'fontWeight': '400',
-                  "fontSize": "16px",
-                  'color': '#000000'
-                }}
+              }}
+              lableStyles={{
+                'fontWeight': '400',
+                "fontSize": "16px",
+                'color': '#000000'
+              }}
 
 
 
-              />
-              <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
-              {showProdDropdown&& showSearchProduct?.length > 0 && (
-                <div
-                  ref={productContainerRef}
-                  className="absolute top-[80px] w-full  p-2 max-h-[300px]  overflow-y-auto bg-white shadow-lg z-[9]"
-                >
-                  {showSearchProduct?.map((item) => {
-                    return (
-                      <div
-                        className="flex justify-between  bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md  cursor-pointer"
-                      >
-                        <div className="flex gap-6  cursor-pointer">
+            />
+            <FaSearch className="absolute right-4  bottom-[13px] text-xl " />
+            {showProdDropdown && showSearchProduct?.length > 0 && (
+              <div
+                ref={productContainerRef}
+                className="absolute top-[80px] w-full  p-2 max-h-[300px]  overflow-y-auto bg-white shadow-lg z-[9]"
+              >
+                {showSearchProduct?.map((item) => {
+                  return (
+                    <div
+                      className="flex justify-between  bg-gray-100 mb-2 last:mb-0 items-center px-4 py-2 border shadow-md  cursor-pointer"
+                    >
+                      <div className="flex gap-6  cursor-pointer">
 
-                       
+
                         <p className="mr-2 capitalize font-medium">{item.brand}</p>
                         <p className="mr-2 capitalize font-semibold">{item.name}</p>
                         <p className="mr-2 capitalize font-semibold">₹{item.price}</p>
                       </div>
                       <button onClick={() => productNameOnclick(item)} className="bg-ternary hover:scale-105 delay-100 duration-100 transition-all ease-in px-4 rounded-lg py-2 text-white font-bold">Add</button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           {/* <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-9">
             {
               productFields?.map((elm, index) => {
@@ -1577,10 +1585,10 @@ const BookAppointment = ({ onTabChange }) => {
           <h2 className="font-normal text-start leading-[20px] mb-9 text-black text-[24px]">Booking Detail</h2>
 
 
-          <div className="p-2 w-full   flex justify-between  items-center">
+          <div className="p-2 w-full   flex flex-col md:flex-row justify-between  items-start md:items-center gap-4">
             {tableFields.map((elm, idx) => {
               return (
-                <div key={idx} className="w-[40%] mb-auto ">
+                <div key={idx} className="w-full md:w-[40%] mb-auto ">
                   <table className="table-auto  w-full">
                     <thead></thead>
                     <tbody>
@@ -1603,11 +1611,11 @@ const BookAppointment = ({ onTabChange }) => {
           <div className="flex justify-end mt-12">
 
             <button disabled={loading} onClick={handldeBookAppointment}
-              className="bg-black text-white rounded-[16px] w-[250px] text-sm font-normal ">Book Appointment</button>
+              className="bg-black text-white rounded-[16px] w-full max-w-[250px] text-sm font-normal ">Book Appointment</button>
           </div>
 
         </div>)}
-       {loading&& <div className="fixed z-20 top-0 bottom-0 h-full w-full right-0 left-0 bg-black/10 ">
+        {loading && <div className="fixed z-20 top-0 bottom-0 h-full w-full right-0 left-0 bg-black/10 ">
           <div className="flex items-center justify-center h-full w-full">
 
 

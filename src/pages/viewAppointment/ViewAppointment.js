@@ -65,20 +65,18 @@ const ViewAppointment = () => {
 
 
   const handlePrint = (item) => {
-
     if (item.status === 2 || item.status === 1) {
       toast.error("Appointment is not completed!");
     } else {
       navigate("/invoicegenerator", { state: item });
     }
-    //  window.open(item.invoiceUrl,'_blank');
   };
 
   const submitPress = (item) => {
     const activeAppointment = viewAppointmentDetails.find(
       (elm) => elm._id === item._id
     );
-    const { userId, advanceUsed,cashbackUsed } = item;
+    const { userId, advanceUsed, cashbackUsed } = item;
     if (activeAppointment) {
       const data = {
         status: 3,
@@ -97,7 +95,6 @@ const ViewAppointment = () => {
         "appointment/changeAppointmentStatus",
         data,
         (resp) => {
-
           if (resp) {
             setLoadingStates((prevLoadingStates) => ({
               ...prevLoadingStates,
@@ -123,7 +120,7 @@ const ViewAppointment = () => {
   };
   const cancelPress = (item) => {
     if (item.status === 3) {
-      toast.error("Appointment has completed , you cannot cancel it! ");
+      toast.error("Appointment has completed , you can not cancel it! ");
     }
     const data = {
       status: 2,
@@ -193,6 +190,7 @@ const ViewAppointment = () => {
 
     setModal(true);
     const appointment = viewAppointmentDetails.find((elm) => elm._id === _id);
+    console.log("apdpfd", appointment);
     if (appointment?.paymentMethod?.length === 0) {
       appointment.paymentMethod = paymentMethods;
     }
@@ -203,8 +201,6 @@ const ViewAppointment = () => {
 
     }
   };
-
-
 
   useEffect(() => {
     const data = {
@@ -300,10 +296,10 @@ const ViewAppointment = () => {
   return (
     <>
       <div className="">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center  gap-6">
+            <div className="flex items-center justify-between w-full flex-wrap gap-3">
+              <div className="flex items-center  gap-3 md:gap-6 flex-wrap">
                 <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
                   <FaCalendarAlt className="text-customPurple text-sm" />
                   <span className="text-secondary text-sm">Year-to-date </span>
@@ -346,16 +342,16 @@ const ViewAppointment = () => {
         </div>
         <div className=" rounded-[16px] border border-primaryGray p-5  ">
 
-          <div className="flex border border-primaryGray rounded-[16px] w-fit mx-auto justify-center items-center ">
+          <div className="flex border border-primaryGray rounded-[16px] w-fit mx-auto justify-center items-center flex-col sm:flex-row ">
             <button
-              className={`w-[150px] text-sm ${tab === "crm" ? "bg-ternary text-white" : "bg-transparent text-ternary"
+              className={`w-full sm:w-[150px] text-sm ${tab === "crm" ? "bg-ternary text-white" : "bg-transparent text-ternary"
                 } px-4 py-2 rounded-[16px] transition-all ease-in duration-100`}
               onClick={handleCrmTab}
             >
               CRM
             </button>
             <button
-              className={`w-[150px] text-sm ${tab === "app" ? "bg-ternary" : "bg-transparent text-ternary"
+              className={`w-full sm:w-[150px] text-sm ${tab === "app" ? "bg-ternary" : "bg-transparent text-ternary"
                 } px-4 py-2 rounded-[16px] transition-all ease-in duration-100`}
               onClick={handleAppTab}
             >
@@ -411,6 +407,7 @@ const ViewAppointment = () => {
             <div className="w-full mt-6">
               {viewAppointmentDetails?.length > 0 ? (
                 <StickyAppHeadTable
+                  tab={tab}
                   data={viewAppointmentDetails}
                   handlePrint={handlePrint}
                   cancelPress={cancelAppPress}

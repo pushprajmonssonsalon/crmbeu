@@ -4,8 +4,9 @@ import { MdOutlineAddShoppingCart } from "react-icons/md";
 const Table = ({ header, data, orderClick, handleInventryOpen }) => {
   return (
     <>
+      <div className="table-responsive">
       <table
-        className=" w-full overflow-x-auto mx-auto"
+        className=" w-full mx-auto"
         style={{ height: "40px" }}
       >
         <thead>
@@ -97,6 +98,7 @@ const Table = ({ header, data, orderClick, handleInventryOpen }) => {
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 };

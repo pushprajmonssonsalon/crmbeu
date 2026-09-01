@@ -14,6 +14,7 @@ const TestExcel = () =>  {
             <div>
                 <button className='bg-green-500 text-white rounded-xl px-6 h-[50px]' onClick={onDownload}> Export excel </button>
 
+                <div className="table-responsive">
                  <table  ref={tableRef}>
                   <tbody>
                     <tr>
@@ -33,6 +34,7 @@ const TestExcel = () =>  {
                     </tr>
                   </tbody>
                 </table>
+                </div>
 
             </div>
         );

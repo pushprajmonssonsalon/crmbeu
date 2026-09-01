@@ -9,6 +9,15 @@ import { formatValue, getStatusColor } from "../../utils/services";
 import { MdOutlineEdit, MdOutlineLocalPrintshop, MdOutlinePayment } from "react-icons/md";
 import GridRows from "../pagination/gridRows";
 import Pagination from "../pagination";
+// Action-column sizing copied from components/Table/MyService.js: explicit
+// h-/w- on the icon (rather than font-size 1em, which a flex parent can shrink)
+// and a fixed-size round button that never shrinks - keeps the controls tappable
+// on tablet/phone.
+const iconClass = "h-[18px] w-[18px] sm:h-5 sm:w-5 lg:h-[22px] lg:w-[22px]";
+
+const actionBtnClass =
+  "shrink-0 grid place-items-center h-9 w-9 lg:h-10 lg:w-10 rounded-full bg-transparent transition-colors hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-95";
+
 const headings = [
   "Name",
   "Mobile No.",
@@ -134,12 +143,17 @@ export default function StickyHeadTable({
  
   return (
     <>
-      <table className="w-full mx-auto overflow-x-auto" style={{ height: "40px" }}>
+      <div className="table-responsive">
+      <table className="w-full mx-auto" style={{ height: "40px" }}>
         <thead>
           <tr>
             <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>#</th>
-            {headings.map((column) => (
-              <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>{column}</th>
+            {headings.map((column, ci) => (
+              <th
+                key={ci}
+                className={'border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm' +
+                  (column === "Action" ? ' sticky right-0 z-[5]' : '')}
+              >{column}</th>
             ))}
 
           </tr>
@@ -186,7 +200,7 @@ export default function StickyHeadTable({
                       </button>}
                       </div>
                   </td>
-                  <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>
+                  <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm sticky right-0 z-[5]'>
 
                     {/* <button
                         className={`text-sm w-[40px] font-semibold text-ternary   `}
@@ -206,21 +220,33 @@ export default function StickyHeadTable({
 
 
 
-                    <div className="flex items-center gap-x-2">
+                    <div className="flex w-fit flex-nowrap items-center gap-1 sm:gap-2">
                       {item.status === 1 && (
-                        <Link to={`/viewappoinment/${item._id}`}>
-                          <MdOutlineEdit className="text-secondaryGreen text-xl cursor-pointer" />
+                        <Link
+                          to={`/viewappoinment/${item._id}`}
+                          className={actionBtnClass + " text-secondaryGreen"}
+                          aria-label="Edit"
+                        >
+                          <MdOutlineEdit className={iconClass} />
                         </Link>
                       )}
-                      <MdOutlineLocalPrintshop
-                        className={`text-primaryPurple text-xl cursor-pointer `}
+                      <button
+                        type="button"
+                        className={actionBtnClass + " text-primaryPurple"}
                         onClick={() => handlePrint(item)}
-                      />
+                        aria-label="Print"
+                      >
+                        <MdOutlineLocalPrintshop className={iconClass} />
+                      </button>
 
-                      <RxCrossCircled
-                        className="text-red-600 text-xl cursor-pointer"
+                      <button
+                        type="button"
+                        className={actionBtnClass + " text-red-600 hover:bg-red-50"}
                         onClick={() => cancelPress(item)}
-                      />
+                        aria-label="Cancel"
+                      >
+                        <RxCrossCircled className={iconClass} />
+                      </button>
                       {/* <button
                           className="cursor-pointer  text-ternary rounded-md h-[40px] font-medium  "
                           onClick={() => submitPress(item)}
@@ -240,7 +266,8 @@ export default function StickyHeadTable({
 
         </tbody>
       </table>
-      <div className="flex justify-between mt-4 items-center">
+      </div>
+      <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
         <GridRows
           totalItems={data?.length}
           itemsPerPage={rowsPerPage}

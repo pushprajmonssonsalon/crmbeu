@@ -14,7 +14,7 @@ const ConfirmationModal = ({ show, setShow, data, text, onConfirm }) => {
 const ChildComponent = ({ closeModal, data, modalRef, text, onConfirm }) => {
 
   return (
-    <div className="relative  mx-auto p-4 w-fit min-w-[300px] md:min-w-[450px] xl:min-w-[700px]  h-full my-[5%]  max-h-full">
+    <div className="relative mx-auto p-4 w-full max-w-full sm:w-fit sm:min-w-[300px] md:min-w-[450px] xl:min-w-[700px] h-full my-[5%] max-h-full">
       {/* Modal content */}
       <div
         ref={modalRef}
@@ -59,6 +59,7 @@ const ChildComponent = ({ closeModal, data, modalRef, text, onConfirm }) => {
                 return (
                   <div key={idx} className="p-3">
                   <h2 className="font-bold mb-2 text-sm text-start">{elm}</h2>
+          <div className="table-responsive">
           <table className="" >
                   <thead>
                     <tr >
@@ -80,6 +81,7 @@ const ChildComponent = ({ closeModal, data, modalRef, text, onConfirm }) => {
                     ))}
                   </tbody>
                 </table>
+          </div>
                   </div>
                 )
               })}

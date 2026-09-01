@@ -175,8 +175,8 @@ const ExpensePopup = ({ isVisible, onClose,onSubmit }) => {
     }
     return (
         <>
-            <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
-                <div className=' w-[85%] sm:w-[350px] md:w-[750px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+            <div className='fixed z-40 inset-0 bg-black/20 flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain'>
+                <div className=' w-full sm:w-[350px] md:w-[750px] bg-white p-4 rounded-xl relative mx-auto my-auto max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden'>
 
                     <div className=' '>
                         <div className='flex justify-between items-center mb-6'>

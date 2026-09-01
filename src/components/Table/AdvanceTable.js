@@ -2,7 +2,7 @@ import React from 'react'
 
 const AdvanceTable = ({columns,rows}) => {
   return (
-    <>   <table className="styled-table">
+    <>  <div className="table-responsive"> <table className="styled-table">
         <thead>
           <tr>
             <th className="bg-black text-white px-3 py-2">#</th>
@@ -23,7 +23,7 @@ const AdvanceTable = ({columns,rows}) => {
             </tr>
           ))}
         </tbody>
-      </table></>
+      </table></div></>
   )
 }
 

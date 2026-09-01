@@ -67,7 +67,7 @@ const ChildComponent = ({ closeModal, data,modalRef }) => {
   };
 
   return (
-    <div className="relative top-[25%] bottom-[25%] m-auto p-4 w-fit min-w-[300px] md:min-w-[450px] mx-auto h-full my-auto  max-h-full">
+    <div className="relative m-auto p-4 w-full max-w-full sm:w-fit sm:min-w-[300px] md:min-w-[450px] mx-auto h-full my-auto max-h-full">
       {/* Modal content */}
       <div ref={modalRef} className="slide-in-top relative h-fit max-h-full w-full  my-auto bg-white rounded-lg shadow ">
         {/* Modal header */}

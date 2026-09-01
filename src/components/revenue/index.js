@@ -128,8 +128,8 @@ const Revenue = () => {
     <>
       <div className="flex items-center justify-between mb-5">
         <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
-          <div className="flex w-full items-center justify-between">
-            <div className="flex items-center  gap-6">
+          <div className="flex w-full items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center  gap-3 md:gap-6 flex-wrap">
               <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
                 <FaCalendarAlt className="text-customPurple text-sm" />
                 <span className="text-secondary text-sm">Year-to-date </span>
@@ -168,6 +168,7 @@ const Revenue = () => {
       </div>
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
         <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">Revenue</h2>
+        <div className="table-responsive">
         <table className="styled-table ">
           <thead className="sticky  top-0 z-2">
             <tr>
@@ -201,7 +202,8 @@ const Revenue = () => {
             })}
           </tbody>
         </table>
-        <div className="flex justify-between mt-4 items-center">
+        </div>
+        <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
           <GridRows
             totalItems={revenue?.length}
             itemsPerPage={rowsPerPage}

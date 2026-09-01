@@ -1,9 +1,13 @@
 import React from "react";
 import { X, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+
 
 const ReminderModal = ({ open, onClose }) => {
   const navigate = useNavigate();
+  const { dueDateRoyalty } = useSelector((state) => state.royaltyReducer || {});
+  console.log("dueRoyalty", dueDateRoyalty);
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -29,7 +33,7 @@ const ReminderModal = ({ open, onClose }) => {
 
         {/* Message */}
         <p className="mt-3 text-center text-sm text-gray-600">
-          Your royalty payment is pending. Please complete the payment by the 15th of this month to avoid temporary suspension of your account access.
+          Your royalty payment is pending. Please complete the payment by the {dueDateRoyalty}th of this month to avoid temporary suspension of your account access.
         </p>
 
 
@@ -43,10 +47,10 @@ const ReminderModal = ({ open, onClose }) => {
           </button>
 
           <button
-            onClick={()=> {onClose(); navigate('/royalties-check')}}
+            onClick={() => { onClose(); navigate('/royalties-check') }}
             className="flex-1 rounded-lg bg-blue-600 py-2.5 font-medium text-white transition hover:bg-blue-700"
           >
-            Pay Now 
+            Pay Now
           </button>
         </div>
       </div>

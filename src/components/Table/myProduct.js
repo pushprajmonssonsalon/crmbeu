@@ -23,7 +23,8 @@ const MyProductTable = ({data,handleOpen,setIsChanged,isChanged}) => {
   }
     return (
         <>
-            <table className="w-full mx-auto overflow-x-auto" style={{ height: "40px" }}>
+            <div className="table-responsive">
+            <table className="w-full mx-auto" style={{ height: "40px" }}>
                   <thead>
                     <tr>
                       <th className='border-0 border-b bg-white border-lightGray font-normal text-gray2 text-sm'>NAME</th>
@@ -52,6 +53,7 @@ const MyProductTable = ({data,handleOpen,setIsChanged,isChanged}) => {
                     ))}
                   </tbody>
                 </table>
+            </div>
         </>
       )
 }

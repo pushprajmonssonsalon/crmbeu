@@ -2,6 +2,7 @@ import { useLocation } from 'react-router';
 import Navbar from '../navbar/Navbar';
 import VerticalSidebar from '../newSidebar';
 import { Link } from 'react-router-dom';
+import useCollapseSidebarOnModal from './useCollapseSidebarOnModal';
 const routesObject = {
   dashboard: "Dashboard",
   customerservices: "Services",
@@ -39,19 +40,25 @@ const routesObject = {
 const Layout = ({ children }) => {
   const {pathname} = useLocation();
   const path = pathname.split("/").filter(x=>x)[0];
+  // Every page renders inside Layout, so this is the one place that sees all
+  // of them: collapse the sidebar whenever a modal opens.
+  useCollapseSidebarOnModal();
   
   return (
-    <div className="min-w-full   roboto-regular bg-ternaryPurple flex bg">
+    <div className="w-full max-w-full min-h-dvh roboto-regular bg-ternaryPurple flex">
       {/* <Toaster /> */}
         {/* <Sidebar /> */}
         <VerticalSidebar />
-        <div className='flex w-full flex-col'>
+        {/* min-w-0 lets this column shrink below its content width so wide
+            tables scroll inside their own container instead of stretching
+            the page. */}
+        <div className='flex flex-1 flex-col min-w-0 max-w-full'>
 
           <Navbar />
-          <div className='px-6 py-9'>
+          <div className='px-3 py-5 md:px-6 md:py-9 min-w-0 max-w-full'>
             <Breadcrumbs/>
 
-          <main style={{ maxWidth: '100%' }} className='w-full '>{children}</main>
+          <main className='w-full min-w-0 max-w-full'>{children}</main>
           </div>
       </div>
     </div>

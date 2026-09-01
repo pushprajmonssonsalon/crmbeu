@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { loadRazorpay } from "../../utils/services";
 import { setRoyaltyStatus } from "../../redux/reducers";
+import { useSelector } from "react-redux";
 
 const LOCAL_BASE_URL = process.env.REACT_APP_BASE_URI;
 
@@ -49,11 +50,16 @@ const getRoyaltyStatus = async (dispatch) => {
   });
   const res = await instance.get("royalty/getRoyaltyStatus");
   const data = res.data;
-
+  const royaltyDueDate = [];
+  data?.breakdown.forEach(element => {
+    royaltyDueDate.push(element.royaltyDueDate);
+  });
+  const dueDateRoyalty = royaltyDueDate[0]?.split('T')[0]?.split('-')[2];
   dispatch(
     setRoyaltyStatus({
       royaltyDue: Boolean(data?.royaltyDue),
       royaltyOverdue: Boolean(data?.royaltyOverdue),
+      dueDateRoyalty: dueDateRoyalty
     })
   );
 
@@ -76,7 +82,7 @@ const StatusBadge = ({ status }) => {
 
 const verifyPayment = async (orderId) => {
 
-   const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const instance = axios.create({
     baseURL: LOCAL_BASE_URL,
     timeout: 30000,
@@ -100,110 +106,113 @@ const RoyaltiesCheck = () => {
   const [gstAmount, setGstAmount] = useState(0);
   const [totalAmountWithGST, setTotalAmountWithGST] = useState(0);
   const [monthlyAmount, setMonthlyAmount] = useState(0);
+  const { dueDateRoyalty } = useSelector((state) => state.royaltyReducer || {});
 
-const handlePay = async () => {
-  if (isProcessing) return;
 
-  setIsProcessing(true);
+  const handlePay = async () => {
+    if (isProcessing) return;
 
-  try {
-    const isLoaded = await loadRazorpay();
+    setIsProcessing(true);
 
-    if (!isLoaded) {
-      toast.error("Razorpay failed to load. Please refresh.");
-      setIsProcessing(false);
-      return;
-    }
+    try {
+      const isLoaded = await loadRazorpay();
 
-    const orderResponse = await createRoyaltyOrder();
-    const orderData = orderResponse?.order;
+      if (!isLoaded) {
+        toast.error("Razorpay failed to load. Please refresh.");
+        setIsProcessing(false);
+        return;
+      }
 
-    if (!orderData) {
-      toast.error("Invalid order response");
-      setIsProcessing(false);
-      return;
-    }
+      const orderResponse = await createRoyaltyOrder();
+      const orderData = orderResponse?.order;
 
-    const options = {
-      key: process.env.REACT_APP_RAZORPAY_KEY_ROYALTY,
-      amount: orderData.amount,
-      currency: orderData.currency || "INR",
-      name: "Smart Salon",
-      description: "Royalty Payment",
-      order_id: orderData.id,
+      if (!orderData) {
+        toast.error("Invalid order response");
+        setIsProcessing(false);
+        return;
+      }
 
-      handler: async (response) => {
-        try {
-          const {
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-          } = response;
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ROYALTY,
+        amount: orderData.amount,
+        currency: orderData.currency || "INR",
+        name: "Smart Salon",
+        description: "Royalty Payment",
+        order_id: orderData.id,
 
-          let paymentStatus = "pending";
+        handler: async (response) => {
+          try {
+            const {
+              razorpay_order_id,
+              razorpay_payment_id,
+              razorpay_signature,
+            } = response;
 
-          // Wait for webhook confirmation
-          for (let i = 0; i < 5; i++) {
-            const result = await verifyPayment(razorpay_order_id);
+            let paymentStatus = "pending";
 
-            paymentStatus = result.status;
+            // Wait for webhook confirmation
+            for (let i = 0; i < 5; i++) {
+              const result = await verifyPayment(razorpay_order_id);
 
-            if (paymentStatus === "paid") {
-              break;
+              paymentStatus = result.status;
+
+              if (paymentStatus === "paid") {
+                break;
+              }
+
+              // wait 2 seconds before checking again
+              await new Promise((resolve) => setTimeout(resolve, 2000));
             }
 
-            // wait 2 seconds before checking again
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            if (paymentStatus === "paid") {
+              await getRoyaltyStatus(dispatch);
+              toast.success("Payment successful!");
+              setTimeout(() => {
+                navigate("/");
+              }, 1000);
+            } else {
+              toast("Payment received. Verification is still in progress.");
+            }
+          } catch (error) {
+            console.error("Payment verification error", error);
+            toast.error("Payment verification failed.");
+          } finally {
+            setIsProcessing(false);
           }
-
-          if (paymentStatus === "paid") {
-            await getRoyaltyStatus(dispatch);
-            toast.success("Payment successful!");
-            setTimeout(() => {
-              navigate("/");
-            }, 1000);
-          } else {
-            toast("Payment received. Verification is still in progress.");
-          }
-        } catch (error) {
-          console.error("Payment verification error", error);
-          toast.error("Payment verification failed.");
-        } finally {
-          setIsProcessing(false);
-        }
-      },
-
-      modal: {
-        ondismiss: () => {
-          setIsProcessing(false);
         },
-      },
 
-      theme: {
-        color: "#2563eb",
-      },
-    };
+        modal: {
+          ondismiss: () => {
+            setIsProcessing(false);
+          },
+        },
 
-    const razorpay = new window.Razorpay(options);
+        theme: {
+          color: "#2563eb",
+        },
+      };
 
-    razorpay.on("payment.failed", (response) => {
-      console.log("Payment failed", response.error);
-      toast.error("Payment failed");
+      const razorpay = new window.Razorpay(options);
+
+      razorpay.on("payment.failed", (response) => {
+        console.log("Payment failed", response.error);
+        toast.error("Payment failed");
+        setIsProcessing(false);
+      });
+
+      razorpay.open();
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong.");
       setIsProcessing(false);
-    });
-
-    razorpay.open();
-  } catch (error) {
-    console.error(error);
-    toast.error("Something went wrong.");
-    setIsProcessing(false);
-  }
-};
+    }
+  };
 
   useEffect(() => {
     const fetchRoyaltyStatus = async () => {
       try {
         const res = await getRoyaltyStatus(dispatch);
+
 
         const baseRoyaltyAmount = Number(res?.royaltyAmount || 0);
         const gstValue = Number(res?.gstAmount || 0);
@@ -220,6 +229,7 @@ const handlePay = async () => {
         setCount(monthsCount);
         setMonthlyAmount(perMonth);
 
+
         let status = "Pending";
         if (res.royaltyOverdue) {
           status = "Overdue";
@@ -235,14 +245,14 @@ const handlePay = async () => {
     fetchRoyaltyStatus();
   }, []);
 
-useEffect(() => {
-  getRoyaltyStatus(dispatch);
-}, [location.pathname]);
+  useEffect(() => {
+    getRoyaltyStatus(dispatch);
+  }, [location.pathname]);
 
   return (
     <div className="py-8">
       {/* Header / due-amount banner */}
-      <div className="mb-6 flex flex-col gap-4 rounded-[28px] border border-slate-200 bg-white p-8 shadow-lg">
+      <div className="mb-6 flex flex-col gap-4 rounded-[28px] border border-slate-200 bg-white p-5 sm:p-8 shadow-lg">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-indigo-600">Franchise Royalty</p>
@@ -250,7 +260,7 @@ useEffect(() => {
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
               {royaltyPaidStatus === "Pending" ? (
                 <span>
-                  Your royalty payment is pending. Please pay by the 15th to avoid CRM access suspension.
+                  Your royalty payment is pending. Please pay by the {dueDateRoyalty}th to avoid CRM access suspension.
                 </span>
               ) : royaltyPaidStatus === "Overdue" ? (
                 <span>

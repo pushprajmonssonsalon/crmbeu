@@ -20,6 +20,7 @@ const Notification = () => {
       getApiCall(
         `notification/getNoticationsForCrm?page=${currentPage}&limit=${itemsPerPage}`,
         (res) => {
+          console.log("notif", res.data);
           setNotifications(res.data);
           settotalItems(res.total);
         },
@@ -67,8 +68,8 @@ const Notification = () => {
                   <h2>{totalItems} </h2>
                   <h2>Notification </h2>
                 </div>
-                <div className="text-sm flex items-center gap-6">
-                  <div className="flex gap-2 w-[180px] items-center">
+                <div className="text-sm flex items-center gap-3 md:gap-6 flex-wrap justify-center">
+                  <div className="flex gap-2 w-[180px] items-center justify-center">
                     <div className="flex gap-1 items-center">
                       <div>Showing </div>
                       <div>
@@ -111,21 +112,21 @@ const Notification = () => {
                   key={index}
                   onClick={() => navigate(item._id)}
                   className={` ${item.read
-                      ? "text-black/40 bg-white "
-                      : "text-black/70 bg-gray-50"
+                    ? "text-black/40 bg-white "
+                    : "text-black/70 bg-gray-50"
                     } flex justify-between cursor-pointer  items-center p-3 border border-neutral-400/30 hover:border-neutral-400/60 hover:shadow-md border-b-0 last:border-b  transition-colors duration-100`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-6">
-                      <FiMessageSquare className=" w-[50px]" size={20} />
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div className="flex gap-6 w-[30px] sm:w-[50px] shrink-0 justify-center">
+                      <FiMessageSquare className="shrink-0" size={20} />
                     </div>
-                    <div className=" font-medium text-sm w-full max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">
+                    <div className=" font-medium text-sm w-full max-w-[180px] sm:max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap">
                       {item.message}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-9">
-                    <div className="text-xs w-[150px]">
+                  <div className="flex items-center gap-3 sm:gap-9 shrink-0">
+                    <div className="text-xs w-[90px] sm:w-[150px] text-right">
                       {formatDateToFull(item?.createdAt)}
                     </div>
                     <div>

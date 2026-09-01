@@ -7,13 +7,21 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     margin-top: 104px;
-    margin-left: -32rem
+    max-width: 100%;
+}
+
+@media (max-width: 767px) {
+    .report-container {
+        padding: 12px;
+        margin-top: 24px;
+    }
 }
 
 .report-buttons {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .report-buttons button {
@@ -31,7 +39,7 @@
 }
 
 .report-heading {
-    margin-left: 38rem;
+    margin-left: 0;
 }
 
 
@@ -76,14 +84,21 @@ background: rgba(149, 251, 214, 0.21);
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 16px;
+    /* Must clear the sidebar (z-40) and navbar, or the drawer paints over it. */
+    z-index: 50;
   }
-  
+
   .date-picker-modal {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     padding: 20px;
     width: 300px;
+    max-width: 100%;
+    /* Landscape phones are short; let the picker scroll rather than clip. */
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
   }
   
   .date-picker-container {

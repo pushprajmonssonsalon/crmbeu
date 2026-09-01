@@ -222,8 +222,8 @@ const Employeedetails = () => {
 
     <>
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
-        <div className="flex items-center mb-6 justify-between">
-          <div className="flex items-center gap-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 justify-between gap-3">
+          <div className="flex items-center gap-5 flex-wrap">
 
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Staff Contacts</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{getstaffData?.length || 0} Contacts</span>

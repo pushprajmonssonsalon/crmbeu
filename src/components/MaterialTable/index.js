@@ -12,7 +12,8 @@ export default function CustomizedTables({ headings, data, handlePrint }) {
   return (
 
     <>
-      <table className="w-full mx-auto overflow-x-auto" style={{ height: "40px" }}>
+      <div className="table-responsive">
+      <table className="w-full mx-auto" style={{ height: "40px" }}>
         <thead>
           <tr>
             {
@@ -46,6 +47,7 @@ export default function CustomizedTables({ headings, data, handlePrint }) {
           ))}
         </tbody>
       </table>
+      </div>
 
      
     </>

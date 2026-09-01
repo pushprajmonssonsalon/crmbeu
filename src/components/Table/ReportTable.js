@@ -15,6 +15,7 @@ const tableHeaders = [
 const ReportTable = ({ data ,endDate}) => {
 
   return (
+    <div className="table-responsive">
     <table className="styled-table">
       <thead className="">
         <tr >
@@ -29,8 +30,9 @@ const ReportTable = ({ data ,endDate}) => {
         {data?.map(({ name, categories }) => (
           <TableRow endDate={endDate} key={name} name={name} categories={categories} tableHeaders={tableHeaders} />
         ))}
-      </tbody>
+        </tbody>
     </table>
+    </div>
   )
 };
 

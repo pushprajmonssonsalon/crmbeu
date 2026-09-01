@@ -121,20 +121,21 @@ const AdvanceLogs = () => {
   return (
     <>
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-5 ">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="flex items-center gap-5 flex-wrap">
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Customer Details</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{total} Transaction</span>
         
 
           </div>
 
-          <div className='flex items-center  gap-3'>
-            <div className="relative flex items-center">
+          <div className='flex items-center  gap-3 flex-wrap'>
+            <div className="relative flex items-center w-full sm:w-auto">
               <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
               <NormalInput
                 inputStyles={{
                   'width': "280px",
+                  maxWidth: "100%",
                   borderRadius: "16px",
                   padding: "5px 40px",
                   fontSize: "14px",
@@ -173,7 +174,7 @@ const AdvanceLogs = () => {
               </svg>
             </span></button> : <button onClick={handleSearchCustomerdetails} className='rounded-[16px] w-[109px] h-[29px] flex items-center justify-center  py-1 bg-black text-white'>Search</button>}
           </div>
-       <button disabled={rows?.length==0} onClick={handleExport} className='bg-ternary text-white rounded-[16px] w-[110px] text-sm font-normal '>Export All</button>
+       <button disabled={rows?.length==0} onClick={handleExport} className='bg-ternary text-white rounded-[16px] w-full max-w-[110px] text-sm font-normal '>Export All</button>
 
         </div>
     

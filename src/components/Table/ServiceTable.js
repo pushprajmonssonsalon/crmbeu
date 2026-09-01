@@ -5,6 +5,7 @@ const ServiceTable = ({data,startIndex,endIndex,addclick}) => {
   return (
     <>
 
+        <div className="table-responsive">
         <table  className="w-full" >
                   <thead>
                     <tr>
@@ -36,6 +37,7 @@ const ServiceTable = ({data,startIndex,endIndex,addclick}) => {
                     ))}
                   </tbody>
                 </table>
+        </div>
     </>   
   )
 }

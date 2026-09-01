@@ -1,25 +1,41 @@
-.donut{
-    height: 200;
-    width: fit-content;
-    margin: 0 auto;
+/* Chart.js runs with maintainAspectRatio:false, so these wrappers are what
+   actually give each canvas its size. They need a definite height at every
+   breakpoint and a fluid width, otherwise the canvas collapses or overflows. */
+.donut {
+  height: 240px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
 }
-/* .donut >canvas{
-    margin: 0 auto;
-} */
 
-.bar{
+.donut > canvas,
+.bar > canvas {
+  max-width: 100% !important;
+}
+
+.bar {
+  height: 260px;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .bar {
+    height: 320px;
+  }
+}
+
+@media (min-width: 768px) {
+  .donut {
+    height: 300px;
+  }
+  .bar {
     height: 400px;
-    width: 100%;
+  }
 }
-@media (min-width:768px) {
-    .donut{
-        height: 300px;
-    }
-    
-}
-@media (min-width:1024px) {
-    .donut{
-        height: 400px;
-    }
-    
+
+@media (min-width: 1024px) {
+  .donut {
+    height: 400px;
+  }
 }

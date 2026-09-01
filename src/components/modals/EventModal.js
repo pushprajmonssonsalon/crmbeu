@@ -25,7 +25,7 @@ const ChildComponent = ({ closeModal, data, modalRef, text }) => {
   const sortedData = data?.value?.slice().sort((a, b) => sortByDateType(a, b, data?.type));
 
   return (
-    <div className="relative  mx-auto p-4 w-fit min-w-[300px] md:min-w-[450px] xl:min-w-[700px]  h-full my-[5%]  max-h-full">
+    <div className="relative mx-auto p-4 w-full max-w-full sm:w-fit sm:min-w-[300px] md:min-w-[450px] xl:min-w-[700px] h-full my-[5%] max-h-full">
       {/* Modal content */}
       <div
         ref={modalRef}
@@ -61,7 +61,7 @@ const ChildComponent = ({ closeModal, data, modalRef, text }) => {
         </div>
         {/* Modal body */}
         <div className="max-h-[60vh] py-5 px-3 flex flex-col gap-2 overflow-y-auto ">
-
+          <div className="table-responsive">
           <table className="" >
             <thead>
               <tr >
@@ -104,6 +104,7 @@ const ChildComponent = ({ closeModal, data, modalRef, text }) => {
               ))}
             </tbody>
           </table>
+          </div>
 
 
         </div>

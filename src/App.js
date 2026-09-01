@@ -40,15 +40,17 @@ import Sop from "./pages/sop/sop";
 import SopDetail from "./pages/sop/sopDetail";
 import ReminderModal from "./components/GlobalAlert";
 import { setRoyaltyStatus } from "./redux/reducers";
+import {
+  canShowRoyaltyReminder,
+  recordRoyaltyReminderShown,
+} from "./utils/royaltyReminder";
 import axios from "axios";
 
 const LOCAL_BASE_URL = process.env.REACT_APP_BASE_URI;
 
 const ReminderTriggers = () => {
   const location = useLocation();
-  const previousPathRef = useRef(location.pathname);
   const dispatch = useDispatch();
-  const { royaltyDue, royaltyOverdue } = useSelector((state) => state.royaltyReducer || {});
 
   useEffect(() => {
     const fetchRoyaltyStatus = async () => {
@@ -66,12 +68,19 @@ const ReminderTriggers = () => {
         });
 
         const res = await instance.get("royalty/getRoyaltyStatus");
-        const data = res.data;
+        const data = res?.data;
 
+        const royaltyDueDate = [];
+
+        data?.breakdown.forEach(element => {
+          royaltyDueDate.push(element.royaltyDueDate);
+        });
+        const dueDateRoyalty = royaltyDueDate[0]?.split('T')[0]?.split('-')[2];
         dispatch(
           setRoyaltyStatus({
             royaltyDue: Boolean(data?.royaltyDue),
             royaltyOverdue: Boolean(data?.royaltyOverdue),
+            dueDateRoyalty: dueDateRoyalty,
           })
         );
       } catch (error) {
@@ -82,21 +91,6 @@ const ReminderTriggers = () => {
     fetchRoyaltyStatus();
   }, [dispatch, location.pathname]);
 
-  useEffect(() => {
-    const shouldOpenReminder = royaltyDue && !royaltyOverdue;
-
-    // On any navigation, cancel any pending reminder so it doesn't appear on unrelated pages
-    if (previousPathRef.current !== location.pathname) {
-      window.dispatchEvent(new CustomEvent("cancel-reminder-modal"));
-    }
-
-    if (previousPathRef.current !== location.pathname && shouldOpenReminder && location.pathname !== "/royalties-check" && location.pathname !== "/login") {
-      window.dispatchEvent(new CustomEvent("open-reminder-modal"));
-    }
-
-    previousPathRef.current = location.pathname;
-  }, [location.pathname]);
-
   return null;
 };
 
@@ -105,19 +99,21 @@ function App() {
   const [showReminder, setShowReminder] = useState(false);
   const reminderTimerRef = useRef(null);
   const { royaltyDue, royaltyOverdue } = useSelector((state) => state.royaltyReducer || {});
-
   useEffect(() => {
     const openReminderModal = () => {
       if (!royaltyDue || royaltyOverdue) return;
+      if (!canShowRoyaltyReminder()) return;
       if (reminderTimerRef.current) {
         clearTimeout(reminderTimerRef.current);
       }
 
       // start a delayed show; when the timer fires, ensure user is still on an allowed page
       reminderTimerRef.current = setTimeout(() => {
-        if (window.location.pathname !== "/royalties-check" && window.location.pathname !== "/login") {
-          setShowReminder(true);
-        }
+        reminderTimerRef.current = null;
+        if (window.location.pathname === "/royalties-check" || window.location.pathname === "/login") return;
+        if (!canShowRoyaltyReminder()) return;
+        recordRoyaltyReminderShown();
+        setShowReminder(true);
       }, 15000);
     };
 
@@ -141,10 +137,24 @@ function App() {
     };
   }, [royaltyDue, royaltyOverdue]);
 
+
+  useEffect(() => {
+    if (!royaltyDue || royaltyOverdue) return undefined;
+
+    const evaluate = () => {
+      if (!canShowRoyaltyReminder()) return;
+      window.dispatchEvent(new CustomEvent("open-reminder-modal"));
+    };
+
+    evaluate();
+    const interval = setInterval(evaluate, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [royaltyDue, royaltyOverdue]);
+
   useEffect(() => {
     const handleWheel = (e) => {
       if (e.target.type === "number") {
-        e.preventDefault(); // Prevent default scroll behavior
+        e.preventDefault();
       }
     };
 

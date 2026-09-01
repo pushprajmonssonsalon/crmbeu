@@ -3,9 +3,11 @@ import "./Navbar.css";
 import { useState } from "react";
 import { getApiCall } from "../../utils/services";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import ChangePassword from "../modals/ChangePassword";
 import { FaAngleDown } from "react-icons/fa";
+import { HiMenuAlt3 } from "react-icons/hi";
 import profile from "../../images/profile.svg";
 const Navbar = () => {
   const [admin, setAdmin] = useState(false);
@@ -13,6 +15,8 @@ const Navbar = () => {
   const [unReadMsg, setUnReadMsg] = useState(false);
   const [parlorDetails, setParlorDetails] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { open } = useSelector((state) => state.SidebarReducer);
   const modalRef = useRef(null);
   const adminPress = () => {
     setAdmin(!admin);
@@ -70,22 +74,30 @@ const Navbar = () => {
 
   return (
     <>
-     <nav className="flex z-[10] flex-row   sticky top-0  justify-between items-center nav pl-4  bg-transparent   w-full ">
+     <nav className="flex z-[10] flex-row sticky top-0 justify-between items-center nav pl-3 md:pl-4 bg-transparent w-full max-w-full ">
 
 
+
+        <button
+          onClick={() => dispatch({ type: "TOGGLE_SIDEBAR", payload: !open })}
+          className="md:hidden mr-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-navbar border border-lightGray"
+          aria-label="Toggle menu"
+        >
+          <HiMenuAlt3 size={22} className="text-ternary" />
+        </button>
 
         <div className="flex items-center w-full justify-end ">
-          <ul className="flex flex-row items-center justify-between w-full border bg-white border-lightGray shadow-navbar rounded-b-[25px] px-[32px] py-[10px]">
-           
-            <li className=" max-w-[180px] lg:max-w-[350px] overflow-hidden text-ellipsis whitespace-nowrap  text-lightGray2 inter text-xs xl:text-sm  border-b-2 border-gray-300">
+          <ul className="flex flex-row items-center justify-end sm:justify-between w-full border bg-white border-lightGray shadow-navbar rounded-b-[25px] px-[12px] md:px-[32px] py-[10px]">
+            
+            <li className=" hidden sm:inline-block max-w-[120px] md:max-w-[180px] lg:max-w-[350px] overflow-hidden text-ellipsis whitespace-nowrap  text-lightGray2 inter text-xs xl:text-sm  border-b-2 border-gray-300">
               {parlorDetails}
             </li>
-            <li className="flex items-center ">
+            <li className="flex items-center gap-3 md:gap-0 ">
 
-           
+            
             <li
               onClick={() => navigate("/notifications")}
-              className="mx-6 relative h-fit text-slate-100 cursor-pointer "
+              className="mx-2 md:mx-6 relative h-fit text-slate-100 cursor-pointer "
             >
               <svg
                 width="22"
@@ -103,13 +115,13 @@ const Navbar = () => {
                 </p>
               </div>}
             </li>
-            <li className="mx-6 font-medium  inter text-xs xl:text-lg text-slate-100 cursor-pointer">
+            <li className="mx-2 md:mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer">
               <button onClick={adminPress}
-                className=" bg-white hover:bg-secondaryGray   py-2 px-4 rounded-[16px] text-ternary flex justify-center gap-4 items-center">
+                className=" bg-white hover:bg-secondaryGray py-1 px-2 md:py-2 md:px-4 rounded-[16px] text-ternary flex justify-center gap-2 md:gap-4 items-center">
                 <div className="flex items-center justify-center gap-2 ">
-                <img src={profile} className="h-[32px] w-[32px] " />
+                <img src={profile} alt="" className="h-[32px] w-[32px] shrink-0" />
 
-                  Admin
+                  <span className="hidden sm:inline">Admin</span>
                 </div>
                 <div>
                   <FaAngleDown />
@@ -125,7 +137,7 @@ const Navbar = () => {
         </div>
         {admin && (
           <div
-            className="absolute right-[40px] top-[91px] flex"
+            className="absolute right-3 md:right-[40px] top-full mt-1 z-[60] flex"
             ref={modalRef}
           >
             <div       // Prevent closing when clicking inside

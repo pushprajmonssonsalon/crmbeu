@@ -4,8 +4,47 @@
 
 /* echo ref: refs/heads/main >.git/HEAD */
 
+html,
+body,
+#root {
+  max-width: 100%;
+  /* `clip` contains stray horizontal overflow the same way `hidden` does, but
+     without turning these into scroll containers - which is what silently
+     breaks `position: sticky` on the navbar and sidebar. */
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
 body{
   font-family: "REM", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* This reset deliberately excludes <svg>.
+   - `height: auto` on an svg makes any icon carrying a width class (w-full,
+     w-[30px], ...) scale its height to match, turning a 20px icon into a giant
+     square.
+   - `max-width: 100%` clamps an icon to its parent's *content* box. Every
+     button in the app inherits `padding: 10px` from the unscoped `button {}`
+     rule in pages/login/login.css, so a 36px (h-9 w-9) action button has only a
+     16px content box - which silently shrank every icon placed inside one,
+     regardless of its w-* class.
+   Icons here all carry explicit sizes, so they need neither declaration. */
+img,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
 }
 .stardos-stencil-bold {
   font-family: "REM", sans-serif;
@@ -36,4 +75,70 @@ background: #009699;
 .hide-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* Responsive helper: wrap tables so they scroll horizontally on small screens */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive table {
+  width: 100%;
+}
+
+/* Responsive helper: wrap fixed-width rows so they wrap on small screens */
+.flex-wrap-row {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  .responsive-px {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Responsive utility used by page headers to stack on mobile */
+@media (max-width: 767px) {
+  .responsive-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0.75rem;
+  }
+  .responsive-header .w-full-sm {
+    width: 100% !important;
+  }
+  .responsive-header > div,
+  .responsive-header > button {
+    max-width: 100%;
+  }
+}
+
+/* Make MUI tables scrollable inside containers on small screens */
+@media (max-width: 767px) {
+  .MuiTableContainer-root {
+    overflow-x: auto !important;
+  }
+}
+
+/* iOS Safari zooms the whole page in when a focused input renders below 16px,
+   and the user then has to pinch back out. Most inputs here are text-sm (14px),
+   so force the minimum on phones only. !important is needed to beat Tailwind's
+   text-* utility classes, which are more specific than a bare element selector. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Opt-in helper for long unbroken strings (emails, IDs, URLs) outside of
+   tables. Deliberately NOT applied to td/th: `anywhere` shrinks a table's
+   min-content width, which would collapse data tables instead of letting
+   them scroll inside .table-responsive. */
+.break-anywhere {
+  overflow-wrap: anywhere;
 }

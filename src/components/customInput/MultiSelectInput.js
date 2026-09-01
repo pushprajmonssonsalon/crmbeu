@@ -12,7 +12,7 @@ const MultiSelectInput = ({ options, val, tag, data = "", handleStaffSelection, 
   const formatText=(arr)=>{
 
     if(arr?.length>0){
-      const str = arr?.map((elm)=>elm.satffName).join(" , ")
+      const str = arr?.map((elm)=>elm.staffName || elm.satffName).join(" , ")
       const str2 = arr?.map((elm)=>elm.name).join(" , ")
       const str3 = arr?.map((elm)=>elm.staffName).join(" , ")
       switch(tag){
@@ -56,7 +56,7 @@ const MultiSelectInput = ({ options, val, tag, data = "", handleStaffSelection, 
   return (
     <div ref={dropdownRef} className="relative ">
       <label
-        className={` ${tag==="membership"?"":"bg-customGray"} relative flex items-center justify-between min-w-[250px] xl:min-w-[300px] capitalize border border-gray-400 text-gray-900 text-sm rounded-lg p-2.5`}
+        className={` ${tag==="membership"?"":"bg-customGray"} relative flex items-center justify-between min-w-[180px] sm:min-w-[250px] xl:min-w-[300px] capitalize border border-gray-400 text-gray-900 text-sm rounded-lg p-2.5`}
         onClick={toggleDropdown}
       >
         <span className="max-w-[250px] overflow-hidden text-ellipsis text-nowrap">{formatText(val)}</span>

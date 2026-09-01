@@ -113,8 +113,8 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
 
   return (
     <>
-      <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
-        <div className='w-[80%] md:w-[60%] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+      <div className='fixed z-40 inset-0 bg-black/20 flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain'>
+        <div className='w-full md:w-[80%] xl:w-[60%] bg-white p-4 rounded-xl relative mx-auto my-auto max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden'>
 
           <div className=" ">
             <div className='flex justify-between items-center mb-6'>
@@ -142,6 +142,7 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
             }
             {cartData?.length > 0 ? (
               <>
+                <div className="table-responsive">
                 <table className="styled-table" style={{ height: "40px" }}>
                   <thead>
                     <tr>
@@ -180,7 +181,8 @@ const OrderPopup = ({ isVisible, onClose, data, removeItem }) => {
                     ))}
                   </tbody>
                 </table>
-                <div className="flex items-center justify-between">
+                </div>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                   <div className="flex items-center justify-start gap-4 mt-6">
                     <button
                       className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"

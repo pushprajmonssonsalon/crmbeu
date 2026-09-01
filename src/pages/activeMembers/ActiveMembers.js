@@ -107,8 +107,8 @@ const handleExportActiveMembership = () => {
 
        
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-5">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="flex items-center gap-5 flex-wrap">
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Active Members</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{members?.length} Members</span>
 
@@ -119,11 +119,12 @@ const handleExportActiveMembership = () => {
                 Export All
               </button>
           </div>
-            <div className="relative flex items-center">
+            <div className="relative flex items-center w-full md:w-auto">
               <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
               <NormalInput
                 inputStyles={{
                   'width': "280px",
+                  maxWidth: "100%",
                   borderRadius: "16px",
                   padding: "5px 40px",
                   fontSize: "14px",

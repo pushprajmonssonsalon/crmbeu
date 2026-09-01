@@ -5,6 +5,7 @@ import Pagination from '../pagination';
 const PaginationTable = ({columns,rows,rowsPerPage,page,handleRowschange,handlePage,total}) => {
   return (
     <>
+      <div className="table-responsive">
        <table className="styled-table shadow-lg ">
         <thead>
           <tr>
@@ -27,7 +28,8 @@ const PaginationTable = ({columns,rows,rowsPerPage,page,handleRowschange,handleP
           ))}
         </tbody>
       </table>
-      <div className="flex justify-between mt-4 items-center">
+      </div>
+      <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
         <GridRows
           totalItems={total}
           itemsPerPage={rowsPerPage}

@@ -100,7 +100,8 @@ const OrderBill = () => {
           <h1 className="text-center text-2xl font-bold bg-black text-white mb-4 p-2">
             ORDERS
           </h1>
-          <table>
+          <div className="table-responsive">
+<table>
             <thead>
               <tr>
                 <th class="text-bold">Name</th>
@@ -120,6 +121,7 @@ const OrderBill = () => {
               ))}
             </tbody>
           </table>
+</div>
         </div>
 
         {/* PAYMENT DETIALS  */}
@@ -129,7 +131,8 @@ const OrderBill = () => {
             <div className='text-black font-medium'>Net Payable Amount:</div>
             <div className='text-black font-medium text-right'>Rs {totalPayableAmount}</div>
         </div>
-        <table>
+        <div className="table-responsive">
+<table>
             <thead>
                 <tr>
                     <th>Payment Options</th>
@@ -148,6 +151,7 @@ const OrderBill = () => {
                   })}
             </tbody>
         </table>
+</div>
         </div> */}
         <div className="mt-2 border-t-2 border-black border-dotted">
           <h1 className="text-center text-lg font-bold  text-black mb-4">

@@ -383,8 +383,8 @@ const Report = () => {
   return (
     <>
       <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300`}>
-        <div className="flex w-full items-center justify-between">
-          <div className="flex items-center  gap-6">
+        <div className="flex w-full items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center  gap-3 md:gap-6 flex-wrap">
             <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
               <FaCalendarAlt className="text-customPurple text-sm" />
               <span className="text-secondary text-sm">Year-to-date </span>
@@ -429,7 +429,8 @@ const Report = () => {
 
           >
             <h2 className="text-gray-700 bg-gray-300 px-3 py-0 capitalize text-start    font-normal text-lg mb-5">Daily Sale Report</h2>
-            <table className="styled-table">
+            <div className="table-responsive">
+<table className="styled-table">
               <thead>
                 <tr>
                   <th><span className="text-darkRedish font-medium uppercase">MODE</span></th>
@@ -467,13 +468,15 @@ const Report = () => {
             </div>
         </div> */}
             </table>
+</div>
 
           </div>
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">Collection</h2>
-            <table className="styled-table">
+            <div className="table-responsive">
+<table className="styled-table">
               <thead>
                 <tr>
                   <th><span className="text-darkOrange">MODE</span></th>
@@ -517,6 +520,7 @@ const Report = () => {
             </div>
         </div> */}
             </table>
+</div>
 
           </div>
 
@@ -526,7 +530,8 @@ const Report = () => {
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5"> APPOINTMENT STATUS</h2>
 
 
-            <table className="styled-table">
+            <div className="table-responsive">
+<table className="styled-table">
               <thead>
                 <tr>
                   <th><span className="text-primaryDarkPurple">STATUS</span></th>
@@ -550,13 +555,15 @@ const Report = () => {
                 })}
               </tbody>
             </table>
+</div>
           </div>
           <div className=" rounded-[16px] border border-primaryGray p-5  "
 
           >
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">  Membership Status</h2>
 
-            <table className="styled-table">
+            <div className="table-responsive">
+<table className="styled-table">
               <thead>
                 <tr>
                   <th><span className="text-primaryDarkGreen">MEMBERSHIP REVENUE</span></th>
@@ -576,6 +583,7 @@ const Report = () => {
                 })}
               </tbody>
             </table>
+</div>
           </div>
 
 
@@ -585,7 +593,8 @@ const Report = () => {
 
           >
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">    Service Distribution</h2>
-            <table className="styled-table">
+            <div className="table-responsive">
+<table className="styled-table">
               <thead>
                 <tr>
                   <th><span className="text-secondaryDarkPurple">SERVICE</span></th>
@@ -609,6 +618,7 @@ const Report = () => {
                 </tr>
               </tbody>
             </table>
+</div>
           </div>
           {/* PRODUCT REVENUE */}
           <div className=" rounded-[16px]   border border-primaryGray p-5  "
@@ -617,7 +627,8 @@ const Report = () => {
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">Product Distribution</h2>
 
 
-            <table className="styled-table">
+            <div className="table-responsive">
+<table className="styled-table">
               <thead>
                 <tr>
                   <th> <span className="text-secondaryDarkBlue">PRODUCT</span></th>
@@ -642,11 +653,12 @@ const Report = () => {
                 </tr>
               </tbody>
             </table>
+</div>
           </div>
           <div className=" rounded-[16px] col-span-full  border border-primaryGray p-5  "
 
           >
-          <div className="flex gap-6">
+          <div className="flex gap-6 items-center justify-between flex-wrap">
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start w-full  font-normal text-lg mb-5">HSN REPORT</h2>
              <button
             className="w-[150px]  gap-1 bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
@@ -657,7 +669,8 @@ const Report = () => {
           </button>
           </div>
 
-            <table className="styled-table performance-table">
+            <div className="table-responsive">
+<table className="styled-table performance-table">
               <thead>
                 <tr>
                   {hsnColumns?.map((elm, index) => {
@@ -679,6 +692,7 @@ const Report = () => {
                       </tr>
               </tbody>
             </table>
+</div>
           </div>
           <div className=" rounded-[16px] col-span-full  border border-primaryGray p-5  "
 
@@ -686,7 +700,8 @@ const Report = () => {
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">EMPLOYEE PERFORMANCE</h2>
 
 
-            <table className="styled-table performance-table">
+            <div className="table-responsive">
+<table className="styled-table performance-table">
               <thead>
                 <tr>
                   <th>EMPLOYEE</th>
@@ -722,6 +737,7 @@ const Report = () => {
 
               </tbody>
             </table>
+</div>
           </div>
           <div className=" rounded-[16px] col-span-full border border-primaryGray p-5  "
 

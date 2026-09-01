@@ -4,6 +4,7 @@ const CategoryTable = ({ cols, rows, row }) => {
   return (
     <>
 
+      <div className="table-responsive">
       <table className="styled-table ">
         <thead className="sticky  top-0 z-2">
           <tr>
@@ -29,6 +30,7 @@ const CategoryTable = ({ cols, rows, row }) => {
 
         </tbody>
       </table>
+      </div>
     </>
   )
 }

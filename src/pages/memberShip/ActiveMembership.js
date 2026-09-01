@@ -102,14 +102,14 @@ const ActiveMembership = () => {
     <>
 
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-5">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-5 flex-wrap">
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Membership List</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{membership?.length} Memberships</span>
 
 
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {actions.map((action, index) => {
               const handleClick = action.button.onClick;
               return (
@@ -124,6 +124,7 @@ const ActiveMembership = () => {
 
         </div>
         <div className="w-full mt-6 ">
+          <div className="table-responsive">
           <table
             className="styled-table"
           >
@@ -171,7 +172,8 @@ const ActiveMembership = () => {
               ))}
             </tbody>
           </table>
-          <div className="flex justify-between mt-4 items-center">
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
             <GridRows
               totalItems={membership?.length}
               itemsPerPage={rowsPerPage}

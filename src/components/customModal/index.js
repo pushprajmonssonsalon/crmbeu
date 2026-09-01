@@ -75,7 +75,7 @@ export default function CustomModal({
           >
             Payment Distribution of Rs {payTotal}
           </p>
-          <div className="table-container">
+          <div className="table-responsive">
 
        
 <table className="styled-table">
@@ -88,19 +88,19 @@ export default function CustomModal({
   <tbody>
   <tr>
                   <td className="font-bold text-lg">Card</td>
-                  <td><input type="number" className="w-[250px] outline-none "
+                  <td><input type="number" className="w-full max-w-[250px] outline-none "
                   value={card}
                   onChange={(e)=>setCard(e.target.value)}/></td>
                 </tr>
                 <tr>
                   <td className="font-bold text-lg">Cash</td>
-                  <td><input type="number" className="w-[250px] outline-none "
+                  <td><input type="number" className="w-full max-w-[250px] outline-none "
                    value={cash}
                    onChange={(e)=>setCash(e.target.value)}/></td>
                 </tr>
                 <tr>
                   <td className="font-bold text-lg">Upi</td>
-                  <td><input type="number" className="w-[250px] outline-none "
+                  <td><input type="number" className="w-full max-w-[250px] outline-none "
                   value={upi}
                   onChange={(e)=>setUpi(e.target.value)}/></td>
                 </tr>

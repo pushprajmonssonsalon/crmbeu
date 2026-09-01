@@ -92,18 +92,18 @@ const Login = () => {
 
   return (
     <div
-      className="flex  h-screen"
+      className="flex flex-col md:flex-row min-h-screen h-auto md:h-screen"
     >
-      <div className="w-[45%] bg-black flex items-center ">
+      <div className="w-full h-[40vh] md:w-[45%] md:h-auto bg-black flex items-center ">
         <div
-          className="w-full h-full flex flex-col items-center justify-center"
+          className="w-full h-full flex flex-col items-center justify-center px-6"
         >
           <img
             src={logo}
-            className="h-[150px] w-[190px]"
+            className="h-[100px] md:h-[150px] w-[130px] md:w-[190px]"
           />
           <span
-            className="mt-5 text-white font-bold text-[2rem]"
+            className="mt-5 text-white font-bold text-[1.4rem] md:text-[2rem] text-center"
           >
             Hi, Welcome Back
           </span>
@@ -117,8 +117,8 @@ const Login = () => {
         </div>
 
       </div>
-      <div className="w-[55%] flex items-center justify-center ">
-        <div className="h-[80%] w-[60%]   flex items-center justify-center flex-col">
+      <div className="w-full md:w-[55%] flex items-center justify-center flex-1">
+        <div className="h-auto md:h-[80%] w-full max-w-[400px] px-6 py-8 md:py-0 md:w-[60%] flex items-center justify-center flex-col">
           <h2 className="text-[1.8rem] font-bold mb-5">Login</h2>
           <form className="w-full" onSubmit={handleLogin}>
             <div className="relative w-full  flex items-center justify-center">
