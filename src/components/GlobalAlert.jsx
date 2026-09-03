@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 const ReminderModal = ({ open, onClose }) => {
   const navigate = useNavigate();
   const { dueDateRoyalty } = useSelector((state) => state.royaltyReducer || {});
-  console.log("dueRoyalty", dueDateRoyalty);
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">

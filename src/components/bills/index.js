@@ -65,6 +65,13 @@ const AppointmentBills = () => {
   }
 
 
+  const productTotalPrice = data.products.reduce(
+    (accumulator, { price, quantity }) => {
+      return accumulator + parseInt(quantity) * parseFloat(price);
+    },
+    0
+  );
+
   const serviceDiscount = data.discount || 0;
   const serviceTaxable = checkZero(data?.serviceSubTotal, serviceTotal || 0 - parseFloat(serviceDiscount));
   const { baseAmount, finalAmount, gstAmount } = calculateGst(serviceTaxable, data?.appointmentDate)
@@ -73,8 +80,15 @@ const AppointmentBills = () => {
   // date/localStorage GST rules would print a figure the customer was never
   // charged, so use the stored amount and let GST absorb the sub-rupee
   // flooring - exactly what the WhatsApp invoice does.
-  const appServiceTotal = formatValue(Number(data?.total || 0));
-  const appServiceSubTotal = formatValue(Math.min(serviceTotal, appServiceTotal));
+  // Products are backed out first so their value cannot land in the service GST
+  // line, where it would also be double counted against productGst below. The
+  // app cannot sell products, so this is normally a no-op.
+  const appServiceTotal = formatValue(Number(data?.total || 0) - productTotalPrice);
+  // The taxable value is the list price less the in-app membership discount,
+  // which is what GST was actually charged on. Without the discount the taxable
+  // base equals the total and the GST line prints 0. A non-member's discount is
+  // 0, so this is unchanged for them.
+  const appServiceSubTotal = formatValue(Math.min(serviceTotal - serviceDiscount, appServiceTotal));
   const appServiceGst = formatValue(appServiceTotal - appServiceSubTotal);
 
   let serviceSubTotal = isAppBooking
@@ -86,14 +100,6 @@ const AppointmentBills = () => {
   const serviceFinalAmount = isAppBooking
     ? appServiceTotal
     : checkZero(data?.serviceTotal, finalAmount || 0);
-
-  // const productSubtotalAmount=data.products;
-  const productTotalPrice = data.products.reduce(
-    (accumulator, { price, quantity }) => {
-      return accumulator + parseInt(quantity) * parseFloat(price);
-    },
-    0
-  );
 
   const productSubTotal = data?.productSubTotal ? data?.productSubTotal : formatValue(productTotalPrice / 1.18);
   const productGstTotal = data?.productGst ? data?.productGst : formatValue((productSubTotal * 0.18));
