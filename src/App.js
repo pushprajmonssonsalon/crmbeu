@@ -45,6 +45,9 @@ import {
   recordRoyaltyReminderShown,
 } from "./utils/royaltyReminder";
 import axios from "axios";
+import DistributerRoute from "./components/privateRoute/DistributerRoute";
+import DistributerInventory from "./pages/distributer/DistributerInventory";
+import { isDistributer } from "./utils/auth";
 
 const LOCAL_BASE_URL = process.env.REACT_APP_BASE_URI;
 
@@ -56,6 +59,8 @@ const ReminderTriggers = () => {
     const fetchRoyaltyStatus = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
+      // Royalty is a salon concept; distributers have no such endpoint.
+      if (isDistributer()) return;
 
       try {
         const instance = axios.create({
@@ -172,6 +177,11 @@ function App() {
       <Toaster />
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/distributer/inventory"
+          element={<DistributerRoute Component={DistributerInventory} />}
+        />
 
         <Route
           path="/"

@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Layout from '../Layout';
+import { isDistributer, homePathFor } from '../../utils/auth';
 
 const PrivateRoute = (props) => {
   let { Component } = props;
@@ -10,6 +11,10 @@ const PrivateRoute = (props) => {
 
   if (!token) {
     return <Navigate to={"/login"} />;
+  }
+  // Distributers only ever see their own section.
+  if (isDistributer()) {
+    return <Navigate to={homePathFor()} />;
   }
   // If royalty is overdue, block access to all pages except the royalties check page
   if (royaltyOverdue && location.pathname !== "/royalties-check") {

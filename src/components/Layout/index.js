@@ -35,6 +35,7 @@ const routesObject = {
   sop: "SOP",
   notifications: "Notifications",
   plans:"Plans",
+  distributer: "Inventory",
   "notifications/:id": "Notification Details"
 };
 const Layout = ({ children }) => {

@@ -11,6 +11,12 @@ import { RiLockPasswordFill } from "react-icons/ri";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { postApiData } from "../../utils/services";
 import { setRoyaltyStatus } from "../../redux/reducers";
+import {
+  setSalonSession,
+  setDistributerSession,
+  SALON,
+  DISTRIBUTER,
+} from "../../utils/auth";
 
 const Login = () => {
   const messages = [
@@ -23,6 +29,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
+  const [loginAs, setLoginAs] = useState(SALON);
   //   const setAuthToken = token => {
   //     if (token) {
   //         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -34,15 +41,48 @@ const Login = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+  // Distributers authenticate against a different endpoint and land in their
+  // own section; the salon branch below is unchanged.
+  const handleDistributerLogin = () => {
+    const data = {
+      mobile: mobileNumber,
+      password: password,
+    };
+    postApiData(
+      "distributer/login",
+      data,
+      (resp) => {
+        if (!resp?.token) {
+          toast.error("please provide valid details");
+          return;
+        }
+        setDistributerSession(resp?.token, resp?.role);
+        // A distributer has no royalty; clear any persisted salon flag so the
+        // overdue guard can't bounce them.
+        dispatch(
+          setRoyaltyStatus({ royaltyDue: false, royaltyOverdue: false })
+        );
+        toast.success("You have logined sucessfully");
+        navigate("/distributer/inventory");
+      },
+      () => {
+        toast.error("please provide valid details");
+      }
+    );
+  };
+
   const handleLogin = (e) => {
     e.preventDefault()
+    if (loginAs === DISTRIBUTER) {
+      handleDistributerLogin();
+      return;
+    }
     const data = {
       userName: mobileNumber,
       password: password,
     };
     postApiData("parlor/login", data, (resp) => {
-      localStorage.setItem("token", resp?.token);
-      localStorage.setItem("gstApplied", resp?.gstApplied);
+      setSalonSession(resp?.token, resp?.gstApplied);
       dispatch(
         setRoyaltyStatus({
           royaltyDue: Boolean(resp?.royaltyDue),
@@ -120,6 +160,25 @@ const Login = () => {
       <div className="w-full md:w-[55%] flex items-center justify-center flex-1">
         <div className="h-auto md:h-[80%] w-full max-w-[400px] px-6 py-8 md:py-0 md:w-[60%] flex items-center justify-center flex-col">
           <h2 className="text-[1.8rem] font-bold mb-5">Login</h2>
+          <div className="w-full mb-5 grid grid-cols-2 gap-1 p-1 bg-gray-100 rounded-[25px]">
+            {[
+              { key: SALON, label: "Salon" },
+              { key: DISTRIBUTER, label: "Distributer" },
+            ].map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => setLoginAs(option.key)}
+                className={`h-[42px] rounded-[25px] text-sm font-medium transition-colors ${
+                  loginAs === option.key
+                    ? "bg-black text-white"
+                    : "bg-transparent text-gray-500"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
           <form className="w-full" onSubmit={handleLogin}>
             <div className="relative w-full  flex items-center justify-center">
               <MdPhone className="absolute left-3 text-xl text-gray-400" />

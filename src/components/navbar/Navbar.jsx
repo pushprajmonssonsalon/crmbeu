@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import "./Navbar.css";
 import { useState } from "react";
-import { getApiCall } from "../../utils/services";
+import { getApiCall, postApiData } from "../../utils/services";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
@@ -9,6 +9,7 @@ import ChangePassword from "../modals/ChangePassword";
 import { FaAngleDown } from "react-icons/fa";
 import { HiMenuAlt3 } from "react-icons/hi";
 import profile from "../../images/profile.svg";
+import { isDistributer, clearSession } from "../../utils/auth";
 const Navbar = () => {
   const [admin, setAdmin] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -16,6 +17,7 @@ const Navbar = () => {
   const [parlorDetails, setParlorDetails] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const distributer = isDistributer();
   const { open } = useSelector((state) => state.SidebarReducer);
   const modalRef = useRef(null);
   const adminPress = () => {
@@ -35,6 +37,24 @@ const Navbar = () => {
     };
   }, []);
   useEffect(() => {
+    if (distributer) {
+      const cached = localStorage.getItem("distributer_name");
+      if (cached && cached !== "undefined" && cached !== "null") {
+        setParlorDetails(cached);
+        return;
+      }
+      postApiData(
+        "distributer/getDistrubterDetails",
+        {},
+        (resp) => {
+          const label = resp?.trade || resp?.name || "";
+          setParlorDetails(label);
+          localStorage.setItem("distributer_name", label);
+        },
+        () => {}
+      );
+      return;
+    }
     let name = localStorage.getItem("salon_address");
 
     getApiCall(
@@ -66,8 +86,7 @@ const Navbar = () => {
   }, []);
  
   const signoutPress = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("salon_address");
+    clearSession();
     toast.success("Logout Successful");
     navigate("/login");
   };
@@ -95,7 +114,7 @@ const Navbar = () => {
             <li className="flex items-center gap-3 md:gap-0 ">
 
             
-            <li
+            {!distributer && <li
               onClick={() => navigate("/notifications")}
               className="mx-2 md:mx-6 relative h-fit text-slate-100 cursor-pointer "
             >
@@ -114,14 +133,14 @@ const Navbar = () => {
                   {unReadMsg > 9 ? "9+" : unReadMsg || 0}
                 </p>
               </div>}
-            </li>
+            </li>}
             <li className="mx-2 md:mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer">
               <button onClick={adminPress}
                 className=" bg-white hover:bg-secondaryGray py-1 px-2 md:py-2 md:px-4 rounded-[16px] text-ternary flex justify-center gap-2 md:gap-4 items-center">
                 <div className="flex items-center justify-center gap-2 ">
                 <img src={profile} alt="" className="h-[32px] w-[32px] shrink-0" />
 
-                  <span className="hidden sm:inline">Admin</span>
+                  <span className="hidden sm:inline">{distributer ? "Distributer" : "Admin"}</span>
                 </div>
                 <div>
                   <FaAngleDown />
@@ -142,13 +161,13 @@ const Navbar = () => {
           >
             <div       // Prevent closing when clicking inside
               className="bg-white text-start rounded-[16px] border shadow flex flex-col cursor-pointer p-3 ">
-              <span className="cursor-pointer hover:bg-gray-50 p-2 text-black font-medium" onClick={() => {
+              {!distributer && <span className="cursor-pointer hover:bg-gray-50 p-2 text-black font-medium" onClick={() => {
                 setAdmin(false)
                 navigate("/salon-details")
               }}>
                 Manage Profile
-              </span>
-              <span
+              </span>}
+              {!distributer && <span
                 onClick={() => {
                   setShowModal(true)
                   setAdmin(false)
@@ -156,7 +175,7 @@ const Navbar = () => {
                 className="cursor-pointer hover:bg-gray-50 border-b  p-2 text-black font-medium"
               >
                 Change Password
-              </span>
+              </span>}
               <span
                 className=" cursor-pointer hover:bg-gray-50  p-2"
                 onClick={signoutPress}

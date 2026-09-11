@@ -4,7 +4,15 @@ import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from "../../utils/services";
 import NormalInput from "../customInput/NormalInput";
 
-const InventoryModel = ({ data, isVisible, onClose }) => {
+// `endpoint` / `onAdded` default to the salon behaviour so existing callers are
+// unaffected; the distributer page passes its own endpoint.
+const InventoryModel = ({
+  data,
+  isVisible,
+  onClose,
+  endpoint = "inventory/addProductToSalons",
+  onAdded,
+}) => {
 
   const [productDetails, setProductDetails] = useState({
 
@@ -23,16 +31,17 @@ const InventoryModel = ({ data, isVisible, onClose }) => {
       price: productDetails.price,
     };
     postApiData(
-      "inventory/addProductToSalons",
+      endpoint,
       payload,
       (resp) => {
 
         // alert("product Added Succesfully")
         toast.success("Product Added Successfully!!");
+        if (onAdded) onAdded();
       },
       (error) => {
         // 
-        toast.error(error.response.data.message);
+        toast.error(error?.response?.data?.message || "Something went wrong!!");
       }
     );
     onClose();

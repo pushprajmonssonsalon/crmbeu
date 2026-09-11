@@ -4,7 +4,6 @@ import { store } from "../redux/store";
 const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
-console.log(BASE_URL)
 // const authToken = token;
 // const token = authToken.authReducer.userData
 

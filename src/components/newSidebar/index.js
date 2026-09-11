@@ -11,6 +11,7 @@ import { IoFileTrayFullOutline, IoSettingsOutline } from "react-icons/io5";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { FiLayers } from "react-icons/fi";
+import { isDistributer } from "../../utils/auth";
 
 // Matches Tailwind's `md` breakpoint. Below this the sidebar behaves as an
 // off-canvas drawer; at or above it, it is a docked rail that collapses.
@@ -27,7 +28,16 @@ const VerticalSidebar = () => {
     setOpenMenu(openMenu === menuNum ? null : menuNum);
   };
   const { pathname } = location;
-  const menus = [
+  // Distributers get the order/inventory section only.
+  const distributerMenus = [
+    {
+      name: "Inventory",
+      link: `/distributer/inventory`,
+      icon: MdOutlineInventory2,
+      num: 1,
+    },
+  ];
+  const salonMenus = [
     { name: "Appointment", link: `/`, icon: GoHome, num: 1 },
     { name: "Dashboard", link: `/dashboard`, icon: MdOutlineFireHydrantAlt, num: 2 },
 
@@ -54,6 +64,7 @@ const VerticalSidebar = () => {
     { name: "Royalties Check", link: `/royalties-check`, icon: FaRegStar, num: 13 },
 
   ];
+  const menus = isDistributer() ? distributerMenus : salonMenus;
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("/")
 
