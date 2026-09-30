@@ -1,18 +1,17 @@
 import Modal from "../modal/Modal";
 
-const ConfirmationModal = ({ show, setShow, data, text, onConfirm }) => {
+const ConfirmationModal = ({ show, setShow, data, text, onConfirm, loading = false }) => {
   return (
     <>
       {" "}
       <Modal show={show} setShow={setShow}>
-        <ChildComponent data={data} text={text} onConfirm={onConfirm} />
+        <ChildComponent data={data} text={text} onConfirm={onConfirm} loading={loading} />
       </Modal>
     </>
   );
 };
 
-const ChildComponent = ({ closeModal, data, modalRef, text, onConfirm }) => {
-
+const ChildComponent = ({ closeModal, data, modalRef, text, onConfirm, loading = false }) => {
   return (
     <div className="relative mx-auto p-4 w-full max-w-full sm:w-fit sm:min-w-[300px] md:min-w-[450px] xl:min-w-[700px] h-full my-[5%] max-h-full">
       {/* Modal content */}
@@ -90,7 +89,13 @@ const ChildComponent = ({ closeModal, data, modalRef, text, onConfirm }) => {
             </div>}
           <div className="flex gap-3 justify-end items-end pt-2 px-3">
             <button className={`bg-red-600 w-[90px] hover:bg-red-500 text-white rounded-md font-bold p-3   `} onClick={closeModal} >Cancel</button>
-            <button className={`bg-green-600 w-[90px] hover:bg-green-500 text-white rounded-md font-bold p-3   `} onClick={onConfirm} >Confirm</button>
+            <button
+              className={`bg-green-600 w-[90px] hover:bg-green-500 text-white rounded-md font-bold p-3 disabled:opacity-60 disabled:cursor-not-allowed`}
+              onClick={onConfirm}
+              disabled={loading}
+            >
+              {loading ? "Placing..." : "Confirm"}
+            </button>
 
           </div>
         </div>

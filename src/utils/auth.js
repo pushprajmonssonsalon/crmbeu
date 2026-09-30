@@ -45,3 +45,26 @@ export const setDistributerSession = (token, role) => {
 // Landing page for whichever kind of user is logged in.
 export const homePathFor = (userType = getUserType()) =>
   userType === DISTRIBUTER ? "/distributer/inventory" : "/";
+
+// ---- Salon roles ----
+// The salon JWT carries the role of whoever logged in: the salon owner, or a
+// manager the owner created in Staff Contacts. Tokens issued before the role
+// was added to them have none, and only owners could log in back then, so
+// those count as owner. This only decides what the CRM shows; the backend
+// re-checks the role from the database on owner-only routes.
+export const OWNER = "owner";
+export const MANAGER = "manager";
+
+export const getSalonRole = () => {
+  const token = localStorage.getItem("token");
+  if (!token || isDistributer()) return null;
+  try {
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(payload))?.role || OWNER;
+  } catch {
+    return null;
+  }
+};
+
+export const isSalonOwner = () => getSalonRole() === OWNER;
+export const isSalonManager = () => getSalonRole() === MANAGER;

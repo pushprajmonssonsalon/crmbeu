@@ -80,6 +80,9 @@ const Login = () => {
     const data = {
       userName: mobileNumber,
       password: password,
+      // Tells the backend this is the CRM: managers may log in here but not
+      // in the owner app, which shares this endpoint.
+      client: "crm",
     };
     postApiData("parlor/login", data, (resp) => {
       setSalonSession(resp?.token, resp?.gstApplied);
@@ -104,8 +107,13 @@ const Login = () => {
       // setAuthorizationToken(resp.data.data)
 
       navigate("/");
-    }, () => {
-        toast.error("please provide valid details")
+    }, (error) => {
+        // 403 = right credentials but not allowed in (e.g. an inactive manager).
+        toast.error(
+          error?.response?.status === 403
+            ? error?.response?.data?.message || "You can't log in to the CRM"
+            : "please provide valid details"
+        )
 
     })
     // axios

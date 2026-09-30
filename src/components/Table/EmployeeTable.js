@@ -1,16 +1,69 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import SwitchExample from '../switch';
-import { MdOutlineModeEdit, MdDeleteOutline } from "react-icons/md";
-import { formatDateForInput, formatDateToFull, postApiData } from '../../utils/services';
+import { MdOutlineModeEdit, MdDeleteOutline, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { formatDateForInput, formatDateToFull, getApiCall, postApiData } from '../../utils/services';
 import toast from 'react-hot-toast';
 import EditCustomerModal from '../modals/EditCustomerModal';
 import ConfirmationModal from '../modals/ConfirmationModal';
+import { isSalonOwner } from '../../utils/auth';
+import { formatShift, parseShift } from '../../utils/shift';
+
+// Owner-only: a staff member's login password, hidden until revealed.
+// The button sets its own padding/colour because pages/login/login.css styles
+// every <button> (white text, 10px padding).
+const PasswordCell = ({ password, status }) => {
+  const [visible, setVisible] = useState(false);
+  if (status === "loading") return <span className="text-gray-400">…</span>;
+  // A failed load must not read as "no password".
+  if (status === "error") {
+    return <span className="text-gray-400" title="Couldn't load login passwords">Unavailable</span>;
+  }
+  if (!password) return <span className="text-gray-400">Not set</span>;
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span className={visible ? "font-mono text-gray-800" : "tracking-widest text-gray-800"}>
+        {visible ? password : "••••••"}
+      </span>
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        className="shrink-0 grid h-8 w-8 place-items-center rounded-full bg-transparent p-0 text-gray-500 hover:bg-gray-100 hover:text-ternary"
+      >
+        {visible ? <MdVisibilityOff size={18} /> : <MdVisibility size={18} />}
+      </button>
+    </span>
+  );
+};
 
 const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [show, setShow] = useState(false);
   const [editItem, setEditItem] = useState({});
+  // Staff Contacts is read-only for everyone but the salon owner: only the
+  // owner switches staff on/off, edits or deletes them (and sees salaries and
+  // passwords).
+  const isOwner = isSalonOwner();
+  // staffId -> login password. Only the owner can load these; the staff list
+  // itself never carries passwords because managers load it too.
+  const [logins, setLogins] = useState({ status: "loading", byId: {} });
+
+  useEffect(() => {
+    if (!isOwner) return;
+    getApiCall(
+      "owner/getStaffLogins",
+      // Anything but a list (e.g. a backend without this route answering with
+      // its web page) is a failure, not "nobody has a password".
+      (res) =>
+        setLogins(
+          Array.isArray(res)
+            ? { status: "ok", byId: Object.fromEntries(res.map((s) => [s._id, s.password])) }
+            : { status: "error", byId: {} }
+        ),
+      () => setLogins({ status: "error", byId: {} })
+    );
+  }, [isOwner, data]);
 
   const handleClose = () => {
     setIsEdit(false);
@@ -21,8 +74,11 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
     { name: "NAME", value: "name" },
     { name: "MOBILE NO.", value: "phoneNumber" },
     { name: "DESIGNATION", value: "role" },
-    { name: "SALARY", value: "salary" },
+    { name: "SHIFT", value: "shiftTiming" },
+    // Salaries are the owner's business; managers don't see them.
+    ...(isOwner ? [{ name: "SALARY", value: "salary" }] : []),
     { name: "JOINING DATE", value: "joinAt" },
+    ...(isOwner ? [{ name: "LOGIN PASSWORD", value: "password" }] : []),
   ];
 
   const toEditItem = (item) => ({
@@ -33,6 +89,12 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
     role: item.role,
     salary: item.salary,
     joinAt: item.joinAt,
+    password: "",
+    // Edited as two time pickers; compared on save so an untouched (or
+    // unreadable, older free-text) shift is left as it is.
+    shiftStart: parseShift(item.shiftTiming).start,
+    shiftEnd: parseShift(item.shiftTiming).end,
+    shiftOriginal: parseShift(item.shiftTiming),
   });
 
   const handleEditClick = (item) => {
@@ -56,9 +118,24 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
   ];
 
   const handleSubmit = () => {
+    const { password, shiftStart, shiftEnd, shiftOriginal, ...rest } = editItem;
+    if (Boolean(shiftStart) !== Boolean(shiftEnd)) {
+      toast.error("Set both the shift start and end, or clear both");
+      return;
+    }
+    if (shiftStart && shiftStart === shiftEnd) {
+      toast.error("Shift start and end can't be the same");
+      return;
+    }
+    const shiftChanged = shiftStart !== shiftOriginal?.start || shiftEnd !== shiftOriginal?.end;
     postApiData(
       "owner/editStaff",
-      editItem,
+      {
+        ...rest,
+        ...(password && { password }),
+        // "" clears the shift on the backend.
+        ...(shiftChanged && { shiftTiming: formatShift(shiftStart, shiftEnd) }),
+      },
       (res) => {
         toast.success("Updated Successfully");
         setData((prev) =>
@@ -67,8 +144,8 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
         setEditItem({});
         setIsEdit(false);
       },
-      () => {
-        toast.error("Something went wrong");
+      (error) => {
+        toast.error(error?.response?.data?.message || "Something went wrong");
       }
     );
   };
@@ -82,8 +159,8 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
         setData((prev) => prev.filter((elm) => elm._id !== editItem?.id));
         setShow(false);
       },
-      () => {
-        toast.error("Something went wrong");
+      (error) => {
+        toast.error(error?.response?.data?.message || "Something went wrong");
       }
     );
   };
@@ -94,7 +171,6 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
       placeholder: "Enter your name",
       type: "text",
       name: "name",
-      readOnly: true,
       value: editItem.name,
     },
     {
@@ -102,7 +178,6 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
       type: "select",
       name: "role",
       options: staffOptions,
-      readOnly: true,
       value: editItem.role,
     },
     {
@@ -119,12 +194,33 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
       value: formatDateForInput(editItem.joinAt),
       name: "joinAt",
     },
+    {
+      label: "Shift Start",
+      type: "time",
+      value: editItem.shiftStart,
+      name: "shiftStart",
+    },
+    {
+      label: "Shift End",
+      type: "time",
+      value: editItem.shiftEnd,
+      name: "shiftEnd",
+    },
+    // Managers log in to the CRM and staff to the owner app, both with their
+    // mobile number and this password.
+    {
+      label: "Login Password",
+      placeholder: logins.byId[editItem.id] ? "Leave blank to keep current" : "At least 6 characters",
+      type: "password",
+      value: editItem.password,
+      name: "password",
+    },
   ];
 
   const rows = data.slice(startIndex, endIndex);
 
-  // Icons get an explicit pixel size so they never inherit a tiny font-size
-  // from the table cell, and the buttons have a fixed 40px touch target.
+  // Owner only. Icons get an explicit pixel size so they never inherit a tiny
+  // font-size from the table cell, and the buttons have a fixed 40px touch target.
   const RowActions = ({ item }) => (
     <div className="flex flex-nowrap items-center gap-1 sm:gap-2">
       <SwitchExample
@@ -157,6 +253,9 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
   );
 
   const cellValue = (item, col) => {
+    if (col.value === "password") {
+      return item.role === "owner" ? "" : <PasswordCell password={logins.byId[item._id]} status={logins.status} />;
+    }
     const val = item[col.value];
     if (!val) return "";
     return col.value === "joinAt" ? formatDateToFull(val, false) : val;
@@ -176,7 +275,7 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
                 <p className="truncate font-semibold text-gray-900">{item.name}</p>
                 <p className="mt-0.5 text-sm text-gray-500">{item.phoneNumber}</p>
               </div>
-              <RowActions item={item} />
+              {isOwner && <RowActions item={item} />}
             </div>
 
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-gray-100 pt-3 text-sm">
@@ -199,7 +298,7 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
 
       <div className="hidden w-full overflow-x-auto md:block">
         <table
-          className="styled-table w-full min-w-[720px]"
+          className={`styled-table w-full ${isOwner ? "min-w-[960px]" : "min-w-[720px]"}`}
           style={{ borderCollapse: "separate", borderSpacing: 0 }}
         >
           <thead>
@@ -210,9 +309,11 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
                   {elm.name}
                 </th>
               ))}
-              <th className="sticky right-0 z-5 whitespace-nowrap bg-white text-left">
-                ACTION
-              </th>
+              {isOwner && (
+                <th className="sticky right-0 z-5 whitespace-nowrap bg-white text-left">
+                  ACTION
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -225,9 +326,11 @@ const EmployeeTable = ({ data, setData, startIndex, endIndex, isBool, setIsBool 
                   </td>
                 ))}
 
-                <td className="sticky right-0 z-5 bg-white">
-                  <RowActions item={item} />
-                </td>
+                {isOwner && (
+                  <td className="sticky right-0 z-5 bg-white">
+                    <RowActions item={item} />
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

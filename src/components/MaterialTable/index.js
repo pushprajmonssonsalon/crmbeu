@@ -1,13 +1,20 @@
 import { IoPrintSharp } from 'react-icons/io5';
+import { MdDeleteOutline, MdOutlineReceiptLong } from 'react-icons/md';
 import { formatDateToFull } from '../../utils/services';
 
+// Same sizing as the appointment table's action buttons (stickytable.js).
+const iconClass = "h-[18px] w-[18px] sm:h-5 sm:w-5";
+const actionBtnClass =
+  "shrink-0 grid place-items-center h-9 w-9 rounded-full bg-transparent p-0 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-95";
 
 
 
 
 
 
-export default function CustomizedTables({ headings, data, handlePrint }) {
+
+// onEditBill / onDeleteBill are passed only for the salon owner (Membership page).
+export default function CustomizedTables({ headings, data, handlePrint, onEditBill, onDeleteBill }) {
 
   return (
 
@@ -40,8 +47,19 @@ export default function CustomizedTables({ headings, data, handlePrint }) {
               <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{formatDateToFull(item?.createdAt, false)}</td>
               <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>{formatDateToFull(item?.expiryDate, false) || item?.expiry}</td>
               <td className='border-0 border-b bg-white border-lightGray font-normal text-ternaryGray text-sm'>
+              <div className="flex flex-nowrap items-center gap-1">
+              {onEditBill && (
+                <button type="button" className={actionBtnClass + " text-secondaryGreen hover:bg-gray-100"} onClick={() => onEditBill(item)} aria-label="Edit bill" title="Edit bill">
+                  <MdOutlineReceiptLong className={iconClass} />
+                </button>
+              )}
               <IoPrintSharp className={`text-green-600 text-xl cursor-pointer hover:text-green-950`} onClick={() => handlePrint(item)} />
-
+              {onDeleteBill && (
+                <button type="button" className={actionBtnClass + " text-red-600 hover:bg-red-50"} onClick={() => onDeleteBill(item)} aria-label="Delete bill" title="Delete bill">
+                  <MdDeleteOutline className={iconClass} />
+                </button>
+              )}
+              </div>
               </td>
             </tr>
           ))}

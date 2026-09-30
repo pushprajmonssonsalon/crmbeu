@@ -17,6 +17,7 @@ const DistributerOrderPopup = ({
 }) => {
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [cartData, setCartData] = useState([]);
 
   const brands = useMemo(() => {
@@ -69,6 +70,10 @@ const DistributerOrderPopup = ({
   };
 
   const placeOrder = () => {
+    // Guard against a double click on Confirm — the API call is the only thing
+    // that should be able to re-enable the button.
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     const payload = {
       products: cartData.map((elm) => ({
         ...elm,
@@ -79,6 +84,7 @@ const DistributerOrderPopup = ({
       "distributerPo/createPurchaseOrder",
       payload,
       () => {
+        setIsSubmitting(false);
         toast.success("Purchase order placed successfully");
         if (clearCart) clearCart();
         setShowConfirmModal(false);
@@ -86,6 +92,7 @@ const DistributerOrderPopup = ({
         navigate("/distributer/inventory?tab=2");
       },
       (error) => {
+        setIsSubmitting(false);
         toast.error(
           error?.response?.data?.message || "Something went wrong!"
         );
@@ -186,10 +193,11 @@ const DistributerOrderPopup = ({
                       Cancel
                     </button>
                     <button
-                      className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
+                      className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px] disabled:opacity-60 disabled:cursor-not-allowed"
                       onClick={handleSubmitOrder}
+                      disabled={isSubmitting}
                     >
-                      Submit
+                      {isSubmitting ? "Placing..." : "Submit"}
                     </button>
                   </div>
                   <div className="flex gap-1">
@@ -217,6 +225,7 @@ const DistributerOrderPopup = ({
         data={cart}
         setShow={setShowConfirmModal}
         onConfirm={placeOrder}
+        loading={isSubmitting}
       />
     </>
   );

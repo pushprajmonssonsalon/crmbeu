@@ -7,22 +7,16 @@ import Pagination from "../../components/pagination";
 import NormalInput from "../../components/customInput/NormalInput";
 import NormalSelect from "../../components/customInput/NormalSelect";
 import toast from "react-hot-toast";
+import { isSalonOwner } from "../../utils/auth";
+import { formatShift } from "../../utils/shift";
 
-const titles = [
-  { name: ' Admin', value: 'Admin' },
-  { name: ' Art Director', value: 'Art Director' },
-  { name: 'Artist', value: 'Artist' },
-  { name: '    Assistant', value: 'Assistant' },
-  { name: ' Assistant Manager', value: ' Assistant Manager' },
-  { name: '  Barber', value: 'Barber' },
-  { name: '   Beautician', value: 'Beautician' },
-  { name: '    Beauty Expert', value: 'Beauty Expert' },
-  { name: '   Beauty Therapist', value: 'Beauty Therapist' },
-  { name: 'Hair Artist', value: 'Hair Artist' },
-  { name: '  Hair Dresser', value: 'Hair Dresser' },
-  { name: ' Hair Expert', value: 'Hair Expert' },
-  { name: '    Hair Stylist', value: 'Hair Stylist' }
-]
+
+const roleOptions = [
+  { name: "Staff", value: "staff" },
+  { name: "Manager", value: "manager" },
+];
+const MIN_PASSWORD_LENGTH = 6;
+
 const Employeedetails = () => {
   const [ismodalOpen, setismodalOpen] = useState(false);
 
@@ -34,12 +28,16 @@ const Employeedetails = () => {
   const [dob, setDob] = useState("");
   // const [startDate, setStartDate] = useState("");
   const [joinAt, setJoinAt] = useState("");
+  // Saved as one string, e.g. "9AM to 5PM" (see utils/shift.js).
+  const [shiftStart, setShiftStart] = useState("");
+  const [shiftEnd, setShiftEnd] = useState("");
   // const [endDate, setEndDate] = useState("");
-  const [title, setTitle] = useState("");
   const [emergencyNumber, setEmergencyNumber] = useState("");
+  const [role, setRole] = useState("staff");
+  const [password, setPassword] = useState("");
+  const isOwner = isSalonOwner();
   const [getstaffData, setStaffData] = useState([]);
   const [staffstatus, setStaffStaus] = useState(false)
-  // const [checked, setChecked] = useState(isActive === "active");
   const [isBool, setIsBool] = useState(false)
 
 
@@ -52,8 +50,7 @@ const Employeedetails = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  // const [name,setName]=useState(' ')
-  // const [gender, setGender] = useState('');
+
   useEffect(() => {
     getApiCall(
       "owner/getStaff",
@@ -85,37 +82,56 @@ const Employeedetails = () => {
       // endDate: endDate,
       joinAt: joinAt,
       // endDate: endDate,
-      staff: title,
       emergencyNumber: emergencyNumber,
     };
-    const isEveryEmpty = Object.values(staffData).every((value) => value === ""||!value|| value.toString().trim() === "");
-     if(isEveryEmpty){
+    const isEveryEmpty = Object.values(staffData).every((value) => value === "" || !value || value.toString().trim() === "");
+    if (isEveryEmpty) {
       toast.error("Please fill all the fields");
       return;
-     }
-     if(mobileNumber.length!==10){
+    }
+    if (mobileNumber.length !== 10) {
       toast.error("Please enter a valid phone number");
       return;
-     }
+    }
+    const isManager = role === "manager";
+    const sendPassword = password !== "";
+    if ((isManager || sendPassword) && password.length < MIN_PASSWORD_LENGTH) {
+      toast.error(`Login password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+      return;
+    }
+    if (Boolean(shiftStart) !== Boolean(shiftEnd)) {
+      toast.error("Set both the shift start and end, or leave both empty");
+      return;
+    }
+    if (shiftStart && shiftStart === shiftEnd) {
+      toast.error("Shift start and end can't be the same");
+      return;
+    }
+    const shiftTiming = formatShift(shiftStart, shiftEnd);
     postApiData(
       "/owner/addStaff",
-      staffData,
+      {
+        ...staffData,
+        role: isManager ? "manager" : "staff",
+        ...(sendPassword && { password }),
+        ...(shiftTiming && { shiftTiming }),
+      },
       (resp) => {
 
         if (resp) {
-          setStaffStaus(true)
-          toast.success("Staff added successfully");
-
+          setStaffStaus((prev) => !prev)
+          toast.success(isManager ? "Manager added successfully" : "Staff added successfully");
+          resetForm();
         }
       },
       (error) => {
-        // 
+        // Keep the form open so the details can be fixed and resent.
+        toast.error(error?.response?.data?.message || "Could not add staff");
       }
     );
-    // 
+  };
 
-    // setsubmittedData((prevData) => [...prevData, formData]);
-
+  const resetForm = () => {
     // Reset the state variables to clear the form fields
     setName("");
     setMobileNumber("");
@@ -124,16 +140,19 @@ const Employeedetails = () => {
     setGender("");
     setDob("");
     setJoinAt("")
+    setShiftStart("");
+    setShiftEnd("");
     // setStartDate("");
     // setEndDate("");
-    setTitle("");
     setEmergencyNumber("");
+    setRole("staff");
+    setPassword("");
     closeModal();
   };
   // const handleGenderChange = (e) => {
   //     setGender(e.target.value);
   // };
-  
+
 
   const formFields = [
     {
@@ -192,6 +211,20 @@ const Employeedetails = () => {
       onChange: (e) => setJoinAt(e.target.value),
       id: "joinAt",
     },
+    {
+      label: "Shift Start",
+      type: "time",
+      value: shiftStart,
+      onChange: (e) => setShiftStart(e.target.value),
+      id: "shiftStart",
+    },
+    {
+      label: "Shift End",
+      type: "time",
+      value: shiftEnd,
+      onChange: (e) => setShiftEnd(e.target.value),
+      id: "shiftEnd",
+    },
     // {
     //   label: "End Date",
     //   placeholder: "Enter end date",
@@ -202,20 +235,30 @@ const Employeedetails = () => {
     // },
 
     {
-      label: "Title",
-      type: "select",
-      value: title,
-      onChange: (e) => setTitle(e.target.value),
-      id: "title",
-      options: titles, // this is your dynamic list
-    },
-    {
       label: "Emergency Number",
       placeholder: "Enter your emergency number",
       type: "text",
       value: emergencyNumber,
       onChange: (e) => setEmergencyNumber(e.target.value),
       id: "emergencyNumber",
+    },
+    {
+      label: "Role",
+      type: "select",
+      value: role,
+      onChange: (e) => setRole(e.target.value || "staff"),
+      id: "role",
+      options: roleOptions,
+    },
+    {
+      label: "Login Password",
+      placeholder: role === "manager"
+        ? `At least ${MIN_PASSWORD_LENGTH} characters`
+        : `Optional, at least ${MIN_PASSWORD_LENGTH} characters`,
+      type: "password",
+      value: password,
+      onChange: (e) => setPassword(e.target.value),
+      id: "password",
     },
   ];
   return (
@@ -228,7 +271,10 @@ const Employeedetails = () => {
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Staff Contacts</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{getstaffData?.length || 0} Contacts</span>
           </div>
-          <button onClick={openModal} className="rounded-[16px] text-sm text-white bg-ternary py-1 px-5">Create New</button>
+          {/* Only the owner adds staff; managers get a read-only list. */}
+          {isOwner && (
+            <button onClick={openModal} className="rounded-[16px] text-sm text-white bg-ternary py-1 px-5">Create New</button>
+          )}
 
         </div>
 
@@ -327,9 +373,6 @@ const Employeedetails = () => {
                             "fontSize": "14px",
                             'color': '#000000'
                           }}
-
-
-
                         />}
                     </div>
 
@@ -338,6 +381,11 @@ const Employeedetails = () => {
               })
             }
           </div>
+          <p className="text-sm text-gray-500 mb-2">
+            {role === "manager"
+              ? "The manager logs in to the CRM with this mobile number and password. They see everything except royalty amounts."
+              : "With a password, this staff member can log in to the owner app with their mobile number."}
+          </p>
 
 
           <div className="flex items-center justify-end gap-4 mt-4">

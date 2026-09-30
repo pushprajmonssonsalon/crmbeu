@@ -12,6 +12,9 @@ import ViewPopup from "../../components/popup/ViewPopup";
 import exportToExcel from "../../utils/exportToExcel";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
+import EditBillModal from "../../components/modals/EditBillModal";
+import ConfirmDialog from "../../components/modals/ConfirmDialog";
+import { isSalonOwner } from "../../utils/auth";
 
 const ViewAppointment = () => {
   const [params] = useSearchParams();
@@ -35,6 +38,11 @@ const ViewAppointment = () => {
   //true and false
 
   const [isStatusChange, setIsStatusChange] = useState(false);
+  // Completed bill the owner is correcting (see EditBillModal).
+  const [billToEdit, setBillToEdit] = useState(null);
+  // Completed bill the owner is cancelling or reopening: { item, action }.
+  const [billToReverse, setBillToReverse] = useState(null);
+  const [reversing, setReversing] = useState(false);
 
   //date
   const defaultStartDate = formatDate(new Date());
@@ -119,8 +127,14 @@ const ViewAppointment = () => {
     setComment("");
   };
   const cancelPress = (item) => {
-    if (item.status === 3) {
-      toast.error("Appointment has completed , you can not cancel it! ");
+    if (item.status === 3 || item.status === 4) {
+      // Only the owner can cancel a completed bill, after confirming.
+      if (isSalonOwner()) {
+        setBillToReverse({ item, action: "cancel" });
+      } else {
+        toast.error("Appointment has completed , you can not cancel it! ");
+      }
+      return;
     }
     const data = {
       status: 2,
@@ -145,6 +159,35 @@ const ViewAppointment = () => {
       }
     );
   };
+  const reverseBill = () => {
+    if (!billToReverse || reversing) return;
+    const { item, action } = billToReverse;
+    setReversing(true);
+    postApiData(
+      "appointment/reverseCompletedAppointment",
+      { id: item._id, action },
+      (resp) => {
+        setReversing(false);
+        setBillToReverse(null);
+        setIsStatusChange((prev) => !prev);
+        if (resp?.failed?.length) {
+          toast.error(`Done, but these couldn't be reversed: ${resp.failed.join(", ")}`);
+        } else {
+          toast.success(action === "cancel" ? "Bill cancelled" : "Bill reopened as pending");
+        }
+      },
+      (error) => {
+        setReversing(false);
+        toast.error(error?.response?.data?.message || "Something went wrong");
+      }
+    );
+  };
+
+  const isCancelling = billToReverse?.action === "cancel";
+  const reverseWho = billToReverse
+    ? `${billToReverse.item?.customer?.name || "Customer"} · ₹${billToReverse.item?.total ?? 0}`
+    : "";
+
   const cancelAppPress = (item) => {
     if (item.status === 3) {
       toast.error("Appointment has completed , you cannot cancel it! ");
@@ -392,6 +435,8 @@ const ViewAppointment = () => {
                   apptId={apptId}
                   setAlreadyAddedProduct={setAlreadyAddedProduct}
                   loading={loadingStates}
+                  onEditBill={setBillToEdit}
+                  onReopenBill={(item) => setBillToReverse({ item, action: "reopen" })}
                 />
               ) : (
                 <div
@@ -455,6 +500,34 @@ const ViewAppointment = () => {
           onClose={() => setShowQuantityPopup(false)}
           id={apptId}
           alreadyAddedProduct={alreadyAddedProduct}
+        />
+        <EditBillModal
+          appointment={billToEdit}
+          onClose={() => setBillToEdit(null)}
+          onSaved={() => {
+            setBillToEdit(null);
+            setIsStatusChange((prev) => !prev);
+          }}
+        />
+        <ConfirmDialog
+          open={Boolean(billToReverse)}
+          title={isCancelling ? "Cancel this bill?" : "Reopen this bill?"}
+          message={
+            <>
+              <p className="font-medium text-gray-900">{reverseWho}</p>
+              <p className="mt-2">
+                {isCancelling
+                  ? "Stock, advance, cashback and membership credits go back to the customer and the salon. The bill stays on record as cancelled."
+                  : "It goes back to Pending so you can edit it and complete it again. Completing it again issues a new invoice number and sends the customer a fresh invoice."}
+              </p>
+            </>
+          }
+          confirmLabel={isCancelling ? "Cancel bill" : "Reopen bill"}
+          cancelLabel={isCancelling ? "Keep bill" : "Go back"}
+          tone={isCancelling ? "danger" : "primary"}
+          busy={reversing}
+          onConfirm={reverseBill}
+          onClose={() => setBillToReverse(null)}
         />
         {/* Conditionally render the printable version */}
         {printStatus && <InvoiceGenrator />}

@@ -6,7 +6,8 @@ import ViewServicesModal from "../modals/ViewServicesModal";
 import { useState } from "react";
 import ApplyMembership from "../modals/ApplyMembership";
 import { formatValue, getStatusColor } from "../../utils/services";
-import { MdOutlineEdit, MdOutlineLocalPrintshop, MdOutlinePayment } from "react-icons/md";
+import { MdOutlineEdit, MdOutlineLocalPrintshop, MdOutlineLockOpen, MdOutlinePayment, MdOutlineReceiptLong } from "react-icons/md";
+import { isSalonOwner } from "../../utils/auth";
 import GridRows from "../pagination/gridRows";
 import Pagination from "../pagination";
 // Action-column sizing copied from components/Table/MyService.js: explicit
@@ -62,7 +63,13 @@ export default function StickyHeadTable({
   apptId,
   setAlreadyAddedProduct,
   loading,
+  onEditBill,
+  onReopenBill,
 }) {
+  // Completed bills can be corrected or reopened by the salon owner only.
+  const isOwner = isSalonOwner();
+  const canEditBill = isOwner && Boolean(onEditBill);
+  const canReopenBill = isOwner && Boolean(onReopenBill);
   const [selectedRow, setSelectedRow] = useState({})
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -229,6 +236,28 @@ export default function StickyHeadTable({
                         >
                           <MdOutlineEdit className={iconClass} />
                         </Link>
+                      )}
+                      {canEditBill && (item.status === 3 || item.status === 4) && (
+                        <button
+                          type="button"
+                          className={actionBtnClass + " text-secondaryGreen"}
+                          onClick={() => onEditBill(item)}
+                          aria-label="Edit bill"
+                          title="Edit bill"
+                        >
+                          <MdOutlineReceiptLong className={iconClass} />
+                        </button>
+                      )}
+                      {canReopenBill && (item.status === 3 || item.status === 4) && (
+                        <button
+                          type="button"
+                          className={actionBtnClass + " text-ternary"}
+                          onClick={() => onReopenBill(item)}
+                          aria-label="Reopen bill"
+                          title="Reopen bill"
+                        >
+                          <MdOutlineLockOpen className={iconClass} />
+                        </button>
                       )}
                       <button
                         type="button"

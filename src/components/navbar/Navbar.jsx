@@ -9,7 +9,7 @@ import ChangePassword from "../modals/ChangePassword";
 import { FaAngleDown } from "react-icons/fa";
 import { HiMenuAlt3 } from "react-icons/hi";
 import profile from "../../images/profile.svg";
-import { isDistributer, clearSession } from "../../utils/auth";
+import { isDistributer, isSalonManager, clearSession } from "../../utils/auth";
 const Navbar = () => {
   const [admin, setAdmin] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -140,7 +140,8 @@ const Navbar = () => {
                 <div className="flex items-center justify-center gap-2 ">
                 <img src={profile} alt="" className="h-[32px] w-[32px] shrink-0" />
 
-                  <span className="hidden sm:inline">{distributer ? "Distributer" : "Admin"}</span>
+                  {/* "Admin" is the salon owner; a manager is labelled as such. */}
+                  <span className="hidden sm:inline">{distributer ? "Distributer" : isSalonManager() ? "Manager" : "Admin"}</span>
                 </div>
                 <div>
                   <FaAngleDown />
@@ -167,7 +168,8 @@ const Navbar = () => {
               }}>
                 Manage Profile
               </span>}
-              {!distributer && <span
+              {/* A manager's password is set by the owner in Staff Contacts. */}
+              {!distributer && !isSalonManager() && <span
                 onClick={() => {
                   setShowModal(true)
                   setAdmin(false)

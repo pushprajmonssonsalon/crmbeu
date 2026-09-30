@@ -7,6 +7,7 @@ import axios from "axios";
 import { loadRazorpay } from "../../utils/services";
 import { setRoyaltyStatus } from "../../redux/reducers";
 import { useSelector } from "react-redux";
+import { isSalonManager } from "../../utils/auth";
 
 const LOCAL_BASE_URL = process.env.REACT_APP_BASE_URI;
 
@@ -107,6 +108,8 @@ const RoyaltiesCheck = () => {
   const [totalAmountWithGST, setTotalAmountWithGST] = useState(0);
   const [monthlyAmount, setMonthlyAmount] = useState(0);
   const { dueDateRoyalty } = useSelector((state) => state.royaltyReducer || {});
+  // Managers see the royalty status and can pay, but not the amounts.
+  const showAmounts = !isSalonManager();
 
 
   const handlePay = async () => {
@@ -125,15 +128,23 @@ const RoyaltiesCheck = () => {
 
       const orderResponse = await createRoyaltyOrder();
       const orderData = orderResponse?.order;
+      // The backend sends the key id of the Razorpay account that created the
+      // order; checkout must open with that same account.
+      const razorpayKey = orderResponse?.key;
 
       if (!orderData) {
         toast.error("Invalid order response");
         setIsProcessing(false);
         return;
       }
+      if (!razorpayKey) {
+        toast.error("Payment isn't configured. Please contact support.");
+        setIsProcessing(false);
+        return;
+      }
 
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ROYALTY,
+        key: razorpayKey,
         amount: orderData.amount,
         currency: orderData.currency || "INR",
         name: "Smart Salon",
@@ -277,8 +288,10 @@ const RoyaltiesCheck = () => {
             <div className="inline-flex rounded-3xl bg-indigo-50 px-5 py-4 text-indigo-700 shadow-sm">
               <FaWallet className="mr-3 h-6 w-6 shrink-0" />
               <div>
-                <p className="text-sm uppercase tracking-[0.18em]">Due Amount</p>
-                <p className="mt-1 text-2xl font-semibold">{formatCurrency(totalAmountWithGST)}</p>
+                <p className="text-sm uppercase tracking-[0.18em]">{showAmounts ? "Due Amount" : "Royalty Due"}</p>
+                {showAmounts && (
+                  <p className="mt-1 text-2xl font-semibold">{formatCurrency(totalAmountWithGST)}</p>
+                )}
                 {count > 0 ? (
                   <p className="mt-2 max-w-xs text-sm text-slate-600">
                     {count === 1
@@ -305,39 +318,58 @@ const RoyaltiesCheck = () => {
       {royaltyPaidStatus !== "Paid" && (
         <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
           {/* Pay action card */}
-          <aside className="flex flex-col rounded-[28px] border border-slate-200 bg-gradient-to-br from-[#EFF6FF] to-[#EEF2FF] p-6 shadow-lg">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">Total Payable</p>
-              <p className="mt-2 text-3xl font-bold text-slate-900">{formatCurrency(totalAmountWithGST)}</p>
-              <div className="mt-4 flex flex-col gap-1.5 text-sm text-slate-600">
-                <div className="flex justify-between">
-                  <span>Royalty Amount</span>
-                  <span className="font-medium text-slate-800">{formatCurrency(royaltyAmount)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>GST (18%)</span>
-                  <span className="font-medium text-slate-800">{formatCurrency(gstAmount)}</span>
+          {showAmounts && (
+            <aside className="flex flex-col rounded-[28px] border border-slate-200 bg-gradient-to-br from-[#EFF6FF] to-[#EEF2FF] p-6 shadow-lg">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">
+                  Total Payable
+                </p>
+
+                <p className="mt-2 text-3xl font-bold text-slate-900">
+                  {formatCurrency(totalAmountWithGST)}
+                </p>
+
+                <div className="mt-4 flex flex-col gap-1.5 text-sm text-slate-600">
+                  <div className="flex justify-between">
+                    <span>Royalty Amount</span>
+                    <span className="font-medium text-slate-800">
+                      {formatCurrency(royaltyAmount)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>GST (18%)</span>
+                    <span className="font-medium text-slate-800">
+                      {formatCurrency(gstAmount)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <button
-              type="button"
-              onClick={handlePay}
-              disabled={isProcessing}
-              className={`mt-6 inline-flex w-full items-center justify-center rounded-3xl px-6 py-4 text-base font-semibold text-white shadow-lg transition ${isProcessing ? "bg-slate-400 cursor-not-allowed" : "bg-indigo-700 hover:bg-indigo-800"
-                }`}
-            >
-              {isProcessing ? "Opening Razorpay..." : "Pay Royalty Now"}
-            </button>
+              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600">
+                Royalty Payment
+              </p>
 
-            {paymentStatus ? (
-              <div className="mt-4 rounded-3xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
-                <p className="font-semibold">Payment confirmed</p>
-                <p className="mt-1">{paymentStatus}</p>
-              </div>
-            ) : null}
-          </aside>
+              <button
+                type="button"
+                onClick={handlePay}
+                disabled={isProcessing}
+                className={`mt-6 inline-flex w-full items-center justify-center rounded-3xl px-6 py-4 text-base font-semibold text-white shadow-lg transition ${isProcessing
+                  ? "bg-slate-400 cursor-not-allowed"
+                  : "bg-indigo-700 hover:bg-indigo-800"
+                  }`}
+              >
+                {isProcessing ? "Opening Razorpay..." : "Pay Royalty Now"}
+              </button>
+
+              {paymentStatus ? (
+                <div className="mt-4 rounded-3xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
+                  <p className="font-semibold">Payment confirmed</p>
+                  <p className="mt-1">{paymentStatus}</p>
+                </div>
+              ) : null}
+            </aside>
+          )}
 
           {/* Breakdown card — always visible, no scrolling needed */}
           {count > 0 ? (
@@ -361,23 +393,25 @@ const RoyaltiesCheck = () => {
                       </div>
                     </div>
 
-                    <div className="text-right">
+                    {showAmounts && <div className="text-right">
                       <p className="text-sm font-semibold text-slate-900">
                         {formatCurrency(item.totalAmountWithGST ?? (item.amount + (item.gstAmount || 0)))}
                       </p>
                       <p className="text-xs text-slate-400">
                         {formatCurrency(item.amount)} + {formatCurrency(item.gstAmount)} GST
                       </p>
-                    </div>
+                    </div>}
                   </div>
                 ))}
               </div>
 
               {/* Sticky totals footer so the number is reinforced right under the list */}
-              <div className="mt-2 flex items-center justify-between rounded-b-[28px] bg-slate-50 px-6 py-4">
-                <span className="text-sm font-medium text-slate-500">Total Payable</span>
-                <span className="text-lg font-bold text-slate-900">{formatCurrency(totalAmountWithGST)}</span>
-              </div>
+              {showAmounts && (
+                <div className="mt-2 flex items-center justify-between rounded-b-[28px] bg-slate-50 px-6 py-4">
+                  <span className="text-sm font-medium text-slate-500">Total Payable</span>
+                  <span className="text-lg font-bold text-slate-900">{formatCurrency(totalAmountWithGST)}</span>
+                </div>
+              )}
             </div>
           ) : null}
         </div>
