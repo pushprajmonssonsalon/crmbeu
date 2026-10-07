@@ -7,6 +7,21 @@
   margin: 0px;
   box-sizing: border-box;
 }
+.global-alert-bar {
+  width: 100%;
+  background: #f8d7da;
+  color: #842029;
+  padding: 12px 16px;
+  font-size: 14px;
+  text-align: center;
+  border-bottom: 1px solid #f5c2c7;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+}
+.global-alert-bar p {
+  margin: 0;
+}
 .main_container{
   display: flex;
   width: 100%;

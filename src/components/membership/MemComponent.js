@@ -222,10 +222,10 @@ const MemComponent = ({
     <>
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
 
-        <div className="flex items-center mb-6 justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 justify-between gap-3">
 
           <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Buy Membership</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {actions.map((action, index) => {
               const handleClick = action.button.onClick;
               return (
@@ -240,7 +240,7 @@ const MemComponent = ({
 
         </div>
         {/* tab */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-x-12 xl:gap-x-20 gap-y-3 xl:gap-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-12 xl:gap-x-20 gap-y-3 xl:gap-y-6">
           <div className="flex relative flex-col gap-1">
             <NormalInput
               placeholder="Search by Mobile"
@@ -260,7 +260,7 @@ const MemComponent = ({
 
             />
             {visible && phoneNumber.length > 0 && (
-              <div className="absolute top-[80px] h-[104px] w-[283px] overflow-auto bg-white shadow-xl rounded-lg z-[4]">
+              <div className="absolute top-[80px] h-[104px] w-full max-w-[283px] overflow-auto bg-white shadow-xl rounded-lg z-[4]">
                 {userData.length > 0 &&
                   userData?.map((item) => {
                     return (

@@ -10,6 +10,9 @@ import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import exportToExcel from "../../utils/exportToExcel";
 import { useSearchParams } from "react-router-dom";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
+import EditMembershipBillModal from "../../components/modals/EditMembershipBillModal";
+import ConfirmDialog from "../../components/modals/ConfirmDialog";
+import { isSalonOwner } from "../../utils/auth";
 export default function Membership() {
   const [membershiptype, setMembershipType] = useState([]);
   const [membership, setMemberShip] = useState("");
@@ -38,6 +41,11 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
   const [loading, setLoading] = useState(false)
   const [membershipName, setMembershipName] = useState("");
   const [isPayed, setIsPayed] = useState(false);
+  // Owner-only bill corrections, like the appointment Edit Bill.
+  const isOwner = isSalonOwner();
+  const [billToEdit, setBillToEdit] = useState(null);
+  const [billToDelete, setBillToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
 
 
@@ -154,6 +162,30 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
   const handlePrint = (item) => {
     navigate("/membershipinvoicegenerator", { state: item });
   };
+
+  const refreshBills = () => {
+    fetchMembershipSale();
+    fetchMembershipReport();
+  };
+
+  const deleteBill = () => {
+    if (!billToDelete || deleting) return;
+    setDeleting(true);
+    postApiData(
+      "membership/deleteMembershipBill",
+      { id: billToDelete._id },
+      () => {
+        setDeleting(false);
+        setBillToDelete(null);
+        toast.success("Membership bill deleted");
+        refreshBills();
+      },
+      (error) => {
+        setDeleting(false);
+        toast.error(error?.response?.data?.message || "Could not delete the bill");
+      }
+    );
+  };
   const searchClick = () => {
     const data = {
       startDate: startDate,
@@ -251,11 +283,11 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
           <FaFileExcel />
         </button>{" "}
       </div> */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
 
           <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center  gap-6">
+            <div className="flex items-center justify-between w-full flex-wrap gap-3">
+              <div className="flex items-center  gap-3 md:gap-6 flex-wrap">
                 <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
                   <FaCalendarAlt className="text-customPurple text-sm" />
                   <span className="text-secondary text-sm">Year-to-date </span>
@@ -295,9 +327,44 @@ const defaultEndDate = formatDate(today);             // e.g. "2025-07-23"
               headings={headings}
               data={todayMembership}
               handlePrint={handlePrint}
+              onEditBill={isOwner ? setBillToEdit : undefined}
+              onDeleteBill={isOwner ? setBillToDelete : undefined}
             />
           )}
         </div>
+
+        {isOwner && (
+          <>
+            <EditMembershipBillModal
+              bill={billToEdit}
+              onClose={() => setBillToEdit(null)}
+              onSaved={() => {
+                setBillToEdit(null);
+                refreshBills();
+              }}
+            />
+            <ConfirmDialog
+              open={Boolean(billToDelete)}
+              title="Delete this membership bill?"
+              message={
+                <>
+                  <p className="font-medium text-gray-900">
+                    {billToDelete?.customerName} · {billToDelete?.name} · ₹{billToDelete?.price}
+                  </p>
+                  <p className="mt-2">
+                    If it's the customer's first purchase their membership is removed; if it was a renewal, its credits are taken back. The bill also drops out of the membership reports. This can't be undone.
+                  </p>
+                </>
+              }
+              confirmLabel="Delete bill"
+              cancelLabel="Keep bill"
+              tone="danger"
+              busy={deleting}
+              onConfirm={deleteBill}
+              onClose={() => setBillToDelete(null)}
+            />
+          </>
+        )}
 
      
       </div>

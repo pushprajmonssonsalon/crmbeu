@@ -57,7 +57,7 @@ const Edit = () => {
     miniSubcategory: "",
     staffId: "",
     price: 0,
-    satffName: "",
+    staffName: "",
   });
 
  
@@ -131,7 +131,7 @@ const Edit = () => {
         setDiscount(resp?.discountPercentage || 0);
         setApplyDiscountPer(resp?.discountPercentage || 0);
         setAddedAppointmentDetails(
-          resp.services.map((item) => ({ ...item, staffId: item?.staffId || "", satffName: item?.satffName || "" }))
+          resp.services.map((item) => ({ ...item, staffId: item?.staffId || "", staffName: item?.staffName || item?.satffName || "" }))
         );
         setIsMembershipApplied(parseInt(resp?.membershipCreditUsed) > 0 ? true : false);
         setAppointmentProducts(resp.products);
@@ -253,7 +253,7 @@ const Edit = () => {
         setServiceSelection({
           ...serviceSelection,
           staffId: Id,
-          satffName: Name,
+          staffName: Name,
         });
       } else {
         setAddedAppointmentDetails((prev) =>
@@ -262,7 +262,7 @@ const Edit = () => {
               return {
                 ...item,
                 staffId: Id,
-                satffName: Name,
+                staffName: Name,
               };
             }
             return item;
@@ -894,7 +894,7 @@ const matchesSearch =(searchTerm)=> {
           </div>
 
           {addedAppointmentDetails.length > 0 && (
-            <div className={` ${membershipUsed?"blur-sm":""} w-full`}>
+            <div className={` ${membershipUsed?"blur-sm":""} w-full table-responsive`}>
               <table className="w-full">
                 <thead>
                   <tr>
@@ -936,7 +936,7 @@ const matchesSearch =(searchTerm)=> {
                           inputStyles={{ width: "150px", padding: "5px 10px" }}
 
                           // value={item.staffId}
-                          value={`${item.staffId}-${item.satffName}`}
+                          value={`${item.staffId}-${item.staffName}`}
 
                         /></td>
                       <td className="border-none text-sm 2xl:text-md text-gray2 font-normal">
@@ -956,7 +956,7 @@ const matchesSearch =(searchTerm)=> {
             <div className="flex rounded-[10px] z-[3] items-center justify-center absolute  left-0 right-0 top-0 bottom-0 h-full w-full bg-white/30 ">
               <div className=" relative flex flex-col items-center gap-3">
               <span className="font-normal text-start leading-[20px]  text-black text-[24px]">Remove membership to edit services and add them later.</span>
-                <button onClick={removeMembership} className="bg-rose-600 tex-white rounded-[16px] w-[190px] text-sm font-normal">Remove Membership </button>
+                <button onClick={removeMembership} className="bg-rose-600 tex-white rounded-[16px] w-full max-w-[190px] text-sm font-normal">Remove Membership </button>
               </div>
             </div>
           }
@@ -1030,7 +1030,7 @@ const matchesSearch =(searchTerm)=> {
           </div>
 
           {appointementProducts?.length > 0 && (
-            <div ref={productRef}  className="w-full">
+            <div ref={productRef}  className="w-full table-responsive">
               <table className="w-full">
                 <thead>
                   <tr>
@@ -1335,10 +1335,10 @@ const matchesSearch =(searchTerm)=> {
           <h2 className="font-normal text-start leading-[20px] mb-9 text-black text-[24px]">Booking Detail</h2>
 
 
-          <div className="p-2 w-full   flex justify-between  items-center">
+          <div className="p-2 w-full   flex flex-col md:flex-row justify-between  items-start md:items-center gap-4">
             {tableFields.map((elm, idx) => {
               return (
-                <div key={idx} className="w-[40%] mb-auto ">
+                <div key={idx} className="w-full md:w-[40%] mb-auto ">
                   <table className="table-auto  w-full">
                     <thead></thead>
                     <tbody>
@@ -1361,7 +1361,7 @@ const matchesSearch =(searchTerm)=> {
           <div className="flex justify-end mt-12">
 
             <button onClick={handleBookAppointment}
-              className="bg-black text-white rounded-[16px] w-[250px] text-sm font-normal ">Update Appointment</button>
+              className="bg-black text-white rounded-[16px] w-full max-w-[250px] text-sm font-normal ">Update Appointment</button>
           </div>
         </div>
         {/*  */}

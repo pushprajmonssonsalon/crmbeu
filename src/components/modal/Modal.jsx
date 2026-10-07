@@ -25,7 +25,7 @@ const Modal = ({show,setShow,children}) => {
         <div
        
           id="select-modal"
-          className=" overflow-y-hidden overflow-x-hidden bg-black bg-opacity-50 fixed top-0 right-0 left-0 ma z-50 justify-center items-center w-full md:inset-0 h-full"
+          className=" overflow-y-auto overflow-x-hidden bg-black bg-opacity-50 fixed inset-0 ma z-50 justify-center items-center w-full h-full"
         >
           {React.cloneElement(children, { closeModal,openModal ,modalRef})}
 

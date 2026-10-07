@@ -60,7 +60,7 @@ const CustomDateMonth = ({ name, label, placeholder, value1,value2, onChange }) 
                     name={`${name}-date`}
                     value={value1}
                     onChange={onChange}
-                    className="bg-gray-50 w-1/2   border border-primaryGray text-black text-sm rounded-[10px]    py-[10px] px-[15px] "
+                    className="bg-gray-50 w-1/2 min-w-0   border border-primaryGray text-black text-sm rounded-[10px]    py-[10px] px-[15px] "
 
                 >
                     <option value="">Date</option>
@@ -75,7 +75,7 @@ const CustomDateMonth = ({ name, label, placeholder, value1,value2, onChange }) 
                     name={`${name}-month`}
                     value={value2}
                     onChange={onChange}
-                    className="bg-gray-50 w-1/2  capitalize border border-primaryGray text-black text-sm rounded-[10px]    py-[12px] px-[15px] "
+                    className="bg-gray-50 w-1/2 min-w-0  capitalize border border-primaryGray text-black text-sm rounded-[10px]    py-[12px] px-[15px] "
 
                 >
                     <option value="">Month</option>

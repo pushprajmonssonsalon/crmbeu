@@ -1,6 +1,7 @@
 import "./App.css";
 import Login from "./pages/login/Login";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Appointment from "./pages/Appointment/Appointment";
 import OwnerService from "./pages/ownerServices";
 import ViewAppointment from "./pages/viewAppointment/ViewAppointment";
@@ -17,7 +18,8 @@ import { Toaster } from "react-hot-toast";
 import Revenue from "./components/revenue";
 import WeeklyReport from "./pages/weeklyReport";
 import Royalities from "./pages/royalities";
-import { useEffect } from "react";
+import RoyaltiesCheck from "./pages/royaltiesCheck";
+import { useEffect, useRef, useState } from "react";
 import Notification from "./pages/notification/notification";
 import SingleNotification from "./pages/notification/singleNotification";
 import Categorywise from "./components/categorywise/Categorywise";
@@ -36,17 +38,133 @@ import Layout from "./components/Layout";
 import Salon from "./pages/salonDetails/Salon";
 import Sop from "./pages/sop/sop";
 import SopDetail from "./pages/sop/sopDetail";
+import ReminderModal from "./components/GlobalAlert";
+import { setRoyaltyStatus } from "./redux/reducers";
+import {
+  canShowRoyaltyReminder,
+  recordRoyaltyReminderShown,
+} from "./utils/royaltyReminder";
+import axios from "axios";
+import DistributerRoute from "./components/privateRoute/DistributerRoute";
+import DistributerInventory from "./pages/distributer/DistributerInventory";
+import { isDistributer } from "./utils/auth";
+
+const LOCAL_BASE_URL = process.env.REACT_APP_BASE_URI;
+
+const ReminderTriggers = () => {
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchRoyaltyStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      // Royalty is a salon concept; distributers have no such endpoint.
+      if (isDistributer()) return;
+
+      try {
+        const instance = axios.create({
+          baseURL: LOCAL_BASE_URL,
+          timeout: 30000,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const res = await instance.get("royalty/getRoyaltyStatus");
+        const data = res?.data;
+
+        const royaltyDueDate = [];
+
+        data?.breakdown.forEach(element => {
+          royaltyDueDate.push(element.royaltyDueDate);
+        });
+        const dueDateRoyalty = royaltyDueDate[0]?.split('T')[0]?.split('-')[2];
+        dispatch(
+          setRoyaltyStatus({
+            royaltyDue: Boolean(data?.royaltyDue),
+            royaltyOverdue: Boolean(data?.royaltyOverdue),
+            dueDateRoyalty: dueDateRoyalty,
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching royalty status:", error);
+      }
+    };
+
+    fetchRoyaltyStatus();
+  }, [dispatch, location.pathname]);
+
+  return null;
+};
 
 function App() {
+  const dispatch = useDispatch();
+  const [showReminder, setShowReminder] = useState(false);
+  const reminderTimerRef = useRef(null);
+  const { royaltyDue, royaltyOverdue } = useSelector((state) => state.royaltyReducer || {});
+  useEffect(() => {
+    const openReminderModal = () => {
+      if (!royaltyDue || royaltyOverdue) return;
+      if (!canShowRoyaltyReminder()) return;
+      if (reminderTimerRef.current) {
+        clearTimeout(reminderTimerRef.current);
+      }
+
+      // start a delayed show; when the timer fires, ensure user is still on an allowed page
+      reminderTimerRef.current = setTimeout(() => {
+        reminderTimerRef.current = null;
+        if (window.location.pathname === "/royalties-check" || window.location.pathname === "/login") return;
+        if (!canShowRoyaltyReminder()) return;
+        recordRoyaltyReminderShown();
+        setShowReminder(true);
+      }, 15000);
+    };
+
+    const cancelReminder = () => {
+      if (reminderTimerRef.current) {
+        clearTimeout(reminderTimerRef.current);
+        reminderTimerRef.current = null;
+      }
+      setShowReminder(false);
+    };
+
+    window.addEventListener("open-reminder-modal", openReminderModal);
+    window.addEventListener("cancel-reminder-modal", cancelReminder);
+
+    return () => {
+      window.removeEventListener("open-reminder-modal", openReminderModal);
+      window.removeEventListener("cancel-reminder-modal", cancelReminder);
+      if (reminderTimerRef.current) {
+        clearTimeout(reminderTimerRef.current);
+      }
+    };
+  }, [royaltyDue, royaltyOverdue]);
+
+
+  useEffect(() => {
+    if (!royaltyDue || royaltyOverdue) return undefined;
+
+    const evaluate = () => {
+      if (!canShowRoyaltyReminder()) return;
+      window.dispatchEvent(new CustomEvent("open-reminder-modal"));
+    };
+
+    evaluate();
+    const interval = setInterval(evaluate, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [royaltyDue, royaltyOverdue]);
+
   useEffect(() => {
     const handleWheel = (e) => {
       if (e.target.type === "number") {
-        e.preventDefault(); // Prevent default scroll behavior
+        e.preventDefault();
       }
     };
 
     document.addEventListener("wheel", handleWheel, { passive: false });
-    
+
     return () => {
       document.removeEventListener("wheel", handleWheel);
     };
@@ -54,9 +172,16 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ReminderTriggers />
+      <ReminderModal open={showReminder} onClose={() => { setShowReminder(false) }} />
       <Toaster />
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/distributer/inventory"
+          element={<DistributerRoute Component={DistributerInventory} />}
+        />
 
         <Route
           path="/"
@@ -78,7 +203,7 @@ function App() {
           path="/contacts"
           element={<PrivateRoute Component={Contacts} />}
         />
-      
+
         <Route
           path="/ownerservice"
           element={<PrivateRoute Component={OwnerService} />}
@@ -140,14 +265,14 @@ function App() {
           element={<PrivateRoute Component={Edit} />}
         />
         <Route path="/orders" element={<PrivateRoute Component={Orders} />} />
-       
+
         <Route path="/test" element={<PrivateRoute Component={TestExcel} />} />
         <Route path="/revenue" element={<PrivateRoute Component={Revenue} />} />
         <Route
           path="/weeklyreport"
           element={<PrivateRoute Component={WeeklyReport} />}
         />
-      
+
         <Route
           path="/salon-details"
           element={<PrivateRoute Component={Salon} />}
@@ -155,6 +280,10 @@ function App() {
         <Route
           path="/royalities"
           element={<PrivateRoute Component={Royalities} />}
+        />
+        <Route
+          path="/royalties-check"
+          element={<PrivateRoute Component={RoyaltiesCheck} />}
         />
         <Route
           path="/notifications"
@@ -170,7 +299,7 @@ function App() {
         />
         <Route
           path="/plans"
-          element={<Layout><Plans/></Layout>}
+          element={<Layout><Plans /></Layout>}
         />
         <Route
           path="/notifications/:id"

@@ -89,11 +89,11 @@ const AdvanceHistory = () => {
         <>
             <div className=" rounded-[16px] border border-primaryGray p-5  ">
 
-                <div className="flex items-center mb-6 justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 justify-between gap-3">
 
                     <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Advance History</h2>
 
-                        <button disabled={advances?.length===0} onClick={handleExport} className='bg-ternary text-white rounded-[16px] w-[110px] text-sm font-normal '>Export All</button>
+                        <button disabled={advances?.length===0} onClick={handleExport} className='bg-ternary text-white rounded-[16px] w-full max-w-[110px] text-sm font-normal '>Export All</button>
 
                 </div>
                 {advances?.length > 0 && <div className="w-full">

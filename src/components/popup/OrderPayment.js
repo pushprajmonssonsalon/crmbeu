@@ -90,8 +90,8 @@ const OrderPaymentPopup = ({
   //   };
   //   
   return (
-    <div className="fixed z-30 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center">
-      <div className="absolute z-40 mx-3 w-1/3 my-10 h-[70%] overflow-y-auto">
+    <div className="fixed z-40 inset-0 bg-black bg-opacity-25 backdrop-blur-sm flex justify-center items-center p-3 overflow-y-auto">
+      <div className="relative z-40 mx-3 w-full sm:w-2/3 lg:w-1/3 my-6 sm:my-10 max-h-[85dvh] overflow-y-auto">
         <div className="bg-white p-4 rounded-xl ">
           <div className="flex justify-between  items-center">
             <h1 className={`text-gray2 text-lg  `}>
@@ -105,6 +105,7 @@ const OrderPaymentPopup = ({
             </button>
           </div>
 
+          <div className="table-responsive">
           <table className="styled-table">
             <thead>
               <tr>
@@ -122,7 +123,7 @@ const OrderPaymentPopup = ({
                       type="number"
                       min={0}
                       max={payTotal}
-                      className="w-[250px] outline-none "
+                      className="w-full max-w-[250px] outline-none "
                       value={item?.amount}
                       onChange={handleChange}
                     />
@@ -131,6 +132,7 @@ const OrderPaymentPopup = ({
               ))}
             </tbody>
           </table>
+          </div>
           <button
             className='bg-black text-white rounded-[16px] w-[100px] text-sm font-normal '
             onClick={hnadleUpdate}

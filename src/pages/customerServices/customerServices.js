@@ -71,46 +71,46 @@ export default function CustomerServices({ tab }) {
       name: "Nail",
     },
   ];
-  const subCategoryData=[
-  "Hair Straightening",
-  "Bridal Makeup",
-  "Cleanup",
-  "Threading",
-  "Portable Bed Massage",
-  "Piercing",
-  "Occassion Makeup",
-  "Body Polishing",
-  "Nail Extensions",
-  "Nail Art",
-  "Mehendi",
-  "Body Wax",
-  "Express Spa",
-  "Hd Bridal Makeup",
-  "Facials",
-  "Light Makeup",
-  "Hair Color",
-  "Scrubs & Wraps",
-  "Hair Treatment",
-  "Color Touch Up",
-  "Mani/ Pedi",
-  "MANICURE & PEDICURE",
-  "Massages",
-  "Cut & Style",
-  "Nail Refill",
-  "Bleach",
-  "Others",
-  "Hair Spa",
-  "Basic Makeup",
-  "Package"
-]
-const categoryOptions = CategoryData.map((elm) => ({
+  const subCategoryData = [
+    "Hair Straightening",
+    "Bridal Makeup",
+    "Cleanup",
+    "Threading",
+    "Portable Bed Massage",
+    "Piercing",
+    "Occassion Makeup",
+    "Body Polishing",
+    "Nail Extensions",
+    "Nail Art",
+    "Mehendi",
+    "Body Wax",
+    "Express Spa",
+    "Hd Bridal Makeup",
+    "Facials",
+    "Light Makeup",
+    "Hair Color",
+    "Scrubs & Wraps",
+    "Hair Treatment",
+    "Color Touch Up",
+    "Mani/ Pedi",
+    "MANICURE & PEDICURE",
+    "Massages",
+    "Cut & Style",
+    "Nail Refill",
+    "Bleach",
+    "Others",
+    "Hair Spa",
+    "Basic Makeup",
+    "Package"
+  ]
+  const categoryOptions = CategoryData.map((elm) => ({
     name: elm.name,
     value: elm.name,
   }));
-const subCategoryOptions=subCategoryData?.map((elm)=>({
-  name:elm,
-  value:elm
-}))
+  const subCategoryOptions = subCategoryData?.map((elm) => ({
+    name: elm,
+    value: elm
+  }))
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -142,14 +142,14 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
       name: "category",
       placeholder: "Category",
       label: "Category",
-      options:categoryOptions
+      options: categoryOptions
       // disabled: true,
     },
     {
       name: "subCategory",
       placeholder: "Sub Category",
       label: "Sub Category",
-      options:subCategoryOptions
+      options: subCategoryOptions
       // disabled: true
     },
     {
@@ -390,7 +390,7 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
       [name]: type === "number" ? +value : value,
     }));
   };
-  
+
   const genderOptions = [
     {
       name: "Female",
@@ -422,19 +422,20 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
   return (
     <>
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
-        <div className="flex items-center mb-6 justify-between">
-          <div className="flex items-center gap-5">
+        <div className="flex flex-col md:flex-row items-start md:items-center mb-6 justify-between gap-3">
+          <div className="flex items-center gap-5 flex-wrap">
 
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">{tab === 0 ? "All" : "My"} Services</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{tab === 0 ? total || 0 : total1 || 0} Products</span>
           </div>
 
-          <div className="relative flex items-center">
+          <div className="relative flex items-center w-full md:w-auto">
             <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
             <NormalInput
               name="name"
               inputStyles={{
                 'width': "280px",
+                maxWidth: "100%",
                 borderRadius: "16px",
                 padding: "5px 40px",
                 fontSize: "14px",
@@ -446,16 +447,15 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
             />
           </div>
 
-
         </div>
-        <div className="flex gap-6 items-center mb-9 ">
+        <div className="flex flex-wrap gap-6 items-center mb-9 ">
           {allServicesItemFields.map((item, index) => {
             const { name, label, placeholder } = item;
             const value =
               tab === 0 ? allServiceFilters[name] : myServiceFilters[name];
 
             return (
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 w-full sm:w-auto">
 
                 <NormalSelect
                   key={index}
@@ -463,6 +463,7 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
                   value={value}
                   inputStyles={{
                     'width': "280px",
+                    maxWidth: "100%",
                     borderRadius: "16px",
                     padding: "5px 40px",
                     fontSize: "14px",
@@ -490,13 +491,13 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
               >
                 Export All
               </button>
-
+              {/* 
               <button
                 className="h-[36px] mt-4 w-[120px] bg-green-600 rounded-[16px] flex items-center justify-center text-white text-sm"
                 onClick={handleAddService}
               >
                 Add Service
-              </button>
+              </button> */}
             </>
           )}
         </div>
@@ -552,11 +553,11 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
             isOpen={addproductModal}
             //   onAfterOpen={afterOpenModal}
             onRequestClose={closeModal}
-            overlayClassName={'inset-0 bg-black/20 top-0 left-0 '}
-            className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '
+            overlayClassName={'fixed inset-0 z-40 bg-black/20'}
+            className='fixed z-50 inset-0 bg-black/20 flex items-start justify-center p-4 overflow-y-auto'
             contentLabel="Example Modal"
           >
-            <div className=' w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+            <div className='w-full sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative my-auto mx-auto max-h-full overflow-y-auto overflow-x-hidden'>
               {/* Category Name */}
               <div className='flex justify-between items-center mb-6'>
                 <h1 className={`text-2xl text-black `}>Edit your response</h1>
@@ -565,7 +566,7 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
               </div>
               <div className="grid grid-cols-1 gap-y-3 mb-4">
                 {serviceItemFields.map((input, index) => {
-                  const { name, placeholder, label, options=null,disabled } = input;
+                  const { name, placeholder, label, options = null, disabled } = input;
                   const value = serviceItem[name];
 
 
@@ -589,29 +590,29 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
                         }} placeholder={placeholder}
                         onChange={handleChange}
                       /> */}
-                      {options? (
+                      {options ? (
                         <>
-                           <CustomSelect
-                          name={name}
-                          value={value}
-                          label={label}
-                          disabled={disabled}
-                          placeholder={placeholder}
-                          onChange={handleChange}
-                          inputStyles={{
-                            borderRadius: "10px",
-                            padding: "10px 15px",
-                            fontSize: "13px",
-                            fontWeight: "400",   
-                          }}
-                          lableStyles={{
-                            fontWeight: "500",  
-                            fontSize: "13px",
-                          }}
-                          options={options}
-                        />
+                          <CustomSelect
+                            name={name}
+                            value={value}
+                            label={label}
+                            disabled={disabled}
+                            placeholder={placeholder}
+                            onChange={handleChange}
+                            inputStyles={{
+                              borderRadius: "10px",
+                              padding: "10px 15px",
+                              fontSize: "13px",
+                              fontWeight: "400",
+                            }}
+                            lableStyles={{
+                              fontWeight: "500",
+                              fontSize: "13px",
+                            }}
+                            options={options}
+                          />
 
-                        
+
                         </>
                       ) : (
                         <NormalInput
@@ -625,10 +626,10 @@ const subCategoryOptions=subCategoryData?.map((elm)=>({
                             borderRadius: "10px",
                             padding: "10px 15px",
                             fontSize: "13px",
-                            fontWeight: "400",   
+                            fontWeight: "400",
                           }}
                           lableStyles={{
-                            fontWeight: "500",  
+                            fontWeight: "500",
                             fontSize: "13px",
                           }}
                         />

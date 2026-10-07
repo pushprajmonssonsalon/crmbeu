@@ -17,17 +17,17 @@ const CustomDiscount = ({
     return (
         <div className=''>
 
-            <div className='grid grid-cols-2 '>
-              
+            <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+
                         <span  className="font-bold text-md">
                             {label}
                         </span>
-                  
-                <div className="flex gap-4">
+
+                <div className="flex gap-2 sm:gap-4">
                     <button
                         onClick={() => setDiscountType('daily')}
                         disabled={disabled}
-                        className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${discountType === 'daily'
+                        className={`flex-1 py-2 px-3 sm:py-3 sm:px-4 rounded-lg font-medium transition-all text-sm sm:text-base ${discountType === 'daily'
                             ? 'bg-ternary text-white shadow-md'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
@@ -37,7 +37,7 @@ const CustomDiscount = ({
                     <button
                         onClick={() => setDiscountType('daywise')}
                         disabled={disabled}
-                        className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${discountType === 'daywise'
+                        className={`flex-1 py-2 px-3 sm:py-3 sm:px-4 rounded-lg font-medium transition-all text-sm sm:text-base ${discountType === 'daywise'
                             ? 'bg-ternary text-white shadow-md'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}

@@ -144,6 +144,12 @@ body {
 }
 
 @media screen and (max-width: 576px) {
+  .invoice {
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    border-radius: 0;
+  }
   .invoice-head-top,
   .invoice-head-middle,
   .invoice-head-bottom {
@@ -156,16 +162,23 @@ body {
   .invoice * {
     text-align: left;
   }
-  .invoice {
-    padding: 28px;
+  .invoice-body {
+    min-width: 0;
+    overflow-x: auto;
+  }
+  .invoice-btns {
+    flex-wrap: wrap;
   }
 }
 
 .overflow-view {
-  overflow-x: scroll;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .invoice-body {
   min-width: 600px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media print {

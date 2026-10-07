@@ -745,7 +745,8 @@ const Dashboard = () => {
                     'color': '#000000'
                   }}
                   inputStyles={{
-                    width: "250px"
+                    width: "250px",
+                    maxWidth: "100%"
                   }}
                   onChange={(e) => setDays(e.target.value)}
                 />
@@ -775,14 +776,14 @@ const Dashboard = () => {
                       const percentageValue = parseFloat(percentage);
                       return (
                         <div key={index} className="flex items-center w-full  gap-3 mb-6 last:mb-0">
-                          <div className="w-[100px] tex-lg text-black">{item}</div>
-                          <div className="w-[500px]  bg-gray-200 rounded-xl h-[30px] ">
+                          <div className="w-[70px] md:w-[100px] tex-lg text-black shrink-0">{item}</div>
+                          <div className="flex-1 min-w-0  bg-gray-200 rounded-xl h-[30px] ">
                             <div className="bg-indigo-600 h-[30px] rounded-xl" style={{ width: `${percentageValue}%` }}
                             />
                           </div>
-                          <div className="flex gap-2 items-center">
-                            <span className="text-secondary text-sm">{selectedtime?.appointmentCount || 0}</span>
-                            <span className="text-secondary text-sm">(₹{selectedtime?.totalSales || 0})</span>
+                          <div className="flex gap-1 sm:gap-2 items-center shrink-0 whitespace-nowrap">
+                            <span className="text-secondary text-xs sm:text-sm">{selectedtime?.appointmentCount || 0}</span>
+                            <span className="text-secondary text-xs sm:text-sm">(₹{selectedtime?.totalSales || 0})</span>
                           </div>
 
                         </div>
@@ -800,15 +801,15 @@ const Dashboard = () => {
                       const percentage = selectedtime ? ((selectedtime?.appointmentCount / total) * 100).toFixed(1) : '0'// 1 decimal point
                       const percentageValue = parseFloat(percentage);
                       return (
-                        <div key={index} className="flex items-center w-full  gap-3 mb-6 last:mb-0">
-                          <div className="w-[100px] tex-lg text-black">{item}</div>
-                          <div className="w-[500px]  bg-gray-200 rounded-xl h-[30px] ">
+                        <div key={index} className="flex items-center w-full min-w-0 gap-2 sm:gap-3 mb-6 last:mb-0">
+                          <div className="w-[72px] sm:w-[100px] shrink-0 text-xs sm:text-base tex-lg text-black">{item}</div>
+                          <div className="flex-1 min-w-0 bg-gray-200 rounded-xl h-[30px] ">
                             <div className="bg-indigo-600 h-[30px] rounded-xl" style={{ width: `${percentageValue}%` }}
                             />
                           </div>
-                          <div className="flex gap-2 items-center">
-                            <span className="text-secondary text-sm">{selectedtime?.appointmentCount || 0}</span>
-                            <span className="text-secondary text-sm">(₹{selectedtime?.totalSales || 0})</span>
+                          <div className="flex gap-1 sm:gap-2 items-center shrink-0 whitespace-nowrap">
+                            <span className="text-secondary text-xs sm:text-sm">{selectedtime?.appointmentCount || 0}</span>
+                            <span className="text-secondary text-xs sm:text-sm">(₹{selectedtime?.totalSales || 0})</span>
                           </div>
 
                         </div>

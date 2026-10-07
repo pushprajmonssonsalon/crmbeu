@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import GridRows from '../../components/pagination/gridRows';
 import Pagination from '../../components/pagination';
-import { getApiCall } from '../../utils/services';
-import { MdCardMembership, MdEdit } from 'react-icons/md';
+import { deleteApiCall, getApiCall } from '../../utils/services';
+import { MdCardMembership, MdDelete, MdEdit } from 'react-icons/md';
 import NewMembershipModal from '../../components/popup/NewMembershipPopup';
 import { FaRegEye } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 const ActiveMembership = () => {
   const [membership, setMemberships] = useState([]);
@@ -54,8 +55,8 @@ const ActiveMembership = () => {
     setRowsPerPage(+event.target.value);
     setPage(1);
   };
-  const getMembership=()=>{
- getApiCall(
+  const getMembership = () => {
+    getApiCall(
       "membership/getMembership",
       (resp) => {
         setMemberships(resp.membershipList);
@@ -65,7 +66,7 @@ const ActiveMembership = () => {
 
   }
   useEffect(() => {
-   getMembership()
+    getMembership()
   }, []);
   const actions = [
 
@@ -84,18 +85,31 @@ const ActiveMembership = () => {
 
 
   ]
+  const handleDeleteMemberShip = (membership) => {
+    deleteApiCall(
+      `membership/deleteSalonMembership/${membership._id}`,
+      (resp) => {
+        toast.success("Membership deleted successfully!!")
+        getMembership();
+      },
+      (error) => {
+        console.error("Error deleting membership:", error);
+        toast.error("Something went wrong!!")
+      }
+    );
+  };
   return (
     <>
 
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-5">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-5 flex-wrap">
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Membership List</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{membership?.length} Memberships</span>
 
 
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {actions.map((action, index) => {
               const handleClick = action.button.onClick;
               return (
@@ -110,6 +124,7 @@ const ActiveMembership = () => {
 
         </div>
         <div className="w-full mt-6 ">
+          <div className="table-responsive">
           <table
             className="styled-table"
           >
@@ -125,7 +140,7 @@ const ActiveMembership = () => {
             </thead>
             <tbody>
               {paginatedData?.map((item, index) => (
-                <tr key={index}>
+                <tr key={item._id}>
 
                   {headings?.map((elm, idx) => {
                     return (
@@ -144,8 +159,11 @@ const ActiveMembership = () => {
                                 setSelectedMembership(item);
                                 setIsNewMembershipModal(true);
                               }}><MdEdit /></button>
+                              <button className='text-red-500 text-lg' onClick={() => {
+                                handleDeleteMemberShip(item);
+                              }}><MdDelete /></button>
                             </div>
-                          :elm.id==="discount"? `${item[elm.id]||0}%` : item[elm.id]||""}</td>
+                            : elm.id === "discount" ? `${item[elm.id] || 0}%` : item[elm.id] || ""}</td>
                     )
                   })}
 
@@ -154,7 +172,8 @@ const ActiveMembership = () => {
               ))}
             </tbody>
           </table>
-          <div className="flex justify-between mt-4 items-center">
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
             <GridRows
               totalItems={membership?.length}
               itemsPerPage={rowsPerPage}

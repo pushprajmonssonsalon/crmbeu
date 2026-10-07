@@ -22,7 +22,7 @@ const CustomTab = ({ allTabs = [] }) => {
     return (
         <>
             <div>
-                <div className="flew shadow-md w-fit gap-5 relative mx-auto flex h-12 mb-5 rounded-3xl bg-white px-2">
+                <div className="flew shadow-md w-fit gap-5 relative mx-auto flex h-12 mb-5 rounded-3xl bg-white px-2 overflow-x-auto max-w-full">
                     {/* <span
         className="absolute bottom-0 top-0 -z-10 flex overflow-hidden rounded-3xl py-2 transition-all duration-300"
         style={{ left: tabUnderlineLeft, width: tabUnderlineWidth }}

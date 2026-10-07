@@ -214,7 +214,7 @@ const SalonDeatils = () => {
 
         <div className=' '>
 
-          <div className='grid grid-cols-2 gap-y-2 w-full items-center'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-y-2 w-full items-center'>
             {formFields.map((field, index) => (
               <React.Fragment key={index}>
                

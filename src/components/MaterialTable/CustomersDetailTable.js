@@ -28,6 +28,7 @@ export default function CustomizedCustomersTables({ headings, data ,handleUpdate
  
   return (
     <>
+      <div className="table-responsive">
       <table
         className="styled-table"
       >
@@ -54,8 +55,9 @@ export default function CustomizedCustomersTables({ headings, data ,handleUpdate
           ))}
         </tbody>
       </table>
+      </div>
       
-      <div className="flex justify-between mt-4 items-center">
+      <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
         <GridRows
           totalItems={data?.length}
           itemsPerPage={rowsPerPage}

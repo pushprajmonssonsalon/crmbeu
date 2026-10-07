@@ -27,6 +27,7 @@ const AccordianTable = ({ cols, rows, cols2,phoneNumber }) => {
   return (
     <>
       {" "}
+      <div className="table-responsive">
       <table className="styled-table">
         <thead>
           <tr>
@@ -108,7 +109,8 @@ const AccordianTable = ({ cols, rows, cols2,phoneNumber }) => {
           ))}
         </tbody>
       </table>
-      <div className="flex justify-between mt-4 items-center">
+      </div>
+      <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
         <GridRows
           totalItems={filteredData?.length}
           itemsPerPage={rowsPerPage}

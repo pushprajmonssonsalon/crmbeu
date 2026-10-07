@@ -1,10 +1,7 @@
 import axios from "axios";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
-const BASE_URL = "https://crm.smartsalon.in/";
-// const BASE_URL = "http://192.168.1.37:4002";
-// const BASE_URL = "http://192.168.2.202:4002";
-//  const BASE_URL = process.env.REACT_APP_BASE_URI;
+const BASE_URL = process.env.REACT_APP_BASE_URI;
 const token = localStorage.getItem("token");
 const authToken = store.getState();
 // const authToken = token;
@@ -73,6 +70,29 @@ const getApiCall = (endpoint, success, failur) => {
     });
 };
 
+const deleteApiCall = (endpoint, success, failure) => {
+  const token = localStorage.getItem("token");
+
+  const instance = axios.create({
+    baseURL: BASE_URL,
+    timeout: 30000,
+    headers: {
+      "X-Custom-Header": "foobar",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  instance
+    .delete(endpoint)
+    .then((res) => {
+      success(res);
+    })
+    .catch((error) => {
+      failure("error", error);
+    });
+};
+
 function formatDateToFull(dateString, full = true) {
   if (dateString) {
     const [datePart, timePart] = dateString.split("T");
@@ -132,19 +152,19 @@ const formatDateWOYear = (day, month) => {
   if (!day || !month) return null; // Handle empty values
   return new Date(`1970-${month.padStart(2, "0")}-${day.padStart(2, "0")}T00:00:00Z`);
 };
-const formatDateString=(dateString="DD-MM-YYYY")=>{
-    const [year, month, day] = dateString.split("-");
+const formatDateString = (dateString = "DD-MM-YYYY") => {
+  const [year, month, day] = dateString.split("-");
 
-    // Convert month from "08" to "Aug" or any other short form
-    const monthNames = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-    const monthShort = monthNames[parseInt(month, 10) - 1];
+  // Convert month from "08" to "Aug" or any other short form
+  const monthNames = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+  const monthShort = monthNames[parseInt(month, 10) - 1];
 
-   
-   return  `${parseInt(day, 10)} ${monthShort} ${year} `;
-    
+
+  return `${parseInt(day, 10)} ${monthShort} ${year} `;
+
 
 }
 function formatValue(value) {
@@ -232,10 +252,10 @@ export function toLocalISOString(date) {
 
 const gstToken = localStorage.getItem("gstApplied");
 
-export const isGstExclusive=(gstToken === "true");
-export function calculateGst(val, inputDate,membership=false) {
-  if (!val || !inputDate) return val||0;
-  
+export const isGstExclusive = (gstToken === "true");
+export function calculateGst(val, inputDate, membership = false) {
+  if (!val || !inputDate) return val || 0;
+
   const gstToken = localStorage.getItem("gstApplied");
   const referenceDate = new Date("2025-09-22");
   referenceDate.setHours(0, 0, 0, 0);
@@ -246,9 +266,9 @@ export function calculateGst(val, inputDate,membership=false) {
   // Decide GST rate based on date
   const gstRate = userDate < referenceDate ? 0.18 : 0.05;
 
-  const gstExclusive = membership?false:gstToken === "true";
+  const gstExclusive = membership ? false : gstToken === "true";
   let baseAmount, gstAmount, finalAmount;
-  
+
   if (gstExclusive) {
     baseAmount = val;
     gstAmount = val * gstRate;
@@ -260,101 +280,103 @@ export function calculateGst(val, inputDate,membership=false) {
   }
 
   // Optional: format values if formatValue exists
-    baseAmount = formatValue(baseAmount);
-    gstAmount = formatValue(gstAmount);
-    finalAmount = formatValue(finalAmount);
-  
+  baseAmount = formatValue(baseAmount);
+  gstAmount = formatValue(gstAmount);
+  finalAmount = formatValue(finalAmount);
+
 
   return { baseAmount, gstAmount, finalAmount };
 }
 const referenceDate = new Date("2025-09-22");
 referenceDate.setHours(0, 0, 0, 0);
-export function calculateProductGst(val,gstRate=1.18) {
-  if (!val ) return val||0;
-  
-  
-  
+export function calculateProductGst(val, gstRate = 1.18) {
+  if (!val) return val || 0;
+
+
+
   let prodBaseAmount = formatValue(val / gstRate);
-  return {prodBaseAmount,
-    prodGstAmount:formatValue(val-prodBaseAmount),
-    prodFinalAmount:val
-  
+  return {
+    prodBaseAmount,
+    prodGstAmount: formatValue(val - prodBaseAmount),
+    prodFinalAmount: val
+
   };
 }
 
-  
-export function handleProductAndServiceGst(services,products,inputDate){
-   const {gstAmount,finalAmount,baseAmount}= calculateGst(services,inputDate)
-    //  console.log("services",gstAmount,finalAmount,baseAmount)
 
-const userDate = new Date(inputDate);
+export function handleProductAndServiceGst(services, products, inputDate) {
+  const { gstAmount, finalAmount, baseAmount } = calculateGst(services, inputDate)
+  //  console.log("services",gstAmount,finalAmount,baseAmount)
+
+  const userDate = new Date(inputDate);
   userDate.setHours(0, 0, 0, 0);
   // Decide GST rate based on date
-  let gstChange= userDate < referenceDate;
-  let productGstTotal=0;
-  let productBaseAmountTotal=0;
-  let productTotal=0;
-const updatedProducts = products?.map((elm)=>{
-   let gstRate = 1.18; // default 18%
+  let gstChange = userDate < referenceDate;
+  let productGstTotal = 0;
+  let productBaseAmountTotal = 0;
+  let productTotal = 0;
+  const updatedProducts = products?.map((elm) => {
+    let gstRate = 1.18; // default 18%
 
-  if (!gstChange && elm.gst === 5) {
-    gstRate = 1.05;
-  }
-   const amount = parseInt(elm.price) ;
-  const {prodGstAmount,prodBaseAmount} = calculateProductGst(amount, gstRate);
-  productGstTotal=formatValue(productGstTotal+prodGstAmount*parseInt(elm.quantity));
-  productBaseAmountTotal=formatValue(productBaseAmountTotal+prodBaseAmount*parseInt(elm.quantity));
-  productTotal=formatValue(productTotal+amount*parseInt(elm.quantity));
-  return{
-   ...elm,
-   gstAmount:prodGstAmount,
-   baseAmount:prodBaseAmount    
-  }
-})
+    if (!gstChange && elm.gst === 5) {
+      gstRate = 1.05;
+    }
+    const amount = parseInt(elm.price);
+    const { prodGstAmount, prodBaseAmount } = calculateProductGst(amount, gstRate);
+    productGstTotal = formatValue(productGstTotal + prodGstAmount * parseInt(elm.quantity));
+    productBaseAmountTotal = formatValue(productBaseAmountTotal + prodBaseAmount * parseInt(elm.quantity));
+    productTotal = formatValue(productTotal + amount * parseInt(elm.quantity));
+    return {
+      ...elm,
+      gstAmount: prodGstAmount,
+      baseAmount: prodBaseAmount
+    }
+  })
 
-  
 
-   return {
-    serviceGst:gstAmount,
-    serviceTotal:Math.round(finalAmount),
-    serviceSubTotal:baseAmount,
+
+  return {
+    serviceGst: gstAmount,
+    serviceTotal: Math.round(finalAmount),
+    serviceSubTotal: baseAmount,
     updatedProducts,
     productGstTotal,
     productBaseAmountTotal,
-    productTotal:Math.round(productTotal),
-   }
+    productTotal: Math.round(productTotal),
+  }
 
 }
 export const loadRazorpay = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 };
-export function getDayOfToday(){
-const today = new Date();
-let day = today.getDay(); // 0 (Sun) → 6 (Sat)
-return day; // Convert Sunday(0) to 7
+export function getDayOfToday() {
+  const today = new Date();
+  let day = today.getDay(); // 0 (Sun) → 6 (Sat)
+  return day; // Convert Sunday(0) to 7
 
 
 }
-export function isTodayMatch(inputDate){
-  if(!inputDate)return false;
+export function isTodayMatch(inputDate) {
+  if (!inputDate) return false;
   const today = new Date();
   const date = new Date(inputDate);
-  if(!date)return false;
+  if (!date) return false;
   return (
     today.getDate() === date.getDate() &&
     today.getMonth() === date.getMonth()
   );
 };
-export function getBirthDayAndAnniversary(dob,anniversary){
+export function getBirthDayAndAnniversary(dob, anniversary) {
 
-  return {hasBirthday:isTodayMatch(dob),hasAnniversary:isTodayMatch(anniversary)
-          
+  return {
+    hasBirthday: isTodayMatch(dob), hasAnniversary: isTodayMatch(anniversary)
+
   }
 
 }
@@ -364,4 +386,4 @@ export function getBirthDayAndAnniversary(dob,anniversary){
 // console.log(isTodayMatch(birthday));   // true if today is 5 Dec
 
 
-export { postApiData, getApiCall, setAuthorizationToken, formatDateToFull,formatDateString, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };
+export { postApiData, getApiCall, deleteApiCall, setAuthorizationToken, formatDateToFull, formatDateString, formatValue, formatDateMonth, formatDateWOYear, formatDate, getStatusColor, getDaysBetween };

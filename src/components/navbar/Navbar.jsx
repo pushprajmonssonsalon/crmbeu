@@ -1,18 +1,24 @@
 import { useEffect, useRef } from "react";
 import "./Navbar.css";
 import { useState } from "react";
-import { getApiCall } from "../../utils/services";
+import { getApiCall, postApiData } from "../../utils/services";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
 import ChangePassword from "../modals/ChangePassword";
 import { FaAngleDown } from "react-icons/fa";
+import { HiMenuAlt3 } from "react-icons/hi";
 import profile from "../../images/profile.svg";
+import { isDistributer, isSalonManager, clearSession } from "../../utils/auth";
 const Navbar = () => {
   const [admin, setAdmin] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [unReadMsg, setUnReadMsg] = useState(false);
   const [parlorDetails, setParlorDetails] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const distributer = isDistributer();
+  const { open } = useSelector((state) => state.SidebarReducer);
   const modalRef = useRef(null);
   const adminPress = () => {
     setAdmin(!admin);
@@ -31,6 +37,24 @@ const Navbar = () => {
     };
   }, []);
   useEffect(() => {
+    if (distributer) {
+      const cached = localStorage.getItem("distributer_name");
+      if (cached && cached !== "undefined" && cached !== "null") {
+        setParlorDetails(cached);
+        return;
+      }
+      postApiData(
+        "distributer/getDistrubterDetails",
+        {},
+        (resp) => {
+          const label = resp?.trade || resp?.name || "";
+          setParlorDetails(label);
+          localStorage.setItem("distributer_name", label);
+        },
+        () => {}
+      );
+      return;
+    }
     let name = localStorage.getItem("salon_address");
 
     getApiCall(
@@ -62,30 +86,37 @@ const Navbar = () => {
   }, []);
  
   const signoutPress = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("salon_address");
+    clearSession();
     toast.success("Logout Successful");
     navigate("/login");
   };
 
   return (
     <>
-     <nav className="flex z-[10] flex-row   sticky top-0  justify-between items-center nav pl-4  bg-transparent   w-full ">
+     <nav className="flex z-[10] flex-row sticky top-0 justify-between items-center nav pl-3 md:pl-4 bg-transparent w-full max-w-full ">
 
 
+
+        <button
+          onClick={() => dispatch({ type: "TOGGLE_SIDEBAR", payload: !open })}
+          className="md:hidden mr-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-navbar border border-lightGray"
+          aria-label="Toggle menu"
+        >
+          <HiMenuAlt3 size={22} className="text-ternary" />
+        </button>
 
         <div className="flex items-center w-full justify-end ">
-          <ul className="flex flex-row items-center justify-between w-full border bg-white border-lightGray shadow-navbar rounded-b-[25px] px-[32px] py-[10px]">
-           
-            <li className=" max-w-[180px] lg:max-w-[350px] overflow-hidden text-ellipsis whitespace-nowrap  text-lightGray2 inter text-xs xl:text-sm  border-b-2 border-gray-300">
+          <ul className="flex flex-row items-center justify-end sm:justify-between w-full border bg-white border-lightGray shadow-navbar rounded-b-[25px] px-[12px] md:px-[32px] py-[10px]">
+            
+            <li className=" hidden sm:inline-block max-w-[120px] md:max-w-[180px] lg:max-w-[350px] overflow-hidden text-ellipsis whitespace-nowrap  text-lightGray2 inter text-xs xl:text-sm  border-b-2 border-gray-300">
               {parlorDetails}
             </li>
-            <li className="flex items-center ">
+            <li className="flex items-center gap-3 md:gap-0 ">
 
-           
-            <li
+            
+            {!distributer && <li
               onClick={() => navigate("/notifications")}
-              className="mx-6 relative h-fit text-slate-100 cursor-pointer "
+              className="mx-2 md:mx-6 relative h-fit text-slate-100 cursor-pointer "
             >
               <svg
                 width="22"
@@ -102,14 +133,15 @@ const Navbar = () => {
                   {unReadMsg > 9 ? "9+" : unReadMsg || 0}
                 </p>
               </div>}
-            </li>
-            <li className="mx-6 font-medium  inter text-xs xl:text-lg text-slate-100 cursor-pointer">
+            </li>}
+            <li className="mx-2 md:mx-6 font-medium inter text-xs xl:text-lg text-slate-100 cursor-pointer">
               <button onClick={adminPress}
-                className=" bg-white hover:bg-secondaryGray   py-2 px-4 rounded-[16px] text-ternary flex justify-center gap-4 items-center">
+                className=" bg-white hover:bg-secondaryGray py-1 px-2 md:py-2 md:px-4 rounded-[16px] text-ternary flex justify-center gap-2 md:gap-4 items-center">
                 <div className="flex items-center justify-center gap-2 ">
-                <img src={profile} className="h-[32px] w-[32px] " />
+                <img src={profile} alt="" className="h-[32px] w-[32px] shrink-0" />
 
-                  Admin
+                  {/* "Admin" is the salon owner; a manager is labelled as such. */}
+                  <span className="hidden sm:inline">{distributer ? "Distributer" : isSalonManager() ? "Manager" : "Admin"}</span>
                 </div>
                 <div>
                   <FaAngleDown />
@@ -125,18 +157,19 @@ const Navbar = () => {
         </div>
         {admin && (
           <div
-            className="absolute right-[40px] top-[91px] flex"
+            className="absolute right-3 md:right-[40px] top-full mt-1 z-[60] flex"
             ref={modalRef}
           >
             <div       // Prevent closing when clicking inside
               className="bg-white text-start rounded-[16px] border shadow flex flex-col cursor-pointer p-3 ">
-              <span className="cursor-pointer hover:bg-gray-50 p-2 text-black font-medium" onClick={() => {
+              {!distributer && <span className="cursor-pointer hover:bg-gray-50 p-2 text-black font-medium" onClick={() => {
                 setAdmin(false)
                 navigate("/salon-details")
               }}>
                 Manage Profile
-              </span>
-              <span
+              </span>}
+              {/* A manager's password is set by the owner in Staff Contacts. */}
+              {!distributer && !isSalonManager() && <span
                 onClick={() => {
                   setShowModal(true)
                   setAdmin(false)
@@ -144,7 +177,7 @@ const Navbar = () => {
                 className="cursor-pointer hover:bg-gray-50 border-b  p-2 text-black font-medium"
               >
                 Change Password
-              </span>
+              </span>}
               <span
                 className=" cursor-pointer hover:bg-gray-50  p-2"
                 onClick={signoutPress}

@@ -95,7 +95,7 @@ const ChildComponent = ({ closeModal, onSubmit, modalRef }) => {
   };
 
   return (
-    <div className="relative top-[20%] bottom-[20%] m-auto p-4 w-fit min-w-[300px] md:min-w-[380px] h-full my-auto max-w-[60vw] max-h-full">
+    <div className="relative m-auto p-4 w-full sm:w-fit sm:min-w-[300px] md:min-w-[380px] h-full my-auto max-w-full md:max-w-[60vw] max-h-full">
       {/* Modal content */}
       <div ref={modalRef} className="slide-in-top relative h-fit max-h-full w-full  my-auto bg-white rounded-lg shadow p-4">
         {/* Modal header */}
@@ -110,7 +110,7 @@ const ChildComponent = ({ closeModal, onSubmit, modalRef }) => {
           {fields.map((field, idx) => {
             const { name, value, label, placeholder, type } = field;
             return (
-              <div key={idx} className="grid grid-cols-2 ">
+              <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <NormalInput
                   name={name}
                   value={value}

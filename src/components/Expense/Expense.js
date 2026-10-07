@@ -200,11 +200,11 @@ const Expense = () => {
 
     return (
         <>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
 
                 <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
-                    <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center  gap-6">
+                    <div className="flex items-center justify-between w-full flex-wrap gap-3">
+                        <div className="flex items-center  gap-3 md:gap-6 flex-wrap">
                             <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
                                 <FaCalendarAlt className="text-customPurple text-sm" />
                                 <span className="text-secondary text-sm">Year-to-date </span>
@@ -243,12 +243,12 @@ const Expense = () => {
             </div>
             <div className=" rounded-[16px] border border-primaryGray p-5  ">
                 <div className={`mb-5  w-full`}>
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center justify-between w-full flex-wrap gap-3">
                         <h2 className="text-black text-start  font-normal text-[22px] leading-[28px] mb-5">Expenses</h2>
 
 
                         <button
-                            className="w-[200px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
+                            className="w-full sm:w-[200px] bg-ternary font-normal h-[36px] flex items-center justify-center active:bg-ternary/90 transition-colors ease-in duration-100 rounded-[16px] text-white text-sm leading-[24px]"
                             onClick={handleAddNewExpense}
                         >
                             ADD NEW EXPENSE
@@ -256,10 +256,10 @@ const Expense = () => {
 
 
                     </div>
-                    <div className="flex justify-start items-center my-6 gap-4">
+                    <div className="flex justify-start items-center my-6 gap-4 flex-wrap">
                         {banners.map((elm, index) => {
                             return (
-                                <div className="bg-white rounded-[10px] border shadow-card py-[15px] px-[37px]">
+                                <div className="bg-white rounded-[10px] border shadow-card py-[15px] px-[20px] md:px-[37px] flex-1 min-w-[140px] max-w-[200px]">
                                     <div
                                         key={index}
                                         className="flex  flex-col text-[20px] font-normal items-center"

@@ -175,8 +175,8 @@ const Categorywise = () => {
     <>
       {" "}
       <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center  gap-6">
+        <div className="flex items-center justify-between w-full flex-wrap gap-3">
+          <div className="flex items-center  gap-3 md:gap-6 flex-wrap">
             <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
               <FaCalendarAlt className="text-customPurple text-sm" />
               <span className="text-secondary text-sm">Year-to-date </span>

@@ -38,6 +38,7 @@ export default function CustomizedCustomerTables({ headings, data }) {
   };
   return (
     <>
+      <div className="table-responsive">
       <table
         className="styled-table"
       >
@@ -90,7 +91,8 @@ export default function CustomizedCustomerTables({ headings, data }) {
           ))}
         </tbody>
       </table>
-      <div className="flex justify-between mt-4 items-center">
+      </div>
+      <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
         <GridRows
           totalItems={data?.length}
           itemsPerPage={rowsPerPage}

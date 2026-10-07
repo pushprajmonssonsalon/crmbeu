@@ -12,6 +12,9 @@ import ViewPopup from "../../components/popup/ViewPopup";
 import exportToExcel from "../../utils/exportToExcel";
 import { FaAngleDown, FaCalendarAlt } from "react-icons/fa";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
+import EditBillModal from "../../components/modals/EditBillModal";
+import ConfirmDialog from "../../components/modals/ConfirmDialog";
+import { isSalonOwner } from "../../utils/auth";
 
 const ViewAppointment = () => {
   const [params] = useSearchParams();
@@ -35,6 +38,11 @@ const ViewAppointment = () => {
   //true and false
 
   const [isStatusChange, setIsStatusChange] = useState(false);
+  // Completed bill the owner is correcting (see EditBillModal).
+  const [billToEdit, setBillToEdit] = useState(null);
+  // Completed bill the owner is cancelling or reopening: { item, action }.
+  const [billToReverse, setBillToReverse] = useState(null);
+  const [reversing, setReversing] = useState(false);
 
   //date
   const defaultStartDate = formatDate(new Date());
@@ -65,20 +73,18 @@ const ViewAppointment = () => {
 
 
   const handlePrint = (item) => {
-
     if (item.status === 2 || item.status === 1) {
       toast.error("Appointment is not completed!");
     } else {
       navigate("/invoicegenerator", { state: item });
     }
-    //  window.open(item.invoiceUrl,'_blank');
   };
 
   const submitPress = (item) => {
     const activeAppointment = viewAppointmentDetails.find(
       (elm) => elm._id === item._id
     );
-    const { userId, advanceUsed,cashbackUsed } = item;
+    const { userId, advanceUsed, cashbackUsed } = item;
     if (activeAppointment) {
       const data = {
         status: 3,
@@ -97,7 +103,6 @@ const ViewAppointment = () => {
         "appointment/changeAppointmentStatus",
         data,
         (resp) => {
-
           if (resp) {
             setLoadingStates((prevLoadingStates) => ({
               ...prevLoadingStates,
@@ -122,8 +127,14 @@ const ViewAppointment = () => {
     setComment("");
   };
   const cancelPress = (item) => {
-    if (item.status === 3) {
-      toast.error("Appointment has completed , you cannot cancel it! ");
+    if (item.status === 3 || item.status === 4) {
+      // Only the owner can cancel a completed bill, after confirming.
+      if (isSalonOwner()) {
+        setBillToReverse({ item, action: "cancel" });
+      } else {
+        toast.error("Appointment has completed , you can not cancel it! ");
+      }
+      return;
     }
     const data = {
       status: 2,
@@ -148,6 +159,35 @@ const ViewAppointment = () => {
       }
     );
   };
+  const reverseBill = () => {
+    if (!billToReverse || reversing) return;
+    const { item, action } = billToReverse;
+    setReversing(true);
+    postApiData(
+      "appointment/reverseCompletedAppointment",
+      { id: item._id, action },
+      (resp) => {
+        setReversing(false);
+        setBillToReverse(null);
+        setIsStatusChange((prev) => !prev);
+        if (resp?.failed?.length) {
+          toast.error(`Done, but these couldn't be reversed: ${resp.failed.join(", ")}`);
+        } else {
+          toast.success(action === "cancel" ? "Bill cancelled" : "Bill reopened as pending");
+        }
+      },
+      (error) => {
+        setReversing(false);
+        toast.error(error?.response?.data?.message || "Something went wrong");
+      }
+    );
+  };
+
+  const isCancelling = billToReverse?.action === "cancel";
+  const reverseWho = billToReverse
+    ? `${billToReverse.item?.customer?.name || "Customer"} · ₹${billToReverse.item?.total ?? 0}`
+    : "";
+
   const cancelAppPress = (item) => {
     if (item.status === 3) {
       toast.error("Appointment has completed , you cannot cancel it! ");
@@ -193,6 +233,7 @@ const ViewAppointment = () => {
 
     setModal(true);
     const appointment = viewAppointmentDetails.find((elm) => elm._id === _id);
+    console.log("apdpfd", appointment);
     if (appointment?.paymentMethod?.length === 0) {
       appointment.paymentMethod = paymentMethods;
     }
@@ -203,8 +244,6 @@ const ViewAppointment = () => {
 
     }
   };
-
-
 
   useEffect(() => {
     const data = {
@@ -300,10 +339,10 @@ const ViewAppointment = () => {
   return (
     <>
       <div className="">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div className={`mb-5 ${showDate ? "h-auto" : " h-[42px] overflow-hidden"} transition-all ease-in duration-300 w-full`}>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center  gap-6">
+            <div className="flex items-center justify-between w-full flex-wrap gap-3">
+              <div className="flex items-center  gap-3 md:gap-6 flex-wrap">
                 <button onClick={() => setShowDate(!showDate)} className="flex border  shadow items-center bg-white gap-2 rounded-[5px] py-[10px] px-[15px]">
                   <FaCalendarAlt className="text-customPurple text-sm" />
                   <span className="text-secondary text-sm">Year-to-date </span>
@@ -346,16 +385,16 @@ const ViewAppointment = () => {
         </div>
         <div className=" rounded-[16px] border border-primaryGray p-5  ">
 
-          <div className="flex border border-primaryGray rounded-[16px] w-fit mx-auto justify-center items-center ">
+          <div className="flex border border-primaryGray rounded-[16px] w-fit mx-auto justify-center items-center flex-col sm:flex-row ">
             <button
-              className={`w-[150px] text-sm ${tab === "crm" ? "bg-ternary text-white" : "bg-transparent text-ternary"
+              className={`w-full sm:w-[150px] text-sm ${tab === "crm" ? "bg-ternary text-white" : "bg-transparent text-ternary"
                 } px-4 py-2 rounded-[16px] transition-all ease-in duration-100`}
               onClick={handleCrmTab}
             >
               CRM
             </button>
             <button
-              className={`w-[150px] text-sm ${tab === "app" ? "bg-ternary" : "bg-transparent text-ternary"
+              className={`w-full sm:w-[150px] text-sm ${tab === "app" ? "bg-ternary" : "bg-transparent text-ternary"
                 } px-4 py-2 rounded-[16px] transition-all ease-in duration-100`}
               onClick={handleAppTab}
             >
@@ -396,6 +435,8 @@ const ViewAppointment = () => {
                   apptId={apptId}
                   setAlreadyAddedProduct={setAlreadyAddedProduct}
                   loading={loadingStates}
+                  onEditBill={setBillToEdit}
+                  onReopenBill={(item) => setBillToReverse({ item, action: "reopen" })}
                 />
               ) : (
                 <div
@@ -411,6 +452,7 @@ const ViewAppointment = () => {
             <div className="w-full mt-6">
               {viewAppointmentDetails?.length > 0 ? (
                 <StickyAppHeadTable
+                  tab={tab}
                   data={viewAppointmentDetails}
                   handlePrint={handlePrint}
                   cancelPress={cancelAppPress}
@@ -458,6 +500,34 @@ const ViewAppointment = () => {
           onClose={() => setShowQuantityPopup(false)}
           id={apptId}
           alreadyAddedProduct={alreadyAddedProduct}
+        />
+        <EditBillModal
+          appointment={billToEdit}
+          onClose={() => setBillToEdit(null)}
+          onSaved={() => {
+            setBillToEdit(null);
+            setIsStatusChange((prev) => !prev);
+          }}
+        />
+        <ConfirmDialog
+          open={Boolean(billToReverse)}
+          title={isCancelling ? "Cancel this bill?" : "Reopen this bill?"}
+          message={
+            <>
+              <p className="font-medium text-gray-900">{reverseWho}</p>
+              <p className="mt-2">
+                {isCancelling
+                  ? "Stock, advance, cashback and membership credits go back to the customer and the salon. The bill stays on record as cancelled."
+                  : "It goes back to Pending so you can edit it and complete it again. Completing it again issues a new invoice number and sends the customer a fresh invoice."}
+              </p>
+            </>
+          }
+          confirmLabel={isCancelling ? "Cancel bill" : "Reopen bill"}
+          cancelLabel={isCancelling ? "Keep bill" : "Go back"}
+          tone={isCancelling ? "danger" : "primary"}
+          busy={reversing}
+          onConfirm={reverseBill}
+          onClose={() => setBillToReverse(null)}
         />
         {/* Conditionally render the printable version */}
         {printStatus && <InvoiceGenrator />}

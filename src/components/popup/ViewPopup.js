@@ -173,8 +173,8 @@ const ViewPopup = ({
 
   if (!isVisible) return null;
   return (
-    <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
-      <div className=' w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+    <div className='fixed z-40 inset-0 bg-black/20 flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain'>
+      <div className=' w-full sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative mx-auto my-auto max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden'>
 
         <div className="">
           <div className='flex justify-between items-center mb-6'>
@@ -269,6 +269,7 @@ const ViewPopup = ({
           </div>
           <div className="max-h-[calc(100%-110px)] overflow-y-auto overflow-x-hidden">
 
+            <div className="table-responsive">
             <table className="styled-table">
               <thead>
                 <tr>
@@ -288,7 +289,7 @@ const ViewPopup = ({
                           type="number"
                           min={0}
                           max={payTotal}
-                          className="w-[250px] outline-none "
+                          className="w-full max-w-[250px] outline-none "
                           value={item?.amount}
                           onChange={handleChange}
                         />
@@ -313,8 +314,9 @@ const ViewPopup = ({
                 ))}
               </tbody>
             </table>
+            </div>
 
-            {!isPaid && <div className="flex items-center justify-end gap-4 mt-6">
+            {!isPaid && <div className="flex items-center justify-end gap-4 mt-6 flex-wrap">
               <button
                 className="rounded-[5px] w-[120px] text-sm  border border-ternary text-ternary py-[5px] px-[24px]"
                 onClick={onClose}

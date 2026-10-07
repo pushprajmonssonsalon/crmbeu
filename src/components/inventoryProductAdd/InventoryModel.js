@@ -4,7 +4,15 @@ import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from "../../utils/services";
 import NormalInput from "../customInput/NormalInput";
 
-const InventoryModel = ({ data, isVisible, onClose }) => {
+// `endpoint` / `onAdded` default to the salon behaviour so existing callers are
+// unaffected; the distributer page passes its own endpoint.
+const InventoryModel = ({
+  data,
+  isVisible,
+  onClose,
+  endpoint = "inventory/addProductToSalons",
+  onAdded,
+}) => {
 
   const [productDetails, setProductDetails] = useState({
 
@@ -23,16 +31,17 @@ const InventoryModel = ({ data, isVisible, onClose }) => {
       price: productDetails.price,
     };
     postApiData(
-      "inventory/addProductToSalons",
+      endpoint,
       payload,
       (resp) => {
 
         // alert("product Added Succesfully")
         toast.success("Product Added Successfully!!");
+        if (onAdded) onAdded();
       },
       (error) => {
         // 
-        toast.error(error.response.data.message);
+        toast.error(error?.response?.data?.message || "Something went wrong!!");
       }
     );
     onClose();
@@ -82,8 +91,8 @@ const InventoryModel = ({ data, isVisible, onClose }) => {
   if (!isVisible) return null;
 
   return (
-    <div className='fixed z-30 inset-0 bg-black/20 top-0 left-0 '>
-      <div className='w-[85%] sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative top-[10%] bottom-[10%]   mx-auto max-h-[calc(100%-150px)] overflow-y-auto overflow-x-hidden'>
+    <div className='fixed z-40 inset-0 bg-black/20 flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain'>
+      <div className=' w-full sm:w-[350px] md:w-[450px] bg-white p-4 rounded-xl relative mx-auto my-auto max-h-[calc(100dvh-2rem)] overflow-y-auto overflow-x-hidden'>
 
         <div className=" ">
           <div className='flex justify-between items-center mb-6'>

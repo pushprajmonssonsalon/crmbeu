@@ -21,6 +21,7 @@ const CustomTable = ({ columns, rows }) => {
   return (
     <>
       {" "}
+      <div className="table-responsive">
       <table className="styled-table">
         <thead>
           <tr>
@@ -36,14 +37,15 @@ const CustomTable = ({ columns, rows }) => {
               <td>{index + 1}</td>
               {columns?.map((column, index) => {
 
-                const { id } = column;
-                return <td>{row[id]}</td>;
+                const { id, get } = column;
+                return <td key={index}>{get ? get(row) : row[id]}</td>;
               })}
             </tr>
           ))}
         </tbody>
       </table>
-      <div className="flex justify-between mt-4 items-center">
+      </div>
+      <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
         <GridRows
           totalItems={rows?.length}
           itemsPerPage={rowsPerPage}

@@ -1,11 +1,12 @@
 const NormalInput = ({
   name,
-  placeholder="",
-  type="text",
+  placeholder = "",
+  type = "text",
   label = "",
+  min,
   value,
   onChange,
-  disabled=false,
+  disabled = false,
   lableStyles = {},
   inputStyles = {},
 }) => {
@@ -22,6 +23,7 @@ const NormalInput = ({
         id={name}
         type={type}
         name={name}
+        min={min}
         style={{ ...inputStyles }}
         placeholder={placeholder}
         className="bg-gray-50 min-w-sm capitalize border border-primaryGray text-black text-sm rounded-lg   py-[12px] px-[27px]  "

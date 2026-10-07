@@ -10,6 +10,12 @@ import NormalInput from "../../components/customInput/NormalInput";
 import GridRows from "../../components/pagination/gridRows";
 import Pagination from "../../components/pagination";
 
+// Same action-column sizing as components/Table/MyService.js.
+const iconClass = "h-[18px] w-[18px] sm:h-5 sm:w-5 lg:h-[22px] lg:w-[22px]";
+
+const actionBtnClass =
+  "shrink-0 grid place-items-center h-9 w-9 lg:h-10 lg:w-10 rounded-full bg-transparent transition-colors hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-95";
+
 const Orders = () => {
   const [ordersList, setOrdersList] = useState([]);
   const [orderProductList, setOrderProductLsit] = useState([]);
@@ -88,19 +94,20 @@ const Orders = () => {
   return (
     <>
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-5">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-5 flex-wrap">
             <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">Purchase Orders</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{ordersList?.length} Orders</span>
 
 
           </div>
-          <div className="relative flex items-center">
+          <div className="relative flex items-center w-full md:w-auto">
             <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
             <NormalInput
               name="name"
               inputStyles={{
                 'width': "280px",
+                maxWidth: "100%",
                 borderRadius: "16px",
                 padding: "5px 40px",
                 fontSize: "14px",
@@ -115,6 +122,7 @@ const Orders = () => {
 
 
         {/* Table of Recent Orders */}
+        <div className="table-responsive">
         <table
           className="styled-table order-table"
         >
@@ -143,20 +151,25 @@ const Orders = () => {
                 <td className="py-5">{item.products.length}</td>
 
                 <td className="py-5">
-                  <div className="flex gap-4">
+                  <div className="flex w-fit flex-nowrap items-center gap-1 sm:gap-2">
                     {item.status === 1 ? (
-                      <MdOutlineEdit
-                        className={` text-xl ${item.status === 1
-                          ? "cursor-pointer"
-                          : "cursor-not-allowed"
-                          } `}
+                      <button
+                        type="button"
+                        className={actionBtnClass + " text-secondaryGreen"}
+                        aria-label="Edit"
                         onClick={() => handleProductsPopup(item)}
-                      />
+                      >
+                        <MdOutlineEdit className={iconClass} />
+                      </button>
                     ) : (
-                      <MdOutlineLocalPrintshop
-                        className={`text-xl cursor-pointer `}
+                      <button
+                        type="button"
+                        className={actionBtnClass + " text-primaryPurple"}
+                        aria-label="Print"
                         onClick={() => handleInvoice(item)}
-                      />
+                      >
+                        <MdOutlineLocalPrintshop className={iconClass} />
+                      </button>
                     )}
                   </div>
                 </td>
@@ -169,13 +182,20 @@ const Orders = () => {
                 </td>
                
                   <td className="py-5">
-                    <MdOutlineDriveFolderUpload
-                      className={`text-xl text-center w-full   ${item.poInvoiceUrl ? "cursor-not-allowed" : "cursor-pointer"}`}
-                      onClick={() => {
-                        if (!item.poInvoiceUrl) 
-                           handleUpload(item)
-                      }}
-                    />
+                    <div className="mx-auto flex w-fit items-center">
+                      <button
+                        type="button"
+                        className={actionBtnClass + (item.poInvoiceUrl ? " text-ternaryGray cursor-not-allowed" : " text-ternary")}
+                        disabled={!!item.poInvoiceUrl}
+                        aria-label="Upload invoice"
+                        onClick={() => {
+                          if (!item.poInvoiceUrl)
+                             handleUpload(item)
+                        }}
+                      >
+                        <MdOutlineDriveFolderUpload className={iconClass} />
+                      </button>
+                    </div>
                   </td>
                
                 <td className="py-5">
@@ -201,7 +221,8 @@ const Orders = () => {
             ))}
           </tbody>
         </table>
-        <div className="flex justify-between mt-4 items-center">
+        </div>
+        <div className="flex flex-col sm:flex-row justify-between mt-4 items-center gap-2">
           <GridRows
             totalItems={filteredData?.length}
             itemsPerPage={rowsPerPage}

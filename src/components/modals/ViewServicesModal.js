@@ -13,12 +13,26 @@ const ViewServicesModal = ({ show, setShow, data, showQuantityModal = null }) =>
 };
 
 const ChildComponent = ({ closeModal, data, modalRef, showQuantityModal = null }) => {
+  // CRM service rows were written with a misspelled `satffName` for a long
+  // time, so old appointments still carry it. Read both, and fall back to the
+  // staff object when neither name was stored.
+  const getStaffName = (row) =>
+    row?.staffName || row?.satffName || row?.staff?.name || "";
+
+  // App bookings are charged `appPrice`; `price` on those rows is the walk-in
+  // rate.
+  const isAppBooking = data?.appointmentType === "app";
+  const getServiceRate = (row) => {
+    const rate = isAppBooking ? row?.appPrice ?? row?.price : row?.price;
+    return rate ?? "";
+  };
+
   const cols = [
     { name: "Name", id: data?.appointmentType === "crm" ? "miniSubcategory" : "name" },
     { name: "Category", id: "category" },
     { name: "Sub Category", id: "subCategory" },
-    { name: "Staff", id: "satffName" }, // Special case for staff data
-    { name: "Price", id: "price" },
+    { name: "Staff", id: "staffName", get: getStaffName },
+    { name: "Price", id: "price", get: getServiceRate },
   ];
 
   const prodCols = [
@@ -26,7 +40,7 @@ const ChildComponent = ({ closeModal, data, modalRef, showQuantityModal = null }
     { name: "Price", id: "price" },
     { name: "Brand", id: "brand" },
     { name: "Quantity", id: "quantity" },
-    { name: "Staff", id: "staffName" },
+    { name: "Staff", id: "staffName", get: getStaffName },
   ];
 
   const prodQuanCols = [
@@ -45,7 +59,7 @@ const ChildComponent = ({ closeModal, data, modalRef, showQuantityModal = null }
   ];
 
   return (
-    <div className="relative top-[15%] bottom-[20%] m-auto p-4 w-[80%] mx-auto h-full my-auto  max-h-full">
+    <div className="relative m-auto p-4 w-full sm:w-[90%] lg:w-[80%] mx-auto h-full my-auto max-h-full">
       {/* Modal content */}
       <div ref={modalRef} className="slide-in-top relative h-fit max-h-full w-full  my-auto bg-white rounded-lg shadow ">
         {/* Modal header */}
@@ -96,7 +110,6 @@ const ChildComponent = ({ closeModal, data, modalRef, showQuantityModal = null }
               </div> : null
             )
           })}
-
         </div>
       </div>
     </div>

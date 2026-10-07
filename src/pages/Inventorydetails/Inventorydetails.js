@@ -86,14 +86,14 @@ const Inventorydetails = ({ tab }) => {
   // my products states
 
   const inputFields = [
-  
+
     {
       name: "brand",
-      label:"Select Brand"
+      label: "Select Brand"
     },
     {
       name: "type",
-      label:"Select Type"
+      label: "Select Type"
 
     },
   ];
@@ -162,6 +162,9 @@ const Inventorydetails = ({ tab }) => {
     },
     {
       brandName: "Casmara",
+    },
+    {
+      brandName: "PHYT",
     },
   ];
   const TypeData = [{ productType: "Retail" }, { productType: "Professional" }];
@@ -285,7 +288,7 @@ const Inventorydetails = ({ tab }) => {
       // Cleanup function to clear timeout on component unmount
       return () => clearTimeout(timeoutId);
     }
-  }, [isModalOpen, allProductFilters, currentPage1, itemsPerPage1,tab]);
+  }, [isModalOpen, allProductFilters, currentPage1, itemsPerPage1, tab]);
 
   useEffect(() => {
     getApiCall(
@@ -374,20 +377,21 @@ const Inventorydetails = ({ tab }) => {
   return (
     <>
       <div className=" rounded-[16px] border border-primaryGray p-5  ">
-        <div className="flex items-center mb-6 justify-between">
-          <div className="flex items-center gap-5">
+        <div className="flex flex-col md:flex-row items-start md:items-center mb-6 justify-between gap-3">
+          <div className="flex items-center gap-5 flex-wrap">
 
-            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">{tab===0?"All":"My"} Products</h2>
+            <h2 className="text-black text-start  font-normal text-[22px] leading-[28px]">{tab === 0 ? "All" : "My"} Products</h2>
             <span className="rounded-[16px] text-xs px-6 border border-gray2">{tab === 0 ? totalAllProducts || 0 : totalMyProducts || 0} Products</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
 
-            <div className="relative flex items-center">
+            <div className="relative flex items-center w-full sm:w-auto">
               <AiOutlineSearch className="absolute text-lg text-lightGray left-[10px]" />
               <NormalInput
                 name="name"
                 inputStyles={{
                   'width': "280px",
+                  maxWidth: "100%",
                   borderRadius: "16px",
                   padding: "5px 40px",
                   fontSize: "14px",
@@ -400,38 +404,39 @@ const Inventorydetails = ({ tab }) => {
             </div>
             <div onClick={() => setShowOrderPopup(true)} className="relative cursor-pointer ">
               <FaShoppingCart className="text-xl" />
-              {cart?.length>0 && <span className="w-5 h-5 absolute -top-3 -right-2 rounded-full text-[10px] flex items-center justify-center bg-green-600 text-white"> {cart?.length > 9 ? "9+" : cart?.length}</span>}
+              {cart?.length > 0 && <span className="w-5 h-5 absolute -top-3 -right-2 rounded-full text-[10px] flex items-center justify-center bg-green-600 text-white"> {cart?.length > 9 ? "9+" : cart?.length}</span>}
 
             </div>
           </div>
         </div>
-        <div className="flex gap-6 items-center mb-9 ">
+        <div className="flex flex-wrap gap-6 items-center mb-9 ">
           {inputFields.map((item, index) => {
             const { name, label, placeholder } = item;
             const value =
               tab == 1 ? myProductFilters[name] : allProductFilters[name];
 
-            return  (
-             <div className="flex flex-col gap-1">
-             
-              <NormalSelect
-                key={index}
-                label={label}
-                value={value}
-                inputStyles={{
-                  'width': "280px",
-                  borderRadius: "16px",
-                  padding: "5px 40px",
-                  fontSize: "14px",
-                  borderColor: "#D9D9D9"
-                }}
-                onChange={handleChange}
-                options={name === "brand" ? brandOptions : typeOptions}
-                name={name}
-              />
+            return (
+              <div className="flex flex-col gap-1 w-full sm:w-auto">
+
+                <NormalSelect
+                  key={index}
+                  label={label}
+                  value={value}
+                  inputStyles={{
+                    'width': "280px",
+                    maxWidth: "100%",
+                    borderRadius: "16px",
+                    padding: "5px 40px",
+                    fontSize: "14px",
+                    borderColor: "#D9D9D9"
+                  }}
+                  onChange={handleChange}
+                  options={name === "brand" ? brandOptions : typeOptions}
+                  name={name}
+                />
               </div>
             )
-           
+
           })}
           <button
             className="h-[36px] mt-4 w-[100px] bg-black rounded-[16px] flex items-center justify-center text-white text-sm"
@@ -441,8 +446,8 @@ const Inventorydetails = ({ tab }) => {
           </button>
           {tab === 1 && (
             <button
-            className="h-[36px] mt-4 w-[100px] bg-ternary rounded-[16px] flex items-center justify-center text-white text-sm"
-            onClick={handleExport}
+              className="h-[36px] mt-4 w-[100px] bg-ternary rounded-[16px] flex items-center justify-center text-white text-sm"
+              onClick={handleExport}
             >
               Export All
             </button>
@@ -453,15 +458,15 @@ const Inventorydetails = ({ tab }) => {
             <Loader />
           </div>
         ) : tab === 1 ? (
-            <div className="w-full">
-              <MyProductTable
-                data={newMyProducts}
-                isChanged={isDelete}
-                setIsChanged={setIsDeleted}
-                handleOpen={handleOpen}
-              />
-            </div>
-       
+          <div className="w-full">
+            <MyProductTable
+              data={newMyProducts}
+              isChanged={isDelete}
+              setIsChanged={setIsDeleted}
+              handleOpen={handleOpen}
+            />
+          </div>
+
         ) : (
           <div className="w-full">
             <Table
@@ -473,19 +478,19 @@ const Inventorydetails = ({ tab }) => {
             />
           </div>
         )}
-     
+
         <div className="flex justify-between mt-4 items-center">
-        <GridRows
-          totalItems={tab === 1 ? totalMyProducts : totalAllProducts}
-          itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
-          handleRowschange={tab === 1 ? handleRowschange : handleRows1change}
-        />
-        <Pagination
-          totalItems={tab === 1 ? totalMyProducts : totalAllProducts}
-          itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
-          currentPage={tab === 1 ? currentPage : currentPage1}
-          onPageChange={tab === 1 ? handlePageChange : handlePageChange1}
-        />
+          <GridRows
+            totalItems={tab === 1 ? totalMyProducts : totalAllProducts}
+            itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
+            handleRowschange={tab === 1 ? handleRowschange : handleRows1change}
+          />
+          <Pagination
+            totalItems={tab === 1 ? totalMyProducts : totalAllProducts}
+            itemsPerPage={tab === 1 ? itemsPerPage : itemsPerPage1}
+            currentPage={tab === 1 ? currentPage : currentPage1}
+            onPageChange={tab === 1 ? handlePageChange : handlePageChange1}
+          />
         </div>
 
         <InventoryModel

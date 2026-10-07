@@ -573,12 +573,12 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
       <div className="flex justify-between">
         {/* your servic section */}
 
-        <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] h-80 overflow-y-auto">
+        <div className="mx-auto my-2 rounded-lg bg-slate-200 border-2 border-gray-300 w-full sm:w-[95%] h-80 overflow-y-auto">
           {/* <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             Your Services
           </h1> */}
           <div className="w-full overflow-x-auto my-4">
-            <div className="table-container">
+            <div className="table-responsive">
               {/* <table className="styled-table">
   <thead>
     <tr>
@@ -694,7 +694,7 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
 
         {/* ADD SERVICES  */}
 
-        <div className="mx-auto my-14 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%]  overflow-y-auto">
+        <div className="mx-auto my-14 rounded-lg bg-slate-200 border-2 border-gray-300 w-full sm:w-[95%]  overflow-y-auto">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             ADD Services
           </h1>
@@ -709,6 +709,8 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
               padding: "10px",
               paddingBottom:"30px",
               marginTop: "20px",
+              flexWrap: "wrap",
+              gap: "10px",
             }}
           >
             <select
@@ -808,11 +810,11 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
 
         {/* ADD PRODUCTS */}
 
-        <div className="mx-auto my-4 rounded-lg bg-slate-200 border-2 border-gray-300 w-[95%] ">
+        <div className="mx-auto my-4 rounded-lg bg-slate-200 border-2 border-gray-300 w-full sm:w-[95%] ">
           <h1 className="text-4xl font-bold text-black mt-2 ml-2">
             ADD Products
           </h1>
-          <div className="table-container">
+          <div className="table-responsive">
             <table className="styled-table">
               <thead>
                 <tr>
@@ -843,7 +845,7 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
           </div>
 
           {productDataReducer.length > 0 && (
-            <div className="table-container">
+            <div className="table-responsive">
               <table className="styled-table">
                 <thead>
                   <tr>
@@ -874,9 +876,9 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
 
           {/* Search Table */}
           <div className="search-container h-auto ">
-            <div className="flex flex-row relative mb-10 ">
+            <div className="flex flex-col sm:flex-row relative mb-10 items-center">
               {/* <h1 className="text-lg font-semibold">Search Product</h1> */}
-              <div className="flex relative w-[40%] mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
+              <div className="flex relative w-full sm:w-[40%] sm:mx-auto border-2 bg-white h-[50px] border-gray-300 rounded-lg">
                 <input
                   value={searchProduct}
                   placeholder="search product By Name "
@@ -888,7 +890,7 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
               {searchProduct?.length > 0 && (
                 <div
                   style={{}}
-                  className="absolute left-80 shadow-xl bg-white top-16 ml-8 h-[104px] w-[260px] overflow-auto"
+                  className="absolute left-0 sm:left-80 shadow-xl bg-white top-16 ml-4 sm:ml-8 h-[104px] w-full max-w-[260px] overflow-auto z-10"
                 >
                   {showSearchProduct?.map((item) => {
                     
@@ -907,7 +909,7 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
             </div>
 
             {selectedProduct && (
-              <div className="table-container">
+              <div className="table-responsive">
                 <table className="styled-table">
                   <thead>
                     <tr>
