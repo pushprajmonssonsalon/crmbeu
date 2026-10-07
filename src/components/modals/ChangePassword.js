@@ -57,12 +57,14 @@ const ChildComponent = ({ closeModal, onSubmit, modalRef }) => {
     }));
   };
   const handleSubmit = () => {
-    toast.dismiss()
-    const isEveryEmpty = Object.keys(formData).every((elm) => !formData[elm] || formData[elm] === "")
+    toast.dismiss();
+    const isEveryEmpty = Object.keys(formData).every(
+      (elm) => !formData[elm] || formData[elm] === "",
+    );
     if (isEveryEmpty) {
-      return toast.error("Fill all Fields")
+      return toast.error("Fill all Fields");
     }
-    if (formData.currentPassword !== formData.confirmPassword) {
+    if (formData.newPassword !== formData.confirmPassword) {
       setFormData({
         currentPassword: "",
         newPassword: "",
@@ -73,7 +75,7 @@ const ChildComponent = ({ closeModal, onSubmit, modalRef }) => {
     const data = {
       oldPassword: formData.currentPassword,
       newPassword: formData.confirmPassword,
-    }
+    };
     postApiData(
       "owner/changePassword",
       data,
@@ -90,19 +92,23 @@ const ChildComponent = ({ closeModal, onSubmit, modalRef }) => {
           confirmPassword: "",
         });
         toast.error("Password Not Changed");
-      }
+      },
     );
   };
 
   return (
     <div className="relative m-auto p-4 w-full sm:w-fit sm:min-w-[300px] md:min-w-[380px] h-full my-auto max-w-full md:max-w-[60vw] max-h-full">
       {/* Modal content */}
-      <div ref={modalRef} className="slide-in-top relative h-fit max-h-full w-full  my-auto bg-white rounded-lg shadow p-4">
+      <div
+        ref={modalRef}
+        className="slide-in-top relative h-fit max-h-full w-full  my-auto bg-white rounded-lg shadow p-4"
+      >
         {/* Modal header */}
-        <div className='flex justify-between items-center mb-6'>
+        <div className="flex justify-between items-center mb-6">
           <h1 className={`text-2xl text-black `}>Change Password</h1>
-          <button className='text-black text-xl' onClick={closeModal}><MdOutlineClose /></button>
-
+          <button className="text-black text-xl" onClick={closeModal}>
+            <MdOutlineClose />
+          </button>
         </div>
 
         {/* Modal body */}
@@ -119,14 +125,13 @@ const ChildComponent = ({ closeModal, onSubmit, modalRef }) => {
                   placeholder={placeholder}
                   type={type}
                   inputStyles={{
-                    'borderRadius': '10px',
+                    borderRadius: "10px",
                     padding: "10px 15px",
-
                   }}
                   lableStyles={{
-                    'fontWeight': '400',
-                    "fontSize": "14px",
-                    'color': '#000000'
+                    fontWeight: "400",
+                    fontSize: "14px",
+                    color: "#000000",
                   }}
                 />
               </div>
@@ -146,7 +151,6 @@ const ChildComponent = ({ closeModal, onSubmit, modalRef }) => {
               Submit
             </button>
           </div>
-
         </div>
       </div>
     </div>
