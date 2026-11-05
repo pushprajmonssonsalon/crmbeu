@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { MdCancel } from "react-icons/md";
 import axios from 'axios';
 import NormalInput from '../../components/customInput/NormalInput';
+import { isSalonOwner } from '../../utils/auth';
 const s3 = new AWS.S3({
   accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY,
   secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY,
@@ -13,6 +14,8 @@ const s3 = new AWS.S3({
 
 const SalonDeatils = () => {
   const [editParlorDetails,setEditParlorDetails] = useState({})
+  const [parlorLoaded, setParlorLoaded] = useState(false)
+  const [savingCashback, setSavingCashback] = useState(false)
   const token = localStorage.getItem("token");
   const handleFileChange = async (e) => {
 
@@ -98,6 +101,7 @@ const SalonDeatils = () => {
       (resp) => {
 
         setEditParlorDetails(resp);
+        setParlorLoaded(true);
         // parlorDetails(resp);
       },
       (error) => {
@@ -135,6 +139,45 @@ const SalonDeatils = () => {
       }
     )
   }
+
+  // Owner only (the backend re-checks). Earn rate is a percent 0-100 and
+  // validity is a whole number of months, 0 meaning cashback never expires.
+  const handleCashbackSubmit = () => {
+    const { cashbackPercentage, cashbackValidity } = editParlorDetails;
+    // Number("") is 0, so a cleared field must be caught before converting.
+    const isBlank = (value) => value === undefined || value === null || String(value).trim() === "";
+    const pct = Number(cashbackPercentage);
+    const months = Number(cashbackValidity);
+
+    if (isBlank(cashbackPercentage) || !Number.isFinite(pct) || pct < 0 || pct > 100) {
+      toast.error("Enter a cashback percentage between 0 and 100");
+      return;
+    }
+    if (isBlank(cashbackValidity) || !Number.isInteger(months) || months < 0) {
+      toast.error("Enter validity as whole months (0 = never expires)");
+      return;
+    }
+
+    setSavingCashback(true);
+    postApiData(
+      "parlor/updateCashbackSettings",
+      {
+        isCashback: Boolean(editParlorDetails.isCashback),
+        cashbackPercentage: pct,
+        cashbackValidity: months,
+      },
+      () => {
+        setSavingCashback(false);
+        toast.success("Cashback settings updated!");
+      },
+      (error) => {
+        setSavingCashback(false);
+        toast.error(
+          error?.response?.data?.message || "Something went wrong!"
+        );
+      }
+    );
+  };
 
   const handleCancelImages = (index) => {
     setEditParlorDetails((prevDetails) => ({
@@ -289,6 +332,77 @@ const SalonDeatils = () => {
           }
         </div>
       </div>
+
+      {isSalonOwner() && (
+        <>
+          <h2 className="text-black text-start mt-8 mb-5 font-normal text-[22px] leading-[28px]">
+            Cashback settings
+          </h2>
+          <div className="rounded-[16px] border border-primaryGray p-5">
+            <div className="flex items-center gap-3 mb-4">
+              <input
+                type="checkbox"
+                id="isCashback"
+                className="w-5 h-5 accent-black cursor-pointer"
+                checked={Boolean(editParlorDetails.isCashback)}
+                disabled={!parlorLoaded}
+                onChange={(e) =>
+                  setEditParlorDetails((prev) => ({
+                    ...prev,
+                    isCashback: e.target.checked,
+                  }))
+                }
+              />
+              <label htmlFor="isCashback" className="font-bold text-md cursor-pointer">
+                Customers earn cashback at this salon
+              </label>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 w-full items-center">
+              <NormalInput
+                type="number"
+                min={0}
+                name="cashbackPercentage"
+                label="Cashback percentage (%)"
+                lableStyles={{ fontWeight: '400', fontSize: '16px' }}
+                placeholder="e.g. 5 or 10"
+                value={editParlorDetails.cashbackPercentage ?? ''}
+                onChange={handleChange}
+                disabled={!parlorLoaded}
+              />
+              <NormalInput
+                type="number"
+                min={0}
+                name="cashbackValidity"
+                label="Validity (months, 0 = never expires)"
+                lableStyles={{ fontWeight: '400', fontSize: '16px' }}
+                placeholder="e.g. 1 or 2"
+                value={editParlorDetails.cashbackValidity ?? ''}
+                onChange={handleChange}
+                disabled={!parlorLoaded}
+              />
+            </div>
+
+            <p className="text-sm text-gray-500 mt-3">
+              Customers earn this percentage of the service total back as
+              cashback on both CRM bills and app bookings, usable only at this
+              salon. Cashback earned expires after the set number of months.
+              If you untick earning, customers stop earning new cashback but can
+              still use the cashback they already have until it expires.
+            </p>
+
+            <div className="flex mt-5 items-center justify-end">
+              <button
+                className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal disabled:opacity-50"
+                onClick={handleCashbackSubmit}
+                disabled={!parlorLoaded || savingCashback}
+              >
+                {savingCashback ? "Saving..." : "Save cashback settings"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };

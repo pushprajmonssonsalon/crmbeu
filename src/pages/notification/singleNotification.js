@@ -43,12 +43,25 @@ const SingleNotification = () => {
           <div className="bg-gray-100 py-12 h-full w-full">
             <div className="flex items-center justify-center ">
               <div className="flex flex-col w-full max-w-md leading-1.5 p-4 border-gray-200 bg-white rounded-e-xl rounded-es-xl ">
-                <p className="text-sm font-normal py-2.5 text-gray-900 ">
-                  {notification?.message?.split("is")[0]}{" is --- "}
-                  <a href={notification?.message?.split("is")[1]} className="font-semibold text-lg text-blue-600" target="_blank" rel="noopener noreferrer">
-                    View Royalty Invoice
-                  </a>
-                </p>
+
+                {notification?.message?.includes("The link to the royalty invoice that needs to be paid is") ? (
+                  <p className="text-sm font-normal py-2.5 text-gray-900">
+                    The link to the royalty invoice that needs to be paid is{" "}
+                    <a
+                      href={notification.message.split("The link to the royalty invoice that needs to be paid is")[1]?.trim()}
+                      className="font-semibold text-lg text-blue-600"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Invoice
+                    </a>
+                  </p>
+                ) : (
+                  <p className="text-sm font-normal py-2.5 text-gray-900">
+                    {notification?.message}
+                  </p>
+                )}
+
                 <span className="text-sm font-normal text-gray-500 ">
                   Recieved
                 </span>

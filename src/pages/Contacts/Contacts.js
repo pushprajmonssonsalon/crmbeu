@@ -3,6 +3,8 @@ import Tabs from '../../components/tabs/Tabs';
 import CustomerDetails from '../customerDetails';
 import Employeedetails from '../employeeDetails/Employeedetails';
 import CustomersDetails from '../customerDetails/CustomersDetails';
+import CashbackOverview from '../customerDetails/CashbackOverview';
+import { isSalonOwner } from '../../utils/auth';
 
 const Contacts = () => {
      const [activeTab, setActiveTab] = useState(0);
@@ -29,11 +31,15 @@ const Contacts = () => {
            
              name:'Customers Details',
              component:<CustomersDetails />
-       
+
            },
-         
-         
-           
+           // Owner only; the backend re-checks the role.
+           ...(isSalonOwner() ? [{
+             name:'Customer Cashback',
+             component:<CashbackOverview />
+           }] : []),
+
+
          ]
        
        

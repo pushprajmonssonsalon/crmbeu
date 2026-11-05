@@ -25,12 +25,18 @@ const CustomerDetails = () => {
 
   const handleTab = (tab) => {
     setTab(tab)
-
+    // Load the wallet of the customer already searched for, instead of
+    // showing ₹0 until Search is pressed again.
+    if (tab === 1 && phoneNumber) {
+      setLoading(true)
+      fetchLogs({ phoneNumber })
+    }
   }
    const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [total, setTotal] = useState(0);
   const [avalilableBalance, setAvailableBalance] = useState(0);
+  const [cashbackSummary, setCashbackSummary] = useState({});
 
 
   const handlePageChange = (page) => {
@@ -61,6 +67,13 @@ const CustomerDetails = () => {
         setTotal(res?.total)
       
         setAvailableBalance(res?.balance)
+        setCashbackSummary({
+          earned: res?.earnedTotal || 0,
+          used: res?.usedTotal || 0,
+          expired: res?.expiredTotal || 0,
+          nextExpiry: res?.nextExpiry || null,
+          nextExpiryAmount: res?.nextExpiryAmount || 0,
+        })
       },
       (err) => {
         setLoading(false)
@@ -108,19 +121,30 @@ const CustomerDetails = () => {
     name:"Balance",
     id:"balance"
   }
-  
+
   ,{
     name:"Date",
     id:"createdAt"
+  },{
+    name:"Expires",
+    id:"expiryDate"
   }]
-  const rows = logs?.length > 0 ? logs.map((elm) => ({
+  const rows = logs?.length > 0 ? logs.map((elm) => {
+    // Lapsed cashback is written off as a debit tagged "expiry".
+    const expired = elm?.type === "debit" && elm?.paymentMethod?.[0]?.name === "expiry";
+    return {
     ...elm, createdAt: formatDateToFull(elm?.createdAt), amount: `₹ ${elm.amount}`, type: <div className='flex items-center gap-2'>
-      <span>{elm.type}</span>
+      <span>{expired ? "expired" : elm.type}</span>
       {elm?.type === "credit" ? <FaArrowUpLong className='text-green-600' /> : <FaArrowDownLong className='text-red-600' />}
 
     </div>,
-    balance:`₹ ${elm?.balance||0}`
-  })) : [];
+    balance:`₹ ${elm?.balance||0}`,
+    // expiryDate is stored in real UTC (unlike createdAt), so show it in the
+    // browser's local date rather than splitting the ISO string.
+    expiryDate: elm?.type === "credit" && elm?.expiryDate
+      ? new Date(elm.expiryDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+      : "-"
+  }}) : [];
 
   useEffect(()=>{
   let data ={
@@ -209,16 +233,35 @@ const CustomerDetails = () => {
         {tab === 0 ?
           <CustomizedCustomerTables headings={headings} data={clientsAppointment} /> : 
           <>
-          <div className='flex items-center justify-start '>
+          <div className='flex flex-wrap items-stretch justify-start gap-4'>
            <div className='bg-white p-4 shadow-xl border rounded-lg w-[200px] sm:w-[300px]'>
            <div className='text-black text-xl font-medium mb-4'>Available Balance</div>
            <div className='flex items-center'>
            <FaRupeeSign className='text-green-600 text-2xl'/>
            <span className='text-gray-500 text-3xl'>{avalilableBalance||0}</span>
            </div>
+           {cashbackSummary.nextExpiry && cashbackSummary.nextExpiryAmount > 0 && (
+             <div className='text-sm text-gray-500 mt-2'>
+               ₹ {cashbackSummary.nextExpiryAmount} expires on {new Date(cashbackSummary.nextExpiry).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+             </div>
+           )}
 
 
            </div>
+
+           {[
+             { label: 'Earned', value: cashbackSummary.earned, color: 'text-green-600' },
+             { label: 'Used', value: cashbackSummary.used, color: 'text-blue-600' },
+             { label: 'Expired', value: cashbackSummary.expired, color: 'text-red-600' },
+           ].map((card) => (
+             <div key={card.label} className='bg-white p-4 shadow-xl border rounded-lg w-[200px] sm:w-[220px]'>
+             <div className='text-black text-xl font-medium mb-4'>{card.label}</div>
+             <div className='flex items-center'>
+             <FaRupeeSign className={`${card.color} text-2xl`}/>
+             <span className='text-gray-500 text-3xl'>{card.value||0}</span>
+             </div>
+             </div>
+           ))}
 
           </div>
             

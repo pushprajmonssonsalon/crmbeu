@@ -118,7 +118,8 @@ const ViewAppointment = () => {
             ...prevLoadingStates,
             [item._id]: false,
           }));
-
+          // e.g. the customer's cashback no longer covers what the bill uses
+          toast.error(error?.response?.data?.message || "Could not complete the appointment");
         }
       );
     } else {
