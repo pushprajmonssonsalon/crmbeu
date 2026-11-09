@@ -335,6 +335,17 @@ const BookAppointment = ({ onTabChange }) => {
     );
   }, []);
 
+  // Past dates can be picked only while the owner has switched on past-date
+  // booking in Salon Details (the backend enforces the same rule).
+  const [allowPastDates, setAllowPastDates] = useState(false);
+  useEffect(() => {
+    getApiCall(
+      "parlor/getParlorDetail",
+      (res) => setAllowPastDates(res?.allowPastAppointments === true),
+      () => { }
+    );
+  }, []);
+
   const dispatch = useDispatch();
   // console.log(x,"services")
   // const handleServiceChange = (e) => {
@@ -430,7 +441,7 @@ const BookAppointment = ({ onTabChange }) => {
       note
     } = customerDetails;
 
-    if (appointmentDetails.date < formatDate(new Date())) {
+    if (!allowPastDates && appointmentDetails.date < formatDate(new Date())) {
       toast.error("Previous dates are not allowed");
       return;
     }
@@ -489,7 +500,7 @@ const BookAppointment = ({ onTabChange }) => {
       (error) => {
         setLoading(false)
         // alert(" Booking Status Failed");
-        toast.error("Booking status failed!");
+        toast.error(error?.response?.data?.message || "Booking status failed!");
       }
     );
 
@@ -873,7 +884,7 @@ const BookAppointment = ({ onTabChange }) => {
       label: "Date",
       type: 'date',
       value: appointmentDetails?.date,
-      min: todayDate,
+      min: allowPastDates ? undefined : todayDate,
       placeholder: "DD-MM-YYYY"
 
     },

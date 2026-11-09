@@ -16,6 +16,7 @@ const SalonDeatils = () => {
   const [editParlorDetails,setEditParlorDetails] = useState({})
   const [parlorLoaded, setParlorLoaded] = useState(false)
   const [savingCashback, setSavingCashback] = useState(false)
+  const [savingBooking, setSavingBooking] = useState(false)
   const token = localStorage.getItem("token");
   const handleFileChange = async (e) => {
 
@@ -172,6 +173,26 @@ const SalonDeatils = () => {
       },
       (error) => {
         setSavingCashback(false);
+        toast.error(
+          error?.response?.data?.message || "Something went wrong!"
+        );
+      }
+    );
+  };
+
+  // Owner only (the backend re-checks): whether the CRM may book appointments
+  // on a date before today.
+  const handleBookingSubmit = () => {
+    setSavingBooking(true);
+    postApiData(
+      "parlor/updateBookingSettings",
+      { allowPastAppointments: editParlorDetails.allowPastAppointments === true },
+      () => {
+        setSavingBooking(false);
+        toast.success("Booking settings updated!");
+      },
+      (error) => {
+        setSavingBooking(false);
         toast.error(
           error?.response?.data?.message || "Something went wrong!"
         );
@@ -398,6 +419,48 @@ const SalonDeatils = () => {
                 disabled={!parlorLoaded || savingCashback}
               >
                 {savingCashback ? "Saving..." : "Save cashback settings"}
+              </button>
+            </div>
+          </div>
+
+          <h2 className="text-black text-start mt-8 mb-5 font-normal text-[22px] leading-[28px]">
+            Booking settings
+          </h2>
+          <div className="rounded-[16px] border border-primaryGray p-5">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="allowPastAppointments"
+                className="w-5 h-5 accent-black cursor-pointer"
+                checked={editParlorDetails.allowPastAppointments === true}
+                disabled={!parlorLoaded}
+                onChange={(e) =>
+                  setEditParlorDetails((prev) => ({
+                    ...prev,
+                    allowPastAppointments: e.target.checked,
+                  }))
+                }
+              />
+              <label htmlFor="allowPastAppointments" className="font-bold text-md cursor-pointer">
+                Allow booking appointments on past dates
+              </label>
+            </div>
+
+            <p className="text-sm text-gray-500 mt-3">
+              When ticked, anyone booking in the CRM can pick a date before
+              today, e.g. to enter a bill that was missed. Those bills count
+              in the reports, GST and staff totals for the date picked, so a
+              day or month you have already closed can change. Turn it off
+              again once the missed bills are entered.
+            </p>
+
+            <div className="flex mt-5 items-center justify-end">
+              <button
+                className="bg-black text-white rounded-[16px] w-[190px] text-sm font-normal disabled:opacity-50"
+                onClick={handleBookingSubmit}
+                disabled={!parlorLoaded || savingBooking}
+              >
+                {savingBooking ? "Saving..." : "Save booking settings"}
               </button>
             </div>
           </div>

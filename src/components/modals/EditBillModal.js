@@ -19,6 +19,16 @@ const labelClass = "text-xs uppercase tracking-wide text-gray-500";
 // actually prints.
 const nameKeyFor = (row) => (row?.miniSubcategory ? "miniSubcategory" : "name");
 
+// appointmentDate holds the salon's wall-clock time labelled UTC (a 3 PM
+// booking is "...T15:00:00.000Z"), the same way BookAppointment builds it, so
+// the date and time are read and written straight from the ISO string.
+const splitAppointmentDate = (value) => {
+  const iso = value ? new Date(value).toISOString() : "";
+  return { date: iso.slice(0, 10), time: iso.slice(11, 16) };
+};
+// Today's date in the browser's (salon's) time zone, as YYYY-MM-DD.
+const todayLocal = () => new Date().toLocaleDateString("en-CA");
+
 // Owner-only correction of a completed CRM bill. The totals are worked out the
 // same way booking/editing an appointment does (bookAppointment,
 // EditAppointmentSalon/Edit.js), so the printed bill reads exactly as if it had
@@ -32,9 +42,14 @@ const EditBillModal = ({ appointment, onClose, onSaved }) => {
   const [payments, setPayments] = useState([]);
   const [staffData, setStaffData] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [billDate, setBillDate] = useState("");
+  const [billTime, setBillTime] = useState("");
 
   useEffect(() => {
     if (!appointment) return;
+    const { date, time } = splitAppointmentDate(appointment.appointmentDate);
+    setBillDate(date);
+    setBillTime(time);
     const rows = appointment.services || [];
     const subTotal = rows.reduce((acc, s) => acc + (Number(s.price) || 0), 0);
     setCustomerName(appointment.customer?.name || "");
@@ -105,7 +120,19 @@ const EditBillModal = ({ appointment, onClose, onSaved }) => {
     otherPayments.reduce((acc, m) => acc + m.amount, 0);
   const remaining = formatValue(total - paid);
 
+  // Only send a new date when the owner actually changed it, so the stored
+  // value (with its seconds) is never rewritten by an unrelated edit.
+  const original = splitAppointmentDate(appointment.appointmentDate);
+  const dateChanged = billDate !== original.date || billTime !== original.time;
+  const appointmentDate = dateChanged
+    ? `${billDate}T${billTime}:00.000Z`
+    : appointment.appointmentDate;
+
   const handleSave = () => {
+    if (!billDate || !billTime) return toast.error("Choose the bill date and time");
+    if (dateChanged && billDate > todayLocal()) {
+      return toast.error("A completed bill can't be dated after today");
+    }
     if (!customerName.trim()) return toast.error("Client name is required");
     if (services.some((s) => !String(s[s.nameKey] || "").trim())) {
       return toast.error("Every service needs a name");
@@ -124,9 +151,11 @@ const EditBillModal = ({ appointment, onClose, onSaved }) => {
       );
     }
 
-    const split = handleProductAndServiceGst(totalService, products, appointment.appointmentDate);
+    // GST rates depend on the bill date, so split it using the (new) date.
+    const split = handleProductAndServiceGst(totalService, products, appointmentDate);
     const data = {
       id: appointment._id,
+      ...(dateChanged && { appointmentDate }),
       customerName: customerName.trim(),
       services: services.map(({ nameKey, ...s }) => ({ ...s, price: Number(s.price) })),
       products: split.updatedProducts.map((p) => ({ ...p, price: Number(p.price) })),
@@ -216,6 +245,32 @@ const EditBillModal = ({ appointment, onClose, onSaved }) => {
           <span className={labelClass}>Mobile No.</span>
           <input className={inputClass} value={appointment.customer?.phoneNumber || ""} disabled />
         </label>
+        <label className="flex flex-col gap-1">
+          <span className={labelClass}>Bill Date</span>
+          <input
+            type="date"
+            className={inputClass}
+            value={billDate}
+            max={todayLocal()}
+            onChange={(e) => setBillDate(e.target.value)}
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className={labelClass}>Time</span>
+          <input
+            type="time"
+            className={inputClass}
+            value={billTime}
+            onChange={(e) => setBillTime(e.target.value)}
+          />
+        </label>
+        {dateChanged && (
+          <p className="sm:col-span-2 text-sm text-amber-600">
+            Moving this bill to another date moves its sales, GST and staff
+            totals to that date in reports. The invoice number and the PDF
+            already sent stay the same.
+          </p>
+        )}
       </section>
 
       <h2 className="text-start text-base font-semibold text-black mb-2">Services</h2>
