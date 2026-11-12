@@ -68,3 +68,86 @@ export const getSalonRole = () => {
 
 export const isSalonOwner = () => getSalonRole() === OWNER;
 export const isSalonManager = () => getSalonRole() === MANAGER;
+
+// ---- Session expiry ----
+// The backend (saloncartappbackend utils/tokens.js) gives every token 7 days,
+// then answers 401 on every call. Nothing here used to notice: the route
+// guards only check that a token exists, so an expired session stayed "logged
+// in" with every page failing to load. Two things now log it out:
+//   1. the token's own expiry, checked by the route guards and a timer
+//      (SessionWatcher in App.js), and
+//   2. the auth middleware's 401 on an API call made with the current token
+//      (handleAuthFailure), which also covers logout-everywhere / deactivated
+//      accounts.
+
+// Mirrors TOKEN_TTL_SECONDS in the backend. Tokens issued before the backend
+// added `exp` expire this long after `iat`.
+const TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60;
+
+const decodeToken = (token) => {
+  try {
+    const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(payload));
+  } catch {
+    return null;
+  }
+};
+
+// Milliseconds since epoch when the stored token expires, or null if unknown.
+export const getTokenExpiryMs = (token = localStorage.getItem("token")) => {
+  if (!token) return null;
+  const decoded = decodeToken(token);
+  if (!decoded) return null;
+  if (decoded.exp) return decoded.exp * 1000;
+  if (decoded.iat) return (decoded.iat + TOKEN_TTL_SECONDS) * 1000;
+  return null;
+};
+
+export const isSessionExpired = () => {
+  const expiry = getTokenExpiryMs();
+  return expiry !== null && Date.now() >= expiry;
+};
+
+// Clears the session and does a full reload onto /login, so no page state or
+// in-flight request of the dead session survives.
+export const expireSession = () => {
+  clearSession();
+  if (window.location.pathname !== "/login") {
+    window.location.replace("/login");
+  }
+};
+
+const authHeaderOf = (config) => {
+  const headers = config?.headers;
+  if (!headers) return undefined;
+  return (typeof headers.get === "function" && headers.get("Authorization")) || headers.Authorization;
+};
+
+// The backend also uses 401 for ordinary errors ("otp is not correct",
+// "something went wrong", ... ~275 places), so the status alone means nothing.
+// Only middlewares/auth.js answers with this message, when the session itself
+// is dead (expired, logged out, revoked, account gone).
+const SESSION_DEAD_MESSAGE = "User is not authorized";
+
+// axios response error handler. Only logs out when the 401 was for the token
+// currently stored, so a stale request finishing after a fresh login, or a
+// failed login attempt, does not end the new session.
+export const handleAuthFailure = (error) => {
+  const token = localStorage.getItem("token");
+  if (
+    error?.response?.status === 401 &&
+    error.response.data?.message === SESSION_DEAD_MESSAGE &&
+    token &&
+    authHeaderOf(error.config) === `Bearer ${token}`
+  ) {
+    expireSession();
+  }
+  return Promise.reject(error);
+};
+
+// axios.create() instances don't inherit interceptors from the default axios,
+// so every instance has to be wrapped with this.
+export const withSessionCheck = (instance) => {
+  instance.interceptors.response.use((res) => res, handleAuthFailure);
+  return instance;
+};

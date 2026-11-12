@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Layout from '../Layout';
-import { isDistributer, homePathFor } from '../../utils/auth';
+import { isDistributer, homePathFor, isSessionExpired, clearSession } from '../../utils/auth';
 
 const PrivateRoute = (props) => {
   let { Component } = props;
@@ -10,6 +10,10 @@ const PrivateRoute = (props) => {
   const location = useLocation();
 
   if (!token) {
+    return <Navigate to={"/login"} />;
+  }
+  if (isSessionExpired()) {
+    clearSession();
     return <Navigate to={"/login"} />;
   }
   // Distributers only ever see their own section.

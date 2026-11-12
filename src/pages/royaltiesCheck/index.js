@@ -7,7 +7,7 @@ import axios from "axios";
 import { loadRazorpay } from "../../utils/services";
 import { setRoyaltyStatus } from "../../redux/reducers";
 import { useSelector } from "react-redux";
-import { isSalonManager } from "../../utils/auth";
+import { isSalonManager, withSessionCheck } from "../../utils/auth";
 
 const LOCAL_BASE_URL = process.env.REACT_APP_BASE_URI;
 
@@ -38,6 +38,7 @@ const createRoyaltyOrder = async () => {
     timeout: 30000,
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   });
+  withSessionCheck(instance);
   const res = await instance.post("royalty/createRoyaltyOrder");
   return res.data;
 };
@@ -49,6 +50,7 @@ const getRoyaltyStatus = async (dispatch) => {
     timeout: 30000,
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   });
+  withSessionCheck(instance);
   const res = await instance.get("royalty/getRoyaltyStatus");
   const data = res.data;
   const royaltyDueDate = [];
@@ -89,6 +91,7 @@ const verifyPayment = async (orderId) => {
     timeout: 30000,
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   });
+  withSessionCheck(instance);
   const res = await instance.get(`royalty/verifyRoyaltyPayment/${orderId}`);
   const data = res.data;
   return data;

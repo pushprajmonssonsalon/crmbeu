@@ -7,7 +7,9 @@ import OwnerService from "./pages/ownerServices";
 import ViewAppointment from "./pages/viewAppointment/ViewAppointment";
 import CompltedAppointMent from "./pages/completedAppointment";
 import PrivateRoute from "./components/privateRoute";
-import Edit from "./pages/EditAppointmentSalon/Edit";
+// The previous edit screen is kept in ./pages/EditAppointmentSalon/Edit.js;
+// swap this import back to return to it.
+import Edit from "./pages/EditAppointmentSalon/EditAppointment";
 import Orders from "./pages/orders";
 import AppointmentBills from "./components/bills";
 import MembershipBill from "./components/bills/MembershipBill";
@@ -47,7 +49,7 @@ import {
 import axios from "axios";
 import DistributerRoute from "./components/privateRoute/DistributerRoute";
 import DistributerInventory from "./pages/distributer/DistributerInventory";
-import { isDistributer } from "./utils/auth";
+import { isDistributer, getTokenExpiryMs, expireSession, withSessionCheck } from "./utils/auth";
 
 const LOCAL_BASE_URL = process.env.REACT_APP_BASE_URI;
 
@@ -71,6 +73,7 @@ const ReminderTriggers = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        withSessionCheck(instance);
 
         const res = await instance.get("royalty/getRoyaltyStatus");
         const data = res?.data;
@@ -95,6 +98,45 @@ const ReminderTriggers = () => {
 
     fetchRoyaltyStatus();
   }, [dispatch, location.pathname]);
+
+  return null;
+};
+
+// Logs the user out the moment their token expires, even if they sit on one
+// page without making a request. Re-armed on every navigation (a new login
+// means a new token) and whenever the tab becomes visible again, because
+// timers in background tabs or a sleeping laptop can fire late.
+const SessionWatcher = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    let timer = null;
+
+    const arm = () => {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      const expiry = getTokenExpiryMs();
+      if (expiry === null) return;
+      const remaining = expiry - Date.now();
+      if (remaining <= 0) {
+        expireSession();
+        return;
+      }
+      // setTimeout overflows above ~24.8 days; re-arm later in that case.
+      timer = setTimeout(arm, Math.min(remaining, 2147483647));
+    };
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") arm();
+    };
+
+    arm();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      if (timer) clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [location.pathname]);
 
   return null;
 };
@@ -172,6 +214,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <SessionWatcher />
       <ReminderTriggers />
       <ReminderModal open={showReminder} onClose={() => { setShowReminder(false) }} />
       <Toaster />

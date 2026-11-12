@@ -1,6 +1,8 @@
 import Tabs from '../../components/tabs/Tabs';
 import ViewAppointment from '../viewAppointment/ViewAppointment';
-import BookAppointment from '../bookAppointment/BookAppointment';
+// The previous booking screen is kept in ../bookAppointment/BookAppointment.js;
+// swap this import back to return to it.
+import BookAppointment from '../bookAppointment/NewBookAppointment';
 import { useState } from 'react';
 
 const Appointment = () => {

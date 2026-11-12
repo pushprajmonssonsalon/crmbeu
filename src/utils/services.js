@@ -1,4 +1,5 @@
 import axios from "axios";
+import { withSessionCheck } from "./auth";
 // import { store } from "../Redux/store/store";
 import { store } from "../redux/store";
 const BASE_URL = process.env.REACT_APP_BASE_URI;
@@ -35,6 +36,7 @@ const postApiData = (endpoint, apidata, success, failur) => {
       Authorization: `Bearer ${token}`,
     },
   });
+  withSessionCheck(instance);
   // 
   instance
     .post(endpoint, apidata)
@@ -59,6 +61,7 @@ const getApiCall = (endpoint, success, failur) => {
       Authorization: `Bearer ${token}`,
     },
   });
+  withSessionCheck(instance);
 
   instance
     .get(endpoint)
@@ -82,6 +85,7 @@ const deleteApiCall = (endpoint, success, failure) => {
       Authorization: `Bearer ${token}`,
     },
   });
+  withSessionCheck(instance);
 
   instance
     .delete(endpoint)
