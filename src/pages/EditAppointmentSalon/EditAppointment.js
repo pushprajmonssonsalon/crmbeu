@@ -21,10 +21,12 @@ import {
   productKey,
   productLineInvalid,
   rupees,
+  newProductLine,
+  newServiceLine,
   serviceKey,
   serviceLineInvalid,
   summaryRowsFor,
-  toPrice,
+  unitsByKey,
   withStaff,
 } from "../bookAppointment/bookingParts";
 
@@ -187,14 +189,10 @@ const EditAppointment = () => {
 
   // ---- picker ----
   const pickerStaff = staffData.find((s) => s._id === pickerStaffId);
-  const serviceRows = useMemo(() => {
-    const counts = new Map();
-    services.forEach((l) => counts.set(serviceKey(l), (counts.get(serviceKey(l)) || 0) + 1));
-    return counts;
-  }, [services]);
-  const productRows = useMemo(() => new Set(products.map(productKey)), [products]);
+  const serviceRows = useMemo(() => unitsByKey(services, serviceKey), [services]);
+  const productRows = useMemo(() => unitsByKey(products, productKey), [products]);
 
-  // Unticking a service removes every row of it (the picker shows "×n" when
+  // Unticking an item removes every row of it (the picker shows "×n" when
   // there is more than one); a single row goes with its own delete button.
   const toggleService = (s) => {
     const key = serviceKey(s);
@@ -202,16 +200,7 @@ const EditAppointment = () => {
       setServices((prev) => prev.filter((l) => serviceKey(l) !== key));
       return;
     }
-    setServices((prev) => [
-      ...prev,
-      {
-        ...s,
-        miniSubcategory: s.name,
-        price: toPrice(s.price),
-        quantity: 1,
-        ...withStaff(pickerStaff),
-      },
-    ]);
+    setServices((prev) => [...prev, newServiceLine(s, pickerStaff)]);
   };
 
   const toggleProduct = (p) => {
@@ -220,17 +209,12 @@ const EditAppointment = () => {
       setProducts((prev) => prev.filter((l) => productKey(l) !== key));
       return;
     }
-    setProducts((prev) => [
-      ...prev,
-      {
-        ...p,
-        price: toPrice(p.price),
-        quantity: 1,
-        gst: p?.gst || 18,
-        ...withStaff(pickerStaff),
-      },
-    ]);
+    setProducts((prev) => [...prev, newProductLine(p, pickerStaff)]);
   };
+
+  // "Add again" in the picker: one more row of the item, for its own staff.
+  const addServiceAgain = (s) => setServices((prev) => [...prev, newServiceLine(s, pickerStaff)]);
+  const addProductAgain = (p) => setProducts((prev) => [...prev, newProductLine(p, pickerStaff)]);
 
   // Picking a staff member also fills every row that has none yet.
   const choosePickerStaff = (staffId) => {
@@ -432,9 +416,11 @@ const EditAppointment = () => {
             gender={pickerGender}
             onGenderChange={setPickerGender}
             serviceCount={(s) => serviceRows.get(serviceKey(s)) || 0}
-            productChecked={(p) => productRows.has(productKey(p))}
+            productCount={(p) => productRows.get(productKey(p)) || 0}
             onToggleService={toggleService}
             onToggleProduct={toggleProduct}
+            onAddServiceAgain={addServiceAgain}
+            onAddProductAgain={addProductAgain}
             servicesLocked={creditLocked ? "Remove the membership above to change services." : undefined}
           />
         </div>

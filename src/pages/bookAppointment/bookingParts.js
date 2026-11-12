@@ -41,6 +41,30 @@ export const withStaff = (staff) => ({
   staffName: staff?.name || "",
 });
 
+// New cart lines for a catalogue service or product, going to `staff`.
+export const newServiceLine = (s, staff) => ({
+  ...s,
+  miniSubcategory: s.name,
+  price: toPrice(s.price),
+  quantity: 1,
+  ...withStaff(staff),
+});
+export const newProductLine = (p, staff) => ({
+  ...p,
+  price: toPrice(p.price),
+  quantity: 1,
+  gst: p?.gst || 18,
+  ...withStaff(staff),
+});
+
+// How many units of each item the cart holds, by key: a line counts its Qty,
+// and the same item can sit on several lines.
+export const unitsByKey = (lines, keyOf) => {
+  const units = new Map();
+  lines.forEach((l) => units.set(keyOf(l), (units.get(keyOf(l)) || 0) + lineQty(l)));
+  return units;
+};
+
 // A line can name someone who has since left; keep them selectable for it.
 export const staffOptionsFor = (staffData, line) => {
   const known = staffData.some((s) => s._id === line.staffId);
@@ -345,9 +369,11 @@ export const editLine = (lines, index, field, value, staffData) =>
   });
 
 // Service/Product picker: type, staff for newly ticked items, search, a
-// Women/Men filter, and a tick list. `serviceCount(s)` is how many cart rows
-// the service has (more than one shows a "×n" badge); `servicesLocked` is a
-// message shown instead of the service list.
+// Women/Men filter, and a tick list. `serviceCount(s)` / `productCount(p)` is
+// how many units the cart holds (ticked when any; more than one shows "×n").
+// Unticking removes the item from the cart; "Add again" on a ticked item adds
+// it once more as a separate line, so it can get its own staff.
+// `servicesLocked` is a message shown instead of the service list.
 export const ItemPicker = ({
   services,
   products,
@@ -358,9 +384,11 @@ export const ItemPicker = ({
   gender,
   onGenderChange,
   serviceCount,
-  productChecked,
+  productCount,
   onToggleService,
   onToggleProduct,
+  onAddServiceAgain,
+  onAddProductAgain,
   servicesLocked,
 }) => {
   const [type, setType] = useState("service");
@@ -430,6 +458,7 @@ export const ItemPicker = ({
                   subtitle={s.subCategory}
                   price={toPrice(s.price)}
                   onToggle={() => onToggleService(s)}
+                  onAddAgain={() => onAddServiceAgain(s)}
                 />
               );
             })}
@@ -441,16 +470,21 @@ export const ItemPicker = ({
       visibleProducts.length === 0 ? (
         <p className="px-3 py-6 text-center text-sm text-secondary">No products match.</p>
       ) : (
-        visibleProducts.map((p) => (
-          <PickRow
-            key={productKey(p)}
-            checked={productChecked(p)}
-            title={p.name}
-            subtitle={p.brand}
-            price={toPrice(p.price)}
-            onToggle={() => onToggleProduct(p)}
-          />
-        ))
+        visibleProducts.map((p) => {
+          const count = productCount(p);
+          return (
+            <PickRow
+              key={productKey(p)}
+              checked={count > 0}
+              count={count}
+              title={p.name}
+              subtitle={p.brand}
+              price={toPrice(p.price)}
+              onToggle={() => onToggleProduct(p)}
+              onAddAgain={() => onAddProductAgain(p)}
+            />
+          );
+        })
       );
   }
 
@@ -531,15 +565,32 @@ export const ItemPicker = ({
   );
 };
 
-const PickRow = ({ checked, count = 0, title, subtitle, price, onToggle }) => (
+// A button inside a <label> does not toggle the label's checkbox (it is
+// interactive content), so "Add again" can sit in the row.
+const PickRow = ({ checked, count = 0, title, subtitle, price, onToggle, onAddAgain }) => (
   <label
-    className={`flex cursor-pointer items-center gap-3 border-b border-lightGray/70 px-3 py-2.5 last:border-b-0 ${checked ? "bg-ternary/5" : "bg-white hover:bg-secondaryGray/60"
+    className={`flex cursor-pointer items-center gap-2 border-b border-lightGray/70 px-3 py-2.5 last:border-b-0 sm:gap-3 ${checked ? "bg-ternary/5" : "bg-white hover:bg-secondaryGray/60"
       }`}
   >
     <span className="min-w-0 flex-1">
       <span className="block truncate text-sm capitalize text-gray2">{title}</span>
       {subtitle && <span className="block truncate text-xs text-secondary">{subtitle}</span>}
     </span>
+    {checked && (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          onAddAgain();
+        }}
+        aria-label={`Add ${title} again`}
+        title="Add again as a separate line (it can have its own staff)"
+        className="flex h-7 shrink-0 items-center gap-0.5 rounded-md border border-ternary/40 bg-white px-1.5 py-0 text-xs font-medium text-ternary hover:bg-ternary/10 sm:px-2"
+      >
+        <MdAdd className="h-4 w-4" />
+        <span className="hidden sm:inline">Add again</span>
+      </button>
+    )}
     {count > 1 && (
       <span className="shrink-0 rounded bg-ternary/10 px-1.5 py-0.5 text-xs font-semibold text-ternary">
         ×{count}

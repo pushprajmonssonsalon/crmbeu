@@ -34,10 +34,12 @@ import {
   productKey,
   productLineInvalid,
   rupees,
+  newProductLine,
+  newServiceLine,
   serviceKey,
   serviceLineInvalid,
   summaryRowsFor,
-  toPrice,
+  unitsByKey,
   withStaff,
 } from "./bookingParts";
 
@@ -382,42 +384,34 @@ const NewBookAppointment = ({ onTabChange }) => {
 
   // ---- picker ----
   const pickerStaff = staffData.find((s) => s._id === pickerStaffId);
-  const inCartServices = useMemo(() => new Set(cartServices.map(serviceKey)), [cartServices]);
-  const inCartProducts = useMemo(() => new Set(cartProducts.map(productKey)), [cartProducts]);
+  const serviceUnits = useMemo(() => unitsByKey(cartServices, serviceKey), [cartServices]);
+  const productUnits = useMemo(() => unitsByKey(cartProducts, productKey), [cartProducts]);
 
+  // Ticking adds an item, unticking removes every line of it.
   const toggleService = (s) => {
     const key = serviceKey(s);
-    if (inCartServices.has(key)) {
+    if (serviceUnits.has(key)) {
       dispatch(newUpdateService(cartServices.filter((l) => serviceKey(l) !== key)));
       return;
     }
-    dispatch(
-      serviceAdded({
-        ...s,
-        miniSubcategory: s.name,
-        price: toPrice(s.price),
-        quantity: 1,
-        ...withStaff(pickerStaff),
-      })
-    );
+    dispatch(serviceAdded(newServiceLine(s, pickerStaff)));
   };
 
   const toggleProduct = (p) => {
     const key = productKey(p);
-    if (inCartProducts.has(key)) {
+    if (productUnits.has(key)) {
       dispatch(updateProducts(cartProducts.filter((l) => productKey(l) !== key)));
       return;
     }
-    dispatch(
-      productAdded({
-        ...p,
-        price: toPrice(p.price),
-        quantity: 1,
-        gst: p?.gst || 18,
-        ...withStaff(pickerStaff),
-      })
-    );
+    dispatch(productAdded(newProductLine(p, pickerStaff)));
   };
+
+  // "Add again": the same item on a line of its own, so it can go to another
+  // staff member. (productAdded would merge it into the existing line.)
+  const addServiceAgain = (s) =>
+    dispatch(newUpdateService([...cartServices, newServiceLine(s, pickerStaff)]));
+  const addProductAgain = (p) =>
+    dispatch(updateProducts([...cartProducts, newProductLine(p, pickerStaff)]));
 
   // Picking a staff member also fills every cart line that has none yet, so
   // "tick everything, then pick the staff" works too.
@@ -749,10 +743,12 @@ const NewBookAppointment = ({ onTabChange }) => {
             onStaffChange={choosePickerStaff}
             gender={pickerGender}
             onGenderChange={setPickerGender}
-            serviceCount={(svc) => (inCartServices.has(serviceKey(svc)) ? 1 : 0)}
-            productChecked={(p) => inCartProducts.has(productKey(p))}
+            serviceCount={(svc) => serviceUnits.get(serviceKey(svc)) || 0}
+            productCount={(p) => productUnits.get(productKey(p)) || 0}
             onToggleService={toggleService}
             onToggleProduct={toggleProduct}
+            onAddServiceAgain={addServiceAgain}
+            onAddProductAgain={addProductAgain}
           />
         </div>
 
