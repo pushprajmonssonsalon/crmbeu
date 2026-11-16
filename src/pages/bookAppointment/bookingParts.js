@@ -1,5 +1,12 @@
-import { useMemo, useState } from "react";
-import { MdAdd, MdDeleteOutline, MdOutlineReceiptLong, MdSearch } from "react-icons/md";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  MdAdd,
+  MdCallSplit,
+  MdClose,
+  MdDeleteOutline,
+  MdOutlineReceiptLong,
+  MdSearch,
+} from "react-icons/md";
 import { formatValue, getBirthDayAndAnniversary, getDayOfToday } from "../../utils/services";
 
 // The pieces the booking screen (NewBookAppointment.js) and the edit screen
@@ -149,8 +156,46 @@ const CELL =
 // cart has a product in it.
 const rowGrid = (showGst) =>
   showGst
-    ? "grid grid-cols-6 gap-x-2 gap-y-2 md:grid-cols-[minmax(0,1fr)_150px_64px_96px_72px_88px_36px]"
-    : "grid grid-cols-6 gap-x-2 gap-y-2 md:grid-cols-[minmax(0,1fr)_150px_64px_96px_88px_36px]";
+    ? "grid grid-cols-6 gap-x-2 gap-y-2 md:grid-cols-[minmax(0,1fr)_176px_64px_96px_72px_88px_36px]"
+    : "grid grid-cols-6 gap-x-2 gap-y-2 md:grid-cols-[minmax(0,1fr)_176px_64px_96px_88px_36px]";
+
+// ---- splitting a service between staff ----
+// A split line carries staffSplit: [{ staffId, staffName, share }], the line's
+// own (main) staff first, shares as fractions adding up to 1, and splitMode
+// ("amount" or "percent") for how it was entered. The main staff is the one
+// on the bill and invoice; the backend's staff reports credit each person
+// their share (and count the service once for each).
+
+const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+const round6 = (n) => Math.round((Number(n) || 0) * 1e6) / 1e6;
+
+// Sets a line's split from { mode, entries }, or drops it (null, or < 2 people).
+const withSplit = (line, split) => {
+  const { staffSplit, splitMode, ...rest } = line;
+  if (!split || split.entries.length < 2) return rest;
+  return { ...rest, staffSplit: split.entries, splitMode: split.mode };
+};
+
+// After a line's main staff changes, the new person takes over the main
+// share, plus their own share if they were already in the split.
+const repointSplit = (next, prev) => {
+  if (!prev.staffSplit) return next;
+  if (!next.staffId) return withSplit(next, null);
+  const [main, ...others] = prev.staffSplit;
+  const own = others.find((c) => c.staffId === next.staffId);
+  return withSplit(next, {
+    mode: prev.splitMode,
+    entries: [
+      { staffId: next.staffId, staffName: next.staffName, share: round6(main.share + (own?.share || 0)) },
+      ...others.filter((c) => c.staffId !== next.staffId),
+    ],
+  });
+};
+
+const splitSummary = (line, lineTotal) =>
+  (line.staffSplit || [])
+    .map((c) => `${(c.staffName || "Staff").split(" ")[0]} ${rupees(round2(c.share * lineTotal))}`)
+    .join(" · ");
 
 // The cart: a header and one row per line, or a hint when it is empty.
 // onDuplicateService switches service rows from a Qty field to one unit per
@@ -167,6 +212,8 @@ export const CartItems = ({
   servicesLocked = false,
   emptyHint = "Tick services or products below to add them here",
 }) => {
+  // The service row whose split dialog is open.
+  const [splitIndex, setSplitIndex] = useState(null);
   if (services.length + products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-6 text-center">
@@ -176,6 +223,9 @@ export const CartItems = ({
     );
   }
   const showGst = products.length > 0;
+  // Edit-screen rows are one unit each; booking rows carry a Qty.
+  const unitsOf = (line) => (onDuplicateService ? 1 : lineQty(line));
+  const splitting = splitIndex === null ? null : services[splitIndex];
   return (
     <>
       <div
@@ -202,6 +252,7 @@ export const CartItems = ({
             onChange={(field, value) => onLineChange("service", index, field, value)}
             onRemove={() => onRemove("service", index)}
             onDuplicate={onDuplicateService && (() => onDuplicateService(index))}
+            onSplit={() => setSplitIndex(index)}
           />
         ))}
         {products.map((line, index) => (
@@ -217,6 +268,18 @@ export const CartItems = ({
           />
         ))}
       </ul>
+      {splitting && (
+        <SplitDialog
+          line={splitting}
+          units={unitsOf(splitting)}
+          staffData={staffData}
+          onSave={(split) => {
+            onLineChange("service", splitIndex, "split", split);
+            setSplitIndex(null);
+          }}
+          onClose={() => setSplitIndex(null)}
+        />
+      )}
     </>
   );
 };
@@ -231,6 +294,7 @@ const CartRow = ({
   onChange,
   onRemove,
   onDuplicate,
+  onSplit,
 }) => {
   const isService = kind === "service";
   const perRowUnit = isService && onDuplicate;
@@ -266,20 +330,45 @@ const CartRow = ({
       >
         <MdDeleteOutline className="h-5 w-5" />
       </button>
-      <select
-        aria-label="Staff"
-        value={line.staffId || ""}
-        disabled={disabled}
-        onChange={(e) => onChange("staff", e.target.value)}
-        className={`${CELL} col-span-6 md:col-span-1 ${bad(!line.staffId)}`}
-      >
-        <option value="">Select Staff</option>
-        {staffOptions.map((s) => (
-          <option key={s._id} value={s._id}>
-            {s.name}
-          </option>
-        ))}
-      </select>
+      <div className="col-span-6 min-w-0 md:col-span-1">
+        <div className="flex items-center gap-1">
+          <select
+            aria-label="Staff"
+            value={line.staffId || ""}
+            disabled={disabled}
+            onChange={(e) => onChange("staff", e.target.value)}
+            className={`${CELL} min-w-0 flex-1 ${bad(!line.staffId)}`}
+          >
+            <option value="">Select Staff</option>
+            {staffOptions.map((s) => (
+              <option key={s._id} value={s._id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+          {isService && onSplit && (
+            <button
+              type="button"
+              onClick={onSplit}
+              disabled={disabled || !line.staffId || !Number(line.price)}
+              aria-haspopup="dialog"
+              aria-label={`${line.staffSplit ? "Change split of" : "Split"} ${name} between staff`}
+              title={line.staffId ? "Split between staff" : "Pick a staff member first"}
+              className={`grid h-9 w-9 shrink-0 place-items-center rounded-md border p-0 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${line.staffSplit
+                ? "border-ternary bg-ternary text-white hover:bg-ternary/90"
+                : "border-primaryGray bg-white text-ternary hover:bg-ternary/10"
+                }`}
+            >
+              <MdCallSplit className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {isService && line.staffSplit && (
+          <p className="mt-1 truncate text-[11px] text-ternary" title={splitSummary(line, lineTotal)}>
+            Split: {splitSummary(line, lineTotal)}
+          </p>
+        )}
+      </div>
       {perRowUnit ? (
         <div className="col-span-2 md:col-span-1">
           <span className="text-[11px] text-secondary md:hidden">Qty</span>
@@ -359,7 +448,10 @@ const CartRow = ({
 export const editLine = (lines, index, field, value, staffData) =>
   lines.map((l, i) => {
     if (i !== index) return l;
-    if (field === "staff") return { ...l, ...withStaff(staffData.find((s) => s._id === value)) };
+    if (field === "staff") {
+      return repointSplit({ ...l, ...withStaff(staffData.find((s) => s._id === value)) }, l);
+    }
+    if (field === "split") return withSplit(l, value);
     if (field === "quantity") {
       return { ...l, quantity: value === "" ? "" : Math.max(1, parseInt(value) || 1) };
     }
@@ -644,3 +736,259 @@ export const MobileTotalBar = ({ itemCount, totalPayable, children }) => (
     {children}
   </div>
 );
+
+// Ding-style "split between staff" dialog for one service line. The main
+// staff (the line's own) keeps whatever the others don't take; amounts are
+// entered against the line total (price x Qty) or as percentages. Saves
+// { mode, entries: [{ staffId, staffName, share }] } or null to remove.
+const SplitDialog = ({ line, units, staffData, onSave, onClose }) => {
+  const name = line.miniSubcategory || line.name;
+  const lineTotal = (Number(line.price) || 0) * units;
+  const main = { staffId: line.staffId, staffName: line.staffName };
+  const storedNames = new Map((line.staffSplit || []).map((c) => [c.staffId, c.staffName]));
+  const startMode = line.splitMode === "percent" ? "percent" : "amount";
+
+  const [mode, setMode] = useState(startMode);
+  const [rows, setRows] = useState(() => {
+    const others = (line.staffSplit || []).slice(1);
+    if (others.length === 0) return [{ staffId: "", value: "" }];
+    const whole = startMode === "amount" ? lineTotal : 100;
+    return others.map((c) => ({ staffId: c.staffId, value: String(round2(c.share * whole)) }));
+  });
+  const [tried, setTried] = useState(false);
+
+  // Escape closes; the first field gets focus once, on open.
+  const panelRef = useRef(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && closeRef.current();
+    document.addEventListener("keydown", onKey);
+    panelRef.current?.querySelector("select:not([disabled]), input")?.focus();
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  const whole = mode === "amount" ? lineTotal : 100;
+  const show = (n) => (mode === "amount" ? rupees(round2(n)) : `${round2(n)}%`);
+  const asRupees = (n) => rupees(round2(mode === "amount" ? n : (n * lineTotal) / 100));
+  const othersTotal = rows.reduce((sum, r) => sum + (Number(r.value) || 0), 0);
+  const mainValue = round2(whole - othersTotal);
+
+  let error = "";
+  const seen = new Set([main.staffId]);
+  for (const r of rows) {
+    if (!r.staffId) {
+      error = "Choose a staff member on each line.";
+      break;
+    }
+    if (seen.has(r.staffId)) {
+      error = "Each staff member can appear only once.";
+      break;
+    }
+    seen.add(r.staffId);
+    if (!(Number(r.value) > 0)) {
+      error = `Enter ${mode === "amount" ? "an amount" : "a percentage"} for each staff member.`;
+      break;
+    }
+  }
+  if (!error && mainValue <= 0) {
+    error = `${main.staffName || "The main staff"} must keep a part: the others add up to ${show(othersTotal)} of ${show(whole)}.`;
+  }
+
+  const optionsFor = (i) => {
+    const taken = new Set([main.staffId, ...rows.filter((_, j) => j !== i).map((r) => r.staffId)]);
+    const list = staffData.filter((s) => !taken.has(s._id));
+    const current = rows[i].staffId;
+    if (current && !staffData.some((s) => s._id === current)) {
+      list.unshift({ _id: current, name: storedNames.get(current) || "Staff" });
+    }
+    return list;
+  };
+  const canAddRow = staffData.some(
+    (s) => s._id !== main.staffId && !rows.some((r) => r.staffId === s._id)
+  );
+
+  const setRow = (i, patch) => setRows((prev) => prev.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+  const switchMode = (next) => {
+    if (next === mode) return;
+    setRows((prev) =>
+      prev.map((r) =>
+        r.value === ""
+          ? r
+          : {
+            ...r,
+            value: String(
+              round2(next === "percent" ? (Number(r.value) / lineTotal) * 100 : (Number(r.value) * lineTotal) / 100)
+            ),
+          }
+      )
+    );
+    setMode(next);
+  };
+
+  const save = () => {
+    setTried(true);
+    if (error) return;
+    const others = rows.map((r) => ({
+      staffId: r.staffId,
+      staffName: staffData.find((s) => s._id === r.staffId)?.name || storedNames.get(r.staffId) || "",
+      share: round6(Number(r.value) / whole),
+    }));
+    const mainShare = round6(1 - others.reduce((sum, c) => sum + c.share, 0));
+    onSave({ mode, entries: [{ ...main, share: mainShare }, ...others] });
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[1000] flex items-end justify-center bg-black/40 sm:items-center sm:p-4"
+      onMouseDown={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="split-title"
+        className="max-h-[calc(100dvh-1rem)] w-full overflow-y-auto rounded-t-2xl bg-white p-4 shadow-xl sm:max-w-lg sm:rounded-2xl sm:p-5"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 id="split-title" className="text-left text-lg font-semibold text-gray2">
+              Split between staff
+            </h2>
+            <p className="mt-0.5 text-sm text-secondary">
+              <span className="font-medium capitalize text-gray2">{name}</span> · {rupees(lineTotal)}
+              {units > 1 && ` (${units} × ${rupees(line.price)}, each split the same way)`}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-transparent p-0 text-secondary hover:bg-black/5"
+          >
+            <MdClose className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <span className="text-sm text-secondary">Split by</span>
+          <div role="group" aria-label="Split by" className="inline-flex h-9 overflow-hidden rounded-lg border border-primaryGray">
+            {[
+              ["amount", "Amount ₹"],
+              ["percent", "Percent %"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={mode === value}
+                onClick={() => switchMode(value)}
+                className={`rounded-none px-3 py-0 text-sm font-medium ${mode === value ? "bg-ternary text-white" : "bg-white text-gray2 hover:bg-secondaryGray"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <ul className="mt-3 space-y-2">
+          <li className="flex items-center gap-2 rounded-lg bg-secondaryGray/60 px-3 py-2">
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-medium text-gray2">{main.staffName || "Main staff"}</span>
+              <span className="block text-xs text-secondary">Main staff · keeps the rest</span>
+            </span>
+            <span className={`shrink-0 text-sm font-semibold ${mainValue > 0 ? "text-gray2" : "text-red-600"}`}>
+              {show(mainValue)}
+            </span>
+          </li>
+          {rows.map((r, i) => (
+            <li key={i} className="flex items-center gap-2">
+              <select
+                aria-label={`Staff ${i + 2}`}
+                value={r.staffId}
+                onChange={(e) => setRow(i, { staffId: e.target.value })}
+                className={`${CONTROL} min-w-0 flex-1 ${tried && !r.staffId ? "border-red-500" : ""}`}
+              >
+                <option value="">Select Staff</option>
+                {optionsFor(i).map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <div className="relative w-28 shrink-0">
+                <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-secondary">
+                  {mode === "amount" ? "₹" : "%"}
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  inputMode="decimal"
+                  aria-label={`${mode === "amount" ? "Amount" : "Percent"} for staff ${i + 2}`}
+                  value={r.value}
+                  onChange={(e) => setRow(i, { value: e.target.value })}
+                  className={`${CONTROL} pl-7 ${tried && !(Number(r.value) > 0) ? "border-red-500" : ""}`}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setRows((prev) => prev.filter((_, j) => j !== i))}
+                aria-label={`Remove staff ${i + 2}`}
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-transparent p-0 text-red-600 hover:bg-red-50"
+              >
+                <MdClose className="h-5 w-5" />
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <button
+          type="button"
+          onClick={() => setRows((prev) => [...prev, { staffId: "", value: "" }])}
+          disabled={!canAddRow}
+          className="mt-2 flex items-center gap-1 rounded-md bg-transparent px-2 py-1 text-sm font-medium text-ternary hover:bg-ternary/10 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <MdAdd className="h-4 w-4" /> Add staff
+        </button>
+
+        {error ? (
+          tried && <p className="mt-3 text-sm text-red-600">{error}</p>
+        ) : (
+          <p className="mt-3 text-sm text-secondary">
+            Credited: {main.staffName} {asRupees(mainValue)}
+            {rows.map((r) => ` · ${staffData.find((s) => s._id === r.staffId)?.name || storedNames.get(r.staffId)} ${asRupees(Number(r.value))}`)}
+          </p>
+        )}
+        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          The bill and invoice show {main.staffName || "the main staff"}. The split only changes how this
+          service is credited in staff reports; any bill discount comes off each share in proportion.
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+          {line.staffSplit && (
+            <button
+              type="button"
+              onClick={() => onSave(null)}
+              className="mr-auto rounded-lg bg-transparent px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+            >
+              Remove split
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-primaryGray bg-white px-4 py-2 text-sm font-medium text-gray2 hover:bg-secondaryGray"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            className="rounded-lg bg-ternary px-5 py-2 text-sm font-semibold text-white hover:bg-ternary/90"
+          >
+            Save split
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
