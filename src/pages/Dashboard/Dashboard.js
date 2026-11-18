@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import BarChart from "../../components/charts/BarChart";
 import DonutChart from "../../components/charts/DonutChart";
 import { formatDate, formatValue, getApiCall, postApiData } from "../../utils/services";
@@ -8,6 +8,7 @@ import { FaCalendarAlt, FaUser } from "react-icons/fa";
 import { FaAngleDown } from "react-icons/fa6";
 
 import EventModal from "../../components/modals/EventModal";
+import UserListModal from "../../components/modals/UserListModal";
 import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 import { useSearchParams } from "react-router-dom";
 import NormalSelect from "../../components/customInput/NormalSelect";
@@ -101,6 +102,12 @@ const Dashboard = () => {
 
   })
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [selectedUserType, setSelectedUserType] = useState("old");
+  const [userLists, setUserLists] = useState({ old: [], new: [] });
+  const [userListLoading, setUserListLoading] = useState(false);
+  const userListRequest = useRef(0);
+  const [userListError, setUserListError] = useState("");
   const [inActiveUser, setInActiveUser] = useState([]);
   const [salonDetails, setSalonDetails] = useState({
     sales: [0, 0, 0, 0],
@@ -570,6 +577,30 @@ const Dashboard = () => {
   useEffect(() => {
     debouncedFunction(fetchInActiveUser, 500, days)
   }, [days]);
+
+  const handleUserCardClick = (type) => {
+    const requestId = ++userListRequest.current;
+    setSelectedUserType(type);
+    setShowUserModal(true);
+    setUserLists({ old: [], new: [] });
+    setUserListError("");
+    setUserListLoading(true);
+    postApiData(
+      "reports/getDashboardUsers",
+      { startDate, endDate },
+      (res) => {
+        if (requestId !== userListRequest.current) return;
+        setUserLists({ old: res?.old || [], new: res?.new || [] });
+        setUserListLoading(false);
+      },
+      () => {
+        if (requestId !== userListRequest.current) return;
+        setUserListError("Unable to load users. Please close and reopen this list to try again.");
+        setUserListLoading(false);
+      }
+    );
+  };
+
   const compAppointment = salonDetails?.appointments[0];
   const dashboardData = [
     {
@@ -577,12 +608,14 @@ const Dashboard = () => {
       value: salonDetails?.oldNewUserData?.oldUsers,
       className:'bg-tile1',
       icon: <FaUser className="text-white text-md 2xl:text-lg" />,
+      userType: "old",
     },
     {
       heading: "New Users",
       value: salonDetails?.oldNewUserData?.newUsers,
       className:'bg-tile1',
       icon: <FaUser className="text-white text-md 2xl:text-lg" />,
+      userType: "new",
     },
     {
       heading: "Total Revenue",
@@ -694,7 +727,11 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 2xl:grid-cols-5 gap-5 mb-6">
 
           {dashboardData.map((item, index) => (
-            <div key={index} className="w-full">
+            <div
+              key={index}
+              className={`w-full ${item.userType ? "cursor-pointer" : ""}`}
+              onClick={item.userType ? () => handleUserCardClick(item.userType) : undefined}
+            >
               <DashboardCard key={index} heading={item.heading} value={item.value} icon={item.icon} className={item.className} />
             </div>
           ))}
@@ -837,6 +874,15 @@ const Dashboard = () => {
         data={selectedEvent}
 
 
+      />
+
+      <UserListModal
+        show={showUserModal}
+        setShow={setShowUserModal}
+        title={selectedUserType === "old" ? "Old Users" : "New Users"}
+        users={userLists[selectedUserType]}
+        loading={userListLoading}
+        error={userListError}
       />
 
 
