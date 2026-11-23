@@ -1,3 +1,4 @@
+import { membershipValid } from "../../utils/membershipValidity";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { formatValue, getApiCall, handleProductAndServiceGst, postApiData } from "../../utils/services";
 import { useNavigate, useParams } from "react-router";
@@ -645,7 +646,7 @@ const matchesSearch =(searchTerm)=> {
       label: "Membership",
       name: "membership",
       value:activeMembership?._id?activeMembership?._id:"",
-      options: membershipDetails?.map((item) => ({
+      options: membershipDetails?.filter(m => membershipValid(m, appointmentDetails?.appointmentDate)).map((item) => ({
         name: `${item.name}-${item.creditsLeft}`,
         value: item._id,
       })),

@@ -18,6 +18,8 @@ import { useSearchParams } from "react-router-dom";
 import exportToExcel from "../../utils/exportToExcel";
 import { CiExport } from "react-icons/ci";
 
+import { redemptionTotals, rupees } from "./redemption";
+
 const Report = () => {
   const [params] = useSearchParams();
   const [showDate, setShowDate] = useState(false);
@@ -373,6 +375,20 @@ const Report = () => {
     Total: formatValue(netServiceSales + parseFloat(gst))||0,
   }
 
+  const performanceRows = (categoryWiseDistrubution || []).map(({ _id, categories }) => {
+    const sales = categories.reduce((sum, row) => sum + row.sumTotal, 0);
+    const { baseAmount } = calculateGst(sales, endDate);
+    const target = getEmployeeSalary(_id.id) * 4 || 0;
+    return { name: _id.name, sales: formatValue(sales), net: formatValue(baseAmount), target,
+      performance: target ? formatValue(baseAmount * 100 / target) : 0, ...redemptionTotals(categories) };
+  });
+  const performanceTotal = redemptionTotals(performanceRows);
+  const exportPerformance = () => exportToExcel(performanceRows.map(row => ({
+    Employee: row.name, "Total Sales": row.sales, "Net Sales": row.net, Target: row.target,
+    "Performance (%)": row.performance, Redemption: row.redemption, "Redemption Share": row.redemptionShare
+  })).concat([{ Employee: "Total", Redemption: performanceTotal.redemption,
+    "Redemption Share": performanceTotal.redemptionShare }]), "Employee Performance", "employee-performance.xlsx");
+
   const exportHsnReport =()=>{
       exportToExcel([hsnRows], "Hsn Report", "hsnreport.xlsx",false);
 
@@ -700,6 +716,7 @@ const Report = () => {
             <h2 className="text-gray-700 bg-gray-300  px-3 py-0 capitalize  text-start  font-normal text-lg mb-5">EMPLOYEE PERFORMANCE</h2>
 
 
+            <button type="button" onClick={exportPerformance} className="mb-3 text-sm underline">Export employee performance</button>
             <div className="table-responsive">
 <table className="styled-table performance-table">
               <thead>
@@ -709,32 +726,17 @@ const Report = () => {
                   <th className="">NET SALES</th>
                   <th className="">TARGET</th>
                   <th className="">PERFORMANCE</th>
+                  <th>Redemption</th><th>Redemption Share</th>
                 </tr>
               </thead>
               <tbody style={{ height: "80px" }}>
-                {categoryWiseDistrubution?.map(({ _id: { id, name }, categories }, index) => {
-                  const salary = getEmployeeSalary(id);
-
-                  let totalSum = (categories.reduce((acc, curr) => acc + curr.sumTotal, 0) || 0);
-                  let { baseAmount } = calculateGst(totalSum, endDate);
-                  let target = ((salary * 4) || 0);
-
-                  let performance = target > 0 ? ((baseAmount / target) * 100) : 0;
-
-                  return (
-                    <>
-                      <tr>
-                        <td>{name}</td>
-                        <td>{formatValue(totalSum)}</td>
-                        <td>{formatValue(baseAmount)}</td>
-                        <td>{formatValue(target)}</td>
-                        <td>{formatValue(performance)}%</td>
-                      </tr>
-                    </>
-
-                  );
-                })}
-
+                {performanceRows.map((row, i) => <tr key={i}>
+                  <td>{row.name}</td><td>{row.sales}</td><td>{row.net}</td><td>{row.target}</td>
+                  <td>{row.performance}%</td><td>{rupees(row.redemption)}</td><td>{rupees(row.redemptionShare)}</td>
+                </tr>)}
+                <tr className="font-bold"><td colSpan={5}>Total</td>
+                  <td>{rupees(performanceTotal.redemption)}</td><td>{rupees(performanceTotal.redemptionShare)}</td>
+                </tr>
               </tbody>
             </table>
 </div>

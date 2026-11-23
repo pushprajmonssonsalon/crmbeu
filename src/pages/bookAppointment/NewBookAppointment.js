@@ -1,3 +1,5 @@
+import { membershipValid } from "../../utils/membershipValidity";
+import { v4 as uuid } from "uuid";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment";
@@ -81,6 +83,7 @@ export const expandServicesForBooking = (lines) =>
 const cleanQuery = (q) => q.trim().replace(/[.*+?^${}()|[\]\\]/g, "");
 
 const NewBookAppointment = ({ onTabChange }) => {
+  const membershipBookingKey = useRef(null);
   const dispatch = useDispatch();
   const gstApplied = localStorage.getItem("gstApplied") === "true";
 
@@ -349,7 +352,7 @@ const NewBookAppointment = ({ onTabChange }) => {
       return;
     }
     const m = memberships.find((elm) => elm._id === id);
-    if (!m) return;
+    if (!membershipValid(m, date)) return;
     const next = membershipDiscount(m, {
       current: discount,
       previous: activeMembership,
@@ -445,6 +448,7 @@ const NewBookAppointment = ({ onTabChange }) => {
 
   // ---- book ----
   const handleBook = () => {
+    if (membershipApplied && !membershipValid(activeMembership, date)) return toast.error("Membership expired. Remove it or choose a valid membership.");
     if (!client || !customerDetails.phoneNumber) {
       toast.error("Select a client first");
       clientInputRef.current?.focus();
@@ -510,6 +514,10 @@ const NewBookAppointment = ({ onTabChange }) => {
     };
 
     setLoading(true);
+    if (data.membershipCreditUsed > 0) {
+      membershipBookingKey.current ||= uuid();
+      data.bookingRequestId = membershipBookingKey.current;
+    }
     postApiData(
       "appointment/bookAppointmentFromCrm",
       data,
@@ -517,7 +525,8 @@ const NewBookAppointment = ({ onTabChange }) => {
         setLoading(false);
         if (!resp) return;
         toast.success("Appointment booked");
-        dispatch(removeAppointmentProductsData());
+        membershipBookingKey.current = null;
+          dispatch(removeAppointmentProductsData());
         onTabChange?.(1);
       },
       (error) => {
@@ -784,8 +793,8 @@ const NewBookAppointment = ({ onTabChange }) => {
                     {memberships.length ? "Not applied" : client ? "No membership" : "Select a client"}
                   </option>
                   {memberships.map((m) => (
-                    <option key={m._id} value={m._id}>
-                      {m.name} · {rupees(m.creditsLeft)} left
+                    <option key={m._id} value={m._id} disabled={!membershipValid(m, date)}>
+                      {m.name} · {membershipValid(m, date) ? rupees(m.creditsLeft) + " left" : "Unavailable for this date"}
                     </option>
                   ))}
                 </select>

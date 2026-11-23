@@ -1,3 +1,4 @@
+import { membershipValid } from "../../utils/membershipValidity";
 import { useEffect, useState } from "react";
 import { formatValue, getApiCall, postApiData } from "../../utils/services";
 import { useParams } from "react-router";
@@ -1035,7 +1036,7 @@ const mergedArray = servicesData.concat(editAppointmentDetails.services);
               <option value="" >
                 Membership
               </option>
-              {membershipDetails?.map((item) => {
+              {membershipDetails?.filter(m => membershipValid(m, date)).map((item) => {
                 return (
                   <option value={item._id}>
                     {" "}

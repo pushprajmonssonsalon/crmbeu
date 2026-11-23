@@ -960,7 +960,7 @@ const SplitDialog = ({ line, units, staffData, onSave, onClose }) => {
         )}
         <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
           The bill and invoice show {main.staffName || "the main staff"}. The split only changes how this
-          service is credited in staff reports; any bill discount comes off each share in proportion.
+          service is credited in staff reports, any bill discount comes off each share in proportion.
         </p>
 
         <div className="mt-4 flex flex-wrap items-center justify-end gap-2">

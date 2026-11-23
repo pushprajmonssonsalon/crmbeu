@@ -1,3 +1,5 @@
+import { membershipValid } from "../../utils/membershipValidity";
+import { v4 as uuid } from "uuid";
 import { useState, useRef, useMemo } from "react";
 import "./BookAppointment.css";
 import { formatDateWOYear, formatValue, getApiCall, getBirthDayAndAnniversary, getDayOfToday, handleProductAndServiceGst, postApiData } from "../../utils/services";
@@ -31,6 +33,7 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 const BookAppointment = ({ onTabChange }) => {
+  const membershipBookingKey = useRef(null);
   const gstToken = localStorage.getItem("gstApplied");
   const gstApplied = (gstToken === "true")
   const [loading, setLoading] = useState(false);
@@ -77,7 +80,7 @@ const BookAppointment = ({ onTabChange }) => {
   const [activeMembership, setActiveMemberShip] = useState({});
   const [memberShipStatus, setMemberShipStatus] = useState(false);
   // product table state
-  const activemember = membershipitem?.activeMembership;
+  const activemember = membershipitem?.activeMembership?.filter(m => membershipValid(m, appointmentDetails.date));
 
   const [applyDisountPer, setApplyDiscountPer] = useState(0);
   const [searchProduct, setsearchProduct] = useState("");
@@ -484,6 +487,10 @@ const BookAppointment = ({ onTabChange }) => {
     };
     setLoading(true)
 
+    if (data.membershipCreditUsed > 0) {
+      membershipBookingKey.current ||= uuid();
+      data.bookingRequestId = membershipBookingKey.current;
+    }
     postApiData(
       "appointment/bookAppointmentFromCrm",
       data,
@@ -492,6 +499,7 @@ const BookAppointment = ({ onTabChange }) => {
           // alert("Appointment Booked Sucessfully");
           setLoading(false)
           toast.success("Appointment Booked Sucessfully");
+          membershipBookingKey.current = null;
           dispatch(removeAppointmentProductsData());
           onTabChange(1)
 
@@ -506,7 +514,7 @@ const BookAppointment = ({ onTabChange }) => {
 
 
   };
-  // ...`
+  // ...
   const nameOnclick = (item) => {
     // e.preventDefault();
 
@@ -852,7 +860,7 @@ const BookAppointment = ({ onTabChange }) => {
     {
       label: "MEMBERSHIP",
       value:
-        membershipitem?.activeMembership?.length > 0 ? "Active" : "Inactive",
+        activemember?.length > 0 ? "Active" : "Inactive",
     },
     { label: "TOTAL VISITS", value: 0 },
     { label: "CARD ON FILE", value: 0 },

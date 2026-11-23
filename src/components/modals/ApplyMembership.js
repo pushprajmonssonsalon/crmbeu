@@ -1,3 +1,4 @@
+import { membershipValid } from "../../utils/membershipValidity";
 import { useState } from "react";
 import NormalSelect from "../customInput/NormalSelect";
 import Modal from "../modal/Modal";
@@ -24,7 +25,7 @@ const ChildComponent = ({ closeModal, data,modalRef }) => {
 
 
   // product table state
-  const activemember = data?.customer?.activeMembership;
+  const activemember = data?.customer?.activeMembership?.filter(m => membershipValid(m, data?.appointmentDate));
   const membershipPress = (e) => {
     setMemberShipId(e.target.value);
   };

@@ -1,3 +1,4 @@
+import { membershipValid } from "../../utils/membershipValidity";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router";
@@ -146,7 +147,7 @@ const EditAppointment = () => {
       return;
     }
     const m = memberships.find((elm) => elm._id === membershipId);
-    if (!m) return;
+    if (!membershipValid(m, appointment?.appointmentDate)) return;
     const next = membershipDiscount(m, {
       current: discount,
       previous: activeMembership,
@@ -461,8 +462,8 @@ const EditAppointment = () => {
                   {memberships
                     .filter((m) => !(creditLocked && m._id === activeMembership?._id))
                     .map((m) => (
-                      <option key={m._id} value={m._id}>
-                        {m.name} · {rupees(m.creditsLeft)} left
+                      <option key={m._id} value={m._id} disabled={!membershipValid(m, appointment?.appointmentDate)}>
+                        {m.name} · {membershipValid(m, appointment?.appointmentDate) ? rupees(m.creditsLeft) + " left" : "Unavailable for this date"}
                       </option>
                     ))}
                 </select>

@@ -4,6 +4,7 @@ import AWS from 'aws-sdk';
 import toast from 'react-hot-toast';
 import { MdCancel } from "react-icons/md";
 import axios from 'axios';
+import ConfirmDialog from "../../components/modals/ConfirmDialog";
 import NormalInput from '../../components/customInput/NormalInput';
 import { isSalonOwner } from '../../utils/auth';
 const s3 = new AWS.S3({
@@ -16,6 +17,8 @@ const SalonDeatils = () => {
   const [editParlorDetails,setEditParlorDetails] = useState({})
   const [parlorLoaded, setParlorLoaded] = useState(false)
   const [savingCashback, setSavingCashback] = useState(false)
+  const [confirmShare, setConfirmShare] = useState(false);
+  const [savingShare, setSavingShare] = useState(false);
   const [savingBooking, setSavingBooking] = useState(false)
   const token = localStorage.getItem("token");
   const handleFileChange = async (e) => {
@@ -140,6 +143,19 @@ const SalonDeatils = () => {
       }
     )
   }
+
+  const saveMembershipShare = membershipShareEnabled => {
+    setConfirmShare(false);
+    setSavingShare(true);
+    postApiData("parlor/updateMembershipShare", { membershipShareEnabled }, () => {
+      setEditParlorDetails(prev => ({ ...prev, membershipShareEnabled }));
+      setSavingShare(false);
+      toast.success("Membership share setting saved");
+    }, () => {
+      setSavingShare(false);
+      toast.error("Could not save membership share setting");
+    });
+  };
 
   // Owner only (the backend re-checks). Earn rate is a percent 0-100 and
   // validity is a whole number of months, 0 meaning cashback never expires.
@@ -356,6 +372,24 @@ const SalonDeatils = () => {
 
       {isSalonOwner() && (
         <>
+          <label className="mt-8 flex items-center gap-3 rounded-[16px] border border-primaryGray p-5">
+            <input type="checkbox" className="w-5 h-5 accent-black"
+              checked={editParlorDetails.membershipShareEnabled === true}
+              disabled={!parlorLoaded || savingShare}
+              onChange={e => e.target.checked ? setConfirmShare(true) : saveMembershipShare(false)} />
+            <span>Calculate staff service credit using membership purchase value
+              <small className="block text-gray-500">Applies when a new bill is finalized.</small>
+            </span>
+          </label>
+          <ConfirmDialog
+            open={confirmShare}
+            title="Turn on membership sharing?"
+            message="For newly finalized bills, staff sales credit for membership payments will be based on the membership purchase value."
+            confirmLabel="Turn on membership sharing"
+            cancelLabel="Cancel"
+            onConfirm={() => saveMembershipShare(true)}
+            onClose={() => setConfirmShare(false)}
+          />
           <h2 className="text-black text-start mt-8 mb-5 font-normal text-[22px] leading-[28px]">
             Cashback settings
           </h2>

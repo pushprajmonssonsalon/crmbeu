@@ -6,6 +6,16 @@ import CustomDatePicker from "../../components/customInput/CustomDatePicker";
 
 import * as XLSX from "xlsx";
 
+import { redemptionTotals, rupees } from "./redemption";
+
+const Redemption = ({ rows }) => {
+  const { redemption, redemptionShare } = redemptionTotals(rows);
+  return <dl className="text-sm text-gray-600">
+    <div className="flex justify-between gap-3"><dt>Redemption</dt><dd>{rupees(redemption)}</dd></div>
+    <div className="flex justify-between gap-3"><dt>Redemption Share</dt><dd>{rupees(redemptionShare)}</dd></div>
+  </dl>;
+};
+
 const Employee = () => {
   const [employees,setEmployees] = useState([]);
 
@@ -65,6 +75,7 @@ const Employee = () => {
         </div>
         
         <div className="pt-4 border-t border-gray-200">
+          <Redemption rows={employee.services} />
           <div className="flex justify-between items-center">
             <span className="text-gray-600 text-sm">Total Revenue</span>
             <span className="text-2xl font-bold text-green-600">₹{total.toLocaleString()}</span>
@@ -116,8 +127,9 @@ const Employee = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-semibold text-gray-700">
-                          ₹{service.sumTotal.toLocaleString()}
+                          {rupees(service.sumTotal)}
                         </p>
+                        <Redemption rows={[service]} />
                       </div>
                     </div>
                   ))}
@@ -149,6 +161,7 @@ const Employee = () => {
 
  
 
+  const allServices = employees.flatMap(emp => emp.services);
   const totalRevenue = employees.reduce((sum, emp) => sum + calculateTotal(emp.services), 0);
   const totalServices = employees.reduce((sum, emp) => sum + emp.services.length, 0);
 
@@ -161,7 +174,7 @@ const Employee = () => {
       ['EMPLOYEE SERVICES REVENUE REPORT'],
       ['Generated on: ' + new Date().toLocaleString()],
       [],
-      ['Employee Name', 'Category', 'Sub Category', 'Service Name',"Total Services" ,'Revenue (₹)', 'Employee Total (₹)']
+      ['Employee Name', 'Category', 'Sub Category', 'Service Name',"Total Services" ,'Revenue (₹)', 'Employee Total (₹)', 'Redemption (₹)', 'Redemption Share (₹)']
     ];
 
     let currentRow = 4; // Starting after headers
@@ -178,7 +191,8 @@ const Employee = () => {
           service.service,
           service.totalServices,
           service.sumTotal,
-          serviceIndex === 0 ? empTotal : '' // Show total only on first row
+          serviceIndex === 0 ? empTotal : '',
+          service.redemption || 0, service.redemptionShare || 0
         ]);
       });
       
@@ -188,8 +202,8 @@ const Employee = () => {
         '',
         '',
         `TOTAL FOR ${emp.name.toUpperCase()} (${empServices} services)`,
-        empTotal,
-        ''
+        '', empTotal, '',
+        ...Object.values(redemptionTotals(emp.services))
       ]);
       
       // Add spacing between employees
@@ -203,8 +217,8 @@ const Employee = () => {
       '',
       '',
       'GRAND TOTAL',
-      totalRevenue,
-      ''
+      '', totalRevenue, '',
+      ...Object.values(redemptionTotals(allServices))
     ]);
     mainData.push([
       '',
@@ -352,7 +366,8 @@ const Employee = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex flex-wrap gap-4 items-center justify-between">
-            <div className="flex gap-6">
+            <div className="flex flex-wrap gap-6">
+              <Redemption rows={allServices} />
               <div>
                 <p className="text-sm text-gray-500">Total Employees</p>
                 <p className="text-2xl font-bold text-gray-800">{employees.length}</p>
