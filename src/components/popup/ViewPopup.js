@@ -2,6 +2,10 @@ import { MdOutlineClose } from "react-icons/md";
 import { postApiData } from "../../utils/services";
 import { useEffect, useState } from "react";
 
+const paise = amount => Math.round(Number(amount || 0) * 100);
+const rupees = amount => (amount / 100).toFixed(2).replace(/\.00$/, "");
+const validCashbackInput = value => /^\d+(\.\d{0,2})?$/.test(value);
+
 const ViewPopup = ({
   isVisible,
   isPaid,
@@ -9,167 +13,93 @@ const ViewPopup = ({
   setActiveAppointment,
   activeAppointment,
   onUpdate,
-  modal,
-  setModal,
   comment = null,
   setComment = () => { }
 }) => {
-  const gstToken = localStorage.getItem("gstApplied");
-  const gstApplied = (gstToken === "true")
-  // console.log(activeAppointment,"activeAppointment")
-  const { total, subTotal,serviceTotal,productTotal, paymentMethod, membershipCreditUsed, _id, customer,discount } = activeAppointment;
-  const [advance, setAdvance] = useState({});
-  const [cashback, setCashback] = useState({});
-  const [advanceSelected, setAdvanceSelected] = useState({
-    selected: false,
-    advanceUsed: 0,
-  });
-  const [cashbackSelected, setCashbackSelected] = useState({
-    selected: false,
-    cashbackUsed: 0,
-  });
-   
-  // const serviceGst = gstApplied ? formatValue((subTotal-(discount||0))* 0.05) : 0;
-  // const newSubTotal = Math.round((subTotal-(discount||0)) + serviceGst);
+  const { customer, paymentMethod, status } = activeAppointment;
+  const settlePending = status === 4;
+  const [advanceBalance, setAdvanceBalance] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [useAdvance, setUseAdvance] = useState(false);
+  const [useCashback, setUseCashback] = useState(false);
+  const [cashbackInput, setCashbackInput] = useState("");
 
-  // console.log(payableAmount,currentTotal,"total",total-membershipCreditUsed,subTotal)
-  // const totalCardUpiCash = parseInt(cash) + parseInt(card) + parseInt(upi);
-  const newServiceTotal = (Math.max(Math.floor((serviceTotal-(membershipCreditUsed||0)) - (advanceSelected?.advanceUsed || 0) - (cashbackSelected?.cashbackUsed || 0)), 0))
-  const payTotal = (newServiceTotal + (productTotal));
-  const payableAmount=(serviceTotal+productTotal)
-  // console.log((subTotal - membershipCreditUsed||0) - (advanceSelected?.advanceUsed || 0)-(cashbackSelected?.cashbackUsed||0),currentTotal)
+  const bill = paise(activeAppointment.total);
+  const membership = paise(activeAppointment.membershipCreditUsed);
+  const productTotal = activeAppointment.productTotal || (activeAppointment.products || []).reduce(
+    (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1), 0,
+  );
+  const afterProducts = bill - paise(productTotal);
+  const serviceDue = Math.max(0, Math.min(paise(activeAppointment.serviceTotal) || afterProducts, afterProducts) - membership);
+  const cashbackMax = advanceUsed => Math.max(0, Math.min(
+    walletBalance, serviceDue - advanceUsed, bill - membership - advanceUsed
+  ));
+  const requested = paise(cashbackInput);
+  const advanceUsed = settlePending ? paise(activeAppointment.advanceUsed) : useAdvance
+    ? Math.max(0, Math.min(advanceBalance, serviceDue, bill - membership))
+    : 0;
+  const maxCashback = cashbackMax(advanceUsed);
+  const invalidCashback = useCashback && (!validCashbackInput(cashbackInput) || requested > maxCashback);
+  const cashbackUsed = settlePending ? paise(activeAppointment.cashbackUsed)
+    : useCashback && !invalidCashback ? requested : 0;
+  const payTotal = Math.max(0, bill - membership - advanceUsed - cashbackUsed);
+  const userId = customer?._id;
+
   useEffect(() => {
-    if (customer?._id) {
-      const payload = {
-        userId: customer?._id,
-      }
-      postApiData("advance/getAdvance", payload, (res) => {
-        if (res) {
-          setAdvance(res?.advance);
-          setCashback(res?.wallet);
+    if (!isVisible || !userId || settlePending) return;
+    let current = true;
+    postApiData("advance/getAdvance", { userId }, res => {
+      if (!current) return;
+      setAdvanceBalance(paise(res?.advance?.balance));
+      setWalletBalance(Math.max(0, Math.floor(Number(res?.wallet?.balance || 0) * 100 + 1e-8)));
+    }, () => {});
+    return () => { current = false; };
+  }, [isVisible, userId, settlePending]);
 
-        }
+  const resetPaymentSplit = () => setActiveAppointment(prev => ({
+    ...prev, paymentMethod: prev.paymentMethod.map(method => ({ ...method, amount: 0 }))
+  }));
 
-      }, (err) => {
+  const handleChange = ({ target: { name, value } }) => {
+    setActiveAppointment(prev => {
+      const other = prev.paymentMethod.reduce((sum, method) =>
+        sum + (method.name === name ? 0 : paise(method.amount)), 0);
+      const amount = Math.max(0, Math.min(paise(value), payTotal - other)) / 100;
+      return { ...prev, paymentMethod: prev.paymentMethod.map(method =>
+        method.name === name ? { ...method, amount } : method) };
+    });
+  };
 
-      });
+  const changeAdvance = checked => {
+    setUseAdvance(checked);
+    const nextAdvance = checked ? Math.max(0, Math.min(advanceBalance, serviceDue, bill - membership)) : 0;
+    const nextMax = cashbackMax(nextAdvance);
+    if (checked && useCashback && requested > nextMax) setCashbackInput(rupees(nextMax));
+    if (checked) resetPaymentSplit();
+  };
+
+  const changeCashback = checked => {
+    setUseCashback(checked);
+    setCashbackInput(checked ? rupees(maxCashback) : "");
+    if (checked) resetPaymentSplit();
+  };
+
+  const editCashback = value => {
+    setCashbackInput(value);
+    const next = paise(value);
+    const paid = paymentMethod.reduce((sum, method) => sum + paise(method.amount), 0);
+    if (validCashbackInput(value) && next <= maxCashback && paid > bill - membership - advanceUsed - next) {
+      resetPaymentSplit();
     }
-
-
-  }, [customer]);
-
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setActiveAppointment((prev) => {
-      // Calculate the current sum of all payment methods except the one being updated
-      const currentTotal = prev.paymentMethod.reduce((acc, elm) => {
-        if (elm.name !== name) {
-          return acc + elm.amount;
-        }
-        return acc;
-      }, 0);
-
-      // Calculate the maximum allowable value for the current payment method
-      const maxAllowableValue = ((payTotal || 0) - (currentTotal || 0));
-
-      return {
-        ...prev,
-        paymentMethod: prev.paymentMethod.map((elm) => {
-          if (elm.name === name) {
-            return {
-              ...elm,
-              amount: Math.min(value, maxAllowableValue), // Ensure the amount doesn't exceed the max allowable value
-            };
-          } else {
-            return elm;
-          }
-        }),
-      };
-    });
-  };
-  const handleAdvance = (e) => {
-    const { checked } = e.target;
-    setAdvanceSelected((prev) => ({
-      ...prev,
-      selected: checked ? newServiceTotal > 0 && advance?.balance > 0 : false,
-      advanceUsed: checked ? (newServiceTotal > 0 && advance?.balance > 0) ? Math.min(((newServiceTotal) - (cashbackSelected?.cashbackUsed || 0)), (advance?.balance || 0)) : 0 : 0,
-    }));
-
-
-
-    if (checked) setActiveAppointment((prev) => {
-      return {
-        ...prev,
-        paymentMethod: prev.paymentMethod.map((elm) => {
-          return {
-            ...elm,
-            amount: 0, // Ensure the amount doesn't exceed the max allowable value
-          };
-
-        }),
-      };
-    });
-  }
-  const handleCashBack = (e) => {
-    const { checked } = e.target;
-
-    setCashbackSelected((prev) => {
-      const isEligible = checked && newServiceTotal > 0 && (cashback?.balance || 0) > 0;
-
-      // Calculate remaining amount after all deductions
-      const remainingAmount =
-        (newServiceTotal) -
-        (advanceSelected?.advanceUsed || 0);
-        // console.log(newSubTotal,membershipCreditUsed,advanceSelected?.advanceUsed,"remaingin amoutn")
-
-      // Never allow negative
-      const payableAfterDeductions = Math.max(remainingAmount, 0);
-
-      // Cashback to use
-      const cashbackUsed = isEligible
-        ? Math.min(payableAfterDeductions, cashback?.balance || 0)
-        : 0;
-
-      return {
-        ...prev,
-        selected: isEligible,
-        cashbackUsed,
-      };
-    });
-
-
-
-    if (checked) setActiveAppointment((prev) => {
-      return {
-        ...prev,
-        paymentMethod: prev.paymentMethod.map((elm) => {
-          return {
-            ...elm,
-            amount: 0, // Ensure the amount doesn't exceed the max allowable value
-          };
-
-        }),
-      };
-    });
-  }
-
-
-  const hnadleUpdate = () => {
-
-    const payload = {
-      userId: customer?._id,
-      advanceUsed: advanceSelected?.advanceUsed || 0,
-      cashbackUsed: cashbackSelected?.cashbackUsed || 0
-    };
-    onUpdate(payload);
-
   };
 
-
-  // useEffect(()=>{
-  //  console.log(cashbackSelected,subTotal,discount,"advance")
-  // },[cashbackSelected,subTotal,discount])
+  const submit = () => {
+    if (!invalidCashback) onUpdate({
+      userId,
+      advanceUsed: settlePending ? 0 : advanceUsed / 100,
+      cashbackUsed: settlePending ? 0 : cashbackUsed / 100,
+    });
+  };
 
   if (!isVisible) return null;
   return (
@@ -178,95 +108,61 @@ const ViewPopup = ({
 
         <div className="">
           <div className='flex justify-between items-center mb-6'>
-            <h1 className={`text-2xl text-black `}> PAY : {payTotal}</h1>
+            <h1 className={`text-2xl text-black `}> PAY : {rupees(payTotal)}</h1>
             <button className='text-black text-xl' onClick={onClose}><MdOutlineClose /></button>
 
           </div>
           <div className="">
             <div className="flex mb-1 items-center justify-between">
               <span className="text-gray-700 uppercase font-medium text-md ">Total</span>
-              <span className="text-gray-700 uppercase font-medium text-md ">Rs {payableAmount}</span>
+              <span className="text-gray-700 uppercase font-medium text-md ">Rs {rupees(bill)}</span>
             </div>
             <div className="flex mb-1 items-center justify-between">
               <span className="text-gray-700 uppercase font-medium text-md ">Advance</span>
-              <span className="text-green-600 font-medium text-xs">- Rs {advanceSelected?.advanceUsed || 0}</span>
+              <span className="text-green-600 font-medium text-xs">- Rs {rupees(advanceUsed)}</span>
             </div>
             <div className="flex mb-1 items-center justify-between">
               <span className="text-gray-700 uppercase font-medium text-md ">Cashback</span>
-              <span className="text-green-600 font-medium text-xs">- Rs {cashbackSelected?.cashbackUsed || 0}</span>
+              <span className="text-green-600 font-medium text-xs">- Rs {rupees(cashbackUsed)}</span>
             </div>
             <div className="flex mb-4 items-center justify-between">
               <span className="text-gray-700 uppercase font-medium text-md ">Payable Amount</span>
-              <span className="text-gray-700 uppercase font-medium text-md ">Rs {payTotal}</span>
+              <span className="text-gray-700 uppercase font-medium text-md ">Rs {rupees(payTotal)}</span>
             </div>
           </div>
-          <div className="bg-gray-200  p-3  flex items-center justify-between gap-3 ">
-
-
-            <div className="border-gray-300  focus:ring-blue-500  focus:ring-2">
-
-
-              <input
-                defaultChecked=""
-                id="advance"
-                type="checkbox"
-                value={advanceSelected?.selected}
-                checked={advanceSelected?.selected === true}
-                onChange={(e) => handleAdvance(e)}
-                name="bordered-checkbox"
-                className="w-5 h-5 text-blue-600  bg-gray-100  "
-              />
+          {!settlePending && !isPaid && (
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 bg-gray-200 p-3 text-black">
+                <input type="checkbox" checked={useAdvance}
+                  disabled={!useAdvance && (advanceBalance <= 0 || serviceDue <= 0)}
+                  onChange={e => changeAdvance(e.target.checked)} />
+                <span className="flex-1">Advance</span>
+                <span>₹{rupees(advanceBalance)}</span>
+              </label>
+              <div className="bg-gray-200 p-3 text-black">
+                <label className="flex items-center gap-3">
+                  <input type="checkbox" checked={useCashback}
+                    disabled={!useCashback && maxCashback <= 0}
+                    onChange={e => changeCashback(e.target.checked)} />
+                  <span className="flex-1">Use cashback</span>
+                  <span>₹{rupees(walletBalance)} available</span>
+                </label>
+                {useCashback && (
+                  <div className="mt-3 text-sm">
+                    <label htmlFor="cashback-amount">Cashback amount (₹)</label>
+                    <input id="cashback-amount" type="number" min="0" step="0.01"
+                      max={maxCashback / 100} value={cashbackInput}
+                      onChange={e => editCashback(e.target.value)}
+                      aria-invalid={invalidCashback} aria-describedby="cashback-limit"
+                      className="mt-1 w-full rounded border bg-white px-2 py-1" />
+                    <p id="cashback-limit" className={invalidCashback ? "text-red-700" : "text-gray-600"}>
+                      Enter an amount from ₹0 to ₹{rupees(maxCashback)}, with up to two decimal places.
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <label
-              htmlFor="advance"
-              className="w-full font-normal cursor-pointer text-black text-md flex items-center justify-between rounded-sm select-none"
-            >
-              Advance
-
-            </label>
-            <div className="flex items-center gap-4 ">
-              <h1 className=" whitespace-nowrap text-black text-lg">Rs {advance?.balance || 0} </h1>
-
-            </div>
-
-
-
-
-
-          </div>
-          <div className="bg-gray-200 mt-3  p-3  flex items-center justify-between gap-3 ">
-
-
-            <div className="border-gray-300  focus:ring-blue-500  focus:ring-2">
-
-
-              <input
-                defaultChecked=""
-                id="cashback"
-                type="checkbox"
-                value={cashbackSelected?.selected}
-                checked={cashbackSelected?.selected === true}
-                onChange={(e) => handleCashBack(e)}
-                name="bordered-checkbox"
-                className="w-5 h-5 text-blue-600  bg-gray-100  "
-              />
-            </div>
-            <label
-              htmlFor="cashback"
-              className="w-full font-normal cursor-pointer text-black text-md flex items-center justify-between rounded-sm select-none"
-            >
-              Cashback
-            </label>
-            <div className="flex items-center gap-4 ">
-              <h1 className=" whitespace-nowrap text-black text-lg">Rs {cashback?.balance || 0} </h1>
-
-            </div>
-
-
-
-
-
-          </div>
+          )}
           <div className="max-h-[calc(100%-110px)] overflow-y-auto overflow-x-hidden">
 
             <div className="table-responsive">
@@ -288,9 +184,12 @@ const ViewPopup = ({
                           name={item.name}
                           type="number"
                           min={0}
-                          max={payTotal}
+                          max={payTotal / 100}
+                          step="0.01"
                           className="w-full max-w-[250px] outline-none "
-                          value={item?.amount}
+                          aria-label={`${item.name} amount`}
+                          placeholder="0"
+                          value={paise(item.amount) === 0 ? "" : item.amount}
                           onChange={handleChange}
                         />
                         {item.name === "Online" && <>
@@ -325,7 +224,8 @@ const ViewPopup = ({
               </button>
               <button
                 className="rounded-[5px] w-[120px] border border-transparent text-sm text-white bg-ternary py-[5px] px-[24px]"
-                onClick={hnadleUpdate}
+                onClick={submit}
+                disabled={invalidCashback}
               >
                 Submit
               </button>

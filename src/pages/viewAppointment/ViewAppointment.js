@@ -29,7 +29,6 @@ const ViewAppointment = () => {
   const [tab, setTab] = useState("crm");
   const [viewAppointmentDetails, setViewAppointmentDetails] = useState([]);
   const [activeAppointment, setActiveAppointment] = useState({});
-  const [modal, setModal] = useState(false);
   const [printStatus, setPrintStatus] = useState(false);
   // show popup
   const [showPopup, setShowPopup] = useState(false);
@@ -89,6 +88,7 @@ const ViewAppointment = () => {
       const data = {
         status: 3,
         id: item._id,
+        appointmentUpdatedAt: item.updatedAt ?? null,
         comment,
         ...((advanceUsed && userId) && { advanceUsed, userId }),
         ...((cashbackUsed && userId) && { cashbackUsed, userId }),
@@ -109,7 +109,7 @@ const ViewAppointment = () => {
               [item._id]: false,
             }));
             // setStatus(3)
-            setIsStatusChange(!isStatusChange);
+            setIsStatusChange(changed => !changed);
             toast.success("Appointment Completed!");
           }
         },
@@ -118,7 +118,8 @@ const ViewAppointment = () => {
             ...prevLoadingStates,
             [item._id]: false,
           }));
-          // e.g. the customer's cashback no longer covers what the bill uses
+          if (error?.response?.status === 409) setIsStatusChange(changed => !changed);
+          // The bill or wallet may have changed since the payment was opened.
           toast.error(error?.response?.data?.message || "Could not complete the appointment");
         }
       );
@@ -174,7 +175,11 @@ const ViewAppointment = () => {
         if (resp?.failed?.length) {
           toast.error(`Done, but these couldn't be reversed: ${resp.failed.join(", ")}`);
         } else {
-          toast.success(action === "cancel" ? "Bill cancelled" : "Bill reopened as pending");
+          const message = action === "cancel" ? "Bill cancelled" : "Bill reopened as pending";
+          const expiredCashback = (Number(item.cashbackUsed || 0) - Number(resp?.cashbackRefunded ?? item.cashbackUsed ?? 0)).toFixed(2);
+          toast.success(Number(expiredCashback) > 0
+            ? `${message}. ₹${expiredCashback} in expired cashback was not returned.`
+            : message);
         }
       },
       (error) => {
@@ -232,15 +237,13 @@ const ViewAppointment = () => {
   }) => {
 
 
-    setModal(true);
     const appointment = viewAppointmentDetails.find((elm) => elm._id === _id);
     console.log("apdpfd", appointment);
-    if (appointment?.paymentMethod?.length === 0) {
-      appointment.paymentMethod = paymentMethods;
-    }
-
-    if (status === 1 || status === 4) {
-      setActiveAppointment(appointment);
+    if (appointment && !loadingStates[_id] && (status === 1 || status === 4)) {
+      setActiveAppointment({
+        ...appointment,
+        paymentMethod: appointment.paymentMethod?.length ? appointment.paymentMethod : paymentMethods,
+      });
       setShowPopup(true);
 
     }
@@ -317,15 +320,6 @@ const ViewAppointment = () => {
 
   const updatePaymentMethod = (elm) => {
     const updatedItem = { ...activeAppointment, ...elm };
-    setViewAppointmentDetails((prev) =>
-      prev.map((item) => {
-        if (item._id === activeAppointment._id) {
-          return updatedItem;
-        }
-        return item;
-      })
-    );
-
     submitPress(updatedItem);
     setShowPopup(false);
   };
@@ -472,30 +466,17 @@ const ViewAppointment = () => {
             </div>
           )}
         </div>
-        <ViewPopup
+        {showPopup && <ViewPopup
+          key={activeAppointment._id}
           comment={comment}
           setComment={setComment}
           isVisible={showPopup}
           onClose={() => setShowPopup(false)}
-          modal={modal}
           isPaid={activeAppointment?.isPaid && activeAppointment?.isCaptured}
-          setModal={setModal}
           onUpdate={updatePaymentMethod}
           setActiveAppointment={setActiveAppointment}
           activeAppointment={activeAppointment}
-        />
-        {/* <ViewPopup
-          selectedOptions={selectedOptions}
-          isVisible={showPopup}
-          onClose={() => setShowPopup(false)}
-          modal={modal}
-          isPaid={isPaid}
-          setModal={setModal}
-          paymentMethods={viewAppointmentDetails?.paymentMethods}
-          payableAmount={modalAmount}
-          setPaymentMethods={setViewAppointmentDetails}
-          membershipPoints={membershipPoints}
-        /> */}
+        />}
         <ProductQuantityPopup
           isVisible={showQuantityPopup}
           onClose={() => setShowQuantityPopup(false)}

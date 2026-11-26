@@ -341,10 +341,15 @@ const BookAppointment = ({ onTabChange }) => {
   // Past dates can be picked only while the owner has switched on past-date
   // booking in Salon Details (the backend enforces the same rule).
   const [allowPastDates, setAllowPastDates] = useState(false);
+  const [cashbackEnabled, setCashbackEnabled] = useState(false);
+  const [awardCashback, setAwardCashback] = useState(true);
   useEffect(() => {
     getApiCall(
       "parlor/getParlorDetail",
-      (res) => setAllowPastDates(res?.allowPastAppointments === true),
+      (res) => {
+        setAllowPastDates(res?.allowPastAppointments === true);
+        setCashbackEnabled(Boolean(res?.isCashback));
+      },
       () => { }
     );
   }, []);
@@ -475,6 +480,7 @@ const BookAppointment = ({ onTabChange }) => {
       total: totalProductServicePayable,
       // appointmentDate: date + "T" + time + ".000Z",
       appointmentDate: appointmentDetails?.date + "T" + appointmentDetails?.time + ".000Z",
+      awardCashback,
       membershipUsed: memberShipStatus,
       isMembershipApplied: memberShipStatus,
       // membershipCreditUsed: +memberShip,
@@ -518,6 +524,7 @@ const BookAppointment = ({ onTabChange }) => {
   const nameOnclick = (item) => {
     // e.preventDefault();
 
+    if (membershipitem && membershipitem.phoneNumber !== item.phoneNumber) setAwardCashback(true);
     setMemberShipItem(item);
     setCustomerDetails((prev) => ({
       ...prev,
@@ -1591,6 +1598,13 @@ const BookAppointment = ({ onTabChange }) => {
               })
 
             }
+            {cashbackEnabled && (
+              <label className="flex items-center gap-2 text-sm text-gray2">
+                <input type="checkbox" checked={awardCashback}
+                  onChange={e => setAwardCashback(e.target.checked)} />
+                Award cashback for this booking
+              </label>
+            )}
 
 
 

@@ -119,6 +119,7 @@ const NewBookAppointment = ({ onTabChange }) => {
   const [pickerGender, setPickerGender] = useState("F");
 
   // ---- discount / membership ----
+  const [awardCashback, setAwardCashback] = useState(true);
   const [discount, setDiscount] = useState(0);
   const [activeMembership, setActiveMembership] = useState({});
   const [membershipApplied, setMembershipApplied] = useState(false);
@@ -204,6 +205,7 @@ const NewBookAppointment = ({ onTabChange }) => {
   };
 
   const clearClient = () => {
+    setAwardCashback(true);
     setClient(null);
     setCustomerDetails(EMPTY_CUSTOMER);
     resetMembership();
@@ -504,6 +506,7 @@ const NewBookAppointment = ({ onTabChange }) => {
       productTotal,
       total: totalPayable,
       appointmentDate: `${date}T${time}:00.000Z`,
+      awardCashback,
       membershipUsed: membershipApplied,
       isMembershipApplied: membershipApplied,
       membershipCreditUsed: membershipApplied ? membershipCreditUsed : 0,
@@ -800,6 +803,14 @@ const NewBookAppointment = ({ onTabChange }) => {
                 </select>
               </label>
             </div>
+
+            {parlorData?.isCashback && (
+              <label className="mt-3 flex items-center gap-2 text-left text-sm text-gray2">
+                <input type="checkbox" checked={awardCashback}
+                  onChange={e => setAwardCashback(e.target.checked)} />
+                Award cashback for this booking
+              </label>
+            )}
 
             <TotalsList
               rows={summaryRows}
